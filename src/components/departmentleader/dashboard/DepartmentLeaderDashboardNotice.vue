@@ -7,21 +7,21 @@ defineProps({
 </script>
 
 <template>
-  <section class="notice">
-    <span class="notice__badge">{{ badge }}</span>
-    <h1 class="notice__title">{{ title }}</h1>
-    <p class="notice__description">{{ description }}</p>
+  <section class="dl-notice">
+    <span class="dl-notice__badge">{{ badge }}</span>
+    <h1 class="dl-notice__title">{{ title }}</h1>
+    <p class="dl-notice__description">{{ description }}</p>
   </section>
 </template>
 
 <style scoped>
-.notice {
+.dl-notice {
   padding: 22px;
   border: 1px solid var(--color-mint-200);
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(174, 236, 227, 0.65) 0%, rgba(232, 251, 247, 0.9) 100%);
 }
-.notice__badge {
+.dl-notice__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -30,16 +30,16 @@ defineProps({
   padding: 0 14px;
   border-radius: 999px;
   background: rgba(24, 195, 170, 0.16);
-  color: var(--color-info);
+  color: #10937f;
   font-size: 14px;
   font-weight: 700;
 }
-.notice__title {
+.dl-notice__title {
   margin-top: 16px;
   font-size: 20px;
   color: var(--color-primary-800);
 }
-.notice__description {
+.dl-notice__description {
   margin-top: 12px;
   font-size: 14px;
   line-height: 1.6;
