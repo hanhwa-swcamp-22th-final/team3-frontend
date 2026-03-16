@@ -270,7 +270,7 @@ const routes = [
       {
         path: 'today-task',
         name: 'TodayTask',
-        component: Placeholder,
+        component: () => import('@/views/worker/TodayTaskContent.vue'),
       },
       {
         path: 'knowledgehub',
