@@ -45,11 +45,14 @@ defineProps({
 <style scoped>
 .urgent-panel {
   display: grid;
+  grid-template-rows: auto 1fr auto;
   gap: 14px;
+  height: 100%;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
+  align-content: start;
 }
 
 .urgent-panel__eyebrow {
@@ -66,13 +69,30 @@ defineProps({
 
 .urgent-panel__list {
   display: grid;
+  grid-auto-rows: 152px;
+  align-content: start;
   gap: 12px;
+  height: clamp(360px, 52vh, 520px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+}
+
+.urgent-panel__list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.urgent-panel__list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--color-primary-200);
 }
 
 .urgent-panel__empty {
-  display: grid;
-  place-items: center;
-  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 152px;
+  height: clamp(360px, 52vh, 520px);
   padding: 18px;
   border: 1px dashed var(--color-border-default);
   border-radius: 16px;
@@ -83,10 +103,13 @@ defineProps({
 
 .urgent-card {
   display: grid;
+  align-content: start;
   gap: 10px;
+  min-height: 152px;
   padding: 14px 14px 16px;
   border: 2px solid var(--color-border-default);
   border-radius: 16px;
+  overflow: hidden;
 }
 
 .urgent-card__badge {
@@ -157,6 +180,7 @@ defineProps({
 }
 
 .urgent-panel__action {
+  margin-top: auto;
   height: 44px;
   border: none;
   border-radius: 10px;

@@ -35,17 +35,23 @@ function formatCount(count) {
         </div>
 
         <div class="pipeline-column__body">
-          <article
-            v-for="item in column.items"
-            :key="item.id"
-            class="pipeline-card"
-            :class="`pipeline-card--${item.tone}`"
-          >
-            <p class="pipeline-card__code">{{ item.orderCode }}</p>
-            <strong class="pipeline-card__title">{{ item.title }}</strong>
-            <p class="pipeline-card__meta">{{ item.line }}</p>
-            <p class="pipeline-card__meta">{{ item.daysLabel }}</p>
-          </article>
+          <template v-if="column.items.length">
+            <article
+              v-for="item in column.items"
+              :key="item.id"
+              class="pipeline-card"
+              :class="`pipeline-card--${item.tone}`"
+            >
+              <p class="pipeline-card__code">{{ item.orderCode }}</p>
+              <strong class="pipeline-card__title">{{ item.title }}</strong>
+              <p class="pipeline-card__meta">{{ item.line }}</p>
+              <p class="pipeline-card__meta">{{ item.daysLabel }}</p>
+            </article>
+          </template>
+
+          <div v-else class="pipeline-column__empty">
+            해당 상태의 주문이 없습니다.
+          </div>
         </div>
       </article>
     </div>
@@ -56,10 +62,12 @@ function formatCount(count) {
 .pipeline-board {
   display: grid;
   gap: 16px;
+  height: 100%;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
+  align-content: start;
 }
 
 .pipeline-board__header {
@@ -81,11 +89,6 @@ function formatCount(count) {
   color: var(--color-primary-800);
 }
 
-.pipeline-board__caption {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-}
 
 .pipeline-board__columns {
   display: grid;
@@ -95,6 +98,7 @@ function formatCount(count) {
 
 .pipeline-column {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 12px;
   min-width: 0;
 }
@@ -102,13 +106,17 @@ function formatCount(count) {
 .pipeline-column__head {
   display: grid;
   gap: 8px;
+  min-height: 44px;
+  padding-right: 14px;
+  align-content: start;
 }
 
 .pipeline-column__head div:first-child {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-height: 20px;
 }
 
 .pipeline-column__head strong {
@@ -129,11 +137,13 @@ function formatCount(count) {
 
 .pipeline-column__body {
   display: grid;
+  grid-auto-rows: 132px;
+  align-content: start;
   gap: 10px;
-  max-height: 485px;
-  min-height: 260px;
+  height: clamp(360px, 52vh, 520px);
   padding-right: 6px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .pipeline-column__body::-webkit-scrollbar {
@@ -145,13 +155,30 @@ function formatCount(count) {
   background: var(--color-primary-200);
 }
 
+.pipeline-column__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 132px;
+  padding: 16px;
+  border: 1px dashed var(--color-border-default);
+  border-radius: 16px;
+  background: var(--color-bg-surface-muted);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 .pipeline-card {
   display: grid;
+  align-content: start;
   gap: 6px;
+  min-height: 132px;
   padding: 14px 12px;
   border: 2px solid var(--color-border-default);
   border-radius: 16px;
   background: #fff;
+  overflow: hidden;
 }
 
 .pipeline-card__code {
@@ -199,3 +226,4 @@ function formatCount(count) {
   }
 }
 </style>
+

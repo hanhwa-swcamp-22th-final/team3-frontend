@@ -193,7 +193,7 @@ function handleFilterChange(filterKey) {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(300px, 0.95fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .teamleader-scm-orders-view__footer {
@@ -228,3 +228,4 @@ function handleFilterChange(filterKey) {
   }
 }
 </style>
+
