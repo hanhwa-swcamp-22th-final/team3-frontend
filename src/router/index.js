@@ -93,7 +93,7 @@ const routes = [
       {
         path: 'kpireport',
         name: 'HRMKpiReport',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMKpiReportView.vue'),
       },
       {
         path: 'evaluation-criteria',
