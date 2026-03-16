@@ -181,7 +181,22 @@
     { "id": 3, "employee_id": 5, "title": "AI 평가 90점+", "points": 200, "current": 88, "target": 90, "icon": "🤖" }
   ],
   "notifications": [
-    { "id": 1, "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00", "description": "관리자 평성평가와 HR 검토 결과를 하단 의견 수정이 제한됩니다. 응답미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.", "active": true }
+    {
+      "id": 1,
+      "notification_id": 1,
+      "employee_id": 2,
+      "notification_type": "평가결과",
+      "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00",
+      "description": "관리자 평가와 HR 검토 결과를 바탕으로 의견 수정이 제한됩니다. 응답 미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.",
+      "notification_title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00",
+      "notification_content": "관리자 평가와 HR 검토 결과를 바탕으로 의견 수정이 제한됩니다. 응답 미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.",
+      "notification_channels": ["앱내", "이메일"],
+      "notification_is_read": false,
+      "notification_sent_at": "2026-03-14T09:00:00Z",
+      "notification_read_at": null,
+      "created_at": "2026-03-14T09:00:00Z",
+      "active": true
+    }
   ],
   "pointSummary": [
     {
@@ -244,6 +259,43 @@
       "barColor": "#00BF95"
     }
   ],
+  "hrmDashboard": [
+    {
+      "id": 1,
+      "avgScore": 81.6,
+      "totalEmployees": 80,
+      "evaluationRate": 94,
+      "unevaluatedCount": 5,
+      "tierDelta": "S티어 +1명 · A티어 +2명 순증"
+    }
+  ],
+  "tierDistribution": [
+    { "id": 1, "tier": "S", "count": 3, "percent": 11.5 },
+    { "id": 2, "tier": "A", "count": 7, "percent": 26.9 },
+    { "id": 3, "tier": "B", "count": 12, "percent": 46.2 },
+    { "id": 4, "tier": "C", "count": 4, "percent": 15.4 }
+  ],
+  "tierTrend": [
+    { "id": 1, "month": "10월", "S": 2, "A": 6, "B": 13, "C": 5 },
+    { "id": 2, "month": "11월", "S": 2, "A": 7, "B": 12, "C": 5 },
+    { "id": 3, "month": "12월", "S": 3, "A": 7, "B": 11, "C": 5 },
+    { "id": 4, "month": "1월", "S": 2, "A": 6, "B": 12, "C": 6 },
+    { "id": 5, "month": "2월", "S": 3, "A": 7, "B": 12, "C": 4 },
+    { "id": 6, "month": "3월", "S": 3, "A": 7, "B": 12, "C": 4 }
+  ],
+  "teamStats": [
+    { "id": 1, "team": "제조1팀", "count": 12, "avg": 81.2, "S": 2, "A": 6, "B": 3, "C": 1 },
+    { "id": 2, "team": "제조2팀", "count": 10, "avg": 79.8, "S": 1, "A": 4, "B": 4, "C": 1 },
+    { "id": 3, "team": "품질팀", "count": 8, "avg": 84.5, "S": 3, "A": 4, "B": 1, "C": 0 }
+  ],
+  "tierSummary": [
+    {
+      "id": 1,
+      "S": 12,
+      "A": 34,
+      "B": 28,
+      "processLabel": "정규화 정상 처리",
+      "processPercent": 85
   "evaluationStatus": [
     {
       "id": 1,

@@ -59,6 +59,10 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
+  --tier-s: #00bf95;
+  --tier-a: #5b4fcf;
+  --tier-b: #ffd166;
+  --tier-c: #ef476f;
   --font-family-base: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 

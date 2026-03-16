@@ -88,7 +88,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'HRDashboard',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMDashboardView.vue'),
       },
       {
         path: 'approval-review',
