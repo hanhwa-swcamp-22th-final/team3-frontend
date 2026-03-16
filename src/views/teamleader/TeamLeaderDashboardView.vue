@@ -1,12 +1,14 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth'
-import { computed} from "vue";
-import { useRouter } from 'vue-router'
+import TeamLeaderDashboardNotice from '@/components/teamleader/dashboard/TeamLeaderDashboardNotice.vue'
+import TeamLeaderMetricCard from '@/components/teamleader/dashboard/TeamLeaderMetricCard.vue'
+import TeamLeaderMemberGrid from '@/components/teamleader/dashboard/TeamLeaderMemberGrid.vue'
+import TeamLeaderAlertFeed from '@/components/teamleader/dashboard/TeamLeaderAlertFeed.vue'
 
 const notice = {
   badge: '중요 공지',
   title: '2026 상반기 평가 의견 입력 마감: 3월 18일 18:00',
-  description: '팀리더 정성평가와 HR 검토 항목은 마감 이후 수정이 제한됩니다.',
+  description:
+      '팀리더 정성평가와 HR 검토 항목은 마감 이후 수정이 제한됩니다. 제출 전 마지막 점검을 진행해 주세요.',
 }
 
 const metrics = [
@@ -32,23 +34,131 @@ const members = [
     delta: '+3.2',
     statusTone: 'success',
   },
-]
-const alerts = [
   {
-    id: 1,
-    title: '손창우 S-Tier 달성',
-    description: '전체 팀 최상위 등급 진입',
-    time: '1시간 전',
-    tone: 'mint',
+    id: 2,
+    avatar: '김',
+    avatarTone: 'purple',
+    name: '김신우',
+    code: 'MCH-02',
+    tier: 'A',
+    tierTone: 'purple',
+    quantitative: '86.1%',
+    qualitative: '82.7%',
+    tasks: '38건',
+    score: '84',
+    delta: '+1.8',
+    statusTone: 'success',
+  },
+  {
+    id: 3,
+    avatar: '황',
+    avatarTone: 'green',
+    name: '황자현',
+    code: 'PRS-01',
+    tier: 'A',
+    tierTone: 'purple',
+    quantitative: '83.4%',
+    qualitative: '79.1%',
+    tasks: '35건',
+    score: '81',
+    delta: '-0.6',
+    statusTone: 'danger',
+  },
+  {
+    id: 4,
+    avatar: '임',
+    avatarTone: 'gold',
+    name: '임원석',
+    code: 'WLD-01',
+    tier: 'B',
+    tierTone: 'gold',
+    quantitative: '72.8%',
+    qualitative: '75.3%',
+    tasks: '22건',
+    score: '74',
+    delta: '+2.4',
+    statusTone: 'success',
   },
 ]
 
+const alerts = [
+  {
+    id: 1,
+    category: '성과 알림',
+    title: '손창우 S-Tier 달성',
+    description: '전체 팀 최상위 등급에 진입했습니다.',
+    time: '1시간 전',
+    tone: 'mint',
+  },
+  {
+    id: 2,
+    category: '마감 일정',
+    title: '1분기 정기 평가 마감',
+    description: '제출 기한 D-3',
+    time: '오늘',
+    tone: 'primary',
+  },
+  {
+    id: 3,
+    category: '마감 일정',
+    title: '1분기 정기 평가 마감',
+    description: '제출 기한 D-3',
+    time: '오늘',
+    tone: 'primary',
+  },
+]
 </script>
 
 <template>
+  <section class="teamleader-dashboard-view">
+    <TeamLeaderDashboardNotice
+        :badge="notice.badge"
+        :title="notice.title"
+        :description="notice.description"
+    />
 
+    <section class="teamleader-dashboard-view__metrics">
+      <TeamLeaderMetricCard
+          v-for="metric in metrics"
+          :key="metric.label"
+          :label="metric.label"
+          :value="metric.value"
+          :delta="metric.delta"
+          :helper="metric.helper"
+          :tone="metric.tone"
+      />
+    </section>
+    <TeamLeaderMemberGrid :members="members" />
+    <TeamLeaderAlertFeed :items="alerts" />
+  </section>
 
 </template>
 
 <style scoped>
+.teamleader-dashboard-view {
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+
+  display: grid;
+  gap: 20px;
+  padding: 20px 28px 28px;
+  background: var(--color-bg-app);
+}
+
+.teamleader-dashboard-view__metrics {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+:deep(.member-grid-section),
+:deep(.alert-feed),
+:deep(.notice) {
+  width: 100%;
+  box-sizing: border-box;
+}
 </style>
+
