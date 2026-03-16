@@ -93,7 +93,7 @@ const routes = [
       {
         path: 'approval-review',
         name: 'ApprovalReview',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMApprovalView.vue'),
       },
       {
         path: 'kpireport',
@@ -137,18 +137,18 @@ const routes = [
       {
         path: 'kpireport',
         name: 'TLKpiReport',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderKpiReportView.vue'),
       },
       {
         path: 'teamevaluation',
         name: 'TeamEvaluation',
         component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
       },
-        {
-          path: 'notification',
-          name: 'TLNotifications',
-          component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
-        },
+      {
+        path: 'notification',
+        name: 'TLNotifications',
+        component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
+      },
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
@@ -275,7 +275,7 @@ const routes = [
       {
         path: 'today-task',
         name: 'TodayTask',
-        component: Placeholder,
+        component: () => import('@/views/worker/TodayTaskContent.vue'),
       },
       {
         path: 'knowledgehub',
@@ -309,10 +309,16 @@ router.beforeEach((to) => {
   }
 
   if (to.name === 'Login' && auth.isAuthenticated) {
-    return { name: 'Dashboard' }
+    const roleRouteMap = {
+      admin: 'AdminFacility',
+      HRM: 'HRDashboard',
+      TL: 'TeamLeaderDashboard',
+      DL: 'DepartmentLeaderDashboard',
+      worker: 'WorkerDashboard',
+    }
+    const dest = roleRouteMap[auth.role()] ?? 'Login'
+    return { name: dest }
   }
 })
 
 export default router
-
-
