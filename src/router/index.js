@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
@@ -15,7 +15,17 @@ const routes = [
     name: 'Login',
     component: LoginView,
   },
-  // ── Admin ──────────────────────────────────────────────────────────
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardView,
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', component: Placeholder },
+    ],
+  },
+
+  // Admin Routes
   {
     path: '/admin',
     component: DashboardView,
@@ -64,7 +74,7 @@ const routes = [
     ],
   },
 
-  // ── HRM (HR Manager) ───────────────────────────────────────────────
+  // HRM Routes
   {
     path: '/hr',
     component: DashboardView,
@@ -108,7 +118,7 @@ const routes = [
     ],
   },
 
-  // ── TL (Team Leader) ───────────────────────────────────────────────
+  // Team Leader Routes
   {
     path: '/teamleader',
     component: DashboardView,
@@ -122,7 +132,7 @@ const routes = [
       {
         path: 'kpireport',
         name: 'TLKpiReport',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderKpiReportView.vue'),
       },
       {
         path: 'teamevaluation',
@@ -137,7 +147,7 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderNoticeBoardView.vue'),
       },
       {
         path: 'scmorders',
@@ -172,7 +182,7 @@ const routes = [
     ],
   },
 
-  // ── DL (Department Leader) ─────────────────────────────────────────
+  // Department Leader Routes
   {
     path: '/departmentleader',
     component: DashboardView,
@@ -226,7 +236,7 @@ const routes = [
     ],
   },
 
-  // ── Worker ─────────────────────────────────────────────────────────
+  // Worker Routes
   {
     path: '/worker',
     component: DashboardView,
@@ -307,3 +317,5 @@ router.beforeEach((to) => {
 })
 
 export default router
+
+
