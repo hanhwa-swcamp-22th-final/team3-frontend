@@ -265,7 +265,7 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'WorkerNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/worker/NoticeBoardContent.vue'),
       },
       {
         path: 'today-task',
