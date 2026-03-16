@@ -59,7 +59,7 @@ function isHighlight(val) {
             :y1="70 - ((evaluation.eidxChart.data[i] - 0.85) / 0.15) * 60"
             :x2="(i + 1) * (260 / (evaluation.eidxChart.data.length - 1)) + 10"
             :y2="70 - ((evaluation.eidxChart.data[i + 1] - 0.85) / 0.15) * 60"
-            stroke="#00BF95"
+            stroke="var(--tier-s)"
             stroke-width="3"
             stroke-linecap="round"
           />
@@ -80,7 +80,7 @@ function isHighlight(val) {
 
 <style scoped>
 .qn {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   padding: 24px;
@@ -107,7 +107,7 @@ function isHighlight(val) {
 }
 
 .qn__title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
@@ -137,7 +137,7 @@ function isHighlight(val) {
 
 .qn__tab--active {
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border-color: var(--color-primary-800);
 }
 
@@ -172,7 +172,7 @@ function isHighlight(val) {
 }
 
 .qn__step-value--accent {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .qn__chart-card {
@@ -211,7 +211,7 @@ function isHighlight(val) {
 }
 
 .qn__ai-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--color-primary-800);
   margin: 0 0 8px;
