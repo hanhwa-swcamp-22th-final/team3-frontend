@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
+import DashboardView from '@/views/DashboardView.vue'
+
+const Placeholder = () => import('@/views/PlaceholderView.vue')
 
 const routes = [
   {
@@ -15,288 +18,281 @@ const routes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    component: DashboardView,
     meta: { requiresAuth: true },
+    children: [
+      { path: '', component: Placeholder },
+    ],
   },
 
   // ── Admin ──────────────────────────────────────────────────────────
   {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    path: '/admin',
+    component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/facility',
-    name: 'AdminFacility',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/logs',
-    name: 'AdminLogs',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/permissions',
-    name: 'AdminPermissions',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/algorithm',
-    name: 'AdminAlgorithm',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/preset',
-    name: 'AdminPreset',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/domain-keywords',
-    name: 'AdminDomainKeywords',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/profiles',
-    name: 'AdminProfiles',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
-  },
-  {
-    path: '/admin/knowledge-hub',
-    name: 'AdminKnowledgeHub',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'AdminDashboard',
+        component: Placeholder,
+      },
+      {
+        path: 'facility',
+        name: 'AdminFacility',
+        component: Placeholder,
+      },
+      {
+        path: 'logs',
+        name: 'AdminLogs',
+        component: Placeholder,
+      },
+      {
+        path: 'permissions',
+        name: 'AdminPermissions',
+        component: Placeholder,
+      },
+      {
+        path: 'algorithm',
+        name: 'AdminAlgorithm',
+        component: Placeholder,
+      },
+      {
+        path: 'preset',
+        name: 'AdminPreset',
+        component: Placeholder,
+      },
+      {
+        path: 'domain-keywords',
+        name: 'AdminDomainKeywords',
+        component: Placeholder,
+      },
+      {
+        path: 'profiles',
+        name: 'AdminProfiles',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledge-hub',
+        name: 'AdminKnowledgeHub',
+        component: Placeholder,
+      },
+    ],
   },
 
   // ── HRM (HR Manager) ───────────────────────────────────────────────
   {
-    path: '/hr/dashboard',
-    name: 'HRDashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    path: '/hr',
+    component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/approval-review',
-    name: 'ApprovalReview',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/kpireport',
-    name: 'HRMKpiReport',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/evaluation-criteria',
-    name: 'EvaluationCriteria',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/promotion-review',
-    name: 'PromotionReview',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/organization',
-    name: 'OrganizationManagement',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-  },
-  {
-    path: '/hr/noticeboard',
-    name: 'HRMNoticeBoard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'HRDashboard',
+        component: Placeholder,
+      },
+      {
+        path: 'approval-review',
+        name: 'ApprovalReview',
+        component: Placeholder,
+      },
+      {
+        path: 'kpireport',
+        name: 'HRMKpiReport',
+        component: Placeholder,
+      },
+      {
+        path: 'evaluation-criteria',
+        name: 'EvaluationCriteria',
+        component: Placeholder,
+      },
+      {
+        path: 'promotion-review',
+        name: 'PromotionReview',
+        component: Placeholder,
+      },
+      {
+        path: 'organization',
+        name: 'OrganizationManagement',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'HRMNoticeBoard',
+        component: Placeholder,
+      },
+    ],
   },
 
   // ── TL (Team Leader) ───────────────────────────────────────────────
   {
-    path: '/teamleader/dashboard',
-    name: 'TeamLeaderDashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    path: '/teamleader',
+    component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/kpireport',
-    name: 'TLKpiReport',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/teamevaluation',
-    name: 'TeamEvaluation',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/notification',
-    name: 'TLNotifications',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/noticeboard',
-    name: 'TLNoticeBoard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/scmorders',
-    name: 'TLScmOrders',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/taskmatching',
-    name: 'TaskMatching',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/ocsascore',
-    name: 'OcsaScore',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/facilitystatus',
-    name: 'FacilityStatus',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/knowledgehub',
-    name: 'TLKnowledgeHub',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
-  },
-  {
-    path: '/teamleader/knowledgeapproval',
-    name: 'TLKnowledgeApproval',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['TL'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'TeamLeaderDashboard',
+        component: Placeholder,
+      },
+      {
+        path: 'kpireport',
+        name: 'TLKpiReport',
+        component: Placeholder,
+      },
+      {
+        path: 'teamevaluation',
+        name: 'TeamEvaluation',
+        component: Placeholder,
+      },
+      {
+        path: 'notification',
+        name: 'TLNotifications',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'TLNoticeBoard',
+        component: Placeholder,
+      },
+      {
+        path: 'scmorders',
+        name: 'TLScmOrders',
+        component: Placeholder,
+      },
+      {
+        path: 'taskmatching',
+        name: 'TaskMatching',
+        component: Placeholder,
+      },
+      {
+        path: 'ocsascore',
+        name: 'OcsaScore',
+        component: Placeholder,
+      },
+      {
+        path: 'facilitystatus',
+        name: 'FacilityStatus',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgehub',
+        name: 'TLKnowledgeHub',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgeapproval',
+        name: 'TLKnowledgeApproval',
+        component: Placeholder,
+      },
+    ],
   },
 
   // ── DL (Department Leader) ─────────────────────────────────────────
   {
-    path: '/departmentleader/dashboard',
-    name: 'DepartmentLeaderDashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    path: '/departmentleader',
+    component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/performance',
-    name: 'DepartmentLeaderDashboardPerformance',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/team-capability',
-    name: 'TeamCapability',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/evaluation',
-    name: 'DepartmentLeaderDashboardEvaluation',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/notification',
-    name: 'DLNotifications',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/noticeboard',
-    name: 'DLNoticeBoard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/scmorders',
-    name: 'DLScmOrders',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/knowledgehub',
-    name: 'DLKnowledgeHub',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
-  },
-  {
-    path: '/departmentleader/knowledgeapproval',
-    name: 'DLKnowledgeApproval',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['DL'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'DepartmentLeaderDashboard',
+        component: Placeholder,
+      },
+      {
+        path: 'performance',
+        name: 'DepartmentLeaderDashboardPerformance',
+        component: Placeholder,
+      },
+      {
+        path: 'team-capability',
+        name: 'TeamCapability',
+        component: Placeholder,
+      },
+      {
+        path: 'evaluation',
+        name: 'DepartmentLeaderDashboardEvaluation',
+        component: Placeholder,
+      },
+      {
+        path: 'notification',
+        name: 'DLNotifications',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'DLNoticeBoard',
+        component: Placeholder,
+      },
+      {
+        path: 'scmorders',
+        name: 'DLScmOrders',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgehub',
+        name: 'DLKnowledgeHub',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgeapproval',
+        name: 'DLKnowledgeApproval',
+        component: Placeholder,
+      },
+    ],
   },
 
   // ── Worker ─────────────────────────────────────────────────────────
   {
-    path: '/worker/dashboard',
-    name: 'WorkerDashboard',
-    component: () => import('@/views/DashboardView.vue'),
+    path: '/worker',
+    component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/point-mission',
-    name: 'PointMission',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/evaluation-result',
-    name: 'WorkerEvaluationResult',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/appeal',
-    name: 'AppealRequest',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/noticeboard',
-    name: 'WorkerNoticeBoard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/today-task',
-    name: 'TodayTask',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/knowledgehub',
-    name: 'WorkerKnowledgeHub',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/my-knowledge',
-    name: 'MyKnowledgeManagement',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-  },
-  {
-    path: '/worker/skill-gap',
-    name: 'SkillGapAnalysis',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'WorkerDashboard',
+        component: () => import('@/views/worker/WorkerDashboardContent.vue'),
+      },
+      {
+        path: 'point-mission',
+        name: 'PointMission',
+        component: Placeholder,
+      },
+      {
+        path: 'evaluation-result',
+        name: 'WorkerEvaluationResult',
+        component: Placeholder,
+      },
+      {
+        path: 'appeal',
+        name: 'AppealRequest',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'WorkerNoticeBoard',
+        component: Placeholder,
+      },
+      {
+        path: 'today-task',
+        name: 'TodayTask',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgehub',
+        name: 'WorkerKnowledgeHub',
+        component: Placeholder,
+      },
+      {
+        path: 'my-knowledge',
+        name: 'MyKnowledgeManagement',
+        component: Placeholder,
+      },
+      {
+        path: 'skill-gap',
+        name: 'SkillGapAnalysis',
+        component: Placeholder,
+      },
+    ],
   },
 ]
 
