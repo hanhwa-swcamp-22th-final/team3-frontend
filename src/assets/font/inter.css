@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('https://cdn.jsdelivr.net/gh/rsms/inter@4.1/web/font-files/Inter-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+    unicode-range: U+0025, U+002B-002F, U+0030-0039, U+003A;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('https://cdn.jsdelivr.net/gh/rsms/inter@4.1/web/font-files/Inter-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-display: swap;
+    unicode-range: U+0025, U+002B-002F, U+0030-0039, U+003A;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('https://cdn.jsdelivr.net/gh/rsms/inter@4.1/web/font-files/Inter-Black.woff2') format('woff2');
+    font-weight: 900;
+    font-display: swap;
+    unicode-range: U+0025, U+002B-002F, U+0030-0039, U+003A;
+}

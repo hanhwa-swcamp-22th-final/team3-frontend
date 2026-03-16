@@ -32,11 +32,6 @@ const routes = [
     meta: { requiresAuth: true, allowedRoles: ['admin'] },
     children: [
       {
-        path: 'dashboard',
-        name: 'AdminDashboard',
-        component: Placeholder,
-      },
-      {
         path: 'facility',
         name: 'AdminFacility',
         component: Placeholder,
@@ -69,7 +64,7 @@ const routes = [
       {
         path: 'profiles',
         name: 'AdminProfiles',
-        component: Placeholder,
+        component: () => import('@/views/admin/AdminProfiles.vue'),
       },
       {
         path: 'knowledge-hub',
@@ -88,7 +83,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'HRDashboard',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMDashboardView.vue'),
       },
       {
         path: 'approval-review',
@@ -142,13 +137,13 @@ const routes = [
       {
         path: 'teamevaluation',
         name: 'TeamEvaluation',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
       },
-      {
-        path: 'notification',
-        name: 'TLNotifications',
-        component: Placeholder,
-      },
+        {
+          path: 'notification',
+          name: 'TLNotifications',
+          component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
+        },
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
@@ -250,7 +245,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'WorkerDashboard',
-        component: () => import('@/views/worker/WorkerDashboardContent.vue'),
+        component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
       },
       {
         path: 'point-mission',
@@ -260,12 +255,12 @@ const routes = [
       {
         path: 'evaluation-result',
         name: 'WorkerEvaluationResult',
-        component: Placeholder,
+        component: () => import('@/views/worker/EvaluationResultContent.vue'),
       },
       {
         path: 'appeal',
         name: 'AppealRequest',
-        component: Placeholder,
+        component: () => import('@/views/worker/AppealRequestContent.vue'),
       },
       {
         path: 'noticeboard',

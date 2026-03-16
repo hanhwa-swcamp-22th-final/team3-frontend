@@ -46,7 +46,16 @@ async function handleLogin() {
     }
 
     authStore.login(employee)
-    router.push({ name: 'Dashboard' })
+
+    const roleRouteMap = {
+      admin: 'AdminDashboard',
+      HRM: 'HRDashboard',
+      TL: 'TeamLeaderDashboard',
+      DL: 'DepartmentLeaderDashboard',
+      worker: 'WorkerDashboard',
+    }
+    const dest = roleRouteMap[employee.employee_role] ?? 'Dashboard'
+    router.push({ name: dest })
   } catch {
     errorMessage.value = '서버에 연결할 수 없습니다.'
   } finally {

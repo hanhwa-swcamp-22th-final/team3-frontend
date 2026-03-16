@@ -10,6 +10,7 @@
     "server": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
+    "chart.js": "^4.5.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3"

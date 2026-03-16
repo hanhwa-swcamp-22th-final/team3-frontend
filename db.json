@@ -1,7 +1,7 @@
 {
   "employees": [
     {
-      "id": 1,
+      "id": "1",
       "employee_id": 1,
       "team_id": 1,
       "department_id": 1,
@@ -27,7 +27,7 @@
       "updated_by": null
     },
     {
-      "id": 2,
+      "id": "2",
       "employee_id": 2,
       "team_id": 1,
       "department_id": 1,
@@ -53,7 +53,7 @@
       "updated_by": 1
     },
     {
-      "id": 3,
+      "id": "3",
       "employee_id": 3,
       "team_id": 2,
       "department_id": 1,
@@ -79,7 +79,7 @@
       "updated_by": 2
     },
     {
-      "id": 4,
+      "id": "4",
       "employee_id": 4,
       "team_id": 2,
       "department_id": 1,
@@ -105,7 +105,7 @@
       "updated_by": 3
     },
     {
-      "id": 5,
+      "id": "5",
       "employee_id": 5,
       "team_id": 2,
       "department_id": 1,
@@ -129,11 +129,83 @@
       "created_by": 3,
       "updated_at": "2026-03-10T11:00:00Z",
       "updated_by": 4
+    },
+    {
+      "id": "c2b4",
+      "employee_name": "제프딘",
+      "employee_code": "EDP-220",
+      "employee_line": "2라인",
+      "employee_role": "worker",
+      "hire_date": "2026-03-19",
+      "employee_equipment": "MCH-003",
+      "employee_certifications": "",
+      "employee_notes": "",
+      "score_precision": 10,
+      "score_speed": 0,
+      "score_equipment_mastery": 12,
+      "score_collaboration": 0,
+      "score_problem_solving": 13,
+      "score_safety": 0,
+      "updated_at": "2026-03-16T05:32:27.857Z",
+      "created_at": "2026-03-19T00:00:00.000Z",
+      "employee_status": "재직",
+      "login_fail_count": 0,
+      "is_locked": false,
+      "mfa_enabled": false,
+      "last_login_at": null
+    },
+    {
+      "employee_name": "홍길동",
+      "employee_code": "122314",
+      "employee_line": "421334",
+      "employee_role": "DL",
+      "hire_date": "2026-03-07",
+      "employee_equipment": "1423134321",
+      "employee_certifications": "",
+      "employee_notes": "",
+      "score_precision": 0,
+      "score_speed": 0,
+      "score_equipment_mastery": 0,
+      "score_collaboration": 0,
+      "score_problem_solving": 0,
+      "score_safety": 0,
+      "id": "0f32",
+      "updated_at": "2026-03-16T05:33:27.876Z",
+      "created_at": "2026-03-07T00:00:00.000Z",
+      "employee_status": "재직",
+      "login_fail_count": 0,
+      "is_locked": false,
+      "mfa_enabled": false,
+      "last_login_at": null
+    },
+    {
+      "id": "fa38",
+      "employee_name": "빌게이츠",
+      "employee_code": "1234",
+      "employee_line": "2431567ㅕ",
+      "employee_role": "worker",
+      "hire_date": "",
+      "employee_equipment": "2314567ㅕ",
+      "employee_certifications": "",
+      "employee_notes": "",
+      "score_precision": 0,
+      "score_speed": 0,
+      "score_equipment_mastery": 0,
+      "score_collaboration": 0,
+      "score_problem_solving": 0,
+      "score_safety": 0,
+      "updated_at": "2026-03-16T07:08:35.079Z",
+      "created_at": "2026-03-16T07:08:35.079Z",
+      "employee_status": "재직",
+      "login_fail_count": 0,
+      "is_locked": false,
+      "mfa_enabled": false,
+      "last_login_at": null
     }
   ],
   "workerProfiles": [
     {
-      "id": 1,
+      "id": "1",
       "employee_id": 5,
       "score": 91,
       "type": "TECH",
@@ -141,12 +213,30 @@
       "name": "손창우",
       "nameEn": "SON CHANG WOO",
       "skillGrid": [
-        { "value": 94, "label": "정밀가공" },
-        { "value": 88, "label": "프레스/용접" },
-        { "value": 92, "label": "품질관리" },
-        { "value": 85, "label": "팀 협업" },
-        { "value": 90, "label": "설비보전" },
-        { "value": 87, "label": "확장성" }
+        {
+          "value": 94,
+          "label": "정밀가공"
+        },
+        {
+          "value": 88,
+          "label": "프레스/용접"
+        },
+        {
+          "value": 92,
+          "label": "품질관리"
+        },
+        {
+          "value": 85,
+          "label": "팀 협업"
+        },
+        {
+          "value": 90,
+          "label": "설비보전"
+        },
+        {
+          "value": 87,
+          "label": "확장성"
+        }
       ],
       "historyPeriod": "3년 2월",
       "worksDone": 247,
@@ -155,33 +245,159 @@
     }
   ],
   "workerSkills": [
-    { "id": 1, "employee_id": 5, "label": "정밀 가공", "value": 94 },
-    { "id": 2, "employee_id": 5, "label": "설비 조작", "value": 92 },
-    { "id": 3, "employee_id": 5, "label": "프레스/용접", "value": 88 },
-    { "id": 4, "employee_id": 5, "label": "품질 관리", "value": 90 },
-    { "id": 5, "employee_id": 5, "label": "팀 협업", "value": 85 },
-    { "id": 6, "employee_id": 5, "label": "설비 보전", "value": 87 },
-    { "id": 7, "employee_id": 5, "label": "확장성", "value": 96 }
+    {
+      "id": "1",
+      "employee_id": 5,
+      "label": "정밀 가공",
+      "value": 94
+    },
+    {
+      "id": "2",
+      "employee_id": 5,
+      "label": "설비 조작",
+      "value": 92
+    },
+    {
+      "id": "3",
+      "employee_id": 5,
+      "label": "프레스/용접",
+      "value": 88
+    },
+    {
+      "id": "4",
+      "employee_id": 5,
+      "label": "품질 관리",
+      "value": 90
+    },
+    {
+      "id": "5",
+      "employee_id": 5,
+      "label": "팀 협업",
+      "value": 85
+    },
+    {
+      "id": "6",
+      "employee_id": 5,
+      "label": "설비 보전",
+      "value": 87
+    },
+    {
+      "id": "7",
+      "employee_id": 5,
+      "label": "확장성",
+      "value": 96
+    }
   ],
   "tierMilestones": [
-    { "id": 1, "employee_id": 5, "tier": "S", "label": "S-Tier 달성 🎉", "date": "2026.02 현재", "score": 91 },
-    { "id": 2, "employee_id": 5, "tier": "A", "label": "A-Tier 승급", "date": "2025.08", "score": 84 },
-    { "id": 3, "employee_id": 5, "tier": "B", "label": "B-Tier 승급", "date": "2025.01", "score": 74 },
-    { "id": 4, "employee_id": 5, "tier": "C", "label": "신입 온보딩", "date": "2023.01 입사", "score": 58 }
+    {
+      "id": "1",
+      "employee_id": 5,
+      "tier": "S",
+      "label": "S-Tier 달성 🎉",
+      "date": "2026.02 현재",
+      "score": 91
+    },
+    {
+      "id": "2",
+      "employee_id": 5,
+      "tier": "A",
+      "label": "A-Tier 승급",
+      "date": "2025.08",
+      "score": 84
+    },
+    {
+      "id": "3",
+      "employee_id": 5,
+      "tier": "B",
+      "label": "B-Tier 승급",
+      "date": "2025.01",
+      "score": 74
+    },
+    {
+      "id": "4",
+      "employee_id": 5,
+      "tier": "C",
+      "label": "신입 온보딩",
+      "date": "2023.01 입사",
+      "score": 58
+    }
   ],
   "tierChartData": [
-    { "id": 1, "employee_id": 5, "period": "2024Q2", "value": 55, "tier": "none" },
-    { "id": 2, "employee_id": 5, "period": "Q3", "value": 50, "tier": "none" },
-    { "id": 3, "employee_id": 5, "period": "Q4", "value": 70, "tier": "B" },
-    { "id": 4, "employee_id": 5, "period": "2025Q1", "value": 85, "tier": "S" }
+    {
+      "id": "1",
+      "employee_id": 5,
+      "period": "2024Q2",
+      "value": 55,
+      "tier": "none"
+    },
+    {
+      "id": "2",
+      "employee_id": 5,
+      "period": "Q3",
+      "value": 50,
+      "tier": "none"
+    },
+    {
+      "id": "3",
+      "employee_id": 5,
+      "period": "Q4",
+      "value": 70,
+      "tier": "B"
+    },
+    {
+      "id": "4",
+      "employee_id": 5,
+      "period": "2025Q1",
+      "value": 85,
+      "tier": "S"
+    }
   ],
   "missions": [
-    { "id": 1, "employee_id": 5, "title": "고난도 연속 10회", "points": 300, "current": 7, "target": 10, "icon": "🏆" },
-    { "id": 2, "employee_id": 5, "title": "KMS 기여 3건", "points": 300, "current": 1, "target": 3, "icon": "📚" },
-    { "id": 3, "employee_id": 5, "title": "AI 평가 90점+", "points": 200, "current": 88, "target": 90, "icon": "🤖" }
+    {
+      "id": "1",
+      "employee_id": 5,
+      "title": "고난도 연속 10회",
+      "points": 300,
+      "current": 7,
+      "target": 10,
+      "icon": "🏆"
+    },
+    {
+      "id": "2",
+      "employee_id": 5,
+      "title": "KMS 기여 3건",
+      "points": 300,
+      "current": 1,
+      "target": 3,
+      "icon": "📚"
+    },
+    {
+      "id": "3",
+      "employee_id": 5,
+      "title": "AI 평가 90점+",
+      "points": 200,
+      "current": 88,
+      "target": 90,
+      "icon": "🤖"
+    }
   ],
   "notifications": [
-    { "id": 1, "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00", "description": "관리자 평성평가와 HR 검토 결과를 하단 의견 수정이 제한됩니다. 응답미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.", "active": true }
+    {
+      "id": 1,
+      "notification_id": 1,
+      "employee_id": 2,
+      "notification_type": "평가결과",
+      "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00",
+      "description": "관리자 평가와 HR 검토 결과를 바탕으로 의견 수정이 제한됩니다. 응답 미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.",
+      "notification_title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00",
+      "notification_content": "관리자 평가와 HR 검토 결과를 바탕으로 의견 수정이 제한됩니다. 응답 미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.",
+      "notification_channels": ["앱내", "이메일"],
+      "notification_is_read": false,
+      "notification_sent_at": "2026-03-14T09:00:00Z",
+      "notification_read_at": null,
+      "created_at": "2026-03-14T09:00:00Z",
+      "active": true
+    }
   ],
   "pointSummary": [
     {
@@ -242,6 +458,238 @@
       "icon": "⭐",
       "completed": true,
       "barColor": "#00BF95"
+    }
+  ],
+  "hrmDashboard": [
+    {
+      "id": 1,
+      "avgScore": 81.6,
+      "totalEmployees": 80,
+      "evaluationRate": 94,
+      "unevaluatedCount": 5,
+      "tierDelta": "S티어 +1명 · A티어 +2명 순증"
+    }
+  ],
+  "tierDistribution": [
+    { "id": 1, "tier": "S", "count": 3, "percent": 11.5 },
+    { "id": 2, "tier": "A", "count": 7, "percent": 26.9 },
+    { "id": 3, "tier": "B", "count": 12, "percent": 46.2 },
+    { "id": 4, "tier": "C", "count": 4, "percent": 15.4 }
+  ],
+  "tierTrend": [
+    { "id": 1, "month": "10월", "S": 2, "A": 6, "B": 13, "C": 5 },
+    { "id": 2, "month": "11월", "S": 2, "A": 7, "B": 12, "C": 5 },
+    { "id": 3, "month": "12월", "S": 3, "A": 7, "B": 11, "C": 5 },
+    { "id": 4, "month": "1월", "S": 2, "A": 6, "B": 12, "C": 6 },
+    { "id": 5, "month": "2월", "S": 3, "A": 7, "B": 12, "C": 4 },
+    { "id": 6, "month": "3월", "S": 3, "A": 7, "B": 12, "C": 4 }
+  ],
+  "teamStats": [
+    { "id": 1, "team": "제조1팀", "count": 12, "avg": 81.2, "S": 2, "A": 6, "B": 3, "C": 1 },
+    { "id": 2, "team": "제조2팀", "count": 10, "avg": 79.8, "S": 1, "A": 4, "B": 4, "C": 1 },
+    { "id": 3, "team": "품질팀", "count": 8, "avg": 84.5, "S": 3, "A": 4, "B": 1, "C": 0 }
+  ],
+  "tierSummary": [
+    {
+      "id": 1,
+      "S": 12,
+      "A": 34,
+      "B": 28,
+      "processLabel": "정규화 정상 처리",
+      "processPercent": 85
+  "evaluationStatus": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "overallScore": 81.2,
+      "tier": "A",
+      "quantitative": { "score": 83.4, "diff": -0.6 },
+      "qualitative": { "score": 79.1, "diff": 1.2, "weight": "30%" },
+      "equipmentCorrection": { "label": "E×0.92", "sub": "보정계수" },
+      "composite": { "score": 81.2, "diff": -0.6, "sub": "최종점수" },
+      "rank": 2,
+      "rankTotal": 5,
+      "rankDiff": 1
+    }
+  ],
+  "quantitativeEval": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "steps": [
+        { "label": "① 기준 생산량 E_exp = 120개/일", "value": "120개" },
+        { "label": "② 실제 생산량 P_actual = 110.4개/일", "value": "110.4개" },
+        { "label": "③ 달성률 R = 110.4 / 120 = 0.92", "value": "92.0%" },
+        { "label": "④ E_idx (설비보정) MCH-01 가동률 0.94", "value": "×0.92" },
+        { "label": "⑤ 보정 달성률 R' = 0.92 / 0.92 = 1.00", "value": "100.0%" },
+        { "label": "⑥ 정량 점수 S_quant = 100×1.00×0.83", "value": "83.4점" }
+      ],
+      "eidxChart": {
+        "title": "MCH-01 이번 분기 E_idx 이력",
+        "avg": 0.92,
+        "min": 0.88,
+        "minDate": "2/14",
+        "max": 0.96,
+        "data": [0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.96]
+      },
+      "aiSummary": "지난 분기 대비 협업과 안전준수 점수가 상승했습니다. 다만 KMS 기여도는 팀 평균보다 12% 낮아 추가 활동 권장이 필요합니다."
+    }
+  ],
+  "qualitativeEval": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "evaluator": "박팀장",
+      "evaluatorRole": "Team Leader",
+      "nlpConfidence": 0.94,
+      "categories": [
+        { "label": "작업 태도", "score": 82, "tags": ["성실함", "책임감"], "barColor": "#2D1F6E" },
+        { "label": "기술 역량", "score": 81, "tags": ["정밀도↑", "숙련됨"], "barColor": "#2D1F6E" },
+        { "label": "협업 능력", "score": 74, "tags": ["소통개선필요"], "barColor": "#FFD166" },
+        { "label": "안전 준수", "score": 85, "tags": ["규정준수", "모범적"], "barColor": "#2D1F6E" },
+        { "label": "문제 해결", "score": 80, "tags": ["자발적", "창의적"], "barColor": "#2D1F6E" },
+        { "label": "KMS 기여", "score": 72, "tags": ["등록필요"], "barColor": "#FFD166" }
+      ],
+      "aiAnalysis": "이번 분기 작업 태도와 기술 역량은 전반적으로 우수합니다. 협업 측면에서 동료 피드백 기반 개선 여지가 있으며, KMS 기여 활동 독려가 필요합니다."
+    }
+  ],
+  "evalHistory": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "quarter": "2026년 1분기",
+      "score": 81.2,
+      "tier": "A",
+      "diff": -0.6,
+      "statusText": "이의 신청 완료 · 검토중",
+      "statusBadge": "검토중"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "quarter": "2025년 4분기",
+      "score": 81.8,
+      "tier": "A",
+      "diff": 1.2,
+      "statusText": "이의 없음",
+      "statusBadge": "확정"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "quarter": "2025년 3분기",
+      "score": 80.6,
+      "tier": "A",
+      "diff": 3.4,
+      "statusText": "이의 없음",
+      "statusBadge": "확정"
+    },
+    {
+      "id": 4,
+      "employee_id": 5,
+      "quarter": "2025년 2분기",
+      "score": 77.2,
+      "tier": "B",
+      "diff": 2.1,
+      "statusText": "이의 신청 → 조정됨",
+      "statusBadge": "확정"
+    }
+  ],
+  "appealForms": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "evalHistoryId": 1,
+      "quarter": "2026년 1분기",
+      "scores": {
+        "quantitative": 83.4,
+        "qualitative": 79.1,
+        "composite": 81.2,
+        "quantFlagDown": true
+      },
+      "reason": "정량 점수 산출 오류 의심",
+      "categories": ["정량 평가 점수 오류"],
+      "content": "2월 MCH-01 가동 중 설비 E_idx 0.92 기록 확인됨. 그러나 정량 점수에 0.78 기준 적용된 것으로 보임. 해당 구간 로그 첨부합니다.",
+      "attachments": ["MCH01_Feb_Log.xlsx"],
+      "processStatus": 2,
+      "submittedDate": "2026.03.06"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "evalHistoryId": 4,
+      "quarter": "2025년 2분기",
+      "scores": {
+        "quantitative": 78.5,
+        "qualitative": 76.0,
+        "composite": 77.2,
+        "quantFlagDown": false
+      },
+      "reason": "설비 보정 계수 미반영",
+      "categories": ["설비 보정 계수 오류"],
+      "content": "해당 분기 MCH-01 설비 교체 기간(4/15~4/22) E_idx 보정이 반영되지 않았습니다.",
+      "attachments": [],
+      "processStatus": 3,
+      "submittedDate": "2025.07.10"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "evalHistoryId": 2,
+      "quarter": "2025년 4분기",
+      "scores": {
+        "quantitative": 84.0,
+        "qualitative": 79.8,
+        "composite": 81.8,
+        "quantFlagDown": false
+      },
+      "reason": "",
+      "categories": [],
+      "content": "",
+      "attachments": [],
+      "processStatus": 0,
+      "submittedDate": ""
+    },
+    {
+      "id": 4,
+      "employee_id": 5,
+      "evalHistoryId": 3,
+      "quarter": "2025년 3분기",
+      "scores": {
+        "quantitative": 82.1,
+        "qualitative": 78.4,
+        "composite": 80.6,
+        "quantFlagDown": false
+      },
+      "reason": "",
+      "categories": [],
+      "content": "",
+      "attachments": [],
+      "processStatus": 0,
+      "submittedDate": ""
+    }
+  ],
+  "growthFeedback": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "chartData": [
+        { "quarter": "2025Q1", "overall": 72, "team": 70 },
+        { "quarter": "Q2", "overall": 75, "team": 73 },
+        { "quarter": "Q3", "overall": 78, "team": 76 },
+        { "quarter": "Q4", "overall": 80, "team": 79 },
+        { "quarter": "2026Q1", "overall": 81.2, "team": 80 }
+      ],
+      "feedback": {
+        "author": "박팀장",
+        "date": "2026.03.08",
+        "content": "설비 보정을 고려하면 실질적으로 훌륭한 성과입니다. KMS 활동 2건만 추가하면 A→S 승급 충분히 가능합니다."
+      },
+      "nextQuarterGoals": [
+        { "label": "종합", "current": 81.2, "target": 84 },
+        { "label": "정성", "current": 79.1, "target": 82 },
+        { "label": "KMS", "current": "3", "target": "5건" }
+      ]
     }
   ]
 }
