@@ -132,7 +132,7 @@ const routes = [
       {
         path: 'kpireport',
         name: 'TLKpiReport',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderKpiReportView.vue'),
       },
       {
         path: 'teamevaluation',
@@ -265,12 +265,12 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'WorkerNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/worker/NoticeBoardContent.vue'),
       },
       {
         path: 'today-task',
         name: 'TodayTask',
-        component: Placeholder,
+        component: () => import('@/views/worker/TodayTaskContent.vue'),
       },
       {
         path: 'knowledgehub',
@@ -304,7 +304,15 @@ router.beforeEach((to) => {
   }
 
   if (to.name === 'Login' && auth.isAuthenticated) {
-    return { name: 'Dashboard' }
+    const roleRouteMap = {
+      admin: 'AdminFacility',
+      HRM: 'HRDashboard',
+      TL: 'TeamLeaderDashboard',
+      DL: 'DepartmentLeaderDashboard',
+      worker: 'WorkerDashboard',
+    }
+    const dest = roleRouteMap[auth.role()] ?? 'Login'
+    return { name: dest }
   }
 })
 

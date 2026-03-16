@@ -528,53 +528,20 @@
       ],
       "eidxChart": {
         "title": "MCH-01 이번 분기 E_idx 이력",
-        "avg": 0.92, "min": 0.88, "minDate": "2/14", "max": 0.96,
+        "avg": 0.92,
+        "min": 0.88,
+        "minDate": "2/14",
+        "max": 0.96,
         "data": [0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.96]
       },
       "aiSummary": "지난 분기 대비 협업과 안전준수 점수가 상승했습니다. 다만 KMS 기여도는 팀 평균보다 12% 낮아 추가 활동 권장이 필요합니다."
-    },
-    {
-      "id": 2,
-      "employee_id": 3,
-      "steps": [
-        { "label": "① 기준 생산량 E_exp = 130개/일", "value": "130개" },
-        { "label": "② 실제 생산량 P_actual = 118.3개/일", "value": "118.3개" },
-        { "label": "③ 달성률 R = 118.3 / 130 = 0.91", "value": "91.0%" },
-        { "label": "④ E_idx (설비보정) MCH-02 가동률 0.96", "value": "×0.95" },
-        { "label": "⑤ 보정 달성률 R' = 0.91 / 0.95 = 0.96", "value": "96.0%" },
-        { "label": "⑥ 정량 점수 S_quant = 100×0.96×0.88", "value": "84.5점" }
-      ],
-      "eidxChart": {
-        "title": "MCH-02 이번 분기 E_idx 이력",
-        "avg": 0.95, "min": 0.91, "minDate": "2/20", "max": 0.98,
-        "data": [0.91, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98]
-      },
-      "aiSummary": "전반적으로 안정적인 생산성을 유지하고 있습니다. 설비 가동률이 높아 정량 점수가 우수합니다."
-    },
-    {
-      "id": 3,
-      "employee_id": 4,
-      "steps": [
-        { "label": "① 기준 생산량 E_exp = 115개/일", "value": "115개" },
-        { "label": "② 실제 생산량 P_actual = 105.8개/일", "value": "105.8개" },
-        { "label": "③ 달성률 R = 105.8 / 115 = 0.92", "value": "92.0%" },
-        { "label": "④ E_idx (설비보정) MCH-03 가동률 0.93", "value": "×0.94" },
-        { "label": "⑤ 보정 달성률 R' = 0.92 / 0.94 = 0.98", "value": "98.0%" },
-        { "label": "⑥ 정량 점수 S_quant = 100×0.98×0.86", "value": "84.3점" }
-      ],
-      "eidxChart": {
-        "title": "MCH-03 이번 분기 E_idx 이력",
-        "avg": 0.93, "min": 0.89, "minDate": "3/02", "max": 0.97,
-        "data": [0.89, 0.91, 0.92, 0.93, 0.94, 0.96, 0.97]
-      },
-      "aiSummary": "품질 합격률이 높고 공정 효율성이 개선되었습니다. 리더십 역할 수행으로 팀 전체 생산성에 기여하고 있습니다."
     }
   ],
   "qualitativeEval": [
     {
       "id": 1,
       "employee_id": 5,
-      "evaluator": "최민정",
+      "evaluator": "박팀장",
       "evaluatorRole": "Team Leader",
       "nlpConfidence": 0.94,
       "categories": [
@@ -586,38 +553,6 @@
         { "label": "KMS 기여", "score": 72, "tags": ["등록필요"], "barColor": "#FFD166" }
       ],
       "aiAnalysis": "이번 분기 작업 태도와 기술 역량은 전반적으로 우수합니다. 협업 측면에서 동료 피드백 기반 개선 여지가 있으며, KMS 기여 활동 독려가 필요합니다."
-    },
-    {
-      "id": 2,
-      "employee_id": 3,
-      "evaluator": "최민정",
-      "evaluatorRole": "Team Leader",
-      "nlpConfidence": 0.91,
-      "categories": [
-        { "label": "작업 태도", "score": 86, "tags": ["성실함", "모범적"], "barColor": "#2D1F6E" },
-        { "label": "기술 역량", "score": 88, "tags": ["전문성↑", "설비이해높음"], "barColor": "#2D1F6E" },
-        { "label": "협업 능력", "score": 83, "tags": ["팀리더십", "소통원활"], "barColor": "#2D1F6E" },
-        { "label": "안전 준수", "score": 90, "tags": ["규정준수", "안전교육이수"], "barColor": "#2D1F6E" },
-        { "label": "문제 해결", "score": 85, "tags": ["신속대응", "체계적"], "barColor": "#2D1F6E" },
-        { "label": "KMS 기여", "score": 80, "tags": ["지식공유", "문서화우수"], "barColor": "#2D1F6E" }
-      ],
-      "aiAnalysis": "전 영역에서 균형 잡힌 역량을 보여주고 있습니다. 특히 안전 준수와 기술 역량이 두드러지며, 팀 내 리더십 발휘가 인상적입니다."
-    },
-    {
-      "id": 3,
-      "employee_id": 4,
-      "evaluator": "이승호",
-      "evaluatorRole": "Group Leader",
-      "nlpConfidence": 0.89,
-      "categories": [
-        { "label": "작업 태도", "score": 88, "tags": ["책임감", "솔선수범"], "barColor": "#2D1F6E" },
-        { "label": "기술 역량", "score": 85, "tags": ["숙련됨", "공정이해"], "barColor": "#2D1F6E" },
-        { "label": "협업 능력", "score": 90, "tags": ["팀빌딩", "갈등조율"], "barColor": "#2D1F6E" },
-        { "label": "안전 준수", "score": 87, "tags": ["규정준수", "위험예방"], "barColor": "#2D1F6E" },
-        { "label": "문제 해결", "score": 82, "tags": ["분석력", "개선제안"], "barColor": "#2D1F6E" },
-        { "label": "KMS 기여", "score": 84, "tags": ["KMS기여", "노하우공유"], "barColor": "#2D1F6E" }
-      ],
-      "aiAnalysis": "협업 능력과 작업 태도가 팀 평균을 크게 상회합니다. TL로서 팀원 성장을 이끄는 역할을 충실히 수행하고 있습니다."
     }
   ],
   "evalHistory": [
@@ -683,55 +618,57 @@
     },
     {
       "id": 2,
-      "employee_id": 3,
-      "evalHistoryId": 2,
-      "quarter": "2026년 1분기",
+      "employee_id": 5,
+      "evalHistoryId": 4,
+      "quarter": "2025년 2분기",
       "scores": {
-        "quantitative": 84.5,
-        "qualitative": 86.2,
-        "composite": 85.2,
+        "quantitative": 78.5,
+        "qualitative": 76.0,
+        "composite": 77.2,
         "quantFlagDown": false
       },
-      "reason": "평가 항목 누락 의심",
-      "categories": ["항목누락"],
-      "content": "이번 분기 KMS 기여 활동 3건이 평가에 반영되지 않은 것으로 보입니다. 해당 기여 내역 첨부합니다.",
-      "attachments": ["KMS_contribution_Q1.pdf"],
-      "processStatus": 1,
-      "submittedDate": "2026.03.05"
+      "reason": "설비 보정 계수 미반영",
+      "categories": ["설비 보정 계수 오류"],
+      "content": "해당 분기 MCH-01 설비 교체 기간(4/15~4/22) E_idx 보정이 반영되지 않았습니다.",
+      "attachments": [],
+      "processStatus": 3,
+      "submittedDate": "2025.07.10"
     },
     {
       "id": 3,
-      "employee_id": 4,
-      "evalHistoryId": 3,
-      "quarter": "2026년 1분기",
+      "employee_id": 5,
+      "evalHistoryId": 2,
+      "quarter": "2025년 4분기",
       "scores": {
-        "quantitative": 84.3,
-        "qualitative": 87.0,
-        "composite": 85.4,
+        "quantitative": 84.0,
+        "qualitative": 79.8,
+        "composite": 81.8,
         "quantFlagDown": false
       },
-      "reason": "정성 평가 절차 이의",
-      "categories": ["평가절차"],
-      "content": "정성 평가 면담 일정이 사전 고지 없이 변경되어 충분한 준비 없이 진행되었습니다. 재평가를 요청합니다.",
+      "reason": "",
+      "categories": [],
+      "content": "",
       "attachments": [],
-      "processStatus": 1,
-      "submittedDate": "2026.03.04"
-    }
-  ],
-  "tierPromotions": [
+      "processStatus": 0,
+      "submittedDate": ""
+    },
     {
-      "tier_promotion_id": 1,
+      "id": 4,
       "employee_id": 5,
-      "reviewer_id": 2,
-      "current_tier": "B",
-      "target_tier": "S",
-      "tier_accumulated_point": 2200,
-      "tier_promo_status": "심사중",
-      "tier_reviewed_at": null,
-      "created_at": "2026-03-06T00:00:00Z",
-      "created_by": 5,
-      "updated_at": "2026-03-06T00:00:00Z",
-      "updated_by": 5
+      "evalHistoryId": 3,
+      "quarter": "2025년 3분기",
+      "scores": {
+        "quantitative": 82.1,
+        "qualitative": 78.4,
+        "composite": 80.6,
+        "quantFlagDown": false
+      },
+      "reason": "",
+      "categories": [],
+      "content": "",
+      "attachments": [],
+      "processStatus": 0,
+      "submittedDate": ""
     }
   ],
   "growthFeedback": [
