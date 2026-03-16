@@ -260,7 +260,7 @@ const routes = [
       {
         path: 'evaluation-result',
         name: 'WorkerEvaluationResult',
-        component: Placeholder,
+        component: () => import('@/views/worker/EvaluationResultContent.vue'),
       },
       {
         path: 'appeal',
