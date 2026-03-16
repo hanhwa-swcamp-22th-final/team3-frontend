@@ -201,7 +201,7 @@ const routes = [
       {
         path: 'team-capability',
         name: 'TeamCapability',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderTeamCapabilityView.vue'),
       },
       {
         path: 'evaluation',
