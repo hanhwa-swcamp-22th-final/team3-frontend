@@ -132,7 +132,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'TeamLeaderDashboard',
-        component: Placeholder,
+        component: () => import("@/views/teamleader/TeamLeaderDashboardView.vue"),
       },
       {
         path: 'kpireport',
