@@ -21,7 +21,7 @@ const routes = [
     component: DashboardView,
     meta: { requiresAuth: true },
     children: [
-      { path: '', component: Placeholder },
+      { path: '', name: 'DashboardHome', component: Placeholder },
     ],
   },
 
@@ -31,6 +31,11 @@ const routes = [
     component: DashboardView,
     meta: { requiresAuth: true, allowedRoles: ['admin'] },
     children: [
+      {
+        path: '',
+        name: 'AdminDashboard',
+        component: () => import('@/views/admin/AdminDashboardView.vue'),
+      },
       {
         path: 'facility',
         name: 'AdminFacility',
@@ -49,7 +54,7 @@ const routes = [
       {
         path: 'algorithm',
         name: 'AdminAlgorithm',
-        component: Placeholder,
+        component: () => import('@/views/admin/AdminAlgorithm.vue'),
       },
       {
         path: 'preset',
