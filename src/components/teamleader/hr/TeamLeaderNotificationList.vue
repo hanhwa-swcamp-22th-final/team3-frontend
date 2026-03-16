@@ -1,16 +1,41 @@
-<script setup>
-defineProps({
+﻿<script setup>
+import { computed, ref, watch } from 'vue'
+
+const props = defineProps({
   items: {
     type: Array,
     default: () => [],
   },
+  pageSize: {
+    type: Number,
+    default: 4,
+  },
 })
+
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(props.items.length / props.pageSize)))
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize
+  return props.items.slice(start, start + props.pageSize)
+})
+
+watch(
+  () => [props.items.length, props.pageSize],
+  () => {
+    currentPage.value = 1
+  }
+)
+
+function goToPage(page) {
+  currentPage.value = page
+}
 </script>
 
 <template>
   <section class="notification-list">
     <article
-      v-for="item in items"
+      v-for="item in paginatedItems"
       :key="item.id"
       class="notification-item"
       :class="`notification-item--${item.tone}`"
@@ -29,6 +54,19 @@ defineProps({
         <button type="button" class="notification-item__action">{{ item.actionLabel }}</button>
       </div>
     </article>
+
+    <footer v-if="totalPages > 1" class="notification-list__pagination">
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        type="button"
+        class="notification-list__page"
+        :class="{ 'notification-list__page--active': page === currentPage }"
+        @click="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </footer>
   </section>
 </template>
 
@@ -154,6 +192,30 @@ defineProps({
 .notification-item--fault .notification-item__action {
   border: none;
   background: #f3294f;
+  color: #fff;
+}
+
+.notification-list__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.notification-list__page {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e2dbff;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-primary-500);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notification-list__page--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-600);
   color: #fff;
 }
 

@@ -1,4 +1,6 @@
-<script setup>
+﻿<script setup>
+const emit = defineEmits(['change-filter'])
+
 defineProps({
   filters: {
     type: Array,
@@ -9,6 +11,10 @@ defineProps({
     default: 'all',
   },
 })
+
+function selectFilter(filterKey) {
+  emit('change-filter', filterKey)
+}
 </script>
 
 <template>
@@ -24,6 +30,7 @@ defineProps({
         type="button"
         class="notification-filter__tab"
         :class="{ 'notification-filter__tab--active': filter.key === activeFilter }"
+        @click="selectFilter(filter.key)"
       >
         {{ filter.label }}
       </button>

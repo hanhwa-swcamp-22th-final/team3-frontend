@@ -1,48 +1,60 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  subtitle: {
-    type: String,
-    required: true,
-  },
-  equipment: {
-    type: Object,
-    required: true,
-  },
-  candidates: {
+﻿<script setup>
+import { computed, ref, watch } from 'vue'
+
+const props = defineProps({
+  panels: {
     type: Array,
     default: () => [],
   },
-  actionLabel: {
-    type: String,
-    default: '즉시 배정',
+  pageSize: {
+    type: Number,
+    default: 1,
   },
 })
+
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(props.panels.length / props.pageSize)))
+const currentPanel = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize
+  return props.panels[start]
+})
+
+watch(
+  () => [props.panels.length, props.pageSize],
+  () => {
+    currentPage.value = 1
+  }
+)
+
+function goToPage(page) {
+  currentPage.value = page
+}
 </script>
 
 <template>
-  <aside class="assist-panel">
+  <aside class="assist-panel" v-if="currentPanel">
     <header class="assist-panel__header">
-      <p class="assist-panel__eyebrow">{{ title }}</p>
-      <h2 class="assist-panel__title">{{ subtitle }}</h2>
+      <div>
+        <p class="assist-panel__eyebrow">{{ currentPanel.title }}</p>
+        <h2 class="assist-panel__title">{{ currentPanel.subtitle }}</h2>
+      </div>
+      <span v-if="totalPages > 1" class="assist-panel__page-indicator">{{ currentPage }} / {{ totalPages }}</span>
     </header>
 
     <section class="assist-panel__equipment">
       <div class="assist-panel__equipment-row">
-        <strong>{{ equipment.code }}</strong>
-        <span>{{ equipment.status }}</span>
+        <strong>{{ currentPanel.equipment.code }}</strong>
+        <span>{{ currentPanel.equipment.status }}</span>
       </div>
-      <p>{{ equipment.line }}</p>
-      <p>{{ equipment.assignee }}</p>
+      <p>{{ currentPanel.equipment.line }}</p>
+      <p>{{ currentPanel.equipment.assignee }}</p>
     </section>
 
     <section class="assist-panel__candidate-section">
       <h3>가용 테크니션</h3>
       <article
-        v-for="candidate in candidates"
+        v-for="candidate in currentPanel.candidates"
         :key="candidate.id"
         class="assist-panel__candidate"
       >
@@ -57,7 +69,20 @@ defineProps({
       </article>
     </section>
 
-    <button type="button" class="assist-panel__action">{{ actionLabel }}</button>
+    <footer v-if="totalPages > 1" class="assist-panel__pagination">
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        type="button"
+        class="assist-panel__page"
+        :class="{ 'assist-panel__page--active': page === currentPage }"
+        @click="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </footer>
+
+    <button type="button" class="assist-panel__action">{{ currentPanel.actionLabel }}</button>
   </aside>
 </template>
 
@@ -71,6 +96,13 @@ defineProps({
   background: var(--color-bg-surface);
 }
 
+.assist-panel__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .assist-panel__eyebrow {
   font-size: 12px;
   font-weight: 700;
@@ -81,6 +113,12 @@ defineProps({
   margin-top: 6px;
   font-size: 18px;
   color: var(--color-primary-800);
+}
+
+.assist-panel__page-indicator {
+  color: var(--color-primary-300);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .assist-panel__equipment {
@@ -167,6 +205,29 @@ defineProps({
   color: #19b897;
   font-size: 13px;
   font-weight: 800;
+}
+
+.assist-panel__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.assist-panel__page {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e2dbff;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-primary-500);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.assist-panel__page--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-600);
+  color: #fff;
 }
 
 .assist-panel__action {
