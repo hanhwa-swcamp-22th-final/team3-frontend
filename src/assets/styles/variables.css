@@ -63,4 +63,20 @@
   --tier-a: #5b4fcf;
   --tier-b: #ffd166;
   --tier-c: #ef476f;
+  --font-family-base: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: var(--font-family-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
