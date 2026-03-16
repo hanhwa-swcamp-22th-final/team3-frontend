@@ -51,7 +51,7 @@ const chartPoints = computed(() => {
         <polyline
           :points="chartPoints.team"
           fill="none"
-          stroke="#00BF95"
+          stroke="var(--tier-s)"
           stroke-width="2"
           stroke-dasharray="6 3"
         />
@@ -59,7 +59,7 @@ const chartPoints = computed(() => {
         <polyline
           :points="chartPoints.overall"
           fill="none"
-          stroke="#2D1F6E"
+          stroke="var(--color-primary-800)"
           stroke-width="2.5"
         />
         <!-- Current point dot -->
@@ -68,7 +68,7 @@ const chartPoints = computed(() => {
           :cx="270"
           :cy="110 - ((data.chartData[data.chartData.length - 1].overall - 60) / 30) * 100 + 5"
           r="4"
-          fill="#2D1F6E"
+          fill="var(--color-primary-800)"
         />
       </svg>
     </div>
@@ -99,7 +99,7 @@ const chartPoints = computed(() => {
 
 <style scoped>
 .gf {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   padding: 24px;
@@ -119,7 +119,7 @@ const chartPoints = computed(() => {
 }
 
 .gf__title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
@@ -161,8 +161,8 @@ const chartPoints = computed(() => {
 }
 
 .gf__goals {
-  background: #e8fff7;
-  border: 1px solid #c4f0e4;
+  background: var(--color-mint-100);
+  border: 1px solid var(--color-mint-200);
   border-radius: 12px;
   padding: 18px 20px;
 }

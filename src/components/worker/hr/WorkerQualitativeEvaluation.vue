@@ -51,7 +51,7 @@ defineProps({
 
 <style scoped>
 .ql {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   padding: 24px;
@@ -71,7 +71,7 @@ defineProps({
 }
 
 .ql__title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
@@ -107,8 +107,8 @@ defineProps({
   margin-left: auto;
   font-size: 12px;
   font-weight: 600;
-  color: #00BF95;
-  background: #e6fff7;
+  color: var(--tier-s);
+  background: var(--color-mint-100);
   padding: 3px 10px;
   border-radius: 6px;
 }
