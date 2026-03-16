@@ -15,16 +15,6 @@ const routes = [
     name: 'Login',
     component: LoginView,
   },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardView,
-    meta: { requiresAuth: true },
-    children: [
-      { path: '', component: Placeholder },
-    ],
-  },
-
   // ── Admin ──────────────────────────────────────────────────────────
   {
     path: '/admin',
@@ -304,7 +294,15 @@ router.beforeEach((to) => {
   }
 
   if (to.name === 'Login' && auth.isAuthenticated) {
-    return { name: 'Dashboard' }
+    const roleRouteMap = {
+      admin: 'AdminFacility',
+      HRM: 'HRDashboard',
+      TL: 'TeamLeaderDashboard',
+      DL: 'DepartmentLeaderDashboard',
+      worker: 'WorkerDashboard',
+    }
+    const dest = roleRouteMap[auth.role()] ?? 'Login'
+    return { name: dest }
   }
 })
 
