@@ -382,12 +382,146 @@
     }
   ],
   "notifications": [
+    { "id": 1, "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00", "description": "관리자 평성평가와 HR 검토 결과를 하단 의견 수정이 제한됩니다. 응답미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.", "active": true }
+  ],
+  "pointSummary": [
     {
-      "id": "1",
-      "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00",
-      "description": "관리자 평성평가와 HR 검토 결과를 하단 의견 수정이 제한됩니다. 응답미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.",
-      "active": true
+      "id": 1,
+      "employee_id": 5,
+      "totalPoints": 4820,
+      "monthGain": 340,
+      "monthGainPercent": 7.6,
+      "distribution": [
+        { "label": "작업완료", "value": 2140, "color": "#00BF95" },
+        { "label": "AI평가", "value": 1480, "color": "#2D1F6E" },
+        { "label": "KMS기여", "value": 860, "color": "#5B4FCF" },
+        { "label": "설비보정", "value": 340, "color": "#FFD166" }
+      ]
     }
   ],
-  "$schema": "./node_modules/json-server/schema.json"
+  "pointHistory": [
+    { "id": 1, "employee_id": 5, "date": "03.05", "category": "작업완료", "description": "ORD-0301 항공부품 완료", "points": 340 },
+    { "id": 2, "employee_id": 5, "date": "03.03", "category": "KMS", "description": "채터링 방지 노하우 등록", "points": 100 },
+    { "id": 3, "employee_id": 5, "date": "03.01", "category": "AI평가", "description": "2월 정성 평가 반영", "points": 280 },
+    { "id": 4, "employee_id": 5, "date": "02.28", "category": "작업완료", "description": "ORD-0289 샤프트 완료", "points": 320 },
+    { "id": 5, "employee_id": 5, "date": "02.25", "category": "설비보정", "description": "MCH-01 E_idx 보정", "points": 40 },
+    { "id": 6, "employee_id": 5, "date": "02.20", "category": "작업완료", "description": "ORD-0278 플랜지 완료", "points": 290 }
+  ],
+  "upgradeMissions": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "title": "고난도 연속 10회 완료",
+      "subtitle": "D4~D5 난이도 작업 연속 달성",
+      "points": 500,
+      "current": 7,
+      "target": 10,
+      "icon": "🔧",
+      "completed": false,
+      "barColor": "#00BF95"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "title": "KMS 이달 3건 기여",
+      "subtitle": "이달 지식 등록 또는 댓글 기여",
+      "points": 300,
+      "current": 1,
+      "target": 3,
+      "icon": "🤝",
+      "completed": false,
+      "barColor": "#2D1F6E"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "title": "AI 평가 90점+ 달성",
+      "subtitle": "3개월 연속 90점 이상 유지",
+      "points": 200,
+      "current": 90,
+      "target": 90,
+      "icon": "⭐",
+      "completed": true,
+      "barColor": "#00BF95"
+    }
+  ],
+  "evaluationStatus": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "overallScore": 81.2,
+      "tier": "A",
+      "quantitative": { "score": 83.4, "diff": -0.6 },
+      "qualitative": { "score": 79.1, "diff": 1.2, "weight": "30%" },
+      "equipmentCorrection": { "label": "E×0.92", "sub": "보정계수" },
+      "composite": { "score": 81.2, "diff": -0.6, "sub": "최종점수" },
+      "rank": 2,
+      "rankTotal": 5,
+      "rankDiff": 1
+    }
+  ],
+  "quantitativeEval": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "steps": [
+        { "label": "① 기준 생산량 E_exp = 120개/일", "value": "120개" },
+        { "label": "② 실제 생산량 P_actual = 110.4개/일", "value": "110.4개" },
+        { "label": "③ 달성률 R = 110.4 / 120 = 0.92", "value": "92.0%" },
+        { "label": "④ E_idx (설비보정) MCH-01 가동률 0.94", "value": "×0.92" },
+        { "label": "⑤ 보정 달성률 R' = 0.92 / 0.92 = 1.00", "value": "100.0%" },
+        { "label": "⑥ 정량 점수 S_quant = 100×1.00×0.83", "value": "83.4점" }
+      ],
+      "eidxChart": {
+        "title": "MCH-01 이번 분기 E_idx 이력",
+        "avg": 0.92,
+        "min": 0.88,
+        "minDate": "2/14",
+        "max": 0.96,
+        "data": [0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.96]
+      },
+      "aiSummary": "지난 분기 대비 협업과 안전준수 점수가 상승했습니다. 다만 KMS 기여도는 팀 평균보다 12% 낮아 추가 활동 권장이 필요합니다."
+    }
+  ],
+  "qualitativeEval": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "evaluator": "박팀장",
+      "evaluatorRole": "Team Leader",
+      "nlpConfidence": 0.94,
+      "categories": [
+        { "label": "작업 태도", "score": 82, "tags": ["성실함", "책임감"], "barColor": "#2D1F6E" },
+        { "label": "기술 역량", "score": 81, "tags": ["정밀도↑", "숙련됨"], "barColor": "#2D1F6E" },
+        { "label": "협업 능력", "score": 74, "tags": ["소통개선필요"], "barColor": "#FFD166" },
+        { "label": "안전 준수", "score": 85, "tags": ["규정준수", "모범적"], "barColor": "#2D1F6E" },
+        { "label": "문제 해결", "score": 80, "tags": ["자발적", "창의적"], "barColor": "#2D1F6E" },
+        { "label": "KMS 기여", "score": 72, "tags": ["등록필요"], "barColor": "#FFD166" }
+      ],
+      "aiAnalysis": "이번 분기 작업 태도와 기술 역량은 전반적으로 우수합니다. 협업 측면에서 동료 피드백 기반 개선 여지가 있으며, KMS 기여 활동 독려가 필요합니다."
+    }
+  ],
+  "growthFeedback": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "chartData": [
+        { "quarter": "2025Q1", "overall": 72, "team": 70 },
+        { "quarter": "Q2", "overall": 75, "team": 73 },
+        { "quarter": "Q3", "overall": 78, "team": 76 },
+        { "quarter": "Q4", "overall": 80, "team": 79 },
+        { "quarter": "2026Q1", "overall": 81.2, "team": 80 }
+      ],
+      "feedback": {
+        "author": "박팀장",
+        "date": "2026.03.08",
+        "content": "설비 보정을 고려하면 실질적으로 훌륭한 성과입니다. KMS 활동 2건만 추가하면 A→S 승급 충분히 가능합니다."
+      },
+      "nextQuarterGoals": [
+        { "label": "종합", "current": 81.2, "target": 84 },
+        { "label": "정성", "current": 79.1, "target": 82 },
+        { "label": "KMS", "current": "3", "target": "5건" }
+      ]
+    }
+  ]
 }

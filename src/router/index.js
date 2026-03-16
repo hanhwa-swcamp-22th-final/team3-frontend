@@ -127,7 +127,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'TeamLeaderDashboard',
-        component: Placeholder,
+        component: () => import("@/views/teamleader/TeamLeaderDashboardView.vue"),
       },
       {
         path: 'kpireport',
@@ -250,12 +250,12 @@ const routes = [
       {
         path: 'point-mission',
         name: 'PointMission',
-        component: Placeholder,
+        component: () => import('@/views/worker/PointMissionContent.vue'),
       },
       {
         path: 'evaluation-result',
         name: 'WorkerEvaluationResult',
-        component: Placeholder,
+        component: () => import('@/views/worker/EvaluationResultContent.vue'),
       },
       {
         path: 'appeal',
