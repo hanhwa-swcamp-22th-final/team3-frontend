@@ -142,7 +142,7 @@ const routes = [
       {
         path: 'teamevaluation',
         name: 'TeamEvaluation',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
       },
       {
         path: 'notification',
