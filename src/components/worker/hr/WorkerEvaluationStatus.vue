@@ -104,7 +104,7 @@ function diffText(val) {
   display: flex;
   align-items: center;
   gap: 32px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   padding: 28px 32px;
@@ -180,7 +180,7 @@ function diffText(val) {
 }
 
 .es__metric-value--accent {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .es__metric-diff {
@@ -194,7 +194,7 @@ function diffText(val) {
 }
 
 .diff--up {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .diff--down {

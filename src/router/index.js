@@ -88,7 +88,7 @@ const routes = [
       {
         path: 'approval-review',
         name: 'ApprovalReview',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMApprovalView.vue'),
       },
       {
         path: 'kpireport',
@@ -139,11 +139,11 @@ const routes = [
         name: 'TeamEvaluation',
         component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
       },
-        {
-          path: 'notification',
-          name: 'TLNotifications',
-          component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
-        },
+      {
+        path: 'notification',
+        name: 'TLNotifications',
+        component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
+      },
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
@@ -309,5 +309,3 @@ router.beforeEach((to) => {
 })
 
 export default router
-
-
