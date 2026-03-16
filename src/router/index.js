@@ -144,11 +144,11 @@ const routes = [
         name: 'TeamEvaluation',
         component: Placeholder,
       },
-      {
-        path: 'notification',
-        name: 'TLNotifications',
-        component: Placeholder,
-      },
+        {
+          path: 'notification',
+          name: 'TLNotifications',
+          component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
+        },
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
