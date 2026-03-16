@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
@@ -25,7 +25,7 @@ const routes = [
     ],
   },
 
-  // ── Admin ──────────────────────────────────────────────────────────
+  // Admin Routes
   {
     path: '/admin',
     component: DashboardView,
@@ -79,7 +79,7 @@ const routes = [
     ],
   },
 
-  // ── HRM (HR Manager) ───────────────────────────────────────────────
+  // HRM Routes
   {
     path: '/hr',
     component: DashboardView,
@@ -123,7 +123,7 @@ const routes = [
     ],
   },
 
-  // ── TL (Team Leader) ───────────────────────────────────────────────
+  // Team Leader Routes
   {
     path: '/teamleader',
     component: DashboardView,
@@ -152,7 +152,7 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'TLNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderNoticeBoardView.vue'),
       },
       {
         path: 'scmorders',
@@ -187,7 +187,7 @@ const routes = [
     ],
   },
 
-  // ── DL (Department Leader) ─────────────────────────────────────────
+  // Department Leader Routes
   {
     path: '/departmentleader',
     component: DashboardView,
@@ -241,7 +241,7 @@ const routes = [
     ],
   },
 
-  // ── Worker ─────────────────────────────────────────────────────────
+  // Worker Routes
   {
     path: '/worker',
     component: DashboardView,
@@ -250,7 +250,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'WorkerDashboard',
-        component: () => import('@/views/worker/WorkerDashboardContent.vue'),
+        component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
       },
       {
         path: 'point-mission',
@@ -265,12 +265,12 @@ const routes = [
       {
         path: 'appeal',
         name: 'AppealRequest',
-        component: Placeholder,
+        component: () => import('@/views/worker/AppealRequestContent.vue'),
       },
       {
         path: 'noticeboard',
         name: 'WorkerNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/worker/NoticeBoardContent.vue'),
       },
       {
         path: 'today-task',
@@ -314,3 +314,5 @@ router.beforeEach((to) => {
 })
 
 export default router
+
+
