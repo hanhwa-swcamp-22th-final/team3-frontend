@@ -34,7 +34,7 @@ const routes = [
       {
         path: '',
         name: 'AdminDashboard',
-        component: () => import('@/views/admin/AdminDashboardView.vue'),
+        redirect: { name: 'AdminProfiles' },
       },
       {
         path: 'facility',
