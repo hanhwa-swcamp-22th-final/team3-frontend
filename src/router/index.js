@@ -255,7 +255,7 @@ const routes = [
       {
         path: 'point-mission',
         name: 'PointMission',
-        component: Placeholder,
+        component: () => import('@/views/worker/PointMissionContent.vue'),
       },
       {
         path: 'evaluation-result',
