@@ -44,7 +44,7 @@ const routes = [
       {
         path: 'permissions',
         name: 'AdminPermissions',
-        component: Placeholder,
+        component: () => import('@/views/admin/AdminPermissions.vue'),
       },
       {
         path: 'algorithm',
