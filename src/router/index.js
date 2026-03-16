@@ -191,7 +191,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'DepartmentLeaderDashboard',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderDashboardView.vue'),
       },
       {
         path: 'performance',
