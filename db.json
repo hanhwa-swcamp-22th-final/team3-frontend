@@ -182,5 +182,66 @@
   ],
   "notifications": [
     { "id": 1, "title": "2026 상반기 평가 의견 입력 마감: 3월 18일 18:00", "description": "관리자 평성평가와 HR 검토 결과를 하단 의견 수정이 제한됩니다. 응답미식 불량 건은 텍스트 수동 보완 후 제출해 주세요.", "active": true }
+  ],
+  "pointSummary": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "totalPoints": 4820,
+      "monthGain": 340,
+      "monthGainPercent": 7.6,
+      "distribution": [
+        { "label": "작업완료", "value": 2140, "color": "#00BF95" },
+        { "label": "AI평가", "value": 1480, "color": "#2D1F6E" },
+        { "label": "KMS기여", "value": 860, "color": "#5B4FCF" },
+        { "label": "설비보정", "value": 340, "color": "#FFD166" }
+      ]
+    }
+  ],
+  "pointHistory": [
+    { "id": 1, "employee_id": 5, "date": "03.05", "category": "작업완료", "description": "ORD-0301 항공부품 완료", "points": 340 },
+    { "id": 2, "employee_id": 5, "date": "03.03", "category": "KMS", "description": "채터링 방지 노하우 등록", "points": 100 },
+    { "id": 3, "employee_id": 5, "date": "03.01", "category": "AI평가", "description": "2월 정성 평가 반영", "points": 280 },
+    { "id": 4, "employee_id": 5, "date": "02.28", "category": "작업완료", "description": "ORD-0289 샤프트 완료", "points": 320 },
+    { "id": 5, "employee_id": 5, "date": "02.25", "category": "설비보정", "description": "MCH-01 E_idx 보정", "points": 40 },
+    { "id": 6, "employee_id": 5, "date": "02.20", "category": "작업완료", "description": "ORD-0278 플랜지 완료", "points": 290 }
+  ],
+  "upgradeMissions": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "title": "고난도 연속 10회 완료",
+      "subtitle": "D4~D5 난이도 작업 연속 달성",
+      "points": 500,
+      "current": 7,
+      "target": 10,
+      "icon": "🔧",
+      "completed": false,
+      "barColor": "#00BF95"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "title": "KMS 이달 3건 기여",
+      "subtitle": "이달 지식 등록 또는 댓글 기여",
+      "points": 300,
+      "current": 1,
+      "target": 3,
+      "icon": "🤝",
+      "completed": false,
+      "barColor": "#2D1F6E"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "title": "AI 평가 90점+ 달성",
+      "subtitle": "3개월 연속 90점 이상 유지",
+      "points": 200,
+      "current": 90,
+      "target": 90,
+      "icon": "⭐",
+      "completed": true,
+      "barColor": "#00BF95"
+    }
   ]
 }
