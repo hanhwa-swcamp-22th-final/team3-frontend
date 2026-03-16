@@ -32,15 +32,18 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-base);
     color: var(--text-primary);
-    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
 }
 
 #app {
     width: 100%;
-    min-height: 100vh;
+    height: 100%;
 }

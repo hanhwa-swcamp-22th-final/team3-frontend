@@ -63,7 +63,9 @@ function handleLogout() {
       <AdminSidebar v-if="isAdmin" />
       <RoleSidebar v-else />
 
-      <RouterView />
+      <div class="dashboard-main">
+        <RouterView />
+      </div>
     </main>
   </div>
 </template>
@@ -142,7 +144,23 @@ function handleLogout() {
   cursor: pointer;
 }
 
+.dashboard {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .dashboard-content {
   display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 </style>
