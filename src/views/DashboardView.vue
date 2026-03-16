@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import RoleSidebar from "@/components/common/RoleSidebar.vue";
 import AdminSidebar from "@/components/common/AdminSidebar.vue";
 import { roleLabels} from "@/components/common/menuConfig.js";
+import TeamLeaderDashboardView from "@/views/teamleader/TeamLeaderDashboardView.vue";
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -62,7 +63,8 @@ function handleLogout() {
     <main class="dashboard-content">
       <AdminSidebar v-if="isAdmin" />
       <RoleSidebar v-else />
-      <p>대시보드 페이지입니다. (준비 중)</p>
+      <TeamLeaderDashboardView v-if="profileRole === 'TL'"/>
+      <div v-else class="dashboard-placeholder">준비 중</div>
     </main>
   </div>
 </template>
