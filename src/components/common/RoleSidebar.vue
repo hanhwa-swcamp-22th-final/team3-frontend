@@ -74,6 +74,8 @@ function isActive(target) {
 
 .role-sidebar__link--active {
   color: var(--color-primary-700);
+  background: var(--color-primary-100);
+  border-radius: 6px;
 }
 
 .role-sidebar__icon {
