@@ -725,5 +725,41 @@
       "tier_promo_status": "pending",
       "created_at": "2026-03-12"
     }
+  ],
+  "kpiReport": [
+    {
+      "id": 1,
+      "quarter": "2026년 1분기",
+      "avgScore": 83.4,
+      "avgScoreDelta": 1.8,
+      "saRatio": 38.5,
+      "saRatioDelta": 3.2,
+      "completedTasks": 1247,
+      "completedTasksDelta": 108,
+      "avgMtbf": 312,
+      "avgMtbfDelta": 18,
+      "completionRate": 78,
+      "inProgressRate": 14,
+      "pendingRate": 8
+    }
+  ],
+  "kpiTeamScores": [
+    { "id": 1, "team": "정밀가공1라인", "score": 87.3 },
+    { "id": 2, "team": "정밀가공2라인", "score": 84.1 },
+    { "id": 3, "team": "프레스라인",    "score": 81.5 },
+    { "id": 4, "team": "용접라인",      "score": 78.2 }
+  ],
+  "kpiTierTrend": [
+    { "id": 1, "quarter": "Q1'25", "S": 8,  "A": 30, "B": 35, "C": 27 },
+    { "id": 2, "quarter": "Q2'25", "S": 10, "A": 32, "B": 33, "C": 25 },
+    { "id": 3, "quarter": "Q3'25", "S": 11, "A": 33, "B": 32, "C": 24 },
+    { "id": 4, "quarter": "Q4'25", "S": 12, "A": 34, "B": 30, "C": 24 },
+    { "id": 5, "quarter": "Q1'26", "S": 12, "A": 34, "B": 28, "C": 26 }
+  ],
+  "kpiTeamLeaders": [
+    { "id": 1, "name": "김팀장", "line": "정밀가공1라인", "members": 6, "evaluated": 5, "total": 6, "avgScore": 83.4, "tierDist": "S:1 A:3 B:2", "completionRate": 83, "avatarColor": "#7c6514" },
+    { "id": 2, "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 6, "total": 7, "avgScore": 84.1, "tierDist": "A:4 B:3",     "completionRate": 86, "avatarColor": "#23185d" },
+    { "id": 3, "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 4, "total": 7, "avgScore": 81.5, "tierDist": "A:2 B:4 C:1", "completionRate": 57, "avatarColor": "#1a5c3a" },
+    { "id": 4, "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 3, "total": 6, "avgScore": 78.2, "tierDist": "B:4 C:2",     "completionRate": 50, "avatarColor": "#8b0000" }
   ]
 }

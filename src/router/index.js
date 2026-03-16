@@ -74,49 +74,49 @@ const routes = [
         ],
     },
 
-    // HRM Routes
-    {
-        path: '/hr',
-        component: DashboardView,
-        meta: { requiresAuth: true, allowedRoles: ['HRM'] },
-        children: [
-            {
-                path: 'dashboard',
-                name: 'HRDashboard',
-                component: () => import('@/views/hrmanager/HRMDashboardView.vue'),
-            },
-            {
-                path: 'approval-review',
-                name: 'ApprovalReview',
-                component: () => import('@/views/hrmanager/HRMApprovalView.vue'),
-            },
-            {
-                path: 'kpireport',
-                name: 'HRMKpiReport',
-                component: Placeholder,
-            },
-            {
-                path: 'evaluation-criteria',
-                name: 'EvaluationCriteria',
-                component: Placeholder,
-            },
-            {
-                path: 'promotion-review',
-                name: 'PromotionReview',
-                component: Placeholder,
-            },
-            {
-                path: 'organization',
-                name: 'OrganizationManagement',
-                component: Placeholder,
-            },
-            {
-                path: 'noticeboard',
-                name: 'HRMNoticeBoard',
-                component: Placeholder,
-            },
-        ],
-    },
+  // HRM Routes
+  {
+    path: '/hr',
+    component: DashboardView,
+    meta: { requiresAuth: true, allowedRoles: ['HRM'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'HRDashboard',
+        component: () => import('@/views/hrmanager/HRMDashboardView.vue'),
+      },
+      {
+        path: 'approval-review',
+        name: 'ApprovalReview',
+        component: () => import('@/views/hrmanager/HRMApprovalView.vue'),
+      },
+      {
+        path: 'kpireport',
+        name: 'HRMKpiReport',
+        component: () => import('@/views/hrmanager/HRMKpiReportView.vue'),
+      },
+      {
+        path: 'evaluation-criteria',
+        name: 'EvaluationCriteria',
+        component: Placeholder,
+      },
+      {
+        path: 'promotion-review',
+        name: 'PromotionReview',
+        component: Placeholder,
+      },
+      {
+        path: 'organization',
+        name: 'OrganizationManagement',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'HRMNoticeBoard',
+        component: Placeholder,
+      },
+    ],
+  },
 
   // Team Leader Routes
   {
