@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
@@ -118,123 +118,123 @@ const routes = [
         ],
     },
 
-    // Team Leader Routes
-    {
-        path: '/teamleader',
-        component: DashboardView,
-        meta: { requiresAuth: true, allowedRoles: ['TL'] },
-        children: [
-            {
-                path: 'dashboard',
-                name: 'TeamLeaderDashboard',
-                component: () => import("@/views/teamleader/TeamLeaderDashboardView.vue"),
-            },
-            {
-                path: 'kpireport',
-                name: 'TLKpiReport',
-                component: () => import('@/views/teamleader/TeamLeaderKpiReportView.vue'),
-            },
-            {
-                path: 'teamevaluation',
-                name: 'TeamEvaluation',
-                component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
-            },
-            {
-                path: 'notification',
-                name: 'TLNotifications',
-                component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
-            },
-            {
-                path: 'noticeboard',
-                name: 'TLNoticeBoard',
-                component: () => import('@/views/teamleader/TeamLeaderNoticeBoardView.vue'),
-            },
-            {
-                path: 'scmorders',
-                name: 'TLScmOrders',
-                component: Placeholder,
-            },
-            {
-                path: 'taskmatching',
-                name: 'TaskMatching',
-                component: Placeholder,
-            },
-            {
-                path: 'ocsascore',
-                name: 'OcsaScore',
-                component: Placeholder,
-            },
-            {
-                path: 'facilitystatus',
-                name: 'FacilityStatus',
-                component: Placeholder,
-            },
-            {
-                path: 'knowledgehub',
-                name: 'TLKnowledgeHub',
-                component: Placeholder,
-            },
-            {
-                path: 'knowledgeapproval',
-                name: 'TLKnowledgeApproval',
-                component: Placeholder,
-            },
-        ],
-    },
+  // Team Leader Routes
+  {
+    path: '/teamleader',
+    component: DashboardView,
+    meta: { requiresAuth: true, allowedRoles: ['TL'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'TeamLeaderDashboard',
+        component: () => import("@/views/teamleader/TeamLeaderDashboardView.vue"),
+      },
+      {
+        path: 'kpireport',
+        name: 'TLKpiReport',
+        component: () => import('@/views/teamleader/TeamLeaderKpiReportView.vue'),
+      },
+      {
+        path: 'teamevaluation',
+        name: 'TeamEvaluation',
+        component: () => import('@/views/teamleader/TeamLeaderAiEvaluationView.vue'),
+      },
+      {
+        path: 'notification',
+        name: 'TLNotifications',
+        component: () => import('@/views/teamleader/TeamLeaderNotificationView.vue'),
+      },
+      {
+        path: 'noticeboard',
+        name: 'TLNoticeBoard',
+        component: () => import('@/views/teamleader/TeamLeaderNoticeBoardView.vue'),
+      },
+      {
+        path: 'scmorders',
+        name: 'TLScmOrders',
+        component: () => import('@/views/teamleader/TeamLeaderScmOrdersView.vue'),
+      },
+      {
+        path: 'taskmatching',
+        name: 'TaskMatching',
+        component: Placeholder,
+      },
+      {
+        path: 'ocsascore',
+        name: 'OcsaScore',
+        component: Placeholder,
+      },
+      {
+        path: 'facilitystatus',
+        name: 'FacilityStatus',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgehub',
+        name: 'TLKnowledgeHub',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgeapproval',
+        name: 'TLKnowledgeApproval',
+        component: Placeholder,
+      },
+    ],
+  },
 
-    // Department Leader Routes
-    {
-        path: '/departmentleader',
-        component: DashboardView,
-        meta: { requiresAuth: true, allowedRoles: ['DL'] },
-        children: [
-            {
-                path: 'dashboard',
-                name: 'DepartmentLeaderDashboard',
-                component: Placeholder,
-            },
-            {
-                path: 'performance',
-                name: 'DepartmentLeaderDashboardPerformance',
-                component: Placeholder,
-            },
-            {
-                path: 'team-capability',
-                name: 'TeamCapability',
-                component: Placeholder,
-            },
-            {
-                path: 'evaluation',
-                name: 'DepartmentLeaderDashboardEvaluation',
-                component: Placeholder,
-            },
-            {
-                path: 'notification',
-                name: 'DLNotifications',
-                component: Placeholder,
-            },
-            {
-                path: 'noticeboard',
-                name: 'DLNoticeBoard',
-                component: Placeholder,
-            },
-            {
-                path: 'scmorders',
-                name: 'DLScmOrders',
-                component: Placeholder,
-            },
-            {
-                path: 'knowledgehub',
-                name: 'DLKnowledgeHub',
-                component: Placeholder,
-            },
-            {
-                path: 'knowledgeapproval',
-                name: 'DLKnowledgeApproval',
-                component: Placeholder,
-            },
-        ],
-    },
+  // Department Leader Routes
+  {
+    path: '/departmentleader',
+    component: DashboardView,
+    meta: { requiresAuth: true, allowedRoles: ['DL'] },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'DepartmentLeaderDashboard',
+        component: () => import('@/views/departmentleader/DepartmentLeaderDashboardView.vue'),
+      },
+      {
+        path: 'performance',
+        name: 'DepartmentLeaderDashboardPerformance',
+        component: Placeholder,
+      },
+      {
+        path: 'team-capability',
+        name: 'TeamCapability',
+        component: Placeholder,
+      },
+      {
+        path: 'evaluation',
+        name: 'DepartmentLeaderDashboardEvaluation',
+        component: Placeholder,
+      },
+      {
+        path: 'notification',
+        name: 'DLNotifications',
+        component: Placeholder,
+      },
+      {
+        path: 'noticeboard',
+        name: 'DLNoticeBoard',
+        component: Placeholder,
+      },
+      {
+        path: 'scmorders',
+        name: 'DLScmOrders',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgehub',
+        name: 'DLKnowledgeHub',
+        component: Placeholder,
+      },
+      {
+        path: 'knowledgeapproval',
+        name: 'DLKnowledgeApproval',
+        component: Placeholder,
+      },
+    ],
+  },
 
     // Worker Routes
     {
