@@ -1,0 +1,46 @@
+/* Option C : Mint & Indigo */
+
+:root {
+    /* Brand */
+    --primary:       #2D1F6E;
+    --primary-light: #5B4FCF;
+
+    /* Semantic */
+    --success:       #00BF95;
+    --warning:       #FFD166;
+    --danger:        #EF476F;
+
+    /* Background */
+    --bg-base:       #FAFBFF;
+    --bg-section:    #F0EEFF;
+    --bg-mint:       #E3FBEF;
+
+    /* Surface */
+    --surface:       #FFFFFF;
+    --border:        #E0DCFF;
+
+    /* Text */
+    --text-primary:  #2D1F6E;
+    --text-muted:    #6B7A99;
+    --text-subtle:   #9AAAC0;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+#app {
+    width: 100%;
+    min-height: 100vh;
+}

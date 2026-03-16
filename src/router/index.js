@@ -69,7 +69,7 @@ const routes = [
       {
         path: 'profiles',
         name: 'AdminProfiles',
-        component: Placeholder,
+        component: () => import('@/views/admin/AdminProfiles.vue'),
       },
       {
         path: 'knowledge-hub',
