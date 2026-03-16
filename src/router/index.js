@@ -250,7 +250,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'WorkerDashboard',
-        component: () => import('@/views/worker/WorkerDashboardContent.vue'),
+        component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
       },
       {
         path: 'point-mission',
@@ -265,7 +265,7 @@ const routes = [
       {
         path: 'appeal',
         name: 'AppealRequest',
-        component: Placeholder,
+        component: () => import('@/views/worker/AppealRequestContent.vue'),
       },
       {
         path: 'noticeboard',

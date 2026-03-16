@@ -300,6 +300,122 @@
       "aiAnalysis": "이번 분기 작업 태도와 기술 역량은 전반적으로 우수합니다. 협업 측면에서 동료 피드백 기반 개선 여지가 있으며, KMS 기여 활동 독려가 필요합니다."
     }
   ],
+  "evalHistory": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "quarter": "2026년 1분기",
+      "score": 81.2,
+      "tier": "A",
+      "diff": -0.6,
+      "statusText": "이의 신청 완료 · 검토중",
+      "statusBadge": "검토중"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "quarter": "2025년 4분기",
+      "score": 81.8,
+      "tier": "A",
+      "diff": 1.2,
+      "statusText": "이의 없음",
+      "statusBadge": "확정"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "quarter": "2025년 3분기",
+      "score": 80.6,
+      "tier": "A",
+      "diff": 3.4,
+      "statusText": "이의 없음",
+      "statusBadge": "확정"
+    },
+    {
+      "id": 4,
+      "employee_id": 5,
+      "quarter": "2025년 2분기",
+      "score": 77.2,
+      "tier": "B",
+      "diff": 2.1,
+      "statusText": "이의 신청 → 조정됨",
+      "statusBadge": "확정"
+    }
+  ],
+  "appealForms": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "evalHistoryId": 1,
+      "quarter": "2026년 1분기",
+      "scores": {
+        "quantitative": 83.4,
+        "qualitative": 79.1,
+        "composite": 81.2,
+        "quantFlagDown": true
+      },
+      "reason": "정량 점수 산출 오류 의심",
+      "categories": ["정량 평가 점수 오류"],
+      "content": "2월 MCH-01 가동 중 설비 E_idx 0.92 기록 확인됨. 그러나 정량 점수에 0.78 기준 적용된 것으로 보임. 해당 구간 로그 첨부합니다.",
+      "attachments": ["MCH01_Feb_Log.xlsx"],
+      "processStatus": 2,
+      "submittedDate": "2026.03.06"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "evalHistoryId": 4,
+      "quarter": "2025년 2분기",
+      "scores": {
+        "quantitative": 78.5,
+        "qualitative": 76.0,
+        "composite": 77.2,
+        "quantFlagDown": false
+      },
+      "reason": "설비 보정 계수 미반영",
+      "categories": ["설비 보정 계수 오류"],
+      "content": "해당 분기 MCH-01 설비 교체 기간(4/15~4/22) E_idx 보정이 반영되지 않았습니다.",
+      "attachments": [],
+      "processStatus": 3,
+      "submittedDate": "2025.07.10"
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "evalHistoryId": 2,
+      "quarter": "2025년 4분기",
+      "scores": {
+        "quantitative": 84.0,
+        "qualitative": 79.8,
+        "composite": 81.8,
+        "quantFlagDown": false
+      },
+      "reason": "",
+      "categories": [],
+      "content": "",
+      "attachments": [],
+      "processStatus": 0,
+      "submittedDate": ""
+    },
+    {
+      "id": 4,
+      "employee_id": 5,
+      "evalHistoryId": 3,
+      "quarter": "2025년 3분기",
+      "scores": {
+        "quantitative": 82.1,
+        "qualitative": 78.4,
+        "composite": 80.6,
+        "quantFlagDown": false
+      },
+      "reason": "",
+      "categories": [],
+      "content": "",
+      "attachments": [],
+      "processStatus": 0,
+      "submittedDate": ""
+    }
+  ],
   "growthFeedback": [
     {
       "id": 1,
