@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import employeeApi from '@/services/employeeApi.js'
-import ProfileCRUD from '@/components/admin/hr/ProfileCRUD.vue'
+import ProfileCreateUpdate from '@/components/admin/hr/ProfileCreateUpdate.vue'
 
 // ── State ──────────────────────────────────────────
 const employees      = ref([])
@@ -11,7 +11,7 @@ const selectedTier   = ref('전체')
 const currentPage    = ref(1)
 const pageSize       = 6
 
-// 모달 상태 (STEP 4에서 ProfileCRUD 연결)
+// 모달 상태 (STEP 4에서 ProfileCreateUpdate 연결)
 const isModalOpen       = ref(false)
 const editingEmployee   = ref(null)  // null=등록, object=수정
 
@@ -270,8 +270,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 
     </div>
 
-    <!-- ProfileCRUD 모달 -->
-    <ProfileCRUD
+    <!-- ProfileCreateUpdate 모달 -->
+    <ProfileCreateUpdate
       :isOpen="isModalOpen"
       :employee="editingEmployee"
       @close="closeModal"
@@ -287,7 +287,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   flex-direction: column;
   gap: 16px;
   padding: 24px 24px 0;
-  height: 100%;
+  /* DashboardView header min-height: 80px 제외한 나머지 뷰포트 */
+  height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
 }

@@ -32,11 +32,6 @@ const routes = [
     meta: { requiresAuth: true, allowedRoles: ['admin'] },
     children: [
       {
-        path: 'dashboard',
-        name: 'AdminDashboard',
-        component: Placeholder,
-      },
-      {
         path: 'facility',
         name: 'AdminFacility',
         component: Placeholder,
