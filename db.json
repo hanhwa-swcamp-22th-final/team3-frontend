@@ -693,5 +693,37 @@
         { "label": "KMS", "current": "3", "target": "5건" }
       ]
     }
+  ],
+  "tierPromotions": [
+    {
+      "tier_promotion_id": 1,
+      "employee_id": 3,
+      "reviewer_id": 2,
+      "current_tier": "B",
+      "target_tier": "A",
+      "tier_accumulated_point": 320,
+      "tier_promo_status": "pending",
+      "created_at": "2026-03-08"
+    },
+    {
+      "tier_promotion_id": 2,
+      "employee_id": 4,
+      "reviewer_id": 2,
+      "current_tier": "A",
+      "target_tier": "S",
+      "tier_accumulated_point": 480,
+      "tier_promo_status": "pending",
+      "created_at": "2026-03-10"
+    },
+    {
+      "tier_promotion_id": 3,
+      "employee_id": 5,
+      "reviewer_id": 2,
+      "current_tier": "B",
+      "target_tier": "A",
+      "tier_accumulated_point": 290,
+      "tier_promo_status": "pending",
+      "created_at": "2026-03-12"
+    }
   ]
 }
