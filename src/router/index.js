@@ -32,11 +32,6 @@ const routes = [
     meta: { requiresAuth: true, allowedRoles: ['admin'] },
     children: [
       {
-        path: 'dashboard',
-        name: 'AdminDashboard',
-        component: Placeholder,
-      },
-      {
         path: 'facility',
         name: 'AdminFacility',
         component: Placeholder,
@@ -69,7 +64,7 @@ const routes = [
       {
         path: 'profiles',
         name: 'AdminProfiles',
-        component: Placeholder,
+        component: () => import('@/views/admin/AdminProfiles.vue'),
       },
       {
         path: 'knowledge-hub',
