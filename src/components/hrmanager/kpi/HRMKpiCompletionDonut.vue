@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { Chart, DoughnutController, ArcElement, Tooltip } from 'chart.js'
-import { getCssVar } from '@/utils/tierColors'
 
 Chart.register(DoughnutController, ArcElement, Tooltip)
 
@@ -25,10 +24,10 @@ function makeCenterTextPlugin() {
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.font = '800 28px Pretendard, sans-serif'
-      ctx.fillStyle = getCssVar('--color-text-strong')
+      ctx.fillStyle = '#23185d'
       ctx.fillText(`${props.completionRate}%`, cx, cy - 8)
       ctx.font = '500 12px Pretendard, sans-serif'
-      ctx.fillStyle = getCssVar('--color-text-muted')
+      ctx.fillStyle = '#7c739f'
       ctx.fillText('완료', cx, cy + 14)
       ctx.restore()
     },
@@ -44,11 +43,7 @@ function buildChart() {
       labels: ['완료', '진행중', '대기'],
       datasets: [{
         data: [props.completionRate, props.inProgressRate, props.pendingRate],
-        backgroundColor: [
-          getCssVar('--tier-s'),
-          getCssVar('--color-primary-300'),
-          getCssVar('--color-border-default'),
-        ],
+        backgroundColor: ['#00bf95', '#b8b1f2', '#e0dcff'],
         borderWidth: 0,
         hoverOffset: 4,
       }],

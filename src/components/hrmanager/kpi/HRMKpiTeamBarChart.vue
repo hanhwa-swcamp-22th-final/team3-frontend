@@ -8,8 +8,6 @@ import {
   LinearScale,
   Tooltip,
 } from 'chart.js'
-import { getCssVar } from '@/utils/tierColors'
-
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip)
 
 const props = defineProps({
@@ -27,7 +25,7 @@ const scoreLabelsPlugin = {
     chart.data.datasets.forEach((dataset, i) => {
       chart.getDatasetMeta(i).data.forEach((bar, index) => {
         ctx.font = '700 12px Pretendard, sans-serif'
-        ctx.fillStyle = getCssVar('--color-text-default')
+        ctx.fillStyle = '#4b5563'
         ctx.textAlign = 'left'
         ctx.textBaseline = 'middle'
         ctx.fillText(dataset.data[index], bar.x + 6, bar.y)
@@ -39,12 +37,7 @@ const scoreLabelsPlugin = {
 
 function buildChart() {
   if (chartInstance) chartInstance.destroy()
-  const colors = [
-    getCssVar('--color-primary-700'),
-    getCssVar('--color-primary-600'),
-    getCssVar('--color-primary-500'),
-    getCssVar('--color-primary-300'),
-  ]
+  const colors = ['#4330a0', '#5b4fcf', '#7468e2', '#b8b1f2']
   chartInstance = new Chart(canvasRef.value, {
     type: 'bar',
     plugins: [scoreLabelsPlugin],
@@ -70,7 +63,7 @@ function buildChart() {
         x: { display: false, min: 70, max: 100 },
         y: {
           grid: { display: false },
-          ticks: { color: getCssVar('--color-text-muted'), font: { size: 12 } },
+          ticks: { color: '#7c739f', font: { size: 12 } },
           border: { display: false },
         },
       },

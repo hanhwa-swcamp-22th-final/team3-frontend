@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { getTierColors, getCssVar } from '@/utils/tierColors'
+import { getTierColors } from '@/utils/tierColors'
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend)
 
@@ -50,7 +50,7 @@ function buildChart() {
           display: true,
           position: 'bottom',
           labels: {
-            color: getCssVar('--color-text-muted'),
+            color: '#7c739f',
             font: { size: 11 },
             boxWidth: 14,
             padding: 12,
@@ -63,7 +63,7 @@ function buildChart() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: getCssVar('--color-text-muted'), font: { size: 11 } },
+          ticks: { color: '#7c739f', font: { size: 11 } },
           border: { display: false },
         },
         y: {
