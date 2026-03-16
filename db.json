@@ -768,5 +768,55 @@
       "views": 112,
       "attachments": ["3월_안전교육_일정표.pdf"]
     }
+  ],
+  "todayJobs": [
+    {
+      "id": 1,
+      "employee_id": 5,
+      "orderCode": "ORD-2026-0301",
+      "difficulty": 5,
+      "difficultyLabel": "최고난도",
+      "status": "in_progress",
+      "statusLabel": "진행중",
+      "title": "항공 부품 정밀 가공 — Ti-6Al-4V",
+      "equipment": "MCH-01",
+      "estimatedTime": "4h",
+      "deadlineDays": 2,
+      "current": 15,
+      "target": 25,
+      "elapsedTime": "2시간 18분"
+    },
+    {
+      "id": 2,
+      "employee_id": 5,
+      "orderCode": "ORD-2026-0302",
+      "difficulty": 4,
+      "difficultyLabel": "고난도",
+      "status": "waiting",
+      "statusLabel": "대기",
+      "title": "자동차 샤프트 배치 가공 (×40)",
+      "equipment": "CNC MCH-02",
+      "estimatedTime": "2h",
+      "deadlineDays": 5,
+      "current": 0,
+      "target": 40,
+      "elapsedTime": null
+    },
+    {
+      "id": 3,
+      "employee_id": 5,
+      "orderCode": "ORD-2026-0304",
+      "difficulty": 2,
+      "difficultyLabel": "저난도",
+      "status": "waiting",
+      "statusLabel": "대기",
+      "title": "표준 프레스 성형 (×100)",
+      "equipment": "PRS-01",
+      "estimatedTime": "1h",
+      "deadlineDays": 12,
+      "current": 0,
+      "target": 100,
+      "elapsedTime": null
+    }
   ]
 }
