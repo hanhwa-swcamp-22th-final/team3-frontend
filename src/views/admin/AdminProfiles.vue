@@ -60,6 +60,7 @@ const avgScore = computed(() => {
   return (sum / employees.value.length).toFixed(1)
 })
 
+
 // ── 필터링 ──────────────────────────────────────────
 const filteredEmployees = computed(() =>
   employees.value.filter(e => {
@@ -286,8 +287,11 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px 24px 0;
+  padding: 24px;
   /* DashboardView header min-height: 80px 제외한 나머지 뷰포트 */
+  /* flex: 1 + min-width: 0 → 사이드바 옆 남은 너비 전체 차지 */
+  flex: 1;
+  min-width: 0;
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
@@ -302,8 +306,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .stat-card {
   flex: 1;
   padding: 15px 17px;
-  background: #FFFFFF;
-  border: 1px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -312,7 +316,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 
 .stat-card__label {
   font-size: 10px;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -320,13 +324,13 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .stat-card__value {
   font-size: 30px;
   font-weight: 900;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   line-height: 1;
 }
 
 .stat-card__sub {
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-muted);
 }
 
 /* 툴바 */
@@ -340,34 +344,34 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   flex: 1;
   height: 37px;
   padding: 0 14px;
-  border: 1px solid #E0DCFF;
+  border: 1px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   outline: none;
 }
 
-.toolbar__search:focus { border-color: #5B4FCF; }
+.toolbar__search:focus { border-color: var(--color-primary-600); }
 
 .toolbar__select {
   height: 37px;
   padding: 0 10px;
-  border: 1px solid #E0DCFF;
+  border: 1px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
-  color: #2D1F6E;
-  background: #FFFFFF;
+  color: var(--color-primary-800);
+  background: var(--color-bg-surface);
   cursor: pointer;
   outline: none;
 }
 
-.toolbar__select:focus { border-color: #5B4FCF; }
+.toolbar__select:focus { border-color: var(--color-primary-600); }
 
 .toolbar__btn {
   height: 37px;
   padding: 0 16px;
-  background: #5B4FCF;
-  color: #FFFFFF;
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
   border: none;
   border-radius: 4px;
   font-size: 12px;
@@ -378,8 +382,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 
 /* 섹션 — Figma: 516px 고정, 내용 넘치면 스크롤 */
 .section {
-  background: #FFFFFF;
-  border: 1px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: 12px;
   padding: 20px;
   flex: 1;
@@ -390,7 +394,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .section-title {
   font-size: 9px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
@@ -400,7 +404,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .filter-tabs {
   display: flex;
   gap: 16px;
-  border-bottom: 1px solid #EEEBFF;
+  border-bottom: 1px solid var(--color-border-muted);
   margin-bottom: 12px;
 }
 
@@ -408,7 +412,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   padding: 8px 0;
   font-size: 11px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -417,8 +421,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 }
 
 .filter-tab--active {
-  color: #5B4FCF;
-  border-bottom-color: #5B4FCF;
+  color: var(--color-primary-600);
+  border-bottom-color: var(--color-primary-600);
 }
 
 /* 테이블 헤더 */
@@ -426,9 +430,9 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   display: flex;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #E0DCFF;
+  border-bottom: 1px solid var(--color-border-default);
   font-size: 10px;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -438,16 +442,16 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   display: flex;
   align-items: center;
   height: 56px;
-  border-bottom: 1px solid #EEEBFF;
+  border-bottom: 1px solid var(--color-border-muted);
   font-size: 12px;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
 }
 
 .table-empty {
   padding: 40px 0;
   text-align: center;
   font-size: 13px;
-  color: #A89ED8;
+  color: var(--color-primary-300);
 }
 
 /* 컬럼 — Figma 픽셀 기준: total 1128px
@@ -471,7 +475,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   justify-content: center;
   font-size: 12px;
   font-weight: 900;
-  color: #FFFFFF;
+  color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
@@ -488,8 +492,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   width: 52px;
   height: 26px;
   font-size: 12px;
-  color: #5B4FCF;
-  background: #F0EEFF;
+  color: var(--color-primary-600);
+  background: var(--color-primary-100);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -499,8 +503,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   width: 52px;
   height: 26px;
   font-size: 12px;
-  color: #EF476F;
-  background: #FFF0F3;
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -521,7 +525,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 
 .pagination__info {
   font-size: 11px;
-  color: #A89ED8;
+  color: var(--color-primary-300);
 }
 
 .pagination__pages {
@@ -537,7 +541,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-muted);
   background: none;
   border: none;
   border-radius: 4px;
@@ -547,9 +551,9 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .page-btn:disabled { opacity: 0.4; cursor: default; }
 
 .page-btn--active {
-  background: #5B4FCF;
-  color: #FFFFFF;
-  border: 1px solid #7F75DB;
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border: 1px solid var(--color-primary-500);
 }
 
 .page-ellipsis {
@@ -559,6 +563,6 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-muted);
 }
 </style>

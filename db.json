@@ -177,6 +177,30 @@
       "is_locked": false,
       "mfa_enabled": false,
       "last_login_at": null
+    },
+    {
+      "id": "fa38",
+      "employee_name": "빌게이츠",
+      "employee_code": "1234",
+      "employee_line": "2431567ㅕ",
+      "employee_role": "worker",
+      "hire_date": "",
+      "employee_equipment": "2314567ㅕ",
+      "employee_certifications": "",
+      "employee_notes": "",
+      "score_precision": 0,
+      "score_speed": 0,
+      "score_equipment_mastery": 0,
+      "score_collaboration": 0,
+      "score_problem_solving": 0,
+      "score_safety": 0,
+      "updated_at": "2026-03-16T07:08:35.079Z",
+      "created_at": "2026-03-16T07:08:35.079Z",
+      "employee_status": "재직",
+      "login_fail_count": 0,
+      "is_locked": false,
+      "mfa_enabled": false,
+      "last_login_at": null
     }
   ],
   "workerProfiles": [

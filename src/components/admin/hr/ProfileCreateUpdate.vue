@@ -274,7 +274,7 @@ const handleSave = async () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(17, 24, 39, 0.5);
+  background: var(--color-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -290,17 +290,17 @@ const handleSave = async () => {
   width: 688px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #FFFFFF;
-  border: 3px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.18);
+  box-shadow: var(--shadow-card);
 }
 
 /* ── 섹션 레이블 (Figma: 9px, uppercase, #A89ED8) ──── */
 .section-label {
   font-size: 9px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1;
@@ -322,7 +322,7 @@ const handleSave = async () => {
 
 .field-label {
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-muted);
   line-height: 1;
 }
 
@@ -332,11 +332,11 @@ const handleSave = async () => {
   box-sizing: border-box;
   width: 100%;
   padding: 9px 12px;
-  background: #FFFFFF;
-  border: 3px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   outline: none;
   font-family: inherit;
 }
@@ -347,12 +347,12 @@ const handleSave = async () => {
 
 .field-input:focus,
 .field-textarea:focus {
-  border-color: #5B4FCF;
+  border-color: var(--color-primary-600);
 }
 
 /* 사원번호 읽기전용 (Figma: background #F5F5F5) */
 .field-input--readonly {
-  background: #F5F5F5;
+  background: var(--color-neutral-100);
   cursor: default;
 }
 
@@ -361,17 +361,17 @@ const handleSave = async () => {
   resize: vertical;
 }
 
-.required { color: #EF476F; }
+.required { color: var(--color-danger); }
 
 /* ── 경고 박스 (Figma: #FFF8E0, border-left 3px #FFD166) */
 .score-warning {
   box-sizing: border-box;
   padding: 10px 17px;
-  background: #FFF8E0;
+  background: var(--color-warning-soft);
   border-left: 3px solid #FFD166;
   border-radius: 4px;
   font-size: 11px;
-  color: #A07000;
+  color: var(--color-warning);
   line-height: 1.4;
 }
 
@@ -403,7 +403,7 @@ const handleSave = async () => {
 
 .score-label {
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-muted);
 }
 
 /* 점수 수동 입력 (Figma: 숫자값, #5B4FCF) */
@@ -411,33 +411,33 @@ const handleSave = async () => {
   width: 44px;
   height: 20px;
   padding: 0 4px;
-  border: 1px solid #E0DCFF;
+  border: 1px solid var(--color-border-default);
   border-radius: 3px;
   font-size: 11px;
   font-family: 'JetBrains Mono', monospace;
-  color: #5B4FCF;
+  color: var(--color-primary-600);
   text-align: right;
   outline: none;
   background: transparent;
 }
 
 .score-input:focus {
-  border-color: #5B4FCF;
-  background: #F0EEFF;
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-100);
 }
 
 /* 진행 바 (Figma: track #E0DCFF, fill #5B4FCF, height ~4px) */
 .score-track {
   width: 100%;
   height: 4px;
-  background: #E0DCFF;
+  background: var(--color-border-default);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .score-fill {
   height: 100%;
-  background: #5B4FCF;
+  background: var(--color-primary-600);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -446,8 +446,8 @@ const handleSave = async () => {
 .history-box {
   box-sizing: border-box;
   padding: 17px;
-  background: #FAFBFF;
-  border: 3px solid #E0DCFF;
+  background: var(--color-bg-app);
+  border: 3px solid var(--color-border-default);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -457,13 +457,13 @@ const handleSave = async () => {
 .history-title {
   font-size: 11px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   margin-bottom: 4px;
 }
 
 .history-line {
   font-size: 11px;
-  color: #A89ED8;
+  color: var(--color-primary-300);
   line-height: 1.7;
 }
 
@@ -486,25 +486,25 @@ const handleSave = async () => {
   white-space: nowrap;
 }
 
-/* 취소 (Figma: background #C0103E, border 3px #C0103E) */
+/* 취소 (Figma: background var(--color-danger), border 3px var(--color-danger)) */
 .btn-cancel {
-  background: #C0103E;
-  border: 3px solid #C0103E;
-  color: #FFFFFF;
+  background: var(--color-danger);
+  border: 3px solid var(--color-danger);
+  color: var(--color-text-inverse);
 }
 
 /* 임시 저장 (Figma: background #FFFFFF, border 3px #E0DCFF) */
 .btn-temp {
-  background: #FFFFFF;
-  border: 3px solid #E0DCFF;
-  color: #7A6FA8;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
+  color: var(--color-text-muted);
 }
 
 /* 저장 완료 (Figma: background #5B4FCF, border 3px #7F75DB) */
 .btn-save {
-  background: #5B4FCF;
-  border: 3px solid #7F75DB;
-  color: #FFFFFF;
+  background: var(--color-primary-600);
+  border: 3px solid var(--color-primary-500);
+  color: var(--color-text-inverse);
 }
 
 .btn:disabled {
