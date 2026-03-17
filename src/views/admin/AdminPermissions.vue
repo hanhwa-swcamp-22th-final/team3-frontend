@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
 
-const ROLES = ['Admin', 'HR Manager', 'Team Leader', 'Line Manager', 'Technician']
+const ROLES = ['Admin', 'HR Manager', 'Team Leader', 'Department Leader', 'Worker']
 
 const ROLE_DEFINITIONS = {
   'Admin': {
@@ -32,21 +32,21 @@ const ROLE_DEFINITIONS = {
       { initial: 'T', name: '팀리더B', team: '품질팀', status: '활성' },
     ],
   },
-  'Line Manager': {
-    title: '라인 관리자',
+  'Department Leader': {
+    title: '부서 리더',
     desc: '라인 대시보드 조회, 정성 평가 입력, 주문 현황 조회, 작업 매칭 실행 권한 보유.',
     level: 2,
     accounts: [
-      { initial: 'L', name: '라인관리자A', team: 'A라인', status: '활성' },
+      { initial: 'D', name: '부서장A', team: 'A부서', status: '활성' },
     ],
   },
-  'Technician': {
-    title: '테크니션',
+  'Worker': {
+    title: '작업자',
     desc: '개인 대시보드 및 본인 점수 조회, 지식 등록, 이의 신청 권한 보유.',
     level: 1,
     accounts: [
-      { initial: 'T', name: '테크니션A', team: 'A라인', status: '활성' },
-      { initial: 'T', name: '테크니션B', team: 'B라인', status: '활성' },
+      { initial: 'W', name: '작업자A', team: 'A라인', status: '활성' },
+      { initial: 'W', name: '작업자B', team: 'B라인', status: '활성' },
     ],
   },
 }
@@ -55,35 +55,35 @@ const DUMMY_MATRIX = [
   {
     category: '📊 대시보드 & 조회',
     items: [
-      { name: '전사 대시보드',  Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '전체현황' },
-      { name: '라인 대시보드',  Admin: true,  HR: true,  TL: true,  LM: true,  Tech: false, note: '—' },
-      { name: '개인 대시보드',  Admin: true,  HR: true,  TL: true,  LM: true,  Tech: true,  note: '본인만' },
+      { name: '전사 대시보드',  Admin: true,  HR: true,  TL: false, DL: false, Worker: false, note: '전체현황' },
+      { name: '라인 대시보드',  Admin: true,  HR: true,  TL: true,  DL: true,  Worker: false, note: '—' },
+      { name: '개인 대시보드',  Admin: true,  HR: true,  TL: true,  DL: true,  Worker: true,  note: '본인만' },
     ],
   },
   {
     category: '⚙️ 평가 & 알고리즘',
     items: [
-      { name: '정량 점수 조회',    Admin: true,  HR: true,  TL: true,  LM: true,  Tech: true,  note: '본인만(Tech)' },
-      { name: '정성 평가 입력',    Admin: true,  HR: false, TL: false, LM: true,  Tech: false, note: 'GL, TL 입력' },
-      { name: '평가 승인/확정',    Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '—' },
-      { name: '알고리즘 파라미터', Admin: true,  HR: false, TL: false, LM: false, Tech: false, note: 'Admin 전용' },
+      { name: '정량 점수 조회',    Admin: true,  HR: true,  TL: true,  DL: true,  Worker: true,  note: '본인만(Tech)' },
+      { name: '정성 평가 입력',    Admin: true,  HR: false, TL: false, DL: true,  Worker: false, note: 'GL, TL 입력' },
+      { name: '평가 승인/확정',    Admin: true,  HR: true,  TL: false, DL: false, Worker: false, note: '—' },
+      { name: '알고리즘 파라미터', Admin: true,  HR: false, TL: false, DL: false, Worker: false, note: 'Admin 전용' },
     ],
   },
   {
     category: '👥 인사 & 승급',
     items: [
-      { name: '전체 인원 조회', Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '—' },
-      { name: '프로필 수정',    Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '—' },
-      { name: '승급 심사',      Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '—' },
-      { name: '이의 신청',      Admin: true,  HR: false, TL: false, LM: false, Tech: true,  note: 'Tech 본인' },
+      { name: '전체 인원 조회', Admin: true,  HR: true,  TL: false, DL: false, Worker: false, note: '—' },
+      { name: '프로필 수정',    Admin: true,  HR: true,  TL: false, DL: false, Worker: false, note: '—' },
+      { name: '승급 심사',      Admin: true,  HR: true,  TL: false, DL: false, Worker: false, note: '—' },
+      { name: '이의 신청',      Admin: true,  HR: false, TL: false, DL: false, Worker: true,  note: 'Tech 본인' },
     ],
   },
   {
     category: '📦 SCM & 설비',
     items: [
-      { name: '주문 현황 조회',   Admin: true,  HR: true,  TL: true,  LM: true,  Tech: false, note: '—' },
-      { name: '작업 매칭 실행',   Admin: true,  HR: false, TL: false, LM: true,  Tech: false, note: '—' },
-      { name: '설비 E_idx 설정', Admin: true,  HR: false, TL: false, LM: false, Tech: false, note: 'Admin 전용' },
+      { name: '주문 현황 조회',   Admin: true,  HR: true,  TL: true,  DL: true,  Worker: false, note: '—' },
+      { name: '작업 매칭 실행',   Admin: true,  HR: false, TL: false, DL: true,  Worker: false, note: '—' },
+      { name: '설비 E_idx 설정', Admin: true,  HR: false, TL: false, DL: false, Worker: false, note: 'Admin 전용' },
     ],
   },
 ]
@@ -151,7 +151,7 @@ const onSave = () => { pendingChanges.value = 0 }
   height: calc(100vh - 58px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .tab-bar {
@@ -213,7 +213,7 @@ const onSave = () => { pendingChanges.value = 0 }
   font-weight: 700;
   color: #fff;
   cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .btn-save:hover { background: #4A3FB0; }

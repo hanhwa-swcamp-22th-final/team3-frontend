@@ -4,7 +4,7 @@ defineProps({
 })
 const emit = defineEmits(['toggle'])
 
-const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
+const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 </script>
 
 <template>
@@ -57,7 +57,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   gap: 0;
   overflow: hidden;
   min-width: 0;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .panel-title {
