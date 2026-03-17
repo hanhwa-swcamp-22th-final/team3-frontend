@@ -122,7 +122,7 @@ const onDeleteClick = (id) => {
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 /* 헤더 */
@@ -142,7 +142,7 @@ const onDeleteClick = (id) => {
 .page-title {
   font-size: 20px;
   font-weight: 700;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
   margin: 0;
 }
 
@@ -155,18 +155,18 @@ const onDeleteClick = (id) => {
 .btn-add {
   height: 36px;
   padding: 0 20px;
-  background: #5b4fcf;
-  border: 1px solid #7f75db;
+  background: var(--color-primary-600);
+  border: 1px solid var(--color-primary-500);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-bg-surface);
+  font-family: var(--font-family-base);
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.btn-add:hover { background: #4a3fb0; }
+.btn-add:hover { background: var(--color-primary-700); }
 
 /* 페이지네이션 */
 .pagination {
@@ -178,7 +178,7 @@ const onDeleteClick = (id) => {
 
 .pagination-info {
   font-size: 12px;
-  color: #7a6fa8;
+  color: #7a6fa8; /* --color-text-sub 없음, 유지 */
 }
 
 .pagination-btns {
@@ -190,13 +190,13 @@ const onDeleteClick = (id) => {
 .page-btn {
   width: 28px;
   height: 28px;
-  background: #ffffff;
-  border: 1px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   color: #7a6fa8;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -204,6 +204,6 @@ const onDeleteClick = (id) => {
 }
 
 .page-btn:disabled { opacity: 0.4; cursor: default; }
-.page-btn--active  { background: #5b4fcf; color: #ffffff; border-color: #5b4fcf; }
-.page-btn:not(:disabled):not(.page-btn--active):hover { background: #f0eeff; }
+.page-btn--active  { background: var(--color-primary-600); color: var(--color-bg-surface); border-color: var(--color-primary-600); }
+.page-btn:not(:disabled):not(.page-btn--active):hover { background: var(--color-primary-100); }
 </style>

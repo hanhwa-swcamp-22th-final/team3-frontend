@@ -57,14 +57,14 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 <style scoped>
 .keyword-table {
   flex: 1;
-  background: #ffffff;
-  border: 2px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 2px solid var(--color-border-default);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(45, 31, 110, 0.06);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 /* 헤더 */
@@ -73,15 +73,15 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   align-items: center;
   height: 44px;
   padding: 0 24px;
-  background: #f0eeff;
-  border-bottom: 2px solid #e0dcff;
+  background: var(--color-primary-100);
+  border-bottom: 2px solid var(--color-border-default);
   flex-shrink: 0;
 }
 
 .table-header span {
   font-size: 13px;
   font-weight: 700;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 /* 행 */
@@ -90,16 +90,16 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   align-items: center;
   height: 52px;
   padding: 0 24px;
-  border-bottom: 2px solid #e0dcff;
+  border-bottom: 2px solid var(--color-border-default);
   flex-shrink: 0;
 }
 
-.table-row--alt { background: #fafbff; }
+.table-row--alt { background: var(--color-bg-app); }
 .table-row:hover { background: #f5f3ff; }
 
 .table-row span {
   font-size: 13px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 /* 컬럼 너비 */
@@ -123,17 +123,17 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 .btn-edit {
   height: 26px;
   padding: 0 14px;
-  background: #f0eeff;
+  background: var(--color-primary-100);
   border: none;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #5b4fcf;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-primary-600);
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-edit:hover { background: #e0dcff; }
+.btn-edit:hover { background: var(--color-border-default); }
 
 .btn-delete {
   height: 26px;
@@ -143,8 +143,8 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #ef476f;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-danger);
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 

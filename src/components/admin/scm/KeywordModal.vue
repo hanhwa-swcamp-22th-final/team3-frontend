@@ -97,12 +97,12 @@ const handleSave = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 .modal {
   width: 480px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(45, 31, 110, 0.2);
   display: flex;
@@ -120,7 +120,7 @@ const handleSave = () => {
 .modal-title {
   font-size: 16px;
   font-weight: 700;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 .btn-close {
@@ -138,7 +138,7 @@ const handleSave = () => {
 
 .modal-divider {
   height: 1px;
-  background: #e0dcff;
+  background: var(--color-border-default);
   margin: 0 24px;
 }
 
@@ -159,35 +159,35 @@ const handleSave = () => {
 label {
   font-size: 12px;
   font-weight: 700;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 input,
 select {
   height: 36px;
   padding: 0 12px;
-  background: #ffffff;
-  border: 2px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 2px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 13px;
-  color: #2d1f6e;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-primary-800);
+  font-family: var(--font-family-base);
   outline: none;
   box-sizing: border-box;
 }
 
 input::placeholder { color: #a89ed8; }
-input:focus, select:focus { border-color: #5b4fcf; }
+input:focus, select:focus { border-color: var(--color-primary-600); }
 
 textarea {
   height: 60px;
   padding: 10px 12px;
-  background: #ffffff;
-  border: 2px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 2px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 13px;
-  color: #2d1f6e;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-primary-800);
+  font-family: var(--font-family-base);
   outline: none;
   resize: none;
   box-sizing: border-box;
@@ -195,7 +195,7 @@ textarea {
 }
 
 textarea::placeholder { color: #a89ed8; }
-textarea:focus { border-color: #5b4fcf; }
+textarea:focus { border-color: var(--color-primary-600); }
 
 /* 푸터 */
 .modal-footer {
@@ -208,30 +208,30 @@ textarea:focus { border-color: #5b4fcf; }
 .btn-cancel {
   flex: 1;
   height: 36px;
-  background: #f0eeff;
+  background: var(--color-primary-100);
   border: none;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #5b4fcf;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-primary-600);
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-cancel:hover { background: #e0dcff; }
+.btn-cancel:hover { background: var(--color-border-default); }
 
 .btn-submit {
   flex: 1;
   height: 36px;
-  background: #5b4fcf;
-  border: 1px solid #7f75db;
+  background: var(--color-primary-600);
+  border: 1px solid var(--color-primary-500);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
-  font-family: 'Pretendard', sans-serif;
+  color: var(--color-bg-surface);
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-submit:hover { background: #4a3fb0; }
+.btn-submit:hover { background: var(--color-primary-700); }
 </style>
