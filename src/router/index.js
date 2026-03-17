@@ -6,24 +6,24 @@ import DashboardView from '@/views/DashboardView.vue'
 const Placeholder = () => import('@/views/PlaceholderView.vue')
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/login',
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: LoginView,
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardView,
-    meta: { requiresAuth: true },
-    children: [
-      { path: '', component: Placeholder },
-    ],
-  },
+    {
+        path: '/',
+        redirect: '/login',
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: LoginView,
+    },
+    {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: DashboardView,
+        meta: { requiresAuth: true },
+        children: [
+            { path: '', component: Placeholder },
+        ],
+    },
 
   // Admin Routes
   {
@@ -93,7 +93,7 @@ const routes = [
       {
         path: 'kpireport',
         name: 'HRMKpiReport',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMKpiReportView.vue'),
       },
       {
         path: 'evaluation-criteria',
@@ -201,7 +201,7 @@ const routes = [
       {
         path: 'team-capability',
         name: 'TeamCapability',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderTeamCapabilityView.vue'),
       },
       {
         path: 'evaluation',
@@ -236,84 +236,84 @@ const routes = [
     ],
   },
 
-  // Worker Routes
-  {
-    path: '/worker',
-    component: DashboardView,
-    meta: { requiresAuth: true, allowedRoles: ['worker'] },
-    children: [
-      {
-        path: 'dashboard',
-        name: 'WorkerDashboard',
-        component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
-      },
-      {
-        path: 'point-mission',
-        name: 'PointMission',
-        component: () => import('@/views/worker/PointMissionContent.vue'),
-      },
-      {
-        path: 'evaluation-result',
-        name: 'WorkerEvaluationResult',
-        component: () => import('@/views/worker/EvaluationResultContent.vue'),
-      },
-      {
-        path: 'appeal',
-        name: 'AppealRequest',
-        component: () => import('@/views/worker/AppealRequestContent.vue'),
-      },
-      {
-        path: 'noticeboard',
-        name: 'WorkerNoticeBoard',
-        component: () => import('@/views/worker/NoticeBoardContent.vue'),
-      },
-      {
-        path: 'today-task',
-        name: 'TodayTask',
-        component: () => import('@/views/worker/TodayTaskContent.vue'),
-      },
-      {
-        path: 'knowledgehub',
-        name: 'WorkerKnowledgeHub',
-        component: Placeholder,
-      },
-      {
-        path: 'my-knowledge',
-        name: 'MyKnowledgeManagement',
-        component: Placeholder,
-      },
-      {
-        path: 'skill-gap',
-        name: 'SkillGapAnalysis',
-        component: Placeholder,
-      },
-    ],
-  },
+    // Worker Routes
+    {
+        path: '/worker',
+        component: DashboardView,
+        meta: { requiresAuth: true, allowedRoles: ['worker'] },
+        children: [
+            {
+                path: 'dashboard',
+                name: 'WorkerDashboard',
+                component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
+            },
+            {
+                path: 'point-mission',
+                name: 'PointMission',
+                component: () => import('@/views/worker/PointMissionContent.vue'),
+            },
+            {
+                path: 'evaluation-result',
+                name: 'WorkerEvaluationResult',
+                component: () => import('@/views/worker/EvaluationResultContent.vue'),
+            },
+            {
+                path: 'appeal',
+                name: 'AppealRequest',
+                component: () => import('@/views/worker/AppealRequestContent.vue'),
+            },
+            {
+                path: 'noticeboard',
+                name: 'WorkerNoticeBoard',
+                component: () => import('@/views/worker/NoticeBoardContent.vue'),
+            },
+            {
+                path: 'today-task',
+                name: 'TodayTask',
+                component: () => import('@/views/worker/TodayTaskContent.vue'),
+            },
+            {
+                path: 'knowledgehub',
+                name: 'WorkerKnowledgeHub',
+                component: Placeholder,
+            },
+            {
+                path: 'my-knowledge',
+                name: 'MyKnowledgeManagement',
+                component: Placeholder,
+            },
+            {
+                path: 'skill-gap',
+                name: 'SkillGapAnalysis',
+                component: Placeholder,
+            },
+        ],
+    },
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes,
 })
 
 router.beforeEach((to) => {
-  const auth = useAuthStore()
+    const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'Login' }
-  }
-
-  if (to.name === 'Login' && auth.isAuthenticated) {
-    const roleRouteMap = {
-      admin: 'AdminFacility',
-      HRM: 'HRDashboard',
-      TL: 'TeamLeaderDashboard',
-      DL: 'DepartmentLeaderDashboard',
-      worker: 'WorkerDashboard',
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        return { name: 'Login' }
     }
-    const dest = roleRouteMap[auth.role()] ?? 'Login'
-    return { name: dest }
-  }
+
+    if (to.name === 'Login' && auth.isAuthenticated) {
+        const roleRouteMap = {
+            admin: 'AdminFacility',
+            HRM: 'HRDashboard',
+            TL: 'TeamLeaderDashboard',
+            DL: 'DepartmentLeaderDashboard',
+            worker: 'WorkerDashboard',
+        }
+        const dest = roleRouteMap[auth.role()] ?? 'Login'
+        return { name: dest }
+    }
 })
 
 export default router

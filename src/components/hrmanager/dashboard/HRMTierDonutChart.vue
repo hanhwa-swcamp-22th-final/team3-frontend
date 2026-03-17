@@ -19,14 +19,10 @@ const props = defineProps({
 const canvasRef = ref(null)
 let chartInstance = null
 
-function getCssVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-}
-
 function buildChart() {
   const TIER_COLORS = getTierColors()
-  const colorPrimary = getCssVar('--color-primary-800')
-  const colorMuted = getCssVar('--color-text-muted')
+  const colorPrimary = '#2d1f6e'
+  const colorMuted = '#7c739f'
 
   chartInstance = new Chart(canvasRef.value, {
     type: 'doughnut',

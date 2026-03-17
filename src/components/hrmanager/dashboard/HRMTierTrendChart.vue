@@ -28,10 +28,6 @@ const props = defineProps({
 const canvasRef = ref(null)
 let chartInstance = null
 
-function getCssVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-}
-
 function defer(fn) {
   nextTick().then(() => requestAnimationFrame(fn))
 }
@@ -62,7 +58,7 @@ function buildChart() {
         x: {
           stacked: true,
           grid: { display: false },
-          ticks: { color: getCssVar('--color-text-muted'), font: { size: 12 } },
+          ticks: { color: '#7c739f', font: { size: 12 } },
           border: { display: false },
         },
         y: {
