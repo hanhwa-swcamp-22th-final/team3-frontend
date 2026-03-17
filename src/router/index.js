@@ -17,11 +17,10 @@ const routes = [
     },
     {
         path: '/dashboard',
-        name: 'Dashboard',
         component: DashboardView,
         meta: { requiresAuth: true },
         children: [
-            { path: '', component: Placeholder },
+            { path: '', name: 'Dashboard', component: Placeholder },
         ],
     },
 
@@ -103,7 +102,7 @@ const routes = [
       {
         path: 'promotion-review',
         name: 'PromotionReview',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMPromotionReviewView.vue'),
       },
       {
         path: 'organization',
