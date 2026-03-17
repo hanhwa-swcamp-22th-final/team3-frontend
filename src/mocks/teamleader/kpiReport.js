@@ -18,3 +18,24 @@ export const kpiRows = [
   { id: 11, name: '배지후', tier: 'A', actualOutput: '93.4개', eIdx: '0.91', adjustedRate: '82.9%', score: '82.7', trend: '▲1.1', trendTone: 'success', detailLabel: '상세', avatar: '배', avatarTone: 'slate' },
   { id: 12, name: '서예린', tier: 'B', actualOutput: '81.7개', eIdx: '0.84', adjustedRate: '77.2%', score: '77.1', trend: '▼1.4', trendTone: 'danger', detailLabel: '상세', avatar: '서', avatarTone: 'red' },
 ]
+
+export const kpiTrendPanelMap = {
+  default: {
+    stepTemplates: [
+      { step: 1, title: '기준 생산량 설정', descriptionTemplate: 'E_exp = 120개/일', valueTemplate: '120개' },
+      { step: 2, title: '실제 생산량 집계', descriptionTemplate: 'P = {actualOutput} (MES 수신)', valueTemplate: '{actualOutput}' },
+      { step: 3, title: '임시 E값', descriptionTemplate: '{actualBase} / 120 = {eIdx}', valueTemplate: '{eRate}%' },
+      { step: 4, title: '설비 E_idx 수신', descriptionTemplate: '{name} 가동 E_idx = {eIdx}', valueTemplate: '{eIdx}' },
+      { step: 5, title: '보정 달성률', descriptionTemplate: '보정 달성률 = {adjustedRate}', valueTemplate: '{adjustedRate}' },
+      { step: 6, title: '정량 점수 산출', descriptionTemplate: '최종 산출 점수 = {score}', valueTemplate: '{score}점' },
+    ],
+    chartTitleTemplate: '{name} E_idx 월별 추이',
+    chartMetaTemplate: '선택 인원 {name} · 최근 산출 지표 기준',
+    benchmarkTitle: '라인 내 비교',
+    benchmarkTemplates: [
+      { labelTemplate: '라인 평균', valueTemplate: '83.1', deltaTemplate: '기준' },
+      { labelTemplate: '{name}', valueTemplate: '{score}', deltaTemplate: '{trend}' },
+      { labelTemplate: '라인 최고', valueTemplate: '86.1', deltaTemplate: '▲3.0' },
+    ],
+  },
+}
