@@ -113,7 +113,7 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'HRMNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMNoticeBoardView.vue'),
       },
     ],
   },
