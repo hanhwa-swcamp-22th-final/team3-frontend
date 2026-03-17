@@ -177,7 +177,7 @@ const routes = [
       {
         path: 'knowledgeapproval',
         name: 'TLKnowledgeApproval',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderKnowledgeApprovalView.vue'),
       },
     ],
   },
@@ -317,3 +317,4 @@ router.beforeEach((to) => {
 })
 
 export default router
+
