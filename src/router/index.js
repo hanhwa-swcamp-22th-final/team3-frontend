@@ -225,7 +225,7 @@ const routes = [
       {
         path: 'knowledgehub',
         name: 'DLKnowledgeHub',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderKnowledgeHubView.vue'),
       },
       {
         path: 'knowledgeapproval',
