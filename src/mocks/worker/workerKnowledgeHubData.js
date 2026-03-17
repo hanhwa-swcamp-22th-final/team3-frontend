@@ -1,6 +1,6 @@
 /**
  * Mock data for Worker Knowledge Hub (KMS)
- * Used by KnowledgeHubContent.vue
+ * Used by KnowledgeHubView.vue
  */
 
 export const knowledgeStats = {
