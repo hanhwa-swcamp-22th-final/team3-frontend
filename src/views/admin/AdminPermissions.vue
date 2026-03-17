@@ -1,24 +1,85 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
 import { ROLES, ROLE_DEFINITIONS, DUMMY_MATRIX } from '@/mocks/admin/permission/permissionData.js'
 
-const selectedRole   = ref('Admin')
-const pendingChanges = ref(3)
+const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
+
+// 원본 스냅샷 (비교용)
+const originalMatrix = ref(DUMMY_MATRIX.map(cat => ({
+  ...cat,
+  items: cat.items.map(item => ({ ...item })),
+})))
+
+const selectedRole = ref('Admin')
 const matrix = ref(DUMMY_MATRIX.map(cat => ({
   ...cat,
   items: cat.items.map(item => ({ ...item })),
 })))
 
+// 원본과 비교해서 실제 변경된 수만 카운트
+const pendingChanges = computed(() => {
+  let count = 0
+  matrix.value.forEach((cat, catIdx) => {
+    cat.items.forEach((item, itemIdx) => {
+      const orig = originalMatrix.value[catIdx].items[itemIdx]
+      ROLE_KEYS.forEach(role => {
+        if (item[role] !== orig[role]) count++
+      })
+    })
+  })
+  return count
+})
+
+const showLog  = ref(false)
+const changeLogs = ref([])
+
 const onSelectRole = (role) => { selectedRole.value = role }
 
 const onToggle = (catIdx, itemIdx, roleKey) => {
   matrix.value[catIdx].items[itemIdx][roleKey] = !matrix.value[catIdx].items[itemIdx][roleKey]
-  pendingChanges.value++
 }
 
-const onSave = () => { pendingChanges.value = 0 }
+const onSave = () => {
+  const logs = []
+  matrix.value.forEach((cat, catIdx) => {
+    cat.items.forEach((item, itemIdx) => {
+      const orig = originalMatrix.value[catIdx].items[itemIdx]
+      ROLE_KEYS.forEach(role => {
+        if (item[role] !== orig[role]) {
+          logs.push({
+            category: cat.category,
+            feature:  item.name,
+            role,
+            from: orig[role],
+            to:   item[role],
+          })
+        }
+      })
+    })
+  })
+  changeLogs.value = logs
+  showLog.value = logs.length > 0
+}
+
+const onConfirmSave = () => {
+  originalMatrix.value = matrix.value.map(cat => ({
+    ...cat,
+    items: cat.items.map(item => ({ ...item })),
+  }))
+  showLog.value = false
+  changeLogs.value = []
+}
+
+const onCancelSave = () => {
+  matrix.value = originalMatrix.value.map(cat => ({
+    ...cat,
+    items: cat.items.map(item => ({ ...item })),
+  }))
+  showLog.value = false
+  changeLogs.value = []
+}
 </script>
 
 <template>
@@ -37,7 +98,30 @@ const onSave = () => { pendingChanges.value = 0 }
       </div>
       <div class="actions">
         <span v-if="pendingChanges > 0" class="badge-pending">변경사항 {{ pendingChanges }}건</span>
-        <button class="btn-save" @click="onSave">저장 적용</button>
+        <div class="btn-save-wrap">
+          <button class="btn-save" @click="onSave">저장 적용</button>
+          <!-- 변경 로그 -->
+          <div v-if="showLog" class="change-log">
+            <div class="change-log__header">
+              <span>변경 내역 {{ changeLogs.length }}건</span>
+              <span class="change-log__close" @click="showLog = false">✕</span>
+            </div>
+            <div
+              v-for="(log, i) in changeLogs"
+              :key="i"
+              class="change-log__item"
+            >
+              <span class="log-category">{{ log.category }}</span>
+              <span class="log-feature">{{ log.feature }}</span>
+              <span class="log-role">{{ log.role }}</span>
+              <span class="log-arrow">{{ log.from ? '✅ → ❌' : '❌ → ✅' }}</span>
+            </div>
+            <div class="change-log__footer">
+              <button class="btn-cancel-save" @click="onCancelSave">취소</button>
+              <button class="btn-confirm-save" @click="onConfirmSave">확인 저장</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -133,6 +217,123 @@ const onSave = () => { pendingChanges.value = 0 }
 }
 
 .btn-save:hover { background: #4A3FB0; }
+
+.btn-save-wrap {
+  position: relative;
+}
+
+.change-log {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  background: #fff;
+  border: 1.5px solid #E0DCFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(45, 31, 110, 0.1);
+  z-index: 100;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.change-log__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #F0EEFF;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5B4FCF;
+}
+
+.change-log__close {
+  cursor: pointer;
+  font-size: 11px;
+  color: #A89ED8;
+}
+
+.change-log__close:hover { color: #5B4FCF; }
+
+.change-log__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #EEEBFF;
+  font-size: 11px;
+}
+
+.change-log__item:last-child { border-bottom: none; }
+
+.log-category {
+  color: #A89ED8;
+  flex-shrink: 0;
+}
+
+.log-feature {
+  color: #2D1F6E;
+  font-weight: 700;
+  flex: 1;
+}
+
+.log-role {
+  background: #F0EEFF;
+  color: #5B4FCF;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.log-arrow {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.change-log__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1.5px solid #EEEBFF;
+  background: #FAFBFF;
+}
+
+.btn-cancel-save {
+  height: 28px;
+  padding: 0 16px;
+  background: #fff;
+  border: 1.5px solid #E0DCFF;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #A89ED8;
+  cursor: pointer;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.btn-cancel-save:hover { background: #F0EEFF; color: #5B4FCF; }
+
+.btn-confirm-save {
+  height: 28px;
+  padding: 0 16px;
+  background: #5B4FCF;
+  border: 1.5px solid #7F75DB;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.btn-confirm-save:hover { background: #4A3FB0; }
 
 .panels {
   display: flex;
