@@ -31,10 +31,7 @@ const filteredCards = computed(() => {
         v-for="f in KMS_FILTERS"
         :key="f.key"
         class="filter-btn"
-        :style="selectedFilter === f.key
-          ? { background: '#2d1f6e', color: '#ffffff' }
-          : { background: '#ffffff', color: '#7a6fa8', border: '1.5px solid #e0dcff' }
-        "
+        :class="selectedFilter === f.key ? 'filter-btn--active' : 'filter-btn--inactive'"
         @click="emit('filterChange', f.key)"
       >{{ f.key }}</button>
     </div>
@@ -45,10 +42,10 @@ const filteredCards = computed(() => {
         v-for="t in KMS_TAG_FILTERS"
         :key="t.key"
         class="tag-chip"
-        :style="{
-          background: selectedTagFilter === t.key ? '#2d1f6e' : t.bg,
-          color:      selectedTagFilter === t.key ? '#ffffff'  : t.color,
-        }"
+        :style="selectedTagFilter === t.key
+          ? { background: 'var(--color-primary-800, #2d1f6e)', color: '#ffffff' }
+          : { background: t.bg, color: t.color }
+        "
         @click="emit('tagFilterChange', selectedTagFilter === t.key ? null : t.key)"
       >{{ t.key }}</span>
     </div>
@@ -129,6 +126,17 @@ const filteredCards = computed(() => {
   border: 1.5px solid transparent;
   font-family: var(--font-family-base);
   transition: background 0.15s;
+}
+
+.filter-btn--active {
+  background: var(--color-primary-800, #2d1f6e);
+  color: #ffffff;
+}
+
+.filter-btn--inactive {
+  background: var(--color-bg-surface, #ffffff);
+  color: var(--color-text-sub, #7a6fa8);
+  border-color: var(--color-border-default, #e0dcff);
 }
 
 /* 태그 필터 */
