@@ -4,7 +4,7 @@ import LogServiceCards from '@/components/admin/scm/LogServiceCards.vue'
 import LogToolbar      from '@/components/admin/scm/LogToolbar.vue'
 import LogViewer       from '@/components/admin/scm/LogViewer.vue'
 import LogMonitorPanel from '@/components/admin/scm/LogMonitorPanel.vue'
-import { DUMMY_LOGS }  from '@/mocks/admin/logs/logData.js'
+import { DUMMY_LOGS }  from '@/mocks/admin/record/logData.js'
 
 // ── State ──────────────────────────────────────────
 const selectedFilter = ref('전체')

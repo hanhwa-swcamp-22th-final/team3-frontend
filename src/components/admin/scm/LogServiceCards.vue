@@ -1,5 +1,5 @@
 <script setup>
-import { SERVICE_STATUS } from '@/mocks/admin/logs/logData.js'
+import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
 </script>
 
 <template>

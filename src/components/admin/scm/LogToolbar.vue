@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { FILTER_OPTIONS } from '@/mocks/admin/logs/logData.js'
+import { FILTER_OPTIONS } from '@/mocks/admin/record/logData.js'
 
 const props = defineProps({
   selectedFilter: { type: String, default: '전체' },
