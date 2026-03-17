@@ -1,4 +1,6 @@
 ﻿<script setup>
+import { computed, ref } from 'vue'
+
 const props = defineProps({
   article: {
     type: Object,
@@ -6,7 +8,20 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'submit-comment'])
+const commentText = ref('')
+
+const commentCount = computed(() => props.article.commentList?.length ?? props.article.comments ?? 0)
+
+function handleSubmitComment() {
+  const value = commentText.value.trim()
+  if (!value) {
+    return
+  }
+
+  emit('submit-comment', value)
+  commentText.value = ''
+}
 </script>
 
 <template>
@@ -32,7 +47,7 @@ const emit = defineEmits(['close'])
         <span class="detail-modal__avatar">{{ article.authorInitial }}</span>
         <div>
           <strong>{{ article.author }}</strong>
-          <p>댓글 {{ article.comments }}건</p>
+          <p>댓글 {{ commentCount }}건</p>
         </div>
       </div>
 
@@ -44,7 +59,21 @@ const emit = defineEmits(['close'])
       <section class="detail-modal__comments">
         <div class="detail-modal__comments-head">
           <h3>댓글</h3>
-          <span>{{ article.comments }}건</span>
+          <span>{{ commentCount }}건</span>
+        </div>
+
+        <div class="detail-modal__comment-compose">
+          <textarea
+            v-model="commentText"
+            class="detail-modal__comment-input"
+            placeholder="댓글을 입력하세요"
+            rows="3"
+          ></textarea>
+          <div class="detail-modal__comment-actions">
+            <button type="button" class="detail-modal__comment-submit" @click="handleSubmitComment">
+              댓글 등록
+            </button>
+          </div>
         </div>
 
         <div v-if="article.commentList?.length" class="detail-modal__comment-list">
@@ -97,7 +126,8 @@ const emit = defineEmits(['close'])
 
 .detail-modal__head,
 .detail-modal__actions,
-.detail-modal__comments-head {
+.detail-modal__comments-head,
+.detail-modal__comment-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -206,6 +236,43 @@ const emit = defineEmits(['close'])
   line-height: 1.8;
   color: var(--color-text-default);
   white-space: pre-line;
+}
+
+.detail-modal__comment-compose {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #faf8ff;
+}
+
+.detail-modal__comment-input {
+  width: 100%;
+  min-height: 88px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  resize: vertical;
+  font: inherit;
+  color: var(--color-text-default);
+  background: #fff;
+}
+
+.detail-modal__comment-input:focus {
+  outline: 2px solid rgba(91, 80, 214, 0.18);
+  border-color: var(--color-primary-300);
+}
+
+.detail-modal__comment-submit {
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary-700);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .detail-modal__comment-list {

@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   categories: { type: Array, default: () => [] },
@@ -11,7 +11,9 @@ const emit = defineEmits(['open-write', 'open-detail'])
 const activeCategory = ref('all')
 const searchQuery = ref('')
 const showAllCategories = ref(false)
+const currentPage = ref(1)
 const defaultVisibleCategoryCount = 4
+const pageSize = 4
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
@@ -38,8 +40,32 @@ const filteredArticles = computed(() => {
   return result.filter((item) => [item.title, item.preview, item.code, item.equipment].join(' ').toLowerCase().includes(keyword))
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+
+const pagedArticles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredArticles.value.slice(start, start + pageSize)
+})
+
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+
+watch([activeCategory, searchQuery], () => {
+  currentPage.value = 1
+})
+
+watch(filteredArticles, (articles) => {
+  const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal
+  }
+})
+
 function setCategory(categoryKey) {
   activeCategory.value = categoryKey
+}
+
+function setPage(page) {
+  currentPage.value = page
 }
 
 function tierClass(tier) {
@@ -117,7 +143,7 @@ function categoryClass(category) {
 
     <div class="feed__list">
       <article
-        v-for="article in filteredArticles"
+        v-for="article in pagedArticles"
         :key="article.id"
         class="feed__card"
         tabindex="0"
@@ -149,6 +175,19 @@ function categoryClass(category) {
       </article>
 
       <div v-if="filteredArticles.length === 0" class="feed__empty">조건에 맞는 문서가 없습니다.</div>
+    </div>
+
+    <div v-if="filteredArticles.length > 0" class="feed__pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        type="button"
+        class="feed__page"
+        :class="{ 'feed__page--active': currentPage === page }"
+        @click="setPage(page)"
+      >
+        {{ page }}
+      </button>
     </div>
   </section>
 </template>
@@ -367,6 +406,31 @@ function categoryClass(category) {
   color: var(--color-text-muted);
 }
 
+.feed__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.feed__page {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  color: var(--color-text-default);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.feed__page--active {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: #fff;
+}
+
 .feed-expand-enter-active,
 .feed-expand-leave-active {
   transition: max-width 0.28s ease, opacity 0.22s ease, transform 0.22s ease;
@@ -416,4 +480,3 @@ function categoryClass(category) {
   }
 }
 </style>
-

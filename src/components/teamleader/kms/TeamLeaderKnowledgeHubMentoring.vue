@@ -5,6 +5,8 @@ defineProps({
     default: () => ({ ongoing: [], pending: [] }),
   },
 })
+
+const emit = defineEmits(['review-request', 'open-request'])
 </script>
 
 <template>
@@ -35,10 +37,14 @@ defineProps({
             <strong>{{ item.name }}</strong>
             <p>{{ item.requester }} · {{ item.summary }}</p>
           </div>
-          <button type="button">확인</button>
+          <button type="button" @click="emit('review-request', item)">확인</button>
         </article>
       </div>
     </div>
+
+    <button type="button" class="mentoring__request-button" @click="emit('open-request')">
+      멘토링 요청 등록 +
+    </button>
   </section>
 </template>
 
@@ -119,15 +125,27 @@ defineProps({
   font-weight: 800;
 }
 
+.mentoring__pending-row button,
+.mentoring__request-button {
+  border: none;
+  background: var(--color-primary-700);
+  color: #fff;
+  cursor: pointer;
+}
+
 .mentoring__pending-row button {
   height: 34px;
   padding: 0 14px;
-  border: none;
   border-radius: 10px;
-  background: var(--color-primary-700);
-  color: #fff;
   font-size: 12px;
   font-weight: 700;
-  cursor: pointer;
+}
+
+.mentoring__request-button {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
 }
 </style>

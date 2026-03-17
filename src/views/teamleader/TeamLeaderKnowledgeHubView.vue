@@ -7,19 +7,28 @@ import TeamLeaderKnowledgeHubMentoring from '@/components/teamleader/kms/TeamLea
 import TeamLeaderKnowledgeHubAiPanel from '@/components/teamleader/kms/TeamLeaderKnowledgeHubAiPanel.vue'
 import TeamLeaderKnowledgeWriteModal from '@/components/teamleader/kms/TeamLeaderKnowledgeWriteModal.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/teamleader/kms/TeamLeaderKnowledgeDetailModal.vue'
+import TeamLeaderKnowledgeMentoringReviewModal from '@/components/teamleader/kms/TeamLeaderKnowledgeMentoringReviewModal.vue'
+import TeamLeaderKnowledgeMentoringRequestModal from '@/components/teamleader/kms/TeamLeaderKnowledgeMentoringRequestModal.vue'
 import {
   knowledgeHubSummaryCards,
   knowledgeHubCategories,
   knowledgeHubArticles,
   knowledgeHubContributors,
   knowledgeHubMentoring,
+  knowledgeHubMentoringRequestDefaults,
   knowledgeHubAiRecommendations,
   knowledgeWriteModalOptions,
 } from '@/mocks/teamleader'
 
 const showWriteModal = ref(false)
 const selectedArticle = ref(null)
+const selectedMentoringRequest = ref(null)
+const showMentoringRequestModal = ref(false)
 const articles = ref([...knowledgeHubArticles])
+const mentoringState = reactive({
+  ongoing: [...knowledgeHubMentoring.ongoing],
+  pending: [...knowledgeHubMentoring.pending],
+})
 const statState = reactive({
   totalArticles: 1284,
   newThisMonth: 42,
@@ -55,6 +64,71 @@ function closeDetailModal() {
   selectedArticle.value = null
 }
 
+function submitDetailComment(body) {
+  if (!selectedArticle.value) {
+    return
+  }
+
+  const article = selectedArticle.value
+  const nextId = Math.max(...(article.commentList ?? []).map((item) => item.id), 0) + 1
+  const nextComment = {
+    id: nextId,
+    author: '최민정',
+    date: '03.17 18:05',
+    body,
+  }
+
+  article.commentList = [...(article.commentList ?? []), nextComment]
+  article.comments = article.commentList.length
+
+  const targetIndex = articles.value.findIndex((item) => item.id === article.id)
+  if (targetIndex !== -1) {
+    articles.value[targetIndex] = {
+      ...articles.value[targetIndex],
+      commentList: [...article.commentList],
+      comments: article.comments,
+    }
+    selectedArticle.value = articles.value[targetIndex]
+  }
+}
+
+function openMentoringReview(request) {
+  selectedMentoringRequest.value = request
+}
+
+function closeMentoringReview() {
+  selectedMentoringRequest.value = null
+}
+
+function confirmMentoringReview(request) {
+  mentoringState.pending = mentoringState.pending.filter((item) => item.id !== request.id)
+  closeMentoringReview()
+}
+
+function openMentoringRequestModal() {
+  showMentoringRequestModal.value = true
+}
+
+function closeMentoringRequestModal() {
+  showMentoringRequestModal.value = false
+}
+
+function submitMentoringRequest(payload) {
+  const nextId = Math.max(...mentoringState.pending.map((item) => item.id), 0) + 1
+  mentoringState.pending.unshift({
+    id: nextId,
+    name: payload.field,
+    requester: 'TL-REQ',
+    summary: payload.purpose,
+    requestedBy: '최민정',
+    requestedAt: '03.17 16:40',
+    priority: '중간',
+    reason: payload.purpose,
+    details: payload.requestDetails,
+  })
+  showMentoringRequestModal.value = false
+}
+
 function handleSubmitKnowledge(payload) {
   const nextId = Math.max(...articles.value.map((item) => item.id), 0) + 1
   articles.value.unshift({
@@ -68,7 +142,6 @@ function handleSubmitKnowledge(payload) {
     author: '최민정',
     authorInitial: '최',
     authorTier: 'S',
-    likes: 0,
     comments: 0,
     content: payload.content,
     commentList: [],
@@ -97,7 +170,11 @@ function handleSubmitKnowledge(payload) {
 
       <div class="teamleader-knowledge-view__sidebar">
         <TeamLeaderKnowledgeHubContributors :ranking="knowledgeHubContributors" />
-        <TeamLeaderKnowledgeHubMentoring :mentoring="knowledgeHubMentoring" />
+        <TeamLeaderKnowledgeHubMentoring
+          :mentoring="mentoringState"
+          @review-request="openMentoringReview"
+          @open-request="openMentoringRequestModal"
+        />
         <TeamLeaderKnowledgeHubAiPanel :recommendations="knowledgeHubAiRecommendations" />
       </div>
     </section>
@@ -113,6 +190,21 @@ function handleSubmitKnowledge(payload) {
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
+      @submit-comment="submitDetailComment"
+    />
+
+    <TeamLeaderKnowledgeMentoringReviewModal
+      v-if="selectedMentoringRequest"
+      :request="selectedMentoringRequest"
+      @close="closeMentoringReview"
+      @confirm="confirmMentoringReview"
+    />
+
+    <TeamLeaderKnowledgeMentoringRequestModal
+      v-if="showMentoringRequestModal"
+      :defaults="knowledgeHubMentoringRequestDefaults"
+      @close="closeMentoringRequestModal"
+      @submit="submitMentoringRequest"
     />
   </section>
 </template>
@@ -146,4 +238,3 @@ function handleSubmitKnowledge(payload) {
   }
 }
 </style>
-
