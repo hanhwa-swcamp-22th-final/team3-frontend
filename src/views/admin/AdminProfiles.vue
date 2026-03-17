@@ -1,14 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import employeeApi from '@/services/employeeApi.js'
-import ProfileStatusBoard    from '@/components/admin/hr/ProfileStatusBoard.vue'
-import ProfileSearchToolbar      from '@/components/admin/hr/ProfileSearchToolbar.vue'
-import ProfileListTable        from '@/components/admin/hr/ProfileListTable.vue'
+import { ref, computed } from 'vue'
+import ProfileStatusBoard  from '@/components/admin/hr/ProfileStatusBoard.vue'
+import ProfileSearchToolbar from '@/components/admin/hr/ProfileSearchToolbar.vue'
+import ProfileListTable    from '@/components/admin/hr/ProfileListTable.vue'
 import ProfileCreateUpdate from '@/components/admin/hr/ProfileCreateUpdate.vue'
+import { DUMMY_EMPLOYEES } from '@/mocks/admin/profile/profileData.js'
 
 // ── State ──────────────────────────────────────────
-const employees    = ref([])
-const isLoading    = ref(false)
+const employees    = ref(DUMMY_EMPLOYEES.map(e => ({ ...e })))
 const searchQuery  = ref('')
 const selectedTier = ref('전체')
 const selectedLine = ref('전체')
@@ -18,21 +17,6 @@ const pageSize     = 6
 // 모달 상태
 const isModalOpen     = ref(false)
 const editingEmployee = ref(null)
-
-// ── API ─────────────────────────────────────────────
-const fetchEmployees = async () => {
-  isLoading.value = true
-  try {
-    const res = await employeeApi.getAll()
-    employees.value = res.data
-  } catch (e) {
-    console.error('직원 목록 조회 실패:', e)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(() => { fetchEmployees() })
 
 // ── 통계 ────────────────────────────────────────────
 const totalCount = computed(() => employees.value.length)
@@ -101,20 +85,26 @@ const onTierChange = (v) => { selectedTier.value = v; currentPage.value = 1 }
 const onLineChange = (v) => { selectedLine.value = v; currentPage.value = 1 }
 
 // ── 모달 핸들러 ─────────────────────────────────────
-const openAddModal  = () => { editingEmployee.value = null;      isModalOpen.value = true }
+const openAddModal  = ()    => { editingEmployee.value = null;       isModalOpen.value = true }
 const openEditModal = (emp) => { editingEmployee.value = { ...emp }; isModalOpen.value = true }
-const closeModal    = () => { isModalOpen.value = false; editingEmployee.value = null }
-const onSaved       = () => { fetchEmployees() }
+const closeModal    = ()    => { isModalOpen.value = false; editingEmployee.value = null }
+
+const onSaved = (emp) => {
+  if (emp.id) {
+    const idx = employees.value.findIndex(e => e.id === emp.id)
+    if (idx !== -1) employees.value[idx] = { ...emp }
+  } else {
+    const newId = Math.max(...employees.value.map(e => e.id)) + 1
+    employees.value.push({ ...emp, id: newId })
+  }
+  closeModal()
+}
 
 // ── 삭제 ────────────────────────────────────────────
-const removeEmployee = async (id) => {
+const removeEmployee = (id) => {
   if (!confirm('삭제하시겠습니까?')) return
-  try {
-    await employeeApi.delete(id)
-    await fetchEmployees()
-  } catch (e) {
-    console.error('삭제 실패:', e)
-  }
+  const idx = employees.value.findIndex(e => e.id === id)
+  if (idx !== -1) employees.value.splice(idx, 1)
 }
 </script>
 
@@ -147,7 +137,7 @@ const removeEmployee = async (id) => {
       :currentPage="currentPage"
       :totalPages="totalPages"
       :selectedTier="selectedTier"
-      :isLoading="isLoading"
+      :isLoading="false"
       :pageStart="pageStart"
       :pageEnd="pageEnd"
       @tierSelect="onTierChange"
@@ -177,5 +167,6 @@ const removeEmployee = async (id) => {
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
+  font-family: 'Pretendard', sans-serif;
 }
 </style>

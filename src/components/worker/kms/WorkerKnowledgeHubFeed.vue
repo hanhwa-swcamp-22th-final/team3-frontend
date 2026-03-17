@@ -5,6 +5,8 @@ const props = defineProps({
   articles: { type: Array, required: true },
 })
 
+const emit = defineEmits(['openAddModal'])
+
 const categories = ['전체', '인기', '최신', '내 구독', '정밀가공', '설비점검', '품질관리']
 const activeCategory = ref('전체')
 
@@ -36,7 +38,10 @@ function categoryClass(cat) {
 
 <template>
   <div class="kf">
-    <span class="kf__label">📚 지식 피드</span>
+    <div class="kf__top">
+      <span class="kf__label">📚 지식 피드</span>
+      <button class="kf__add-btn" @click="emit('openAddModal')">지식 작성</button>
+    </div>
 
     <!-- Category Tabs -->
     <div class="kf__tabs">
@@ -101,9 +106,31 @@ function categoryClass(cat) {
   gap: 16px;
 }
 
+.kf__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .kf__label {
   font-size: 13px;
   color: var(--color-text-muted);
+}
+
+.kf__add-btn {
+  padding: 10px 24px;
+  background: var(--color-primary-800);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.kf__add-btn:hover {
+  background: var(--color-primary-700);
 }
 
 /* ── Tabs ──────────────────────────────────────────────── */
