@@ -206,7 +206,7 @@ const routes = [
       {
         path: 'evaluation',
         name: 'DepartmentLeaderDashboardEvaluation',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderSecondEvaluationView.vue'),
       },
       {
         path: 'notification',
