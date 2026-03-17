@@ -142,16 +142,7 @@ function handleLogout() {
   cursor: pointer;
 }
 
-.dashboard {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
 .dashboard-content {
   display: flex;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
 }
 </style>
