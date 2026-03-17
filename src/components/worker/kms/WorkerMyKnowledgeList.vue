@@ -129,9 +129,9 @@ function actionLabel(status) {
 
 <style scoped>
 .mkl {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -163,7 +163,7 @@ function actionLabel(status) {
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 10px 16px;
   gap: 8px;
 }
@@ -189,9 +189,9 @@ function actionLabel(status) {
 .mkl__search-btn {
   padding: 10px 24px;
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -213,8 +213,8 @@ function actionLabel(status) {
 .mkl__tab {
   padding: 8px 18px;
   border: 1px solid var(--color-border-default);
-  border-radius: 20px;
-  background: #ffffff;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-default);
@@ -224,7 +224,7 @@ function actionLabel(status) {
 
 .mkl__tab--active {
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border-color: var(--color-primary-800);
 }
 
@@ -237,7 +237,7 @@ function actionLabel(status) {
 
 .mkl__card {
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
@@ -265,7 +265,7 @@ function actionLabel(status) {
   font-size: 11px;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .cat--precision {
@@ -274,13 +274,13 @@ function actionLabel(status) {
 }
 
 .cat--inspection {
-  background: #E0F2FE;
-  color: #0277BD;
+  background: var(--color-category-inspection-bg);
+  color: var(--color-category-inspection);
 }
 
 .cat--quality {
-  background: #FCE4EC;
-  color: #C62828;
+  background: var(--color-category-quality-bg);
+  color: var(--color-category-quality);
 }
 
 .cat--cnc {
@@ -303,26 +303,26 @@ function actionLabel(status) {
   font-size: 11px;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   border: 1px solid;
 }
 
 .st--approved {
-  color: #16a34a;
-  border-color: #bbf7d0;
-  background: #f0fdf4;
+  color: var(--color-status-approved);
+  border-color: var(--color-status-approved-border);
+  background: var(--color-status-approved-bg);
 }
 
 .st--pending {
-  color: #D4A017;
-  border-color: #fde68a;
-  background: #fffbeb;
+  color: var(--color-status-pending);
+  border-color: var(--color-status-pending-border);
+  background: var(--color-status-pending-bg);
 }
 
 .st--rejected {
-  color: #dc2626;
-  border-color: #fecaca;
-  background: #fef2f2;
+  color: var(--color-status-rejected);
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
 }
 
 .st--draft {
@@ -373,8 +373,8 @@ function actionLabel(status) {
 .mkl__action-btn {
   padding: 8px 20px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-default);

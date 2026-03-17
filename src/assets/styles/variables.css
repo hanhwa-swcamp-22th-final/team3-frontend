@@ -53,17 +53,40 @@
   --shadow-soft: 0 10px 30px rgba(45, 31, 110, 0.08);
   --shadow-focus: 0 0 0 3px rgba(91, 79, 207, 0.14);
 
+  --radius-2xs: 6px;
   --radius-xs: 8px;
   --radius-sm: 10px;
+  --radius-base: 12px;
   --radius-md: 14px;
+  --radius-card: 16px;
   --radius-lg: 20px;
+  --radius-pill: 24px;
   --radius-xl: 28px;
 
+  --color-status-approved: #16a34a;
+  --color-status-approved-bg: #f0fdf4;
+  --color-status-approved-border: #bbf7d0;
+  --color-status-pending: #d4a017;
+  --color-status-pending-bg: #fffbeb;
+  --color-status-pending-border: #fde68a;
+  --color-status-rejected: #dc2626;
+  --color-status-rejected-bg: #fef2f2;
+  --color-status-rejected-border: #fecaca;
+
+  --color-category-inspection: #0277bd;
+  --color-category-inspection-bg: #e0f2fe;
+  --color-category-quality: #c62828;
+  --color-category-quality-bg: #fce4ec;
+  --color-tag-popular-bg: #fff8e1;
+  --color-tag-popular: #f57f17;
+
   --tier-s: #00bf95;
+  --tier-s-soft: #e8fbf7;
   --tier-a: #5b4fcf;
   --tier-b: #ffd166;
   --tier-c: #ef476f;
   --font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-num: 'Inter', var(--font-family-base);
 }
 
 *,

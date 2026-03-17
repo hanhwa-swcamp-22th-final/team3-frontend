@@ -35,16 +35,16 @@ defineProps({
 
 <style scoped>
 .missions {
-  background: #ffffff;
-  border: 1px solid #E0DCFF;
-  border-radius: 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-card);
   padding: 20px;
 }
 
 .missions__title {
   font-size: 14px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   margin: 0 0 16px;
 }
 
@@ -69,8 +69,8 @@ defineProps({
 .missions__icon {
   width: 32px;
   height: 32px;
-  background: #F0EEFF;
-  border-radius: 8px;
+  background: var(--color-primary-100);
+  border-radius: var(--radius-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,12 +87,12 @@ defineProps({
 .missions__card-title {
   font-size: 13px;
   font-weight: 600;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
 }
 
 .missions__card-points {
   font-size: 11px;
-  color: #00BF95;
+  color: var(--tier-s);
   font-weight: 600;
 }
 
@@ -104,14 +104,14 @@ defineProps({
 
 .missions__bar-track {
   height: 8px;
-  background: #F0EEFF;
+  background: var(--color-primary-100);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .missions__bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FFD166, #00BF95);
+  background: linear-gradient(90deg, var(--tier-b), var(--tier-s));
   border-radius: 4px;
   transition: width 0.3s;
 }

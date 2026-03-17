@@ -174,9 +174,9 @@ const submitLabel = computed(() => {
 
 <style scoped>
 .af {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -203,7 +203,7 @@ const submitLabel = computed(() => {
 /* ── Score Summary ──────────────────────────────────────── */
 .af__scores {
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px 24px;
 }
 
@@ -298,7 +298,7 @@ const submitLabel = computed(() => {
 .af__textarea {
   width: 100%;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
   font-size: 14px;
   color: var(--color-text-default);
@@ -316,7 +316,7 @@ const submitLabel = computed(() => {
 /* ── Attachments ────────────────────────────────────────── */
 .af__attachments {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -366,7 +366,7 @@ const submitLabel = computed(() => {
 .af__process {
   background: #fef9e7;
   border: 1px solid #f5e6a3;
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 20px;
 }
 
@@ -387,7 +387,7 @@ const submitLabel = computed(() => {
 }
 
 .af__step--done {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .af__step--current {
@@ -425,14 +425,14 @@ const submitLabel = computed(() => {
 
 .af__btn {
   padding: 10px 28px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .af__btn--cancel {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -440,7 +440,7 @@ const submitLabel = computed(() => {
 .af__btn--submit {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .af__btn--submit:hover {

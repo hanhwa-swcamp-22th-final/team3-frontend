@@ -106,7 +106,7 @@ function diffText(val) {
   gap: 32px;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 28px 32px;
 }
 
@@ -216,7 +216,7 @@ function diffText(val) {
   flex-shrink: 0;
   background: var(--color-primary-100);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 28px;
   min-width: 140px;
 }

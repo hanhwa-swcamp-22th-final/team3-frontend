@@ -22,9 +22,9 @@ defineProps({
 
 <style scoped>
 .keh {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -51,10 +51,10 @@ defineProps({
 }
 
 .keh__item {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-left: 3px solid var(--color-primary-300);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 20px;
   display: flex;
   flex-direction: column;

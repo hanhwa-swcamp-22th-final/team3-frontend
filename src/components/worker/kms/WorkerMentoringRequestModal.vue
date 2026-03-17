@@ -107,8 +107,8 @@ function handleSubmit() {
 }
 
 .mq {
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
   padding: 32px;
   width: 520px;
   max-height: 90vh;
@@ -142,7 +142,7 @@ function handleSubmit() {
   align-items: center;
   gap: 12px;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 20px;
 }
 
@@ -150,7 +150,7 @@ function handleSubmit() {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   font-weight: 700;
   display: flex;
@@ -181,7 +181,7 @@ function handleSubmit() {
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 0;
 }
 
@@ -213,7 +213,7 @@ function handleSubmit() {
 /* ── Sections ──────────────────────────────────────────── */
 .mq__section {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 
@@ -251,14 +251,14 @@ function handleSubmit() {
 
 .mq__btn {
   padding: 10px 28px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .mq__btn--cancel {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -266,6 +266,6 @@ function handleSubmit() {
 .mq__btn--submit {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 </style>

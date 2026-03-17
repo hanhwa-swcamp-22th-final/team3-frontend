@@ -60,9 +60,9 @@ function barPercent(current, target) {
 
 <style scoped>
 .ar {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -76,9 +76,9 @@ function barPercent(current, target) {
 
 /* ── Summary ───────────────────────────────────────────── */
 .ar__summary {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px;
 }
 
@@ -102,10 +102,10 @@ function barPercent(current, target) {
 }
 
 .ar__gap {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-left: 4px solid;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -122,7 +122,7 @@ function barPercent(current, target) {
   font-size: 12px;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .ar__gap-skill {
@@ -158,9 +158,9 @@ function barPercent(current, target) {
 
 /* ── Prediction ────────────────────────────────────────── */
 .ar__prediction {
-  background: #dcfce7;
-  border: 1px solid #bbf7d0;
-  border-radius: 14px;
+  background: var(--color-success-soft);
+  border: 1px solid var(--color-status-approved-border);
+  border-radius: var(--radius-md);
   padding: 18px 20px;
 }
 

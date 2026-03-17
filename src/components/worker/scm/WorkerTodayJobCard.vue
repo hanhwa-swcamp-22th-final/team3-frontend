@@ -72,9 +72,9 @@ function difficultyClass(level) {
 
 <style scoped>
 .jk {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 22px 26px;
   display: flex;
   flex-direction: column;
@@ -106,8 +106,8 @@ function difficultyClass(level) {
   font-size: 12px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
-  color: #ffffff;
+  border-radius: var(--radius-2xs);
+  color: var(--color-white);
 }
 
 .diff--d5 {
@@ -127,7 +127,7 @@ function difficultyClass(level) {
   font-size: 12px;
   font-weight: 600;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .jk__status--waiting {
@@ -141,7 +141,7 @@ function difficultyClass(level) {
 }
 
 .jk__status--done {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   color: #166534;
 }
 
@@ -163,7 +163,7 @@ function difficultyClass(level) {
   color: var(--color-text-default);
   background: var(--color-neutral-100);
   border: 1px solid var(--color-border-muted);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 4px 12px;
 }
 
@@ -193,14 +193,14 @@ function difficultyClass(level) {
 
 .jk__btn {
   padding: 10px 22px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .jk__btn--start {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -213,7 +213,7 @@ function difficultyClass(level) {
 .jk__btn--finish {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .jk__btn--finish:hover {
@@ -223,6 +223,6 @@ function difficultyClass(level) {
 .jk__done-label {
   font-size: 14px;
   font-weight: 600;
-  color: #16a34a;
+  color: var(--color-success);
 }
 </style>

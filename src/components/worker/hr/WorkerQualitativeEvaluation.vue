@@ -53,7 +53,7 @@ defineProps({
 .ql {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -110,7 +110,7 @@ defineProps({
   color: var(--tier-s);
   background: var(--color-mint-100);
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .ql__divider {
@@ -127,7 +127,7 @@ defineProps({
 
 .ql__cat {
   background: var(--color-bg-surface-muted);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -177,12 +177,12 @@ defineProps({
   color: var(--color-text-default);
   background: var(--color-primary-100);
   padding: 2px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .ql__ai {
   background: var(--color-primary-100);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 

@@ -79,9 +79,9 @@ const filteredNotices = computed(() => {
 
 <style scoped>
 .nl {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -123,7 +123,7 @@ const filteredNotices = computed(() => {
   padding: 6px 14px;
   border: 1px solid var(--color-border-default);
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-default);
@@ -132,7 +132,7 @@ const filteredNotices = computed(() => {
 
 .nl__tab--active {
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border-color: var(--color-primary-800);
 }
 
@@ -161,7 +161,7 @@ const filteredNotices = computed(() => {
 
 .nl__card {
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 20px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -202,12 +202,12 @@ const filteredNotices = computed(() => {
 }
 
 .nl__badge--active {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   color: #166534;
 }
 
 .nl__badge--scheduled {
-  background: #fef3c7;
+  background: var(--color-warning-soft);
   color: #92400e;
 }
 
