@@ -267,7 +267,8 @@ function handleHold()    { alert(`${selectedItem.value.name} 보류`) }
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px;
+  padding: 24px 28px;
+  background: var(--color-bg-app);
   overflow: auto;
   min-height: 0;
 }
