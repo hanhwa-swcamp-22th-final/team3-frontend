@@ -10,10 +10,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-left: 4px solid var(--color-primary-700);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 18px 24px;
 }
 

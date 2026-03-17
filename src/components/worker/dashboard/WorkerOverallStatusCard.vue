@@ -66,10 +66,10 @@ function tierColor(tier) {
 
 <style scoped>
 .status-card {
-  background: linear-gradient(160deg, #1a1147 0%, #2D1F6E 40%, #3a2a7a 100%);
-  border-radius: 16px;
+  background: linear-gradient(160deg, #1a1147 0%, var(--color-primary-800) 40%, #3a2a7a 100%);
+  border-radius: var(--radius-card);
   padding: 24px 20px 20px;
-  color: #ffffff;
+  color: var(--color-white);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -122,13 +122,13 @@ function tierColor(tier) {
 .status-card__tier {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* Profile */
@@ -180,7 +180,7 @@ function tierColor(tier) {
 
 .status-card__skill {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px 0 8px;
   text-align: center;
   display: flex;

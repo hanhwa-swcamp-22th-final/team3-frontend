@@ -48,9 +48,9 @@ defineProps({
 
 <style scoped>
 .lr {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -70,9 +70,9 @@ defineProps({
 }
 
 .lr__course {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -95,14 +95,14 @@ defineProps({
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .lr__category {
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   background: var(--color-neutral-100);
   color: var(--color-text-default);
 }
@@ -111,7 +111,7 @@ defineProps({
   font-size: 20px;
   font-weight: 800;
   color: var(--color-text-strong);
-  font-family: 'Inter', var(--font-family-base);
+  font-family: var(--font-family-num);
 }
 
 .lr__course-title {
@@ -136,15 +136,15 @@ defineProps({
 
 .lr__course-diff {
   font-size: 13px;
-  color: #00BF95;
+  color: var(--tier-s);
   font-weight: 600;
 }
 
 .lr__course-btn {
   padding: 6px 20px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-default);
@@ -159,7 +159,7 @@ defineProps({
 /* ── Related Articles ──────────────────────────────────── */
 .lr__articles {
   background: var(--color-primary-800);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -169,7 +169,7 @@ defineProps({
 .lr__articles-label {
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .lr__articles-list {
@@ -184,7 +184,7 @@ defineProps({
   justify-content: space-between;
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -196,7 +196,7 @@ defineProps({
 .lr__article-title {
   font-size: 13px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .lr__article-likes {

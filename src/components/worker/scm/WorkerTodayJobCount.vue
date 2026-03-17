@@ -31,9 +31,9 @@ defineProps({
 }
 
 .jc__card {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;

@@ -80,9 +80,9 @@ function barColor(tier) {
 
 <style scoped>
 .tier-history {
-  background: #ffffff;
-  border: 1px solid #E0DCFF;
-  border-radius: 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -91,7 +91,7 @@ function barColor(tier) {
 .tier-history__title {
   font-size: 14px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   margin: 0 0 20px;
 }
 
@@ -112,7 +112,7 @@ function barColor(tier) {
 .tier-history__badge {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,7 +137,7 @@ function barColor(tier) {
 .tier-history__label {
   font-size: 15px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   line-height: 1.4;
 }
 

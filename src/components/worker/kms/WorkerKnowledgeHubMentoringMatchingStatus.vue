@@ -54,9 +54,9 @@ const emit = defineEmits(['accept', 'request'])
 
 <style scoped>
 .mm {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -92,7 +92,7 @@ const emit = defineEmits(['accept', 'request'])
   align-items: center;
   gap: 10px;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px 16px;
 }
 
@@ -106,7 +106,7 @@ const emit = defineEmits(['accept', 'request'])
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 13px;
   font-weight: 700;
   display: flex;
@@ -124,7 +124,7 @@ const emit = defineEmits(['accept', 'request'])
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   background: var(--color-primary-200);
   color: var(--color-primary-800);
 }
@@ -133,7 +133,7 @@ const emit = defineEmits(['accept', 'request'])
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   background: #dcfce7;
   color: #166534;
 }
@@ -150,7 +150,7 @@ const emit = defineEmits(['accept', 'request'])
   align-items: center;
   gap: 10px;
   background: #FFFDE7;
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px 16px;
 }
 
@@ -164,9 +164,9 @@ const emit = defineEmits(['accept', 'request'])
 .mm__accept-btn {
   padding: 6px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   background: var(--color-primary-700);
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -182,9 +182,9 @@ const emit = defineEmits(['accept', 'request'])
   width: 100%;
   padding: 16px;
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--color-primary-700);
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;

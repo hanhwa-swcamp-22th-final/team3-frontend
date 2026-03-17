@@ -63,9 +63,9 @@ function statusBadgeClass(status) {
 
 <style scoped>
 .ah {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -97,7 +97,7 @@ function statusBadgeClass(status) {
 
 .ah__card {
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px 22px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -130,16 +130,16 @@ function statusBadgeClass(status) {
   font-size: 12px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .badge--review {
-  background: #fef3c7;
+  background: var(--color-warning-soft);
   color: #92400e;
 }
 
 .badge--confirmed {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   color: #166534;
 }
 
@@ -160,13 +160,13 @@ function statusBadgeClass(status) {
 .ah__tier {
   font-size: 14px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-white);
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .tier--s {
-  background: #00BF95;
+  background: var(--tier-s);
 }
 
 .tier--a {
@@ -174,12 +174,12 @@ function statusBadgeClass(status) {
 }
 
 .tier--b {
-  background: #FFD166;
+  background: var(--tier-b);
   color: #92400e;
 }
 
 .tier--c {
-  background: #EF476F;
+  background: var(--tier-c);
 }
 
 .ah__diff {
@@ -188,7 +188,7 @@ function statusBadgeClass(status) {
 }
 
 .diff--up {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .diff--down {

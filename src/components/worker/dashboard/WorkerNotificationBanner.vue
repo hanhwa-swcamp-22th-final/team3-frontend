@@ -18,10 +18,10 @@ defineProps({
 
 <style scoped>
 .notification {
-  background: #ffffff;
-  border: 1px solid #E0DCFF;
-  border-left: 4px solid #EF476F;
-  border-radius: 12px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-left: 4px solid var(--tier-c);
+  border-radius: var(--radius-base);
   padding: 16px 20px;
 }
 
@@ -39,13 +39,13 @@ defineProps({
 .notification__badge {
   font-size: 11px;
   font-weight: 700;
-  color: #EF476F;
+  color: var(--tier-c);
 }
 
 .notification__title {
   font-size: 14px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   margin: 0 0 4px;
 }
 

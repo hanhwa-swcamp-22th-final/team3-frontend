@@ -95,8 +95,8 @@ function handleConfirm() {
 }
 
 .sm {
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
   padding: 32px;
   width: 520px;
   max-height: 90vh;
@@ -116,7 +116,7 @@ function handleConfirm() {
 .sm__title {
   font-size: 22px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-white);
   margin: 0 0 8px;
 }
 
@@ -132,7 +132,7 @@ function handleConfirm() {
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 0;
 }
 
@@ -164,7 +164,7 @@ function handleConfirm() {
 /* ── Job name ───────────────────────────────────────────── */
 .sm__jobname {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px 18px;
 }
 
@@ -183,7 +183,7 @@ function handleConfirm() {
 /* ── Checklist ──────────────────────────────────────────── */
 .sm__checklist {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 
@@ -205,7 +205,7 @@ function handleConfirm() {
   justify-content: space-between;
   padding: 12px 16px;
   border: 1px solid var(--color-border-muted);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .sm__check-text {
@@ -217,8 +217,8 @@ function handleConfirm() {
 .sm__check-btn {
   padding: 5px 14px;
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
-  background: #ffffff;
+  border-radius: var(--radius-2xs);
+  background: var(--color-bg-surface);
   font-size: 12px;
   font-weight: 600;
   color: var(--color-primary-700);
@@ -226,7 +226,7 @@ function handleConfirm() {
 }
 
 .sm__check-btn--done {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   border-color: #bbf7d0;
   color: #166534;
 }
@@ -240,14 +240,14 @@ function handleConfirm() {
 
 .sm__btn {
   padding: 10px 28px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .sm__btn--cancel {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -255,6 +255,6 @@ function handleConfirm() {
 .sm__btn--confirm {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 </style>

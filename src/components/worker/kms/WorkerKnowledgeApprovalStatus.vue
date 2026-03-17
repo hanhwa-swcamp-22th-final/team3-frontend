@@ -32,9 +32,9 @@ defineProps({
 
 <style scoped>
 .kas {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -61,7 +61,7 @@ defineProps({
 }
 
 .kas__item {
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -69,19 +69,19 @@ defineProps({
 }
 
 .kas__item--approved {
-  background: #ecfdf5;
+  background: var(--color-status-approved-bg);
 }
 
 .kas__item--pending {
-  background: #fef9e7;
+  background: var(--color-status-pending-bg);
 }
 
 .kas__item--rejected {
-  background: #fef2f2;
+  background: var(--color-status-rejected-bg);
 }
 
 .kas__item--draft {
-  background: #f3f0ff;
+  background: var(--color-primary-100);
 }
 
 .kas__item-label {
@@ -90,15 +90,15 @@ defineProps({
 }
 
 .kas__item--approved .kas__item-label {
-  color: #16a34a;
+  color: var(--color-status-approved);
 }
 
 .kas__item--pending .kas__item-label {
-  color: #D4A017;
+  color: var(--color-status-pending);
 }
 
 .kas__item--rejected .kas__item-label {
-  color: #dc2626;
+  color: var(--color-status-rejected);
 }
 
 .kas__item--draft .kas__item-label {
@@ -108,20 +108,20 @@ defineProps({
 .kas__item-count {
   font-size: 28px;
   font-weight: 800;
-  font-family: 'Inter', var(--font-family-base);
+  font-family: var(--font-family-num);
   line-height: 1.2;
 }
 
 .kas__item--approved .kas__item-count {
-  color: #16a34a;
+  color: var(--color-status-approved);
 }
 
 .kas__item--pending .kas__item-count {
-  color: #D4A017;
+  color: var(--color-status-pending);
 }
 
 .kas__item--rejected .kas__item-count {
-  color: #dc2626;
+  color: var(--color-status-rejected);
 }
 
 .kas__item--draft .kas__item-count {

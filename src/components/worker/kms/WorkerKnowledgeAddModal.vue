@@ -125,7 +125,7 @@ function handleSaveDraft() {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,8 +134,8 @@ function handleSaveDraft() {
 }
 
 .ka {
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
   width: 560px;
   max-height: 90vh;
   overflow-y: auto;
@@ -209,10 +209,10 @@ function handleSaveDraft() {
 .ka__select {
   padding: 10px 14px;
   border: 1px solid var(--color-border-default);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--color-text-default);
-  background: #ffffff;
+  background: var(--color-bg-surface);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -230,7 +230,7 @@ function handleSaveDraft() {
 .ka__textarea {
   padding: 12px 14px;
   border: 1px solid var(--color-border-default);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--color-text-default);
   resize: none;
@@ -254,8 +254,8 @@ function handleSaveDraft() {
 .ka__voice-btn {
   padding: 5px 14px;
   border: 1px solid var(--color-primary-300);
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
   font-size: 12px;
   font-weight: 600;
   color: var(--color-primary-700);
@@ -287,7 +287,7 @@ function handleSaveDraft() {
 
 .ka__btn {
   padding: 10px 24px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -295,7 +295,7 @@ function handleSaveDraft() {
 }
 
 .ka__btn--cancel {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -305,7 +305,7 @@ function handleSaveDraft() {
 }
 
 .ka__btn--draft {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -318,7 +318,7 @@ function handleSaveDraft() {
 .ka__btn--submit {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .ka__btn--submit:hover {

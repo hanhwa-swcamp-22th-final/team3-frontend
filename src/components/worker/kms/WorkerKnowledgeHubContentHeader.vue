@@ -39,9 +39,9 @@ defineProps({
 }
 
 .kh-stat {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 24px;
   display: flex;
   flex-direction: column;
@@ -57,7 +57,7 @@ defineProps({
   font-size: 28px;
   font-weight: 800;
   color: var(--color-primary-800);
-  font-family: 'Inter', var(--font-family-base);
+  font-family: var(--font-family-num);
 }
 
 .kh-stat__diff {
@@ -66,6 +66,6 @@ defineProps({
 }
 
 .kh-stat__diff--up {
-  color: #00BF95;
+  color: var(--tier-s);
 }
 </style>

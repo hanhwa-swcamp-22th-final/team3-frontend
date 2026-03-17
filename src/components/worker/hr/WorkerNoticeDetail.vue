@@ -39,9 +39,9 @@ const props = defineProps({
 
 <style scoped>
 .nd {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -66,12 +66,12 @@ const props = defineProps({
 }
 
 .nd__badge--active {
-  background: #dcfce7;
+  background: var(--color-success-soft);
   color: #166534;
 }
 
 .nd__badge--scheduled {
-  background: #fef3c7;
+  background: var(--color-warning-soft);
   color: #92400e;
 }
 
@@ -96,7 +96,7 @@ const props = defineProps({
 /* ── Attachments ────────────────────────────────────────── */
 .nd__attach {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 20px;
   margin-top: 8px;
 }
@@ -129,8 +129,8 @@ const props = defineProps({
 .nd__attach-download {
   padding: 8px 18px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-default);

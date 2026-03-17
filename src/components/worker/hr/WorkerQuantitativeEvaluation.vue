@@ -82,7 +82,7 @@ function isHighlight(val) {
 .qn {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -126,7 +126,7 @@ function isHighlight(val) {
 .qn__tab {
   padding: 9px 20px;
   border: 1px solid var(--color-border-default);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
@@ -154,7 +154,7 @@ function isHighlight(val) {
   padding: 14px 18px;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-muted);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
 }
 
 .qn__step-label {
@@ -178,7 +178,7 @@ function isHighlight(val) {
 .qn__chart-card {
   background: var(--color-primary-100);
   border-left: 4px solid var(--color-primary-300);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 18px 20px;
 }
 
@@ -206,7 +206,7 @@ function isHighlight(val) {
 .qn__ai {
   background: var(--color-bg-surface-muted);
   border-left: 4px solid var(--color-primary-300);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 18px 20px;
 }
 

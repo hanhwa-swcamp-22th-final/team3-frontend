@@ -75,9 +75,9 @@ const segments = computed(() => {
   display: flex;
   align-items: center;
   gap: 32px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 28px 32px;
 }
 
@@ -119,7 +119,7 @@ const segments = computed(() => {
   gap: 4px;
   font-size: 14px;
   font-weight: 600;
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .holding__gain-arrow {

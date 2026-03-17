@@ -89,9 +89,9 @@ function progressLabel(m) {
 
 <style scoped>
 .pm {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -116,7 +116,7 @@ function progressLabel(m) {
 
 .pm__overall {
   background: var(--color-primary-100);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 
@@ -168,7 +168,7 @@ function progressLabel(m) {
 .pm__card {
   background: var(--color-bg-surface-muted);
   border: 1px solid var(--color-border-muted);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -177,7 +177,7 @@ function progressLabel(m) {
 
 .pm__card--completed {
   background: #e8fff7;
-  border-color: #00BF95;
+  border-color: var(--tier-s);
   border-width: 2px;
 }
 
@@ -191,7 +191,7 @@ function progressLabel(m) {
   width: 36px;
   height: 36px;
   background: var(--color-primary-100);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,16 +224,16 @@ function progressLabel(m) {
 .pm__card-points {
   font-size: 13px;
   font-weight: 600;
-  color: #00BF95;
+  color: var(--tier-s);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .pm__card-points--badge {
-  background: #00BF95;
-  color: #ffffff;
+  background: var(--tier-s);
+  color: var(--color-white);
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
 }
 
 .pm__card-bottom {
@@ -249,7 +249,7 @@ function progressLabel(m) {
 }
 
 .pm__card-progress--done {
-  color: #00BF95;
+  color: var(--tier-s);
   font-weight: 600;
 }
 

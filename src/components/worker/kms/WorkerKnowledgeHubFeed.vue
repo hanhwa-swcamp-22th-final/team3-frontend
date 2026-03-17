@@ -97,9 +97,9 @@ function categoryClass(cat) {
 
 <style scoped>
 .kf {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -120,9 +120,9 @@ function categoryClass(cat) {
 .kf__add-btn {
   padding: 10px 24px;
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -143,8 +143,8 @@ function categoryClass(cat) {
 .kf__tab {
   padding: 8px 18px;
   border: 1px solid var(--color-border-default);
-  border-radius: 20px;
-  background: #ffffff;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-default);
@@ -154,7 +154,7 @@ function categoryClass(cat) {
 
 .kf__tab--active {
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border-color: var(--color-primary-800);
 }
 
@@ -178,7 +178,7 @@ function categoryClass(cat) {
 
 .kf__card {
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
@@ -207,12 +207,12 @@ function categoryClass(cat) {
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
 }
 
 .kf__tag--popular {
-  background: #FFF8E1;
-  color: #F57F17;
+  background: var(--color-tag-popular-bg);
+  color: var(--color-tag-popular);
 }
 
 .cat--precision {
@@ -221,13 +221,13 @@ function categoryClass(cat) {
 }
 
 .cat--inspection {
-  background: #E0F2FE;
-  color: #0277BD;
+  background: var(--color-category-inspection-bg);
+  color: var(--color-category-inspection);
 }
 
 .cat--quality {
-  background: #FCE4EC;
-  color: #C62828;
+  background: var(--color-category-quality-bg);
+  color: var(--color-category-quality);
 }
 
 .cat--cnc {
@@ -284,7 +284,7 @@ function categoryClass(cat) {
   height: 28px;
   border-radius: 50%;
   background: var(--color-primary-700);
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -303,11 +303,11 @@ function categoryClass(cat) {
   font-weight: 800;
   padding: 2px 8px;
   border-radius: 4px;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .tier--s {
-  background: #00BF95;
+  background: var(--tier-s);
 }
 
 .tier--a {
@@ -315,12 +315,12 @@ function categoryClass(cat) {
 }
 
 .tier--b {
-  background: #FFD166;
+  background: var(--tier-b);
   color: var(--color-text-strong);
 }
 
 .tier--c {
-  background: #EF476F;
+  background: var(--tier-c);
 }
 
 .kf__card-meta {

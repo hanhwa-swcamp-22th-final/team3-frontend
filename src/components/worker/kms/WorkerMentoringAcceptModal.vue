@@ -84,8 +84,8 @@ const emit = defineEmits(['close', 'accept'])
 }
 
 .ma {
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
   padding: 32px;
   width: 520px;
   max-height: 90vh;
@@ -119,7 +119,7 @@ const emit = defineEmits(['close', 'accept'])
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 20px;
 }
 
@@ -133,7 +133,7 @@ const emit = defineEmits(['close', 'accept'])
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   font-weight: 700;
   display: flex;
@@ -163,7 +163,7 @@ const emit = defineEmits(['close', 'accept'])
   font-size: 11px;
   font-weight: 700;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   background: var(--color-primary-200);
   color: var(--color-primary-800);
 }
@@ -173,7 +173,7 @@ const emit = defineEmits(['close', 'accept'])
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 0;
 }
 
@@ -205,7 +205,7 @@ const emit = defineEmits(['close', 'accept'])
 /* ── Sections ──────────────────────────────────────────── */
 .ma__section {
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 
@@ -234,14 +234,14 @@ const emit = defineEmits(['close', 'accept'])
 
 .ma__btn {
   padding: 10px 28px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .ma__btn--cancel {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   color: var(--color-text-default);
 }
@@ -249,6 +249,6 @@ const emit = defineEmits(['close', 'accept'])
 .ma__btn--accept {
   background: var(--color-primary-800);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
 }
 </style>

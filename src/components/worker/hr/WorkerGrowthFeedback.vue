@@ -101,7 +101,7 @@ const chartPoints = computed(() => {
 .gf {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -136,7 +136,7 @@ const chartPoints = computed(() => {
 
 .gf__feedback {
   border: 2px solid var(--color-primary-700);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 16px 18px;
 }
 
@@ -163,7 +163,7 @@ const chartPoints = computed(() => {
 .gf__goals {
   background: var(--color-mint-100);
   border: 1px solid var(--color-mint-200);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 18px 20px;
 }
 

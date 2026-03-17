@@ -34,9 +34,9 @@ function tierClass(tier) {
 
 <style scoped>
 .mr {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -59,7 +59,7 @@ function tierClass(tier) {
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 16px 20px;
 }
 
@@ -79,7 +79,7 @@ function tierClass(tier) {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 14px;
   font-weight: 700;
   display: flex;
@@ -98,11 +98,11 @@ function tierClass(tier) {
   font-weight: 800;
   padding: 2px 8px;
   border-radius: 4px;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .tier--s {
-  background: #00BF95;
+  background: var(--tier-s);
 }
 
 .tier--a {
@@ -110,7 +110,7 @@ function tierClass(tier) {
 }
 
 .tier--b {
-  background: #FFD166;
+  background: var(--tier-b);
   color: var(--color-text-strong);
 }
 
@@ -118,6 +118,6 @@ function tierClass(tier) {
   font-size: 22px;
   font-weight: 800;
   color: var(--color-text-strong);
-  font-family: 'Inter', var(--font-family-base);
+  font-family: var(--font-family-num);
 }
 </style>

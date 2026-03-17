@@ -130,16 +130,16 @@ const labelPositions = computed(() => {
 
 <style scoped>
 .radar {
-  background: #ffffff;
-  border: 1px solid #E0DCFF;
-  border-radius: 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-card);
   padding: 20px;
 }
 
 .radar__title {
   font-size: 14px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   margin: 0 0 16px;
 }
 
@@ -184,14 +184,14 @@ const labelPositions = computed(() => {
 .radar__list-bar-track {
   flex: 1;
   height: 8px;
-  background: #F0EEFF;
+  background: var(--color-primary-100);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .radar__list-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #5B4FCF, #00BF95);
+  background: linear-gradient(90deg, var(--color-primary-600), var(--tier-s));
   border-radius: 4px;
   transition: width 0.3s;
 }
@@ -199,7 +199,7 @@ const labelPositions = computed(() => {
 .radar__list-value {
   font-size: 13px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   width: 28px;
   text-align: right;
 }

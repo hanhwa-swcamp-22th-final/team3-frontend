@@ -164,9 +164,9 @@ const overallPercent = computed(() => {
 
 <style scoped>
 .sg {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -217,7 +217,7 @@ const overallPercent = computed(() => {
 .sg__legend-line {
   width: 16px;
   height: 0;
-  border-top: 2px dashed #00BF95;
+  border-top: 2px dashed var(--tier-s);
 }
 
 /* ── Gap Summary ───────────────────────────────────────── */
@@ -235,8 +235,8 @@ const overallPercent = computed(() => {
 .sg__gap-value {
   font-size: 24px;
   font-weight: 800;
-  color: #EF476F;
-  font-family: 'Inter', var(--font-family-base);
+  color: var(--tier-c);
+  font-family: var(--font-family-num);
 }
 
 /* ── Progress ──────────────────────────────────────────── */
@@ -316,14 +316,14 @@ const overallPercent = computed(() => {
 .sg__row-target {
   font-size: 13px;
   font-weight: 700;
-  color: #00BF95;
+  color: var(--tier-s);
   width: 24px;
 }
 
 .sg__row-gap {
   font-size: 13px;
   font-weight: 600;
-  color: #EF476F;
+  color: var(--tier-c);
   width: 24px;
 }
 </style>

@@ -76,9 +76,9 @@ function badgeStyle(category) {
 
 <style scoped>
 .history {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
 }
 
@@ -155,7 +155,7 @@ function badgeStyle(category) {
 .history__badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -167,7 +167,7 @@ function badgeStyle(category) {
 
 .history__points {
   font-weight: 700;
-  color: #00BF95;
+  color: var(--tier-s);
   white-space: nowrap;
 }
 </style>

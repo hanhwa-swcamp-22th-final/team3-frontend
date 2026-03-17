@@ -19,7 +19,7 @@ defineProps({
 <style scoped>
 .ai {
   background: var(--color-primary-800);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@ defineProps({
 .ai__label {
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .ai__list {
@@ -44,7 +44,7 @@ defineProps({
   justify-content: space-between;
   padding: 14px 18px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -56,7 +56,7 @@ defineProps({
 .ai__item-title {
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .ai__item-arrow {

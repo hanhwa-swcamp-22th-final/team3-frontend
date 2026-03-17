@@ -37,9 +37,9 @@ defineProps({
 }
 
 .koc__card {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
@@ -54,7 +54,7 @@ defineProps({
 .koc__number {
   font-size: 36px;
   font-weight: 800;
-  font-family: 'Inter', var(--font-family-base);
+  font-family: var(--font-family-num);
   line-height: 1.2;
 }
 
@@ -63,7 +63,7 @@ defineProps({
 }
 
 .koc__number--warning {
-  color: #D4A017;
+  color: var(--color-status-pending);
 }
 
 .koc__sub {

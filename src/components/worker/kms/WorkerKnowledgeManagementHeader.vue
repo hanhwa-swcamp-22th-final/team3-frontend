@@ -25,9 +25,9 @@ defineEmits(['openAddModal'])
 .kmh__btn {
   padding: 10px 24px;
   background: var(--color-primary-800);
-  color: #ffffff;
+  color: var(--color-white);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
