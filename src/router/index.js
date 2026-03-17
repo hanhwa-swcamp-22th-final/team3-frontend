@@ -280,7 +280,7 @@ const routes = [
             {
                 path: 'my-knowledge',
                 name: 'MyKnowledgeManagement',
-                component: Placeholder,
+                component: () => import('@/views/worker/MyKnowledgeManagementView.vue'),
             },
             {
                 path: 'skill-gap',
