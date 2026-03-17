@@ -1,0 +1,133 @@
+﻿<script setup>
+defineProps({
+  mentoring: {
+    type: Object,
+    default: () => ({ ongoing: [], pending: [] }),
+  },
+})
+</script>
+
+<template>
+  <section class="mentoring">
+    <div class="mentoring__head">
+      <p class="mentoring__eyebrow">협업 현황</p>
+      <h3>멘토링 매칭 현황</h3>
+    </div>
+
+    <div class="mentoring__section">
+      <span class="mentoring__caption">진행 중인 매칭</span>
+      <div class="mentoring__ongoing-list">
+        <article v-for="item in mentoring.ongoing" :key="item.id" class="mentoring__ongoing-row">
+          <div>
+            <strong>{{ item.mentor }}</strong>
+            <p>{{ item.mentee }} · {{ item.field }}</p>
+          </div>
+          <span class="mentoring__status">{{ item.status }}</span>
+        </article>
+      </div>
+    </div>
+
+    <div class="mentoring__section">
+      <span class="mentoring__caption">검토 요청</span>
+      <div class="mentoring__pending-list">
+        <article v-for="item in mentoring.pending" :key="item.id" class="mentoring__pending-row">
+          <div>
+            <strong>{{ item.name }}</strong>
+            <p>{{ item.requester }} · {{ item.summary }}</p>
+          </div>
+          <button type="button">확인</button>
+        </article>
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.mentoring {
+  border: 1px solid var(--color-border-default);
+  border-radius: 18px;
+  background: var(--color-bg-surface);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.mentoring__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary-300);
+}
+
+.mentoring__head h3 {
+  margin-top: 6px;
+  font-size: 20px;
+  color: var(--color-primary-800);
+}
+
+.mentoring__section {
+  display: grid;
+  gap: 10px;
+}
+
+.mentoring__caption {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.mentoring__ongoing-list,
+.mentoring__pending-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mentoring__ongoing-row,
+.mentoring__pending-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.mentoring__ongoing-row {
+  border: 1px solid var(--color-border-default);
+}
+
+.mentoring__pending-row {
+  background: #fff8e9;
+  border: 1px solid #f4d27f;
+}
+
+.mentoring strong {
+  color: var(--color-primary-800);
+}
+
+.mentoring p {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.mentoring__status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e7faf5;
+  color: #10937f;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mentoring__pending-row button {
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary-700);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+</style>
