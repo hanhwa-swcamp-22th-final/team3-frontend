@@ -40,7 +40,11 @@ const selectedTagFilter = ref(null)
   gap: 16px;
   padding: 24px;
   background: var(--color-bg-app, #fafbff);
-  min-height: 100%;
+  flex: 1;
+  min-width: 0;
+  height: calc(100vh - 80px);
+  box-sizing: border-box;
+  overflow-y: auto;
   font-family: var(--font-family-base);
 }
 
