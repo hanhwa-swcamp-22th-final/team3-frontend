@@ -59,7 +59,7 @@ const routes = [
             {
                 path: 'domain-keywords',
                 name: 'AdminDomainKeywords',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminDomainKeywords.vue'),
             },
             {
                 path: 'profiles',
