@@ -98,7 +98,7 @@ const routes = [
       {
         path: 'evaluation-criteria',
         name: 'EvaluationCriteria',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMEvaluationCriteriaView.vue'),
       },
       {
         path: 'promotion-review',
@@ -171,8 +171,8 @@ const routes = [
       },
       {
         path: 'knowledgehub',
-        name: 'TLKnowledgeHub',
-        component: Placeholder,
+          name: 'TLKnowledgeHub',
+          component: () => import('@/views/teamleader/TeamLeaderKnowledgeHubView.vue'),
       },
       {
         path: 'knowledgeapproval',
