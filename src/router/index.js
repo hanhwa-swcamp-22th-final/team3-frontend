@@ -98,7 +98,7 @@ const routes = [
       {
         path: 'evaluation-criteria',
         name: 'EvaluationCriteria',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMEvaluationCriteriaView.vue'),
       },
       {
         path: 'promotion-review',
