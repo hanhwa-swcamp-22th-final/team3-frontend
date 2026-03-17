@@ -1,7 +1,7 @@
 <template>
   <div class="kms-view">
     <!-- 상단 통계 카드 -->
-    <div class="stat-cards-placeholder">[KmsStatCards]</div>
+    <KmsStatCards />
 
     <!-- 메인 2열 레이아웃 -->
     <div class="kms-layout">
@@ -20,6 +20,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import KmsStatCards from '@/components/admin/kms/KmsStatCards.vue'
 
 const selectedFilter = ref('전체')
 const selectedTagFilter = ref(null)
@@ -52,7 +53,6 @@ const selectedTagFilter = ref(null)
   flex-shrink: 0;
 }
 
-.stat-cards-placeholder,
 .feed-placeholder,
 .side-placeholder {
   background: var(--color-bg-surface, #ffffff);
