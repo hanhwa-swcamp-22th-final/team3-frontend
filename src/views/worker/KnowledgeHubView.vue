@@ -7,6 +7,7 @@ import WorkerKnowledgeHubMentoringMatchingStatus from '@/components/worker/kms/W
 import WorkerKnowledgeHubAIRecommendation from '@/components/worker/kms/WorkerKnowledgeHubAIRecommendation.vue'
 import WorkerMentoringAcceptModal from '@/components/worker/kms/WorkerMentoringAcceptModal.vue'
 import WorkerMentoringRequestModal from '@/components/worker/kms/WorkerMentoringRequestModal.vue'
+import WorkerKnowledgeAddModal from '@/components/worker/kms/WorkerKnowledgeAddModal.vue'
 
 import {
   knowledgeStats,
@@ -20,6 +21,7 @@ import {
 
 const showAcceptModal = ref(false)
 const showRequestModal = ref(false)
+const showAddModal = ref(false)
 const selectedRequest = ref(null)
 
 function handleAcceptClick(request) {
@@ -40,9 +42,18 @@ function submitRequest() {
   showRequestModal.value = false
 }
 
+function handleAddArticle() {
+  showAddModal.value = false
+}
+
+function handleSaveDraft() {
+  showAddModal.value = false
+}
+
 function closeModal() {
   showAcceptModal.value = false
   showRequestModal.value = false
+  showAddModal.value = false
   selectedRequest.value = null
 }
 </script>
@@ -60,7 +71,7 @@ function closeModal() {
 
     <!-- Main Grid: Feed (left) + Sidebar (right) -->
     <div class="kh-grid">
-      <WorkerKnowledgeHubFeed :articles="knowledgeArticles" />
+      <WorkerKnowledgeHubFeed :articles="knowledgeArticles" @openAddModal="showAddModal = true" />
 
       <div class="kh-sidebar">
         <WorkerKnowledgeHubMonthlyRank :ranking="monthlyRanking" />
@@ -86,6 +97,12 @@ function closeModal() {
       :defaults="mentoringRequestFormDefaults"
       @close="closeModal"
       @submit="submitRequest"
+    />
+    <WorkerKnowledgeAddModal
+      v-if="showAddModal"
+      @close="closeModal"
+      @submit="handleAddArticle"
+      @saveDraft="handleSaveDraft"
     />
   </div>
 </template>
