@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { API_CHART, KAFKA_CHART, BATCH_HISTORY, ERROR_SUMMARY } from '@/mocks/admin/logs/logData.js'
+import { API_CHART, KAFKA_CHART, BATCH_HISTORY, ERROR_SUMMARY } from '@/mocks/admin/record/logData.js'
 
 // ── API 라인 차트 SVG 경로 ───────────────────────────
 const W = 380

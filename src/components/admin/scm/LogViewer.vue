@@ -1,5 +1,5 @@
 <script setup>
-import { LEVEL_STYLE } from '@/mocks/admin/logs/logData.js'
+import { LEVEL_STYLE } from '@/mocks/admin/record/logData.js'
 
 defineProps({
   logs: { type: Array, default: () => [] },
