@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import PresetList        from '@/components/admin/scm/PresetList.vue'
+import PresetDetailPanel from '@/components/admin/scm/PresetDetailPanel.vue'
 import { INDUSTRY_PRESETS } from '@/mocks/admin/preset/presetData.js'
 
 const presets    = ref(INDUSTRY_PRESETS.map(p => ({ ...p })))
@@ -20,6 +21,11 @@ const onSave   = ()   => { presets.value.forEach(p => { p.active = p.id === sele
       :selectedId="selectedId"
       :activePreset="activePreset"
       @select="onSelect"
+    />
+    <PresetDetailPanel
+      :preset="selectedPreset"
+      :activePreset="activePreset"
+      @save="onSave"
     />
   </div>
 </template>
