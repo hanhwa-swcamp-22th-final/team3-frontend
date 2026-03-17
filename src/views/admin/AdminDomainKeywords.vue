@@ -1,12 +1,40 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
+import KeywordTable   from '@/components/admin/scm/KeywordTable.vue'
+import { DUMMY_KEYWORDS, PAGE_SIZE } from '@/mocks/admin/keyword/keywordData.js'
 
+const keywords         = ref(DUMMY_KEYWORDS.map(k => ({ ...k })))
 const searchQuery      = ref('')
 const selectedCategory = ref('전체 카테고리')
+const currentPage      = ref(1)
 
-const onSearch         = (v) => { searchQuery.value      = v }
-const onCategoryChange = (v) => { selectedCategory.value = v }
+// ── 필터링 ──────────────────────────────────────────
+const filteredKeywords = computed(() =>
+  keywords.value.filter(k => {
+    const matchCat    = selectedCategory.value === '전체 카테고리' || k.category === selectedCategory.value
+    const matchSearch = k.keyword.includes(searchQuery.value) || k.description.includes(searchQuery.value)
+    return matchCat && matchSearch
+  })
+)
+
+// ── 페이지네이션 ────────────────────────────────────
+const totalPages   = computed(() => Math.max(1, Math.ceil(filteredKeywords.value.length / PAGE_SIZE)))
+const pagedKeywords = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredKeywords.value.slice(start, start + PAGE_SIZE)
+})
+
+// ── 핸들러 ───────────────────────────────────────────
+const onSearch         = (v) => { searchQuery.value      = v; currentPage.value = 1 }
+const onCategoryChange = (v) => { selectedCategory.value = v; currentPage.value = 1 }
+
+const onEditClick   = (kw) => { console.log('수정', kw) }
+const onDeleteClick = (id) => {
+  if (!confirm('삭제하시겠습니까?')) return
+  const idx = keywords.value.findIndex(k => k.id === id)
+  if (idx !== -1) keywords.value.splice(idx, 1)
+}
 </script>
 
 <template>
@@ -28,6 +56,29 @@ const onCategoryChange = (v) => { selectedCategory.value = v }
       @search="onSearch"
       @categoryChange="onCategoryChange"
     />
+
+    <!-- 테이블 -->
+    <KeywordTable
+      :keywords="pagedKeywords"
+      @editClick="onEditClick"
+      @deleteClick="onDeleteClick"
+    />
+
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <span class="pagination-info">총 {{ filteredKeywords.length }}개 키워드 등록됨</span>
+      <div class="pagination-btns">
+        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">＜</button>
+        <button
+          v-for="p in totalPages"
+          :key="p"
+          class="page-btn"
+          :class="{ 'page-btn--active': currentPage === p }"
+          @click="currentPage = p"
+        >{{ p }}</button>
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">＞</button>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -88,4 +139,43 @@ const onCategoryChange = (v) => { selectedCategory.value = v }
 }
 
 .btn-add:hover { background: #4a3fb0; }
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: #7a6fa8;
+}
+
+.pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-btn {
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  border: 1px solid #e0dcff;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a6fa8;
+  font-family: 'Pretendard', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+.page-btn--active  { background: #5b4fcf; color: #ffffff; border-color: #5b4fcf; }
+.page-btn:not(:disabled):not(.page-btn--active):hover { background: #f0eeff; }
 </style>
