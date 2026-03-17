@@ -33,7 +33,7 @@ const routes = [
             {
                 path: 'facility',
                 name: 'AdminFacility',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminFacility.vue'),
             },
             {
                 path: 'logs',
