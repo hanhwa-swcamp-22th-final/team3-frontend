@@ -13,9 +13,9 @@ const emit = defineEmits(['close', 'save'])
 
 const EMPTY_FORM = () => ({
   keyword:     '',
-  category:    CATEGORY_OPTIONS[0],
+  category:    '',
   description: '',
-  weight:      1.0,
+  weight:      null,
 })
 
 const form = ref(EMPTY_FORM())
@@ -58,7 +58,8 @@ const handleSave = () => {
           <!-- 역량 카테고리 -->
           <div class="field">
             <label>역량 카테고리</label>
-            <select v-model="form.category">
+            <select v-model="form.category" :class="{ 'select-placeholder': !form.category }">
+              <option value="" disabled>카테고리 선택</option>
               <option v-for="c in CATEGORY_OPTIONS" :key="c" :value="c">{{ c }}</option>
             </select>
           </div>
@@ -178,6 +179,7 @@ select {
 
 input::placeholder { color: #a89ed8; }
 input:focus, select:focus { border-color: var(--color-primary-600); }
+select.select-placeholder { color: #a89ed8; }
 
 textarea {
   height: 60px;
