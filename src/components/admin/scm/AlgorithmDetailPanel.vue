@@ -119,6 +119,7 @@ const PARAMS = [
   border-radius: 12px;
   padding: 20px;
   flex: 1;
+  font-family: 'Pretendard', sans-serif;
   min-width: 0;
   display: flex;
   flex-direction: column;
