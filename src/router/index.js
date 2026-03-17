@@ -230,7 +230,7 @@ const routes = [
       {
         path: 'knowledgeapproval',
         name: 'DLKnowledgeApproval',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderKnowledgeApprovalView.vue'),
       },
     ],
   },
