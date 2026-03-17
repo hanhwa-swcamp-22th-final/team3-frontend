@@ -1,4 +1,12 @@
 <script setup>
+import { ref } from 'vue'
+import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
+
+const searchQuery      = ref('')
+const selectedCategory = ref('전체 카테고리')
+
+const onSearch         = (v) => { searchQuery.value      = v }
+const onCategoryChange = (v) => { selectedCategory.value = v }
 </script>
 
 <template>
@@ -12,6 +20,14 @@
       </div>
       <button class="btn-add">+ 키워드 등록</button>
     </div>
+
+    <!-- 툴바 -->
+    <KeywordToolbar
+      :searchQuery="searchQuery"
+      :selectedCategory="selectedCategory"
+      @search="onSearch"
+      @categoryChange="onCategoryChange"
+    />
 
   </div>
 </template>
