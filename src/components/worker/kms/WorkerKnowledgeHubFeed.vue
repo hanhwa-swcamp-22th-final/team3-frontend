@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { CATEGORY_CLASS_MAP } from '@/constants'
 
 const props = defineProps({
   articles: { type: Array, required: true },
@@ -26,13 +27,7 @@ function tierClass(tier) {
 }
 
 function categoryClass(cat) {
-  const map = {
-    '정밀가공': 'cat--precision',
-    '설비점검': 'cat--inspection',
-    '품질관리': 'cat--quality',
-    'CNC가공': 'cat--cnc',
-  }
-  return map[cat] || 'cat--default'
+  return CATEGORY_CLASS_MAP[cat] || 'cat--default'
 }
 </script>
 

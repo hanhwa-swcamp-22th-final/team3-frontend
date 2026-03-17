@@ -1,10 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { API_BASE } from '@/constants'
 import HRMMetricCard       from '@/components/hrmanager/dashboard/HRMMetricCard.vue'
 import HRMPromotionList    from '@/components/hrmanager/hr/HRMPromotionList.vue'
 import HRMPromotionDetail  from '@/components/hrmanager/hr/HRMPromotionDetail.vue'
-
-const API_BASE = 'http://localhost:3001'
 
 const loading    = ref(true)
 const summary    = ref(null)

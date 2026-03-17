@@ -1,13 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { API_BASE } from '@/constants'
 import HRMDashboardNotice from '@/components/hrmanager/dashboard/HRMDashboardNotice.vue'
 import HRMMetricCard from '@/components/hrmanager/dashboard/HRMMetricCard.vue'
 import HRMTierDonutChart from '@/components/hrmanager/dashboard/HRMTierDonutChart.vue'
 import HRMTierTrendChart from '@/components/hrmanager/dashboard/HRMTierTrendChart.vue'
 import HRMTeamStatsTable from '@/components/hrmanager/dashboard/HRMTeamStatsTable.vue'
 import HRMTierDistCard from '@/components/hrmanager/dashboard/HRMTierDistCard.vue'
-
-const API_BASE = 'http://localhost:3001'
 
 const loading = ref(true)
 const dashboard = ref(null)

@@ -1,13 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { API_BASE } from '@/constants'
 import WorkerNotificationBanner from '@/components/worker/dashboard/WorkerNotificationBanner.vue'
 import WorkerOverallStatusCard from '@/components/worker/dashboard/WorkerOverallStatusCard.vue'
 import WorkerSkillsRadarChart from '@/components/worker/dashboard/WorkerSkillsRadarChart.vue'
 import WorkerTierGrowthHistory from '@/components/worker/dashboard/WorkerTierGrowthHistory.vue'
 import WorkerMissionBoard from '@/components/worker/dashboard/WorkerMissionBoard.vue'
-
-const API_BASE = 'http://localhost:3001'
 const authStore = useAuthStore()
 
 const loading = ref(true)

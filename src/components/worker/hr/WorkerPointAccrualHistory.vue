@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { POINT_CATEGORY_STYLES as categoryStyles } from '@/constants'
 
 const props = defineProps({
   history: {
@@ -16,13 +17,6 @@ const filteredHistory = computed(() => {
   if (activeTab.value === '전체') return props.history
   return props.history.filter((h) => h.category === activeTab.value)
 })
-
-const categoryStyles = {
-  '작업완료': { bg: '#e6fff7', color: '#00BF95' },
-  'KMS': { bg: '#e0dcff', color: '#2D1F6E' },
-  'AI평가': { bg: '#fef3c7', color: '#92750a' },
-  '설비보정': { bg: '#ffe2e8', color: '#c23a5a' },
-}
 
 function badgeStyle(category) {
   const s = categoryStyles[category] || { bg: '#f0eeff', color: '#2D1F6E' }

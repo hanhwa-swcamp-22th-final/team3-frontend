@@ -1,5 +1,6 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ROLE_ROUTE_MAP } from '@/constants'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 
@@ -303,14 +304,7 @@ router.beforeEach((to) => {
     }
 
     if (to.name === 'Login' && auth.isAuthenticated) {
-        const roleRouteMap = {
-            admin: 'AdminFacility',
-            HRM: 'HRDashboard',
-            TL: 'TeamLeaderDashboard',
-            DL: 'DepartmentLeaderDashboard',
-            worker: 'WorkerDashboard',
-        }
-        const dest = roleRouteMap[auth.role()] ?? 'Login'
+        const dest = ROLE_ROUTE_MAP[auth.role()] ?? 'Login'
         return { name: dest }
     }
 })

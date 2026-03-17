@@ -11,10 +11,9 @@ import {
   Legend,
 } from 'chart.js'
 import { getTierColors } from '@/utils/tierColors'
+import { TIERS } from '@/constants'
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend)
-
-const TIERS = ['S', 'A', 'B', 'C']
 
 const props = defineProps({
   data: { type: Array, default: () => [] },

@@ -1,4 +1,6 @@
 <script setup>
+import { TIER_BADGE_STYLES as tierColors } from '@/constants'
+
 defineProps({
   members: { type: Array, default: () => [] },
   selectedId: { type: Number, default: null },
@@ -10,13 +12,6 @@ const statusConfig = {
   submitted:    { label: '제출 완료', icon: '✓', cardClass: 'card--submitted' },
   in_progress:  { label: '작성 중',   icon: '✏', cardClass: 'card--in-progress' },
   not_started:  { label: '미작성',    icon: '⊘', cardClass: 'card--not-started' },
-}
-
-const tierColors = {
-  S: { bg: '#00BF95', text: '#fff' },
-  A: { bg: '#5B4FCF', text: '#fff' },
-  B: { bg: '#FFD166', text: '#855900' },
-  C: { bg: '#EF476F', text: '#fff' },
 }
 </script>
 

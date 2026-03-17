@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { tierColor as tierBgColor, tierTextColor } from '@/constants'
 
 const props = defineProps({
   employees:         { type: Array,   default: () => [] },
@@ -20,8 +21,6 @@ const tiers = ['전체', 'S', 'A', 'B', 'C']
 
 const totalCount    = computed(() => props.employees.length)
 const tierCount     = (tier) => props.employees.filter(e => e.employee_current_tier === tier).length
-const tierBgColor   = (tier) => ({ S: '#00BF95', A: '#5B4FCF', B: '#FFD166', C: '#EF476F' }[tier] || '#9AAAC0')
-const tierTextColor = (tier) => tier === 'B' ? '#1A1000' : '#FFFFFF'
 const AVATAR_COLORS = ['#5B4FCF', '#3D35A0', '#1A8060', '#A07000', '#C0103E', '#7A6FA8', '#00BF95', '#EF476F']
 const avatarBgColor = (emp) => AVATAR_COLORS[(emp.id - 1) % AVATAR_COLORS.length]
 const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'

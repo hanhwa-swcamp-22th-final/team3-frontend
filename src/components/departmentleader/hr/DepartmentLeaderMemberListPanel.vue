@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { TIER_BADGE_STYLES as tierColors } from '@/constants'
 
 const props = defineProps({
   members: { type: Array, default: () => [] },
@@ -27,12 +28,6 @@ function selectTeam(t) {
   dropdownOpen.value = false
 }
 
-const tierColors = {
-  S: { bg: '#00BF95', text: '#fff' },
-  A: { bg: '#5B4FCF', text: '#fff' },
-  B: { bg: '#FFD166', text: '#855900' },
-  C: { bg: '#EF476F', text: '#fff' },
-}
 </script>
 
 <template>

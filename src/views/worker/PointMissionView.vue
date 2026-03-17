@@ -1,11 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { API_BASE } from '@/constants'
 import WorkerPointTotalHolding from '@/components/worker/hr/WorkerPointTotalHolding.vue'
 import WorkerPointAccrualHistory from '@/components/worker/hr/WorkerPointAccrualHistory.vue'
 import WorkerPointPerMission from '@/components/worker/hr/WorkerPointPerMission.vue'
-
-const API_BASE = 'http://localhost:3001'
 const authStore = useAuthStore()
 
 const loading = ref(true)
