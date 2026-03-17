@@ -54,7 +54,7 @@ const routes = [
             {
                 path: 'preset',
                 name: 'AdminPreset',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminPreset.vue'),
             },
             {
                 path: 'domain-keywords',
