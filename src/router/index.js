@@ -245,37 +245,37 @@ const routes = [
             {
                 path: 'dashboard',
                 name: 'WorkerDashboard',
-                component: () => import('@/views/worker/WorkerMyProfileContent.vue'),
+                component: () => import('@/views/worker/WorkerMyProfileView.vue'),
             },
             {
                 path: 'point-mission',
                 name: 'PointMission',
-                component: () => import('@/views/worker/PointMissionContent.vue'),
+                component: () => import('@/views/worker/PointMissionView.vue'),
             },
             {
                 path: 'evaluation-result',
                 name: 'WorkerEvaluationResult',
-                component: () => import('@/views/worker/EvaluationResultContent.vue'),
+                component: () => import('@/views/worker/EvaluationResultView.vue'),
             },
             {
                 path: 'appeal',
                 name: 'AppealRequest',
-                component: () => import('@/views/worker/AppealRequestContent.vue'),
+                component: () => import('@/views/worker/AppealRequestView.vue'),
             },
             {
                 path: 'noticeboard',
                 name: 'WorkerNoticeBoard',
-                component: () => import('@/views/worker/NoticeBoardContent.vue'),
+                component: () => import('@/views/worker/NoticeBoardView.vue'),
             },
             {
                 path: 'today-task',
                 name: 'TodayTask',
-                component: () => import('@/views/worker/TodayTaskContent.vue'),
+                component: () => import('@/views/worker/TodayTaskView.vue'),
             },
             {
                 path: 'knowledgehub',
                 name: 'WorkerKnowledgeHub',
-                component: () => import('@/views/worker/KnowledgeHubContent.vue'),
+                component: () => import('@/views/worker/KnowledgeHubView.vue'),
             },
             {
                 path: 'my-knowledge',
@@ -285,7 +285,7 @@ const routes = [
             {
                 path: 'skill-gap',
                 name: 'SkillGapAnalysis',
-                component: Placeholder,
+                component: () => import('@/views/worker/SkillGapView.vue'),
             },
         ],
     },
