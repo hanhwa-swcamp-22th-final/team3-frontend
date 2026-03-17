@@ -91,10 +91,10 @@ const DUMMY_MATRIX = [
 const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 
 // 원본 스냅샷 (비교용)
-const originalMatrix = DUMMY_MATRIX.map(cat => ({
+const originalMatrix = ref(DUMMY_MATRIX.map(cat => ({
   ...cat,
   items: cat.items.map(item => ({ ...item })),
-}))
+})))
 
 const selectedRole = ref('Admin')
 const matrix = ref(DUMMY_MATRIX.map(cat => ({
@@ -107,7 +107,7 @@ const pendingChanges = computed(() => {
   let count = 0
   matrix.value.forEach((cat, catIdx) => {
     cat.items.forEach((item, itemIdx) => {
-      const orig = originalMatrix[catIdx].items[itemIdx]
+      const orig = originalMatrix.value[catIdx].items[itemIdx]
       ROLE_KEYS.forEach(role => {
         if (item[role] !== orig[role]) count++
       })
@@ -129,7 +129,7 @@ const onSave = () => {
   const logs = []
   matrix.value.forEach((cat, catIdx) => {
     cat.items.forEach((item, itemIdx) => {
-      const orig = originalMatrix[catIdx].items[itemIdx]
+      const orig = originalMatrix.value[catIdx].items[itemIdx]
       ROLE_KEYS.forEach(role => {
         if (item[role] !== orig[role]) {
           logs.push({
@@ -139,14 +139,30 @@ const onSave = () => {
             from: orig[role],
             to:   item[role],
           })
-          // 원본 스냅샷 갱신
-          originalMatrix[catIdx].items[itemIdx][role] = item[role]
         }
       })
     })
   })
   changeLogs.value = logs
   showLog.value = logs.length > 0
+}
+
+const onConfirmSave = () => {
+  originalMatrix.value = matrix.value.map(cat => ({
+    ...cat,
+    items: cat.items.map(item => ({ ...item })),
+  }))
+  showLog.value = false
+  changeLogs.value = []
+}
+
+const onCancelSave = () => {
+  matrix.value = originalMatrix.value.map(cat => ({
+    ...cat,
+    items: cat.items.map(item => ({ ...item })),
+  }))
+  showLog.value = false
+  changeLogs.value = []
 }
 </script>
 
@@ -183,6 +199,10 @@ const onSave = () => {
               <span class="log-feature">{{ log.feature }}</span>
               <span class="log-role">{{ log.role }}</span>
               <span class="log-arrow">{{ log.from ? '✅ → ❌' : '❌ → ✅' }}</span>
+            </div>
+            <div class="change-log__footer">
+              <button class="btn-cancel-save" @click="onCancelSave">취소</button>
+              <button class="btn-confirm-save" @click="onConfirmSave">확인 저장</button>
             </div>
           </div>
         </div>
@@ -359,6 +379,45 @@ const onSave = () => {
   flex-shrink: 0;
   font-size: 11px;
 }
+
+.change-log__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1.5px solid #EEEBFF;
+  background: #FAFBFF;
+}
+
+.btn-cancel-save {
+  height: 28px;
+  padding: 0 16px;
+  background: #fff;
+  border: 1.5px solid #E0DCFF;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #A89ED8;
+  cursor: pointer;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.btn-cancel-save:hover { background: #F0EEFF; color: #5B4FCF; }
+
+.btn-confirm-save {
+  height: 28px;
+  padding: 0 16px;
+  background: #5B4FCF;
+  border: 1.5px solid #7F75DB;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.btn-confirm-save:hover { background: #4A3FB0; }
 
 .panels {
   display: flex;
