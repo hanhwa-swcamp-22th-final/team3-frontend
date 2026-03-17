@@ -54,7 +54,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .panel-title {
