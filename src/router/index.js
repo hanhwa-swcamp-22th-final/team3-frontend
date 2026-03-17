@@ -166,7 +166,7 @@ const routes = [
       {
         path: 'facilitystatus',
         name: 'FacilityStatus',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderFacilityStatusView.vue'),
       },
       {
         path: 'knowledgehub',
@@ -316,4 +316,5 @@ router.beforeEach((to) => {
 })
 
 export default router
+
 
