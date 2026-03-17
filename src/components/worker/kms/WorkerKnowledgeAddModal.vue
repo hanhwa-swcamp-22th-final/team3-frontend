@@ -1,10 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { KMS_CATEGORY_OPTIONS as categoryOptions, KMS_EQUIPMENT_OPTIONS as equipmentOptions } from '@/constants'
 
 const emit = defineEmits(['close', 'submit', 'saveDraft'])
-
-const categoryOptions = ['정밀가공', '설비점검', '품질관리', 'CNC가공']
-const equipmentOptions = ['MCH-01', 'MCH-02', 'MCH-03', 'WLD-01', 'INS-01', 'HP-02', 'CNC-05']
 
 const title = ref('')
 const category = ref('')

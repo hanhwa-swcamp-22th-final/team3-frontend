@@ -1,12 +1,9 @@
 <script setup>
+import { tierColor } from '@/constants'
+
 defineProps({
   worker: { type: Object, required: true },
 })
-
-function tierColor(tier) {
-  const colors = { S: '#00BF95', A: '#5B4FCF', B: '#FFD166', C: '#EF476F' }
-  return colors[tier] || '#9992b8'
-}
 </script>
 
 <template>

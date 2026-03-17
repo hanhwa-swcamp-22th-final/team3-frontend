@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { TIER_BADGE_STYLES as tierColors, scoreToStars } from '@/constants'
 
 const props = defineProps({
   member: { type: Object, default: null },
@@ -19,14 +20,6 @@ watch(
   { immediate: true },
 )
 
-function scoreToStars(score) {
-  if (score >= 81) return 5
-  if (score >= 61) return 4
-  if (score >= 41) return 3
-  if (score >= 21) return 2
-  return 1
-}
-
 function updateScore(idx, raw) {
   const score = Math.min(100, Math.max(0, Number(raw) || 0))
   localEvals.value[idx].score = score
@@ -43,12 +36,6 @@ const canSubmit = computed(() =>
   ),
 )
 
-const tierColors = {
-  S: { bg: '#00BF95', text: '#fff' },
-  A: { bg: '#5B4FCF', text: '#fff' },
-  B: { bg: '#FFD166', text: '#855900' },
-  C: { bg: '#EF476F', text: '#fff' },
-}
 </script>
 
 <template>

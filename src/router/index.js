@@ -1,5 +1,6 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ROLE_ROUTE_MAP } from '@/constants'
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 
@@ -38,7 +39,7 @@ const routes = [
             {
                 path: 'logs',
                 name: 'AdminLogs',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminLogs.vue'),
             },
             {
                 path: 'permissions',
@@ -58,7 +59,7 @@ const routes = [
             {
                 path: 'domain-keywords',
                 name: 'AdminDomainKeywords',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminDomainKeywords.vue'),
             },
             {
                 path: 'profiles',
@@ -107,12 +108,12 @@ const routes = [
       {
         path: 'organization',
         name: 'OrganizationManagement',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMOrganizationView.vue'),
       },
       {
         path: 'noticeboard',
         name: 'HRMNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMNoticeBoardView.vue'),
       },
     ],
   },
@@ -156,7 +157,7 @@ const routes = [
       {
         path: 'taskmatching',
         name: 'TaskMatching',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderTaskMatchingView.vue'),
       },
       {
         path: 'ocsascore',
@@ -195,7 +196,7 @@ const routes = [
       {
         path: 'performance',
         name: 'DepartmentLeaderDashboardPerformance',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderPerformanceView.vue'),
       },
       {
         path: 'team-capability',
@@ -230,7 +231,7 @@ const routes = [
       {
         path: 'knowledgeapproval',
         name: 'DLKnowledgeApproval',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderKnowledgeApprovalView.vue'),
       },
     ],
   },
@@ -303,14 +304,7 @@ router.beforeEach((to) => {
     }
 
     if (to.name === 'Login' && auth.isAuthenticated) {
-        const roleRouteMap = {
-            admin: 'AdminFacility',
-            HRM: 'HRDashboard',
-            TL: 'TeamLeaderDashboard',
-            DL: 'DepartmentLeaderDashboard',
-            worker: 'WorkerDashboard',
-        }
-        const dest = roleRouteMap[auth.role()] ?? 'Login'
+        const dest = ROLE_ROUTE_MAP[auth.role()] ?? 'Login'
         return { name: dest }
     }
 })

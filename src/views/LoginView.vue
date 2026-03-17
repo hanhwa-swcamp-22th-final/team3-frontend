@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { API_BASE, ROLE_ROUTE_MAP, LOGIN_MESSAGES } from '@/constants'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -16,7 +17,7 @@ async function handleLogin() {
   errorMessage.value = ''
 
   if (!email.value || !password.value) {
-    errorMessage.value = '이메일과 비밀번호를 입력해주세요.'
+    errorMessage.value = LOGIN_MESSAGES.EMPTY_FIELDS
     return
   }
 
@@ -24,40 +25,33 @@ async function handleLogin() {
 
   try {
     const res = await fetch(
-      `http://localhost:3001/employees?employee_email=${encodeURIComponent(email.value)}`
+      `${API_BASE}/employees?employee_email=${encodeURIComponent(email.value)}`
     )
     const employees = await res.json()
 
     if (employees.length === 0) {
-      errorMessage.value = '등록되지 않은 이메일입니다.'
+      errorMessage.value = LOGIN_MESSAGES.EMAIL_NOT_FOUND
       return
     }
 
     const employee = employees[0]
 
     if (employee.employee_password !== password.value) {
-      errorMessage.value = '비밀번호가 일치하지 않습니다.'
+      errorMessage.value = LOGIN_MESSAGES.WRONG_PASSWORD
       return
     }
 
     if (employee.is_locked) {
-      errorMessage.value = '계정이 잠겨있습니다. 관리자에게 문의하세요.'
+      errorMessage.value = LOGIN_MESSAGES.ACCOUNT_LOCKED
       return
     }
 
     authStore.login(employee)
 
-    const roleRouteMap = {
-      admin: 'AdminFacility',
-      HRM: 'HRDashboard',
-      TL: 'TeamLeaderDashboard',
-      DL: 'DepartmentLeaderDashboard',
-      worker: 'WorkerDashboard',
-    }
-    const dest = roleRouteMap[employee.employee_role] ?? 'Login'
+    const dest = ROLE_ROUTE_MAP[employee.employee_role] ?? 'Login'
     router.push({ name: dest })
   } catch {
-    errorMessage.value = '서버에 연결할 수 없습니다.'
+    errorMessage.value = LOGIN_MESSAGES.SERVER_ERROR
   } finally {
     isLoading.value = false
   }

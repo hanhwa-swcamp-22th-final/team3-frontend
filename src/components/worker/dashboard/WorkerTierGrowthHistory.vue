@@ -1,4 +1,6 @@
 <script setup>
+import { tierColor, tierBgColor as tierBg, tierBarColor as barColor } from '@/constants'
+
 defineProps({
   milestones: {
     type: Array,
@@ -11,21 +13,6 @@ defineProps({
     // [{ period, value, tier }]
   },
 })
-
-function tierColor(tier) {
-  const colors = { S: '#00BF95', A: '#5B4FCF', B: '#FFD166', C: '#EF476F' }
-  return colors[tier] || '#9992b8'
-}
-
-function tierBg(tier) {
-  const colors = { S: '#E3FBEF', A: '#F0EEFF', B: '#FFF8E1', C: '#FDE8ED' }
-  return colors[tier] || '#f5f5f5'
-}
-
-function barColor(tier) {
-  const colors = { S: '#00BF95', A: '#5B4FCF', B: '#5B4FCF', C: '#E0DCFF', none: '#E8E5F5' }
-  return colors[tier] || '#E8E5F5'
-}
 </script>
 
 <template>

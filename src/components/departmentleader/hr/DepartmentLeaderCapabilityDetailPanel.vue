@@ -1,6 +1,7 @@
 <script setup>
 import WorkerSkillsRadarChart from '@/components/worker/dashboard/WorkerSkillsRadarChart.vue'
 import DepartmentLeaderTierTimeline from '@/components/departmentleader/hr/DepartmentLeaderTierTimeline.vue'
+import { TIER_BADGE_STYLES as tierBadgeStyle } from '@/constants'
 
 defineProps({
   member: {
@@ -8,13 +9,6 @@ defineProps({
     default: null,
   },
 })
-
-const tierBadgeStyle = {
-  S: { bg: '#00BF95', text: '#fff' },
-  A: { bg: '#5B4FCF', text: '#fff' },
-  B: { bg: '#FFD166', text: '#855900' },
-  C: { bg: '#EF476F', text: '#fff' },
-}
 </script>
 
 <template>

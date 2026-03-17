@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { EVAL_MESSAGES } from '@/constants'
 import HRMEvalWeightPanel from '@/components/hrmanager/hr/HRMEvalWeightPanel.vue'
 import HRMEvalTierPanel   from '@/components/hrmanager/hr/HRMEvalTierPanel.vue'
 import HRMEvalQuantPanel  from '@/components/hrmanager/hr/HRMEvalQuantPanel.vue'
@@ -24,15 +25,15 @@ function handleReset() {
 }
 
 function handleTempSave() {
-  alert('임시 저장되었습니다.')
+  alert(EVAL_MESSAGES.DRAFT_SAVED)
 }
 
 function handleApply() {
   if (quantItemsTotal.value !== 100) {
-    alert('정량 세부 항목 합계가 100%여야 합니다.')
+    alert(EVAL_MESSAGES.WEIGHT_SUM_ERROR)
     return
   }
-  alert('변경사항이 적용되었습니다.')
+  alert(EVAL_MESSAGES.CHANGES_APPLIED)
 }
 </script>
 

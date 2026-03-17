@@ -7,6 +7,6 @@ export * from './scmOrders'
 export * from './ocsaScore'
 export * from './knowledgeApproval'
 export * from './knowledgeHub'
-
 export * from './facilityStatus'
+export * from './taskMatching'
 

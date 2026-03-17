@@ -1,12 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { API_BASE } from '@/constants'
 import WorkerEvaluationStatus from '@/components/worker/hr/WorkerEvaluationStatus.vue'
 import WorkerQuantitativeEvaluation from '@/components/worker/hr/WorkerQuantitativeEvaluation.vue'
 import WorkerQualitativeEvaluation from '@/components/worker/hr/WorkerQualitativeEvaluation.vue'
 import WorkerGrowthFeedback from '@/components/worker/hr/WorkerGrowthFeedback.vue'
-
-const API_BASE = 'http://localhost:3001'
 const authStore = useAuthStore()
 
 const loading = ref(true)

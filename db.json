@@ -576,5 +576,139 @@
     { "id": 2, "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 6, "total": 7, "avgScore": 84.1, "tierDist": "A:4 B:3",     "completionRate": 86, "avatarColor": "#23185d" },
     { "id": 3, "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 4, "total": 7, "avgScore": 81.5, "tierDist": "A:2 B:4 C:1", "completionRate": 57, "avatarColor": "#1a5c3a" },
     { "id": 4, "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 3, "total": 6, "avgScore": 78.2, "tierDist": "B:4 C:2",     "completionRate": 50, "avatarColor": "#8b0000" }
+  ],
+  "promotionSummary": [
+    {
+      "id": 1,
+      "sTierCount": 3,
+      "sTierDelta": 1,
+      "aTierCount": 5,
+      "aTierDelta": 2,
+      "confirmedCount": 4,
+      "promotionRate": 62.5,
+      "prevPromotionRate": 55.0
+    }
+  ],
+  "promotionCandidates": [
+    {
+      "id": 1,
+      "name": "김민준",
+      "avatarColor": "#7c6fcd",
+      "currentTier": "A",
+      "targetTier": "S",
+      "totalScore": 93.2,
+      "fulfillRate": 100,
+      "missingCount": 0,
+      "growthTrend": 4.1,
+      "growthArrows": "↑↑",
+      "result": "승급 확정",
+      "detail": {
+        "requirements": [
+          { "label": "종합점수 90점 이상",    "met": true,  "current": "93.2점" },
+          { "label": "정량점수 85점 이상",    "met": true,  "current": "91.0점" },
+          { "label": "KMS 기여 3건 이상",     "met": true,  "current": "5건" },
+          { "label": "무결점 분기 1회 이상",  "met": true,  "current": "2회" }
+        ],
+        "history": [
+          { "quarter": "Q3'25", "result": "보류",      "missingCount": 2 },
+          { "quarter": "Q4'25", "result": "승급 가능", "missingCount": 0 }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "이수진",
+      "avatarColor": "#4b89c8",
+      "currentTier": "B",
+      "targetTier": "A",
+      "totalScore": 84.7,
+      "fulfillRate": 75,
+      "missingCount": 1,
+      "growthTrend": 2.3,
+      "growthArrows": "↑",
+      "result": "승급 가능",
+      "detail": {
+        "requirements": [
+          { "label": "종합점수 80점 이상",    "met": true,  "current": "84.7점" },
+          { "label": "정량점수 75점 이상",    "met": true,  "current": "82.1점" },
+          { "label": "KMS 기여 2건 이상",     "met": true,  "current": "3건" },
+          { "label": "무결점 분기 1회 이상",  "met": false, "current": "0회" }
+        ],
+        "history": [
+          { "quarter": "Q4'25", "result": "보류", "missingCount": 2 }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "박정훈",
+      "avatarColor": "#1aaa8e",
+      "currentTier": "A",
+      "targetTier": "S",
+      "totalScore": 88.5,
+      "fulfillRate": 75,
+      "missingCount": 1,
+      "growthTrend": 1.8,
+      "growthArrows": "↑",
+      "result": "승급 권장",
+      "detail": {
+        "requirements": [
+          { "label": "종합점수 90점 이상",    "met": false, "current": "88.5점" },
+          { "label": "정량점수 85점 이상",    "met": true,  "current": "87.3점" },
+          { "label": "KMS 기여 3건 이상",     "met": true,  "current": "4건" },
+          { "label": "무결점 분기 1회 이상",  "met": true,  "current": "1회" }
+        ],
+        "history": []
+      }
+    },
+    {
+      "id": 4,
+      "name": "최유리",
+      "avatarColor": "#d94f6e",
+      "currentTier": "B",
+      "targetTier": "A",
+      "totalScore": 79.1,
+      "fulfillRate": 50,
+      "missingCount": 2,
+      "growthTrend": 0.5,
+      "growthArrows": "→",
+      "result": "보류",
+      "detail": {
+        "requirements": [
+          { "label": "종합점수 80점 이상",    "met": false, "current": "79.1점" },
+          { "label": "정량점수 75점 이상",    "met": false, "current": "73.4점" },
+          { "label": "KMS 기여 2건 이상",     "met": true,  "current": "2건" },
+          { "label": "무결점 분기 1회 이상",  "met": true,  "current": "1회" }
+        ],
+        "history": [
+          { "quarter": "Q3'25", "result": "보류", "missingCount": 3 },
+          { "quarter": "Q4'25", "result": "보류", "missingCount": 2 }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "name": "정다운",
+      "avatarColor": "#a07826",
+      "currentTier": "A",
+      "targetTier": "S",
+      "totalScore": 91.0,
+      "fulfillRate": 100,
+      "missingCount": 0,
+      "growthTrend": 3.2,
+      "growthArrows": "↑↑",
+      "result": "승급 확정",
+      "detail": {
+        "requirements": [
+          { "label": "종합점수 90점 이상",    "met": true, "current": "91.0점" },
+          { "label": "정량점수 85점 이상",    "met": true, "current": "89.5점" },
+          { "label": "KMS 기여 3건 이상",     "met": true, "current": "6건" },
+          { "label": "무결점 분기 1회 이상",  "met": true, "current": "1회" }
+        ],
+        "history": [
+          { "quarter": "Q4'25", "result": "승급 가능", "missingCount": 0 }
+        ]
+      }
+    }
   ]
 }
