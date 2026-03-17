@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
 
@@ -88,21 +88,66 @@ const DUMMY_MATRIX = [
   },
 ]
 
-const selectedRole   = ref('Admin')
-const pendingChanges = ref(3)
+const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
+
+// 원본 스냅샷 (비교용)
+const originalMatrix = DUMMY_MATRIX.map(cat => ({
+  ...cat,
+  items: cat.items.map(item => ({ ...item })),
+}))
+
+const selectedRole = ref('Admin')
 const matrix = ref(DUMMY_MATRIX.map(cat => ({
   ...cat,
   items: cat.items.map(item => ({ ...item })),
 })))
 
+// 원본과 비교해서 실제 변경된 수만 카운트
+const pendingChanges = computed(() => {
+  let count = 0
+  matrix.value.forEach((cat, catIdx) => {
+    cat.items.forEach((item, itemIdx) => {
+      const orig = originalMatrix[catIdx].items[itemIdx]
+      ROLE_KEYS.forEach(role => {
+        if (item[role] !== orig[role]) count++
+      })
+    })
+  })
+  return count
+})
+
+const showLog  = ref(false)
+const changeLogs = ref([])
+
 const onSelectRole = (role) => { selectedRole.value = role }
 
 const onToggle = (catIdx, itemIdx, roleKey) => {
   matrix.value[catIdx].items[itemIdx][roleKey] = !matrix.value[catIdx].items[itemIdx][roleKey]
-  pendingChanges.value++
 }
 
-const onSave = () => { pendingChanges.value = 0 }
+const onSave = () => {
+  const logs = []
+  matrix.value.forEach((cat, catIdx) => {
+    cat.items.forEach((item, itemIdx) => {
+      const orig = originalMatrix[catIdx].items[itemIdx]
+      ROLE_KEYS.forEach(role => {
+        if (item[role] !== orig[role]) {
+          logs.push({
+            category: cat.category,
+            feature:  item.name,
+            role,
+            from: orig[role],
+            to:   item[role],
+          })
+          // 원본 스냅샷 갱신
+          originalMatrix[catIdx].items[itemIdx][role] = item[role]
+        }
+      })
+    })
+  })
+  changeLogs.value = logs
+  showLog.value = logs.length > 0
+}
 </script>
 
 <template>
