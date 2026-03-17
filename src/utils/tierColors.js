@@ -6,4 +6,3 @@ export function getTierColors() {
     TIERS.map((t) => [t, style.getPropertyValue(`--tier-${t.toLowerCase()}`).trim()])
   )
 }
-
