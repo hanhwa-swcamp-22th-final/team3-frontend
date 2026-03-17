@@ -166,7 +166,26 @@ const onSave = () => {
       </div>
       <div class="actions">
         <span v-if="pendingChanges > 0" class="badge-pending">변경사항 {{ pendingChanges }}건</span>
-        <button class="btn-save" @click="onSave">저장 적용</button>
+        <div class="btn-save-wrap">
+          <button class="btn-save" @click="onSave">저장 적용</button>
+          <!-- 변경 로그 -->
+          <div v-if="showLog" class="change-log">
+            <div class="change-log__header">
+              <span>변경 내역 {{ changeLogs.length }}건</span>
+              <span class="change-log__close" @click="showLog = false">✕</span>
+            </div>
+            <div
+              v-for="(log, i) in changeLogs"
+              :key="i"
+              class="change-log__item"
+            >
+              <span class="log-category">{{ log.category }}</span>
+              <span class="log-feature">{{ log.feature }}</span>
+              <span class="log-role">{{ log.role }}</span>
+              <span class="log-arrow">{{ log.from ? '✅ → ❌' : '❌ → ✅' }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
