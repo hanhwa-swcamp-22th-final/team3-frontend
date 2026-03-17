@@ -157,7 +157,7 @@ const routes = [
       {
         path: 'taskmatching',
         name: 'TaskMatching',
-        component: Placeholder,
+        component: () => import('@/views/teamleader/TeamLeaderTaskMatchingView.vue'),
       },
       {
         path: 'ocsascore',
@@ -317,4 +317,5 @@ router.beforeEach((to) => {
 })
 
 export default router
+
 
