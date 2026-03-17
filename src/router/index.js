@@ -171,8 +171,8 @@ const routes = [
       },
       {
         path: 'knowledgehub',
-        name: 'TLKnowledgeHub',
-        component: Placeholder,
+          name: 'TLKnowledgeHub',
+          component: () => import('@/views/teamleader/TeamLeaderKnowledgeHubView.vue'),
       },
       {
         path: 'knowledgeapproval',
@@ -317,3 +317,4 @@ router.beforeEach((to) => {
 })
 
 export default router
+
