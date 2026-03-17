@@ -282,6 +282,84 @@ const onSave = () => {
 
 .btn-save:hover { background: #4A3FB0; }
 
+.btn-save-wrap {
+  position: relative;
+}
+
+.change-log {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  background: #fff;
+  border: 1.5px solid #E0DCFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(45, 31, 110, 0.1);
+  z-index: 100;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.change-log__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #F0EEFF;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5B4FCF;
+}
+
+.change-log__close {
+  cursor: pointer;
+  font-size: 11px;
+  color: #A89ED8;
+}
+
+.change-log__close:hover { color: #5B4FCF; }
+
+.change-log__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #EEEBFF;
+  font-size: 11px;
+}
+
+.change-log__item:last-child { border-bottom: none; }
+
+.log-category {
+  color: #A89ED8;
+  flex-shrink: 0;
+}
+
+.log-feature {
+  color: #2D1F6E;
+  font-weight: 700;
+  flex: 1;
+}
+
+.log-role {
+  background: #F0EEFF;
+  color: #5B4FCF;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.log-arrow {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
 .panels {
   display: flex;
   gap: 16px;
