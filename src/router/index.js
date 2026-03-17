@@ -275,7 +275,7 @@ const routes = [
             {
                 path: 'knowledgehub',
                 name: 'WorkerKnowledgeHub',
-                component: Placeholder,
+                component: () => import('@/views/worker/KnowledgeHubContent.vue'),
             },
             {
                 path: 'my-knowledge',

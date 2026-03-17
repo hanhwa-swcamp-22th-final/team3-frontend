@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import WorkerNoticeList from '@/components/worker/hr/WorkerNoticeList.vue'
 import WorkerNoticeDetail from '@/components/worker/hr/WorkerNoticeDetail.vue'
-import { workerNotices as mockNotices } from '@/mocks/workerNoticeData'
+import { workerNotices as mockNotices } from '@/mocks/worker/workerNoticeData'
 
 const loading = ref(true)
 const notices = ref([])

@@ -4,7 +4,7 @@ import WorkerTodayJobCount from '@/components/worker/scm/WorkerTodayJobCount.vue
 import WorkerTodayJobCard from '@/components/worker/scm/WorkerTodayJobCard.vue'
 import WorkerJobStartModal from '@/components/worker/scm/WorkerJobStartModal.vue'
 import WorkerJobFinishModal from '@/components/worker/scm/WorkerJobFinishModal.vue'
-import { todayJobs as mockJobs } from '@/mocks/workerTodayJobData'
+import { todayJobs as mockJobs } from '@/mocks/worker/workerTodayJobData'
 
 const loading = ref(true)
 const jobs = ref([])
