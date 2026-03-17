@@ -7,7 +7,12 @@
     <div class="kms-layout">
       <!-- 좌: 피드 -->
       <div class="kms-feed-col">
-        <div class="feed-placeholder">[KmsFeed]</div>
+        <KmsFeed
+          :selectedFilter="selectedFilter"
+          :selectedTagFilter="selectedTagFilter"
+          @filterChange="selectedFilter = $event"
+          @tagFilterChange="selectedTagFilter = $event"
+        />
       </div>
 
       <!-- 우: 사이드 패널 -->
@@ -21,6 +26,7 @@
 <script setup>
 import { ref } from 'vue'
 import KmsStatCards from '@/components/admin/kms/KmsStatCards.vue'
+import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 
 const selectedFilter = ref('전체')
 const selectedTagFilter = ref(null)
@@ -53,7 +59,6 @@ const selectedTagFilter = ref(null)
   flex-shrink: 0;
 }
 
-.feed-placeholder,
 .side-placeholder {
   background: var(--color-bg-surface, #ffffff);
   border: 1px solid var(--color-border-default, #e0dcff);
