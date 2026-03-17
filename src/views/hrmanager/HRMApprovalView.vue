@@ -1,45 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { API_BASE, SCORE_WEIGHT_QUANT, SCORE_WEIGHT_QUAL, GRADE_THRESHOLDS, AI_TAG_LIMIT, TYPE_STYLE, GRADE_STYLE, EVAL_TYPE_LABEL, scoreToGrade } from '@/constants'
 import HRMApprovalBanner from '@/components/hrmanager/hr/HRMApprovalBanner.vue'
 import HRMApprovalList   from '@/components/hrmanager/hr/HRMApprovalList.vue'
 import HRMApprovalDetail from '@/components/hrmanager/hr/HRMApprovalDetail.vue'
-
-// ── 상수 ──────────────────────────────────────────────────────────
-const SCORE_WEIGHT_QUANT = 0.6
-const SCORE_WEIGHT_QUAL  = 0.4
-const GRADE_THRESHOLDS   = { S: 90, A: 80, B: 70 }
-const AI_TAG_LIMIT       = 5
-
-const TYPE_STYLE = {
-  '정기평가': { typeBg: 'var(--color-primary-100)', typeColor: 'var(--color-primary-600)' },
-  '이의신청': { typeBg: '#ffecf1',                  typeColor: '#c0103e' },
-  '승급신청': { typeBg: '#e3fbef',                  typeColor: '#007a60' },
-}
-
-const GRADE_STYLE = {
-  S: { gradeBg: 'var(--tier-s)', gradeColor: 'var(--color-white)' },
-  A: { gradeBg: 'var(--tier-a)', gradeColor: 'var(--color-white)' },
-  B: { gradeBg: 'var(--tier-b)', gradeColor: '#1a1000' },
-  C: { gradeBg: 'var(--tier-c)', gradeColor: 'var(--color-white)' },
-}
-
-const EVAL_TYPE_LABEL = {
-  '정기평가': '정기 평가',
-  '이의신청': '이의 신청',
-  '승급신청': '승급 신청',
-}
 
 // ── 유틸 함수 ─────────────────────────────────────────────────────
 function gradeStyle(grade) {
   const key = grade?.includes('→') ? grade.slice(-1) : grade
   return GRADE_STYLE[key] ?? GRADE_STYLE['B']
-}
-
-function scoreToGrade(score) {
-  if (score >= GRADE_THRESHOLDS.S) return 'S'
-  if (score >= GRADE_THRESHOLDS.A) return 'A'
-  if (score >= GRADE_THRESHOLDS.B) return 'B'
-  return 'C'
 }
 
 function shortDate(dateStr) {
@@ -78,15 +47,14 @@ const selectedId   = ref(null)
 // ── 데이터 로딩 ───────────────────────────────────────────────────
 onMounted(async () => {
   try {
-    const API = 'http://localhost:3001'
     const fetchJson = url => fetch(url).then(r => r.json())
     const [empData, qualData, quantData, teamData, appealData, promotionData] = await Promise.all([
-      fetchJson(`${API}/employees`),
-      fetchJson(`${API}/qualitativeEval`),
-      fetchJson(`${API}/quantitativeEval`),
-      fetchJson(`${API}/teamStats`),
-      fetchJson(`${API}/appealForms`),
-      fetchJson(`${API}/tierPromotions`),
+      fetchJson(`${API_BASE}/employees`),
+      fetchJson(`${API_BASE}/qualitativeEval`),
+      fetchJson(`${API_BASE}/quantitativeEval`),
+      fetchJson(`${API_BASE}/teamStats`),
+      fetchJson(`${API_BASE}/appealForms`),
+      fetchJson(`${API_BASE}/tierPromotions`),
     ])
 
     const result = []

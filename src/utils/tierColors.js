@@ -1,4 +1,4 @@
-const TIERS = ['S', 'A', 'B', 'C']
+import { TIERS } from '@/constants'
 
 export function getTierColors() {
   const style = getComputedStyle(document.documentElement)

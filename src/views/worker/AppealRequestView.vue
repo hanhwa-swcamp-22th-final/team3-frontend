@@ -1,11 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { API_BASE } from '@/constants'
 import WorkerAppealNotification from '@/components/worker/hr/WorkerAppealNotification.vue'
 import WorkerAppealHistory from '@/components/worker/hr/WorkerAppealHistory.vue'
 import WorkerAppealForm from '@/components/worker/hr/WorkerAppealForm.vue'
-
-const API_BASE = 'http://localhost:3001'
 const authStore = useAuthStore()
 
 const loading = ref(true)
