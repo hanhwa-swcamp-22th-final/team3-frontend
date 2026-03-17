@@ -39,7 +39,7 @@ const routes = [
             {
                 path: 'logs',
                 name: 'AdminLogs',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminLogs.vue'),
             },
             {
                 path: 'permissions',
