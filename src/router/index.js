@@ -216,7 +216,7 @@ const routes = [
       {
         path: 'noticeboard',
         name: 'DLNoticeBoard',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderNoticeBoardView.vue'),
       },
       {
         path: 'scmorders',
