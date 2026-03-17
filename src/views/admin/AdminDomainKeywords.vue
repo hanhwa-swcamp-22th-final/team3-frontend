@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
 import KeywordTable   from '@/components/admin/scm/KeywordTable.vue'
+import KeywordModal   from '@/components/admin/scm/KeywordModal.vue'
 import { DUMMY_KEYWORDS, PAGE_SIZE } from '@/mocks/admin/keyword/keywordData.js'
 
 const keywords         = ref(DUMMY_KEYWORDS.map(k => ({ ...k })))
@@ -29,7 +30,26 @@ const pagedKeywords = computed(() => {
 const onSearch         = (v) => { searchQuery.value      = v; currentPage.value = 1 }
 const onCategoryChange = (v) => { selectedCategory.value = v; currentPage.value = 1 }
 
-const onEditClick   = (kw) => { console.log('수정', kw) }
+// ── 모달 핸들러 ─────────────────────────────────────
+const isModalOpen    = ref(false)
+const editingKeyword = ref(null)
+
+const openAddModal  = ()   => { editingKeyword.value = null;      isModalOpen.value = true }
+const openEditModal = (kw) => { editingKeyword.value = { ...kw }; isModalOpen.value = true }
+const closeModal    = ()   => { isModalOpen.value = false; editingKeyword.value = null }
+
+const onSave = (kw) => {
+  if (kw.id) {
+    const idx = keywords.value.findIndex(k => k.id === kw.id)
+    if (idx !== -1) keywords.value[idx] = { ...kw }
+  } else {
+    const newId = Math.max(...keywords.value.map(k => k.id)) + 1
+    keywords.value.push({ ...kw, id: newId })
+  }
+  closeModal()
+}
+
+const onEditClick   = (kw) => { openEditModal(kw) }
 const onDeleteClick = (id) => {
   if (!confirm('삭제하시겠습니까?')) return
   const idx = keywords.value.findIndex(k => k.id === id)
@@ -46,7 +66,7 @@ const onDeleteClick = (id) => {
         <h1 class="page-title">도메인 키워드 관리</h1>
         <p class="page-desc">NLP 정성평가에 사용되는 제조 도메인 키워드 사전</p>
       </div>
-      <button class="btn-add">+ 키워드 등록</button>
+      <button class="btn-add" @click="openAddModal">+ 키워드 등록</button>
     </div>
 
     <!-- 툴바 -->
@@ -62,6 +82,14 @@ const onDeleteClick = (id) => {
       :keywords="pagedKeywords"
       @editClick="onEditClick"
       @deleteClick="onDeleteClick"
+    />
+
+    <!-- 모달 -->
+    <KeywordModal
+      :isOpen="isModalOpen"
+      :keyword="editingKeyword"
+      @close="closeModal"
+      @save="onSave"
     />
 
     <!-- 페이지네이션 -->
