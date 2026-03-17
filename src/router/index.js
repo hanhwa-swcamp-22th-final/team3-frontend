@@ -107,7 +107,7 @@ const routes = [
       {
         path: 'organization',
         name: 'OrganizationManagement',
-        component: Placeholder,
+        component: () => import('@/views/hrmanager/HRMOrganizationView.vue'),
       },
       {
         path: 'noticeboard',
