@@ -1,13 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import WorkerTodayJobCount from '@/components/worker/scm/WorkerTodayJobCount.vue'
 import WorkerTodayJobCard from '@/components/worker/scm/WorkerTodayJobCard.vue'
 import WorkerJobStartModal from '@/components/worker/scm/WorkerJobStartModal.vue'
 import WorkerJobFinishModal from '@/components/worker/scm/WorkerJobFinishModal.vue'
-
-const API_BASE = 'http://localhost:3001'
-const authStore = useAuthStore()
+import { todayJobs as mockJobs } from '@/mocks/workerTodayJobData'
 
 const loading = ref(true)
 const jobs = ref([])
@@ -15,20 +12,9 @@ const showStartModal = ref(false)
 const showFinishModal = ref(false)
 const selectedJob = ref(null)
 
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
-
-onMounted(async () => {
-  const employeeId = authStore.employee?.employee_id
-  try {
-    jobs.value = await fetchJson(`${API_BASE}/todayJobs?employee_id=${employeeId}`)
-  } catch (e) {
-    console.error('Failed to load today jobs:', e)
-  } finally {
-    loading.value = false
-  }
+onMounted(() => {
+  jobs.value = mockJobs.map((j) => ({ ...j }))
+  loading.value = false
 })
 
 const totalCount = computed(() => jobs.value.length)

@@ -2,29 +2,18 @@
 import { ref, computed, onMounted } from 'vue'
 import WorkerNoticeList from '@/components/worker/hr/WorkerNoticeList.vue'
 import WorkerNoticeDetail from '@/components/worker/hr/WorkerNoticeDetail.vue'
-
-const API_BASE = 'http://localhost:3001'
+import { workerNotices as mockNotices } from '@/mocks/workerNoticeData'
 
 const loading = ref(true)
 const notices = ref([])
 const selectedId = ref(null)
 
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
-
-onMounted(async () => {
-  try {
-    notices.value = await fetchJson(`${API_BASE}/workerNotices`)
-    if (notices.value.length) {
-      selectedId.value = notices.value[0].id
-    }
-  } catch (e) {
-    console.error('Failed to load notices:', e)
-  } finally {
-    loading.value = false
+onMounted(() => {
+  notices.value = mockNotices
+  if (notices.value.length) {
+    selectedId.value = notices.value[0].id
   }
+  loading.value = false
 })
 
 const selectedNotice = computed(() => {
