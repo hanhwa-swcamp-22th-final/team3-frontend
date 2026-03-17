@@ -1,0 +1,103 @@
+﻿export const dashboardNotice = {
+  badge: '중요 공지',
+  title: '2026 상반기 평가 의견 입력 마감: 3월 18일 18:00',
+  description:
+    '팀리더 정성평가와 HR 검토 항목은 마감 이후 수정이 제한됩니다. 제출 전 마지막 점검을 진행해 주세요.',
+}
+
+export const dashboardMetrics = [
+  { label: '팀 평균 점수', value: '85.4', delta: '+2.1', tone: 'primary' },
+  { label: '평가율', value: '91.3%', delta: '+1.2%', tone: 'success' },
+  { label: '이번달 완료', value: '108건', delta: '+12', tone: 'success' },
+  { label: '팀 TIER 평균', value: 'A', helper: '상위권 유지', tone: 'primary' },
+]
+
+export const dashboardMembers = [
+  {
+    id: 1,
+    avatar: '손',
+    avatarTone: 'purple',
+    name: '손창우',
+    code: 'MCH-01',
+    tier: 'S',
+    tierTone: 'purple',
+    quantitative: '94.2%',
+    qualitative: '89.4%',
+    tasks: '47건',
+    score: '91',
+    delta: '+3.2',
+    statusTone: 'success',
+  },
+  {
+    id: 2,
+    avatar: '김',
+    avatarTone: 'purple',
+    name: '김신우',
+    code: 'MCH-02',
+    tier: 'A',
+    tierTone: 'purple',
+    quantitative: '86.1%',
+    qualitative: '82.7%',
+    tasks: '38건',
+    score: '84',
+    delta: '+1.8',
+    statusTone: 'success',
+  },
+  {
+    id: 3,
+    avatar: '황',
+    avatarTone: 'green',
+    name: '황자현',
+    code: 'PRS-01',
+    tier: 'A',
+    tierTone: 'purple',
+    quantitative: '83.4%',
+    qualitative: '79.1%',
+    tasks: '35건',
+    score: '81',
+    delta: '-0.6',
+    statusTone: 'danger',
+  },
+  {
+    id: 4,
+    avatar: '임',
+    avatarTone: 'gold',
+    name: '임원석',
+    code: 'WLD-01',
+    tier: 'B',
+    tierTone: 'gold',
+    quantitative: '72.8%',
+    qualitative: '75.3%',
+    tasks: '22건',
+    score: '74',
+    delta: '+2.4',
+    statusTone: 'success',
+  },
+]
+
+export const dashboardAlerts = [
+  {
+    id: 1,
+    category: '성과 알림',
+    title: '손창우 S-Tier 달성',
+    description: '전체 팀 최상위 등급에 진입했습니다.',
+    time: '1시간 전',
+    tone: 'mint',
+  },
+  {
+    id: 2,
+    category: '마감 일정',
+    title: '1분기 정기 평가 마감',
+    description: '제출 기한 D-3',
+    time: '오늘',
+    tone: 'primary',
+  },
+  {
+    id: 3,
+    category: '마감 일정',
+    title: '1분기 정기 평가 마감',
+    description: '제출 기한 D-3',
+    time: '오늘',
+    tone: 'primary',
+  },
+]
