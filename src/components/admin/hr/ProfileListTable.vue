@@ -129,6 +129,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .section-title {
