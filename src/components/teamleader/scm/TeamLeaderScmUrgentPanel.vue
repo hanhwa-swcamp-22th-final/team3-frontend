@@ -4,6 +4,10 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  showAction: {
+    type: Boolean,
+    default: true,
+  },
 })
 </script>
 
@@ -38,7 +42,7 @@ defineProps({
       선택한 필터에 해당하는 긴급 주문이 없습니다.
     </div>
 
-    <button type="button" class="urgent-panel__action">작업 매칭으로 이동</button>
+    <button v-if="showAction" type="button" class="urgent-panel__action">작업 매칭으로 이동</button>
   </aside>
 </template>
 
