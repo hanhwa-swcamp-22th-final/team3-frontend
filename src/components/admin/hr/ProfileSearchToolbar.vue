@@ -43,6 +43,7 @@ const emit = defineEmits(['search', 'tierChange', 'lineChange', 'addClick'])
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .toolbar__search {
