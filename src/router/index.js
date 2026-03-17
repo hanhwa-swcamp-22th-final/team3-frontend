@@ -221,7 +221,7 @@ const routes = [
       {
         path: 'scmorders',
         name: 'DLScmOrders',
-        component: Placeholder,
+        component: () => import('@/views/departmentleader/DepartmentLeaderScmOrdersView.vue'),
       },
       {
         path: 'knowledgehub',
