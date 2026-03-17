@@ -46,10 +46,6 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 
       </template>
 
-      <!-- 경고 문구 -->
-      <div class="warning-box">
-        ⚠️ 권한 변경사항은 즉시 적용되지 않으며, '저장 적용' 버튼 클릭 후 다음 로그인 시 반영됩니다.
-      </div>
     </div>
 
   </div>
@@ -61,11 +57,11 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   background: #fff;
   border: 1.5px solid #E0DCFF;
   border-radius: 12px;
-  padding: 21px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  overflow-y: auto;
+  overflow: hidden;
   min-width: 0;
 }
 
@@ -73,7 +69,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   font-size: 12px;
   font-weight: 900;
   color: #7A6FA8;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
@@ -82,7 +78,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   align-items: center;
   background: #F0EEFF;
   border-radius: 6px;
-  height: 31px;
+  height: 26px;
   padding: 0 12px;
   flex-shrink: 0;
 }
@@ -109,18 +105,18 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   font-size: 11px;
   font-weight: 700;
   padding: 0 12px;
-  height: 32px;
+  height: 26px;
   display: flex;
   align-items: center;
   border-radius: 4px;
-  margin-top: 8px;
+  margin-top: 5px;
   flex-shrink: 0;
 }
 
 .table-row {
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 30px;
   padding: 0 12px;
   border-bottom: 1.5px solid #EEEBFF;
   flex-shrink: 0;
@@ -156,7 +152,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   background: #FFF8E0;
   border-left: 3px solid #FFD166;
   border-radius: 4px;
-  padding: 10px 17px;
+  padding: 7px 12px;
   font-size: 11px;
   color: #A07000;
   line-height: 1.5;

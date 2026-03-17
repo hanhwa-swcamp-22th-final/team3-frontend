@@ -57,7 +57,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .panel-title {

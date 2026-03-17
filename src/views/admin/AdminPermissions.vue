@@ -89,14 +89,6 @@ const DUMMY_MATRIX = [
       { name: '설비 E_idx 설정', Admin: true,  HR: false, TL: false, LM: false, Tech: false, note: 'Admin 전용' },
     ],
   },
-  {
-    category: '📚 KMS',
-    items: [
-      { name: '지식 등록',     Admin: true,  HR: true,  TL: true,  LM: true,  Tech: true,  note: '전체' },
-      { name: '지식 심사/승인', Admin: true,  HR: true,  TL: false, LM: false, Tech: false, note: '—' },
-      { name: 'KMS 통계 조회', Admin: true,  HR: true,  TL: true,  LM: false, Tech: false, note: '—' },
-    ],
-  },
 ]
 
 // ── State ──────────────────────────────────────────
