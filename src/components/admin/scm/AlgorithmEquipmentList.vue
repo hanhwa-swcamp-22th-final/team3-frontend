@@ -70,6 +70,7 @@ const dotColor = (eq) => {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
+  font-family: 'Pretendard', sans-serif;
   padding: 20px;
   display: flex;
   flex-direction: column;
