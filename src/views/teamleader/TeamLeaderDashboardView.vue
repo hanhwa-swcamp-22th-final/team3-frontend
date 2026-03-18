@@ -1,6 +1,6 @@
 ﻿<script setup>
-import TeamLeaderDashboardNotice from '@/components/dashboard/common/TeamLeaderDashboardNotice.vue'
-import TeamLeaderMetricCard from '@/components/dashboard/teamleader/TeamLeaderMetricCard.vue'
+import TeamLeaderDashboardNotice from '@/components/dashboard/common/TeamLeaderDashboardNoticeWrapper.vue'
+import TeamLeaderMetricCard from '@/components/dashboard/teamleader/TeamLeaderMetricCardWrapper.vue'
 import TeamLeaderMemberGrid from '@/components/dashboard/teamleader/TeamLeaderMemberGrid.vue'
 import TeamLeaderAlertFeed from '@/components/dashboard/teamleader/TeamLeaderAlertFeed.vue'
 import { dashboardNotice, dashboardMetrics, dashboardMembers, dashboardAlerts } from '@/mocks/teamleader/dashboard'

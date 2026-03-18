@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderNotificationFilterBar from '@/components/hr/teamleader/notification/TeamLeaderNotificationFilterBar.vue'
-import TeamLeaderNotificationList from '@/components/hr/teamleader/notification/TeamLeaderNotificationList.vue'
+import TeamLeaderNotificationFilterBar from '@/components/hr/teamleader/notification/TeamLeaderNotificationFilterBarWrapper.vue'
+import TeamLeaderNotificationList from '@/components/hr/teamleader/notification/TeamLeaderNotificationListWrapper.vue'
 import TeamLeaderNotificationAssistPanel from '@/components/hr/teamleader/notification/TeamLeaderNotificationAssistPanel.vue'
 import { notificationFilters, notificationHeadlineAlert, notificationItems, notificationAssistPanels } from '@/mocks/teamleader/notification'
 
