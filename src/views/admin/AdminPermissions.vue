@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
+import BaseFilterTabs        from '@/components/common/base/navigation/BaseFilterTabs.vue'
 import { ROLES, ROLE_DEFINITIONS, DUMMY_MATRIX } from '@/mocks/admin/permission/permissionData.js'
 
 const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
