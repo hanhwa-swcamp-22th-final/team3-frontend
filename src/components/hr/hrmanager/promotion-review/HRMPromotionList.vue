@@ -1,4 +1,6 @@
 <script setup>
+import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
+
 defineProps({
   list:       { type: Array,  required: true },
   tabs:       { type: Array,  required: true },
@@ -23,15 +25,12 @@ function resultStyle(result) {
   <article class="promo-list">
     <p class="promo-list__title">🏆 승급 심사 대상자 ({{ list.length }}명)</p>
 
-    <div class="promo-list__tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab"
-        class="promo-list__tab"
-        :class="{ 'promo-list__tab--active': activeTab === tab }"
-        @click="$emit('tab-change', tab)"
-      >{{ tab }}</button>
-    </div>
+    <BaseFilterTabs
+      :items="tabs"
+      :modelValue="activeTab"
+      variant="chip"
+      @change="$emit('tab-change', $event)"
+    />
 
     <table class="promo-table">
       <thead>
@@ -127,26 +126,6 @@ function resultStyle(result) {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
-}
-.promo-list__tabs {
-  display: flex;
-  gap: 8px;
-}
-.promo-list__tab {
-  height: 30px;
-  padding: 0 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--color-border-default);
-  background: var(--color-bg-app);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-.promo-list__tab--active {
-  background: var(--color-primary-600);
-  color: var(--color-white);
-  border-color: var(--color-primary-600);
 }
 
 /* 테이블 */

@@ -94,6 +94,9 @@ const variantClassMap = {
   line-height: 1;
   font-weight: 700;
   color: var(--color-primary-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .base-stat-card__value-suffix {

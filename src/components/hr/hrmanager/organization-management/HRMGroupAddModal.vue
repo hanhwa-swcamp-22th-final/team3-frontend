@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { GROUP_COLORS } from '@/mocks/hrmanager/organization.js'
+import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
 const emit = defineEmits(['close', 'submit'])
 
@@ -19,68 +20,51 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal">
-      <h2 class="modal__title">그룹 추가</h2>
+  <BaseFormModal
+    title="그룹 추가"
+    confirmText="추가"
+    :confirmDisabled="!name.trim()"
+    width="460px"
+    @confirm="handleSubmit"
+    @cancel="$emit('close')"
+    @close="$emit('close')"
+  >
+    <div class="modal__form">
+    <label class="modal__label">그룹명 <span class="modal__required">*</span></label>
+    <input
+      v-model="name"
+      class="modal__input"
+      placeholder="예: 생산본부"
+      maxlength="30"
+    />
 
-      <label class="modal__label">그룹명 <span class="modal__required">*</span></label>
-      <input
-        v-model="name"
-        class="modal__input"
-        placeholder="예: 생산본부"
-        maxlength="30"
+    <label class="modal__label">설명</label>
+    <textarea
+      v-model="description"
+      class="modal__textarea"
+      rows="4"
+    />
+
+    <label class="modal__label">그룹 색상</label>
+    <div class="modal__colors">
+      <button
+        v-for="c in GROUP_COLORS"
+        :key="c"
+        class="color-dot"
+        :class="{ 'color-dot--active': color === c }"
+        :style="{ background: c }"
+        @click="color = c"
       />
-
-      <label class="modal__label">설명</label>
-      <textarea
-        v-model="description"
-        class="modal__textarea"
-        rows="4"
-      />
-
-      <label class="modal__label">그룹 색상</label>
-      <div class="modal__colors">
-        <button
-          v-for="c in GROUP_COLORS"
-          :key="c"
-          class="color-dot"
-          :class="{ 'color-dot--active': color === c }"
-          :style="{ background: c }"
-          @click="color = c"
-        />
-      </div>
-
-      <div class="modal__actions">
-        <button class="modal__btn modal__btn--cancel" @click="$emit('close')">취소</button>
-        <button
-          class="modal__btn modal__btn--submit"
-          :disabled="!name.trim()"
-          @click="handleSubmit"
-        >추가</button>
-      </div>
     </div>
-  </div>
+    </div>
+  </BaseFormModal>
 </template>
 
 <style scoped>
-.modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.35);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 999;
-}
-.modal {
-  background: var(--color-bg-surface);
-  border-radius: 16px;
-  padding: 32px 36px;
-  width: 460px;
-  display: flex; flex-direction: column; gap: 10px;
-  box-shadow: 0 8px 40px rgba(0,0,0,.18);
-}
-.modal__title {
-  font-size: var(--font-size-lg); font-weight: var(--font-weight-extrabold);
-  color: var(--color-primary-800);
-  margin-bottom: 6px;
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .modal__label {
   font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
@@ -122,25 +106,4 @@ function handleSubmit() {
 }
 .color-dot--active { border-color: var(--color-primary-800); }
 
-.modal__actions {
-  display: flex; justify-content: flex-end; gap: 10px;
-  margin-top: 12px;
-}
-.modal__btn {
-  height: 40px; padding: 0 24px;
-  border-radius: 8px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
-  cursor: pointer; border: none;
-}
-.modal__btn--cancel {
-  background: var(--color-bg-app);
-  border: 1.5px solid var(--color-border-default);
-  color: var(--color-primary-600);
-}
-.modal__btn--submit {
-  background: var(--color-primary-600);
-  color: var(--color-white);
-}
-.modal__btn--submit:disabled {
-  opacity: .5; cursor: not-allowed;
-}
 </style>

@@ -1,4 +1,6 @@
 <script setup>
+import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
+
 defineProps({
   list: { type: Array, required: true },
   total: { type: Number, required: true },
@@ -13,15 +15,12 @@ defineEmits(['tab-change', 'select'])
   <article class="hrm-panel">
     <p class="hrm-panel__header">📋 승인 대기 ({{ total }}건)</p>
 
-    <div class="hrm-tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab"
-        class="hrm-tab"
-        :class="{ 'hrm-tab--active': activeTab === tab }"
-        @click="$emit('tab-change', tab)"
-      >{{ tab }}</button>
-    </div>
+    <BaseFilterTabs
+      :items="tabs"
+      :modelValue="activeTab"
+      variant="underline"
+      @change="$emit('tab-change', $event)"
+    />
 
     <div class="hrm-list">
       <div v-if="list.length === 0" class="hrm-list__empty">
@@ -61,13 +60,8 @@ defineEmits(['tab-change', 'select'])
   letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px;
 }
 
-.hrm-tabs { display: flex; gap: 16px; border-bottom: 1.5px solid var(--color-border-muted); margin-bottom: 12px; }
-.hrm-tab {
-  height: 34px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: #a89ed8;
-  background: none; border: none; border-bottom: 3px solid transparent;
-  margin-bottom: -3px; cursor: pointer; padding: 0 2px;
-}
-.hrm-tab--active { color: var(--color-primary-600); border-bottom-color: var(--color-primary-600); }
+
+:deep(.base-filter-tabs) { margin-bottom: 12px; }
 
 .hrm-list { display: flex; flex-direction: column; gap: 8px; }
 .hrm-list__empty { padding: 32px 0; text-align: center; font-size: var(--font-size-sm); color: #a89ed8; }

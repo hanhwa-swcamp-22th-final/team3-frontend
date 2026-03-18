@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
-import HRMMetricCard       from '@/components/hr/hrmanager/kpi-report/HRMMetricCard.vue'
+import BaseStatCard         from '@/components/common/base/display/BaseStatCard.vue'
 import HRMKpiTeamBarChart   from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamBarChart.vue'
 import HRMKpiTierTrendChart from '@/components/hr/hrmanager/kpi-report/HRMKpiTierTrendChart.vue'
 import HRMKpiCompletionDonut from '@/components/hr/hrmanager/kpi-report/HRMKpiCompletionDonut.vue'
@@ -60,25 +60,25 @@ onMounted(async () => {
 
       <!-- 지표 카드 4개 -->
       <section class="kpi-view__metrics" v-if="report">
-        <HRMMetricCard
+        <BaseStatCard
           label="전사 평균 종합점수"
           :value="String(report.avgScore)"
           :delta="`▲${report.avgScoreDelta}`"
           tone="primary"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="S+A TIER 비율"
           :value="`${report.saRatio}%`"
           :delta="`▲${report.saRatioDelta}%`"
           tone="primary"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="분기 완료작업"
           :value="`${report.completedTasks.toLocaleString()}건`"
           :delta="`▲${report.completedTasksDelta}`"
           tone="success"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="평균 MTBF"
           :value="`${report.avgMtbf}H`"
           :delta="`▲${report.avgMtbfDelta}h`"
@@ -176,7 +176,7 @@ onMounted(async () => {
 /* 차트 3분할 */
 .kpi-view__charts {
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.9fr;
+  grid-template-columns: 1fr 1.4fr 1fr;
   gap: 16px;
 }
 </style>
