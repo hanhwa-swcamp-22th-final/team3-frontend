@@ -1,14 +1,40 @@
+<script setup>
+defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const emit = defineEmits(['close', 'save-draft', 'submit'])
+</script>
+
 <template>
   <section class="evaluation-action-bar">
     <div class="evaluation-action-bar__actions">
-      <button type="button" class="evaluation-action-bar__button evaluation-action-bar__button--secondary">
+      <button
+        type="button"
+        class="evaluation-action-bar__button evaluation-action-bar__button--secondary"
+        :disabled="disabled"
+        @click="emit('close')"
+      >
         닫기
       </button>
-      <button type="button" class="evaluation-action-bar__button evaluation-action-bar__button--secondary">
+      <button
+        type="button"
+        class="evaluation-action-bar__button evaluation-action-bar__button--secondary"
+        :disabled="disabled"
+        @click="emit('save-draft')"
+      >
         임시 저장
       </button>
-      <button type="button" class="evaluation-action-bar__button evaluation-action-bar__button--primary">
-        저장
+      <button
+        type="button"
+        class="evaluation-action-bar__button evaluation-action-bar__button--primary"
+        :disabled="disabled"
+        @click="emit('submit')"
+      >
+        제출
       </button>
     </div>
   </section>
@@ -36,6 +62,11 @@
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.evaluation-action-bar__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .evaluation-action-bar__button--secondary {

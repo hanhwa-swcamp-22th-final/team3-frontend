@@ -7,6 +7,8 @@ import { aiEvaluationSearchPlaceholder, aiEvaluationTargets, aiEvaluationSelecte
 
 const searchQuery = ref('')
 const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
+const actionFeedback = ref('')
+const actionFeedbackTone = ref('muted')
 
 function buildConvertedText(target) {
   return aiEvaluationSelectedTarget.convertedText.replaceAll('김신우', target.name)
@@ -17,6 +19,14 @@ const evaluationDrafts = reactive(
     aiEvaluationTargets.map((target) => [String(target.id), buildConvertedText(target)]),
   ),
 )
+
+const savedDrafts = reactive(
+  Object.fromEntries(
+    aiEvaluationTargets.map((target) => [String(target.id), buildConvertedText(target)]),
+  ),
+)
+
+const submittedEvaluations = reactive({})
 
 const filteredTargets = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
@@ -73,6 +83,48 @@ function handleUpdateConvertedText(value) {
 
   evaluationDrafts[selectedTargetId.value] = value
 }
+
+function updateFeedback(message, tone = 'muted') {
+  actionFeedback.value = message
+  actionFeedbackTone.value = tone
+}
+
+function handleCloseEditor() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  const fallbackTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
+  const fallbackText = fallbackTarget ? buildConvertedText(fallbackTarget) : ''
+
+  evaluationDrafts[selectedTargetId.value] =
+    submittedEvaluations[selectedTargetId.value] ?? savedDrafts[selectedTargetId.value] ?? fallbackText
+
+  searchQuery.value = ''
+  updateFeedback('현재 대상자의 편집 내용을 마지막 저장 기준으로 되돌렸습니다.', 'muted')
+}
+
+function handleSaveDraft() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  savedDrafts[selectedTargetId.value] = evaluationDrafts[selectedTargetId.value]
+
+  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
+  updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 초안을 임시 저장했습니다.`, 'draft')
+}
+
+function handleSubmitEvaluation() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  submittedEvaluations[selectedTargetId.value] = evaluationDrafts[selectedTargetId.value]
+
+  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
+  updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 내용을 제출했습니다.`, 'submitted')
+}
 </script>
 
 <template>
@@ -92,7 +144,19 @@ function handleUpdateConvertedText(value) {
           :selected-target="selectedTarget"
           @update:converted-text="handleUpdateConvertedText"
         />
-        <TeamLeaderAiEvaluationActionBar />
+        <TeamLeaderAiEvaluationActionBar
+          :disabled="!selectedTargetId"
+          @close="handleCloseEditor"
+          @save-draft="handleSaveDraft"
+          @submit="handleSubmitEvaluation"
+        />
+        <p
+          v-if="actionFeedback"
+          class="teamleader-ai-evaluation-view__feedback"
+          :class="`teamleader-ai-evaluation-view__feedback--${actionFeedbackTone}`"
+        >
+          {{ actionFeedback }}
+        </p>
       </div>
     </section>
   </section>
@@ -117,6 +181,29 @@ function handleUpdateConvertedText(value) {
 .teamleader-ai-evaluation-view__form {
   display: grid;
   gap: 14px;
+}
+
+.teamleader-ai-evaluation-view__feedback {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.teamleader-ai-evaluation-view__feedback--muted {
+  background: #f6f7fb;
+  color: var(--color-text-muted);
+}
+
+.teamleader-ai-evaluation-view__feedback--draft {
+  background: #f6f3ff;
+  color: var(--color-primary-700);
+}
+
+.teamleader-ai-evaluation-view__feedback--submitted {
+  background: #eefbf6;
+  color: #1d7f5f;
 }
 
 @media (max-width: 1120px) {
