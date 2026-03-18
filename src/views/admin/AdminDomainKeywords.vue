@@ -157,7 +157,7 @@ const onDeleteClick = (id) => {
   padding: 0 20px;
   background: var(--color-primary-600);
   border: 1px solid var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);

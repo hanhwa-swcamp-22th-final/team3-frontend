@@ -229,7 +229,7 @@ const onCancelSave = () => {
   width: 360px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   box-shadow: 0 4px 16px rgba(45, 31, 110, 0.1);
   z-index: 100;
   overflow: hidden;

@@ -149,7 +149,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
   padding: 21.5px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   overflow: hidden;
 }
 
