@@ -5,8 +5,6 @@ import { ref, computed, watch } from 'vue'
 const props = defineProps(['isOpen', 'employee'])
 const emit  = defineEmits(['close', 'save'])
 
-const isSubmitting = ref(false)
-
 // EMPTY_FORM: watch에서 { ...EMPTY_FORM }으로 매번 새 객체를 만들어야 이전 입력값이 남지 않음
 const EMPTY_FORM = {
   employee_name:           '',
@@ -80,37 +78,13 @@ const historyLines = computed(() => {
 })
 
 // ── handleSave (수업 패턴: try-catch-finally) ─────────
-const handleSave = async () => {
+const handleSave = () => {
   if (!form.value.employee_name.trim()) return alert('이름을 입력해주세요.')
   if (!form.value.employee_code.trim()) return alert('사원번호를 입력해주세요.')
   if (!form.value.employee_line.trim()) return alert('소속라인을 입력해주세요.')
 
-  isSubmitting.value = true
-  try {
-    const payload = { ...form.value, updated_at: new Date().toISOString() }
-
-    if (props.employee) {
-      // 수정 모드
-      await employeeApi.update(props.employee.id, payload)
-    } else {
-      // 등록 모드: 자동 세팅값 추가
-      payload.created_at       = form.value.hire_date
-        ? new Date(form.value.hire_date).toISOString()
-        : new Date().toISOString()
-      payload.employee_status  = '재직'
-      payload.login_fail_count = 0
-      payload.is_locked        = false
-      payload.mfa_enabled      = false
-      payload.last_login_at    = null
-      await employeeApi.create(payload)
-    }
-    emit('save')   // 부모에게 목록 새로고침 요청
-    emit('close')  // 모달 닫기
-  } catch (e) {
-    console.error('저장 실패:', e)
-  } finally {
-    isSubmitting.value = false
-  }
+  emit('save', { ...form.value })
+  emit('close')
 }
 </script>
 
