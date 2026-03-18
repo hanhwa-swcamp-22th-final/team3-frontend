@@ -20,7 +20,7 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
   display: flex;
   gap: 12px;
   flex-shrink: 0;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .service-card {
@@ -42,7 +42,7 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
 }
 
 .card-value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;

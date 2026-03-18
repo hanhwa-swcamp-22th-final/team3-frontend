@@ -40,7 +40,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  font-family: var(--font-family-base);
+
 }
 
 .search-input {
@@ -52,7 +52,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   border-radius: 6px;
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -70,7 +70,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   border-radius: 6px;
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   cursor: pointer;
   flex-shrink: 0;

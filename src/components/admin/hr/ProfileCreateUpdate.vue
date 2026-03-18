@@ -414,7 +414,7 @@ const handleSave = async () => {
   border: 1px solid var(--color-border-default);
   border-radius: 3px;
   font-size: 11px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   color: var(--color-primary-600);
   text-align: right;
   outline: none;

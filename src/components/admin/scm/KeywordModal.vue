@@ -98,7 +98,7 @@ const handleSave = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  font-family: var(--font-family-base);
+
 }
 
 .modal {
@@ -172,7 +172,7 @@ select {
   border-radius: 6px;
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   box-sizing: border-box;
 }
@@ -189,7 +189,7 @@ textarea {
   border-radius: 6px;
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   resize: none;
   box-sizing: border-box;
@@ -216,7 +216,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   font-size: 13px;
   font-weight: 700;
   color: var(--color-primary-600);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 
@@ -231,7 +231,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 

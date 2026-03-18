@@ -138,7 +138,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 
 .stage-label {
   color: var(--color-primary-600) !important;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
 }
 
 .col-stage     { width: 140px; flex-shrink: 0; padding-left: 12px; }
@@ -224,7 +224,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   font-size: 12px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 

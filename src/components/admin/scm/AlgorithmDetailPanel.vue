@@ -119,7 +119,7 @@ const PARAMS = [
   border-radius: 12px;
   padding: 20px;
   flex: 1;
-  font-family: 'Pretendard', sans-serif;
+
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -158,7 +158,7 @@ const PARAMS = [
 }
 
 .formula-box__formula {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 13px;
   color: var(--tier-s);
 }
@@ -191,7 +191,7 @@ const PARAMS = [
 }
 
 .metric__value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-white);
@@ -201,7 +201,7 @@ const PARAMS = [
 .metric__value--purple { color: var(--color-primary-600); }
 
 .formula-box__result {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 11px;
   color: var(--tier-s);
   text-align: center;
@@ -235,7 +235,7 @@ const PARAMS = [
 }
 
 .param-row__value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 12px;
   color: var(--color-primary-300);
 }
@@ -281,7 +281,7 @@ const PARAMS = [
 }
 
 .sim-card__score {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 20px;
   font-weight: 700;
 }

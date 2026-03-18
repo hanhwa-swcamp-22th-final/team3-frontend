@@ -57,7 +57,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   gap: 0;
   overflow: hidden;
   min-width: 0;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .panel-title {

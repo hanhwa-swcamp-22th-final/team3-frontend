@@ -117,7 +117,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   width: 462px;
   flex-shrink: 0;
   overflow-y: auto;
-  font-family: 'Pretendard', sans-serif;
+
   box-sizing: border-box;
 }
 

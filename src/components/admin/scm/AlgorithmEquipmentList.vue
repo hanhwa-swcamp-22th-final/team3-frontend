@@ -70,7 +70,6 @@ const dotColor = (eq) => {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
-  font-family: 'Pretendard', sans-serif;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -120,7 +119,7 @@ const dotColor = (eq) => {
 }
 
 .equip-row__code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 16px;
   font-weight: 700;
   color: var(--color-primary-600);
@@ -138,7 +137,7 @@ const dotColor = (eq) => {
 }
 
 .equip-row__eidx {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 16px;
   font-weight: 700;
   color: var(--color-primary-800);
@@ -181,7 +180,7 @@ const dotColor = (eq) => {
   padding: 0 6px;
   border: 1px solid var(--color-border-default);
   border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 11px;
   color: var(--color-primary-300);
   background: var(--color-bg-surface);

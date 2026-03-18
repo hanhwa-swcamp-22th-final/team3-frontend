@@ -49,7 +49,7 @@ const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
   width: 100%;
   height: 36px;
   flex-shrink: 0;
-  font-family: var(--font-family-base);
+
 }
 
 .search-input {
@@ -61,7 +61,7 @@ const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
   border-radius: 8px;
   font-size: 12px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   box-sizing: border-box;
   outline: none;
 }
@@ -78,7 +78,7 @@ const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-secondary);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
@@ -95,7 +95,7 @@ const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
   font-size: 12px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;

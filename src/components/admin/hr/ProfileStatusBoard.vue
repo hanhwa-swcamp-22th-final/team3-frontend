@@ -29,7 +29,7 @@ defineProps({
 .stat-cards {
   display: flex;
   gap: 16px;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .stat-card {

@@ -58,7 +58,7 @@ const statusStyle = (status) => {
   border: 1px solid var(--color-border-default);
   border-radius: 10px;
   overflow: hidden;
-  font-family: var(--font-family-base);
+
 }
 
 .table-header {
@@ -115,7 +115,7 @@ const statusStyle = (status) => {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-primary-600);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 

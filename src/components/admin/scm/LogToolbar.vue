@@ -51,7 +51,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .filter-btn {
@@ -77,7 +77,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   border-radius: 4px;
   font-size: 11px;
   color: var(--color-primary-800);
-  font-family: 'Pretendard', sans-serif;
+
   outline: none;
   box-sizing: border-box;
 }

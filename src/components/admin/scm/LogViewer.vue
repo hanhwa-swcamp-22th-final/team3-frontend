@@ -39,7 +39,7 @@ defineProps({
   overflow-y: auto;
   min-height: 0;
   gap: 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
 }
 
 .log-row {

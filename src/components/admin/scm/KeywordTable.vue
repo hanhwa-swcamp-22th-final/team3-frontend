@@ -64,7 +64,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  font-family: var(--font-family-base);
+
 }
 
 /* 헤더 */
@@ -129,7 +129,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   font-size: 12px;
   font-weight: 700;
   color: var(--color-primary-600);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 
@@ -144,7 +144,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   font-size: 12px;
   font-weight: 700;
   color: var(--color-danger);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 
