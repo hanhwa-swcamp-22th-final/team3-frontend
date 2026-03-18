@@ -135,6 +135,10 @@ function handleClickAction(item) {
   border-color: #20c9a7;
 }
 
+.base-notification-list__item--neutral {
+  border-color: var(--color-border-default);
+}
+
 .base-notification-list__body {
   min-width: 0;
 }

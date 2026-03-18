@@ -1,8 +1,8 @@
 <script setup>
-import DepartmentLeaderDashboardNotice from '@/components/dashboard/common/DepartmentLeaderDashboardNotice.vue'
-import DepartmentLeaderMetricCard     from '@/components/dashboard/departmentleader/DepartmentLeaderMetricCard.vue'
-import DepartmentLeaderGroupKpiCard   from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
-import DepartmentLeaderTeamStatusCard from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
+import DepartmentLeaderDashboardNoticeWrapper from '@/components/dashboard/common/DepartmentLeaderDashboardNoticeWrapper.vue'
+import DepartmentLeaderMetricCardWrapper     from '@/components/dashboard/departmentleader/DepartmentLeaderMetricCardWrapper.vue'
+import DepartmentLeaderGroupKpiCard          from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
+import DepartmentLeaderTeamStatusCard        from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
 import {
   dashboardNotice  as notice,
   dashboardMetrics as metrics,
@@ -13,19 +13,19 @@ import {
 
 <template>
   <section class="department-leader-dashboard">
-    <DepartmentLeaderDashboardNotice
+    <DepartmentLeaderDashboardNoticeWrapper
       :badge="notice.badge"
       :title="notice.title"
       :description="notice.description"
     />
 
     <section class="department-leader-dashboard__metrics">
-      <DepartmentLeaderMetricCard
+      <DepartmentLeaderMetricCardWrapper
         v-for="m in metrics"
         :key="m.label"
         :label="m.label"
         :value="m.value"
-        :delta="m.delta"
+        :delta="m.delta ?? ''"
         :tone="m.tone"
         :is-tier="m.isTier ?? false"
       />
