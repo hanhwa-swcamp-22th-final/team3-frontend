@@ -93,7 +93,7 @@ const handleSave = () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(45, 31, 110, 0.2);
+  background: var(--color-overlay-primary-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,7 +130,7 @@ const handleSave = () => {
   background: none;
   border: none;
   font-size: 18px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -177,9 +177,9 @@ select {
   box-sizing: border-box;
 }
 
-input::placeholder { color: #a89ed8; }
+input::placeholder { color: var(--color-text-placeholder); }
 input:focus, select:focus { border-color: var(--color-primary-600); }
-select.select-placeholder { color: #a89ed8; }
+select.select-placeholder { color: var(--color-text-placeholder); }
 
 textarea {
   height: 60px;
@@ -196,7 +196,7 @@ textarea {
   width: 100%;
 }
 
-textarea::placeholder { color: #a89ed8; }
+textarea::placeholder { color: var(--color-text-placeholder); }
 textarea:focus { border-color: var(--color-primary-600); }
 
 /* 푸터 */

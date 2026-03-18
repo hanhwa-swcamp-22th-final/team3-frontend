@@ -368,7 +368,7 @@ const handleSave = async () => {
   box-sizing: border-box;
   padding: 10px 17px;
   background: var(--color-warning-soft);
-  border-left: 3px solid #FFD166;
+  border-left: 3px solid var(--tier-b);
   border-radius: 4px;
   font-size: 11px;
   color: var(--color-warning);

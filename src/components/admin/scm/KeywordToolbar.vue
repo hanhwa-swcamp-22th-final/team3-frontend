@@ -58,7 +58,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   flex-shrink: 0;
 }
 
-.search-input::placeholder { color: #a89ed8; }
+.search-input::placeholder { color: var(--color-text-placeholder); }
 .search-input:focus { border-color: var(--color-primary-600); }
 
 .category-select {

@@ -152,7 +152,7 @@ const PARAMS = [
 
 .formula-box__label {
   font-size: 10px;
-  color: rgba(255,255,255,0.5);
+  color: var(--color-text-on-dark);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -160,11 +160,11 @@ const PARAMS = [
 .formula-box__formula {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .formula-box__divider {
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid var(--color-border-on-dark);
 }
 
 .formula-box__metrics {
@@ -181,29 +181,29 @@ const PARAMS = [
 }
 
 .metric--border {
-  border-left: 1px solid rgba(255,255,255,0.1);
-  border-right: 1px solid rgba(255,255,255,0.1);
+  border-left: 1px solid var(--color-border-on-dark);
+  border-right: 1px solid var(--color-border-on-dark);
 }
 
 .metric__label {
   font-size: 10px;
-  color: rgba(255,255,255,0.5);
+  color: var(--color-text-on-dark);
 }
 
 .metric__value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--color-white);
 }
 
-.metric__value--yellow { color: #FFD166; }
+.metric__value--yellow { color: var(--tier-b); }
 .metric__value--purple { color: var(--color-primary-600); }
 
 .formula-box__result {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #00BF95;
+  color: var(--tier-s);
   text-align: center;
 }
 

@@ -60,7 +60,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(45, 31, 110, 0.06);
+  box-shadow: var(--shadow-table);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -95,7 +95,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 }
 
 .table-row--alt { background: var(--color-bg-app); }
-.table-row:hover { background: #f5f3ff; }
+.table-row:hover { background: var(--color-primary-50); }
 
 .table-row span {
   font-size: 13px;
@@ -138,7 +138,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 .btn-delete {
   height: 26px;
   padding: 0 14px;
-  background: #fff0f3;
+  background: var(--color-equip-stopped-bg);
   border: none;
   border-radius: 4px;
   font-size: 12px;
@@ -148,12 +148,12 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   cursor: pointer;
 }
 
-.btn-delete:hover { background: #ffd6e0; }
+.btn-delete:hover { background: var(--color-danger-light); }
 
 .empty {
   padding: 40px 0;
   text-align: center;
   font-size: 13px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 </style>
