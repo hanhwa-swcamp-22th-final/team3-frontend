@@ -56,7 +56,7 @@ const statusStyle = (status) => {
 .table-wrap {
   flex: 1;
   border: 1px solid var(--color-border-default);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 
 }
@@ -111,7 +111,7 @@ const statusStyle = (status) => {
   padding: 0 14px;
   background: var(--color-primary-100);
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   font-weight: 700;
   color: var(--color-primary-600);

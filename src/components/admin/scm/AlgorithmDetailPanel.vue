@@ -116,7 +116,7 @@ const PARAMS = [
 .section {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 20px;
   flex: 1;
 
@@ -143,7 +143,7 @@ const PARAMS = [
 /* 공식 박스 */
 .formula-box {
   background: var(--color-primary-800);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -244,7 +244,7 @@ const PARAMS = [
 .sim-box {
   background: var(--color-bg-app);
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -266,7 +266,7 @@ const PARAMS = [
 .sim-card {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   padding: 12px 16px;
   display: flex;
   flex-direction: column;

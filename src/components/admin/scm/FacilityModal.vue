@@ -274,7 +274,7 @@ const handleSave = () => {
   max-height: 90vh;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
@@ -303,7 +303,7 @@ const handleSave = () => {
   height: 32px;
   background: var(--color-primary-100);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   font-weight: 900;
   color: var(--color-primary-600);
@@ -337,7 +337,7 @@ const handleSave = () => {
   padding: 17px 17px 12px;
   background: linear-gradient(180deg, rgba(240, 238, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%);
   border: 3px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
 }
 
 .section-header {
@@ -394,7 +394,7 @@ select {
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   font-size: 13px;
   color: var(--color-primary-800);
 
@@ -409,7 +409,7 @@ textarea {
   padding: 12px;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   font-size: 13px;
   color: var(--color-primary-800);
 
@@ -438,7 +438,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   padding: 13px 15px 8px;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .calc-label {
@@ -481,7 +481,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   padding: 0 18px;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-secondary);
@@ -496,7 +496,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   padding: 0 18px;
   background: var(--color-primary-600);
   border: 3px solid var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   font-weight: 700;
   color: var(--color-bg-surface);
