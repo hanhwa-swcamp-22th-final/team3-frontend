@@ -95,6 +95,7 @@ const handleSave = () => {
       v-if="isOpen"
       :title="employee ? '테크니션 정보 수정' : '테크니션 등록'"
       width="688px"
+      @close="emit('close')"
     >
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
@@ -443,7 +444,9 @@ const handleSave = () => {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 /* 공통 버튼 (Figma: height 27px, border-radius 4px, font 11px bold) */
