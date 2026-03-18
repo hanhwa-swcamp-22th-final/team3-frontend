@@ -229,14 +229,13 @@ const handleSave = () => {
           <p v-for="(line, i) in historyLines" :key="i" class="history-line">{{ line }}</p>
         </div>
 
-        <!-- ⑤ 버튼 행 ──────────────────────────────────── -->
+      <template #footer>
         <div class="modal-footer">
-          <button type="button" class="btn btn-cancel" @click="$emit('close')">취소</button>
-          <button type="button" class="btn btn-temp" :disabled="isSubmitting">임시 저장</button>
-          <button type="submit" class="btn btn-save" :disabled="isSubmitting">
-            {{ isSubmitting ? '저장 중…' : '저장 완료' }}
-          </button>
+          <button type="button" class="btn btn-cancel" @click="emit('close')">취소</button>
+          <button type="button" class="btn btn-temp">임시 저장</button>
+          <button type="button" class="btn btn-save" @click="handleSave">저장 완료</button>
         </div>
+      </template>
 
     </BaseFormModal>
   </Teleport>
