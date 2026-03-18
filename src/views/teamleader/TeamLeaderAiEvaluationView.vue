@@ -9,6 +9,10 @@ const searchQuery = ref('')
 const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
 const actionFeedback = ref('')
 const actionFeedbackTone = ref('muted')
+const guideOpen = ref(false)
+const recordingState = ref('idle')
+const uploadedFileName = ref('')
+const uploadedText = ref('')
 
 function buildConvertedText(target) {
   return aiEvaluationSelectedTarget.convertedText.replaceAll('김신우', target.name)
@@ -125,6 +129,74 @@ function handleSubmitEvaluation() {
   const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
   updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 내용을 제출했습니다.`, 'submitted')
 }
+
+function buildVoiceMockText(target) {
+  return `[음성 입력 mock 초안] ${target.name} 사원은 최근 설비 이상 상황에서 원인을 빠르게 확인했고, 관련 담당자와 즉시 협업해 생산 차질을 최소화했습니다. 이후 재발 방지를 위해 점검 포인트를 정리해 팀에 공유했습니다.`
+}
+
+function handleVoiceInput() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  recordingState.value = recordingState.value === 'recording' ? 'ready' : 'recording'
+
+  if (recordingState.value === 'recording') {
+    updateFeedback('음성 입력 mock 상태로 전환했습니다. 다시 누르면 초안 준비 상태로 바뀝니다.', 'muted')
+    return
+  }
+
+  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
+  uploadedText.value = currentTarget ? buildVoiceMockText(currentTarget) : ''
+  updateFeedback('음성 초안이 준비되었습니다. 텍스트 변환 버튼으로 편집 영역에 반영할 수 있습니다.', 'draft')
+}
+
+async function handleFileSelected(file) {
+  if (!file) {
+    return
+  }
+
+  uploadedFileName.value = file.name
+
+  if (file.type.startsWith('text/') || /\.(txt|md|log)$/i.test(file.name)) {
+    uploadedText.value = await file.text()
+    updateFeedback(`${file.name} 파일을 불러왔습니다. 텍스트 변환 버튼으로 초안에 반영하세요.`, 'draft')
+    return
+  }
+
+  uploadedText.value = `[업로드 파일 mock] ${file.name} 파일이 선택되었습니다. 실제 변환은 후속 API 연동 단계에서 지원됩니다.`
+  updateFeedback('현재는 텍스트 계열 파일을 중심으로 mock 변환을 지원합니다.', 'muted')
+}
+
+function handleConvertText() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
+  const sourceText = uploadedText.value || (currentTarget ? buildVoiceMockText(currentTarget) : '')
+
+  if (!sourceText) {
+    updateFeedback('변환할 mock 음성 또는 업로드 텍스트가 없습니다.', 'muted')
+    return
+  }
+
+  evaluationDrafts[selectedTargetId.value] = sourceText
+  updateFeedback('텍스트 변환 결과를 편집 영역에 반영했습니다.', 'draft')
+}
+
+function handleReplayAudio() {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  updateFeedback('현재는 mock 단계이므로 다시 듣기 대신 준비된 초안 상태만 확인할 수 있습니다.', 'muted')
+}
+
+function handleToggleGuide() {
+  guideOpen.value = !guideOpen.value
+  updateFeedback(guideOpen.value ? '작성 가이드를 열었습니다.' : '작성 가이드를 닫았습니다.', 'muted')
+}
 </script>
 
 <template>
@@ -142,7 +214,15 @@ function handleSubmitEvaluation() {
       <div class="teamleader-ai-evaluation-view__form">
         <TeamLeaderAiEvaluationPanel
           :selected-target="selectedTarget"
+          :guide-open="guideOpen"
+          :recording-state="recordingState"
+          :uploaded-file-name="uploadedFileName"
           @update:converted-text="handleUpdateConvertedText"
+          @voice-input="handleVoiceInput"
+          @file-selected="handleFileSelected"
+          @convert-text="handleConvertText"
+          @replay-audio="handleReplayAudio"
+          @toggle-guide="handleToggleGuide"
         />
         <TeamLeaderAiEvaluationActionBar
           :disabled="!selectedTargetId"
