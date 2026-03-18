@@ -111,8 +111,8 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   flex-direction: column;
   gap: 12px;
   padding: 21.5px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 12px;
   width: 462px;
   flex-shrink: 0;
@@ -124,7 +124,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
 .panel-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
@@ -138,7 +138,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
 
 .chart-label {
   font-size: 10px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 .chart-svg {
@@ -148,7 +148,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
 
 .chart-sub {
   font-size: 10px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 /* 바 차트 */
@@ -183,7 +183,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
 .batch-title {
   font-size: 10px;
   font-weight: 700;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
   margin-bottom: 4px;
 }
 
@@ -192,12 +192,12 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   justify-content: space-between;
   align-items: center;
   height: 34px;
-  border-bottom: 1.5px solid #eeebff;
+  border-bottom: 1.5px solid var(--color-border-row);
 }
 
 .batch-name {
   font-size: 10px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .batch-status {
@@ -213,8 +213,8 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   flex-direction: column;
   gap: 6px;
   padding: 13.5px 15px;
-  background: #ffecf1;
-  border: 1.5px solid #ef476f;
+  background: var(--color-danger-bg);
+  border: 1.5px solid var(--color-danger);
   border-left-width: 3px;
   border-radius: 6px;
   flex-shrink: 0;
@@ -223,11 +223,11 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
 .error-title {
   font-size: 11px;
   font-weight: 700;
-  color: #c0103e;
+  color: var(--color-danger-text);
 }
 
 .error-item {
   font-size: 10px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 </style>

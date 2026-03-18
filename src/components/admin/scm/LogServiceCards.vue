@@ -28,8 +28,8 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
   flex-direction: column;
   gap: 8px;
   padding: 13.5px 15.5px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 12px;
   flex: 1;
 }
@@ -37,7 +37,7 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
 .card-label {
   font-size: 10px;
   font-weight: 400;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
   text-transform: uppercase;
 }
 

@@ -25,7 +25,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
       :class="{ 'filter-btn--active': selectedFilter === f.key }"
       :style="selectedFilter === f.key
         ? { background: f.bg, color: f.color }
-        : { background: '#ffffff', color: '#a89ed8', border: '1.5px solid #e0dcff' }
+        : { background: 'var(--color-bg-surface)', color: 'var(--color-text-placeholder)', border: '1.5px solid var(--color-border-default)' }
       "
       @click="emit('filterChange', f.key)"
     >
@@ -72,16 +72,16 @@ const onBlur    = ()  => emit('search', localSearch.value)
   flex: 1;
   height: 35px;
   padding: 0 11.5px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 4px;
   font-size: 11px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
   font-family: 'Pretendard', sans-serif;
   outline: none;
   box-sizing: border-box;
 }
 
-.search-input::placeholder { color: #a89ed8; }
-.search-input:focus { border-color: #5b4fcf; }
+.search-input::placeholder { color: var(--color-text-placeholder); }
+.search-input:focus { border-color: var(--color-primary-600); }
 </style>
