@@ -201,7 +201,7 @@ const handleSave = () => {
                 <span class="section-title">노후도 등록 정보</span>
                 <span class="badge-required">보정값</span>
               </div>
-              <div class="field-grid">
+              <div class="field-grid field-grid--1">
                 <div class="field">
                   <label>T_life</label>
                   <input v-model="form.aging.t_life_months" placeholder="예: 72개월" />
@@ -370,6 +370,10 @@ const handleSave = () => {
 
 .field-grid--3 {
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+.field-grid--1 {
+  grid-template-columns: 1fr;
 }
 
 .field {
