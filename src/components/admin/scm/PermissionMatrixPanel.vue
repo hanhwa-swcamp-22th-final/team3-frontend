@@ -92,6 +92,8 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   display: flex;
   flex-direction: column;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .category-row {
