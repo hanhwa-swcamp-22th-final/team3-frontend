@@ -2,93 +2,11 @@
 import { ref, computed } from 'vue'
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
+import { evalMembers, evalDeadline } from '@/mocks/departmentleader/secondEvaluation.js'
 
-const members = ref([
-  {
-    id: 1,
-    name: '손창우',
-    avatar: '손',
-    avatarColor: '#5f50d6',
-    tier: 'S',
-    code: 'MCH-01',
-    team: '정밀가공 1팀',
-    experience: '경력 3년 2월',
-    status: 'submitted',
-    statusDate: '03.05',
-    aiRecommended: { quantitative: 94.2, qualitative: 89.4, composite: 91.8 },
-    evaluations: [
-      { category: '직무 태도',   stars: 5, score: 95, comment: '작업 숙련도 매우 높음' },
-      { category: '팀 기여도',   stars: 5, score: 93, comment: '팀 전체 생산성 향상 기여' },
-      { category: '문제 해결',   stars: 5, score: 92, comment: '설비 이상 신속 대응' },
-      { category: '커뮤니케이션', stars: 4, score: 88, comment: '명확한 의사소통' },
-      { category: '성장 가능성', stars: 5, score: 96, comment: '꾸준한 자기 개발' },
-    ],
-  },
-  {
-    id: 2,
-    name: '김신우',
-    avatar: '김',
-    avatarColor: '#5f50d6',
-    tier: 'A',
-    code: 'MCH-02',
-    team: '정밀가공 1팀',
-    experience: '경력 2년 5월',
-    status: 'submitted',
-    statusDate: '03.06',
-    aiRecommended: { quantitative: 86.1, qualitative: 82.7, composite: 84.0 },
-    evaluations: [
-      { category: '직무 태도',   stars: 4, score: 85, comment: '성실한 업무 태도' },
-      { category: '팀 기여도',   stars: 4, score: 82, comment: '팀 작업 적극 참여' },
-      { category: '문제 해결',   stars: 4, score: 80, comment: '문제 인식 및 보고 우수' },
-      { category: '커뮤니케이션', stars: 4, score: 84, comment: '원활한 소통' },
-      { category: '성장 가능성', stars: 4, score: 83, comment: '기술 습득 속도 양호' },
-    ],
-  },
-  {
-    id: 3,
-    name: '황자현',
-    avatar: '황',
-    avatarColor: '#269063',
-    tier: 'A',
-    code: 'PRS-01',
-    team: '정밀가공 2팀',
-    experience: '경력 2년 8월',
-    status: 'in_progress',
-    statusDate: '오늘',
-    aiRecommended: { quantitative: 83.4, qualitative: 79.1, composite: 81.2 },
-    evaluations: [
-      { category: '직무 태도',   stars: 4, score: 82, comment: '팀 내 협력 우수, 지각 없음' },
-      { category: '팀 기여도',   stars: 4, score: 80, comment: 'PRS-01 설비 최적화 기여' },
-      { category: '문제 해결',   stars: 4, score: 79, comment: '트러블슈팅 능력 향상 중' },
-      { category: '커뮤니케이션', stars: 3, score: 75, comment: '' },
-      { category: '성장 가능성', stars: 4, score: 85, comment: '' },
-    ],
-  },
-  {
-    id: 4,
-    name: '임원석',
-    avatar: '임',
-    avatarColor: '#c08b00',
-    tier: 'B',
-    code: 'WLD-01',
-    team: '정밀가공 2팀',
-    experience: '경력 1년 3월',
-    status: 'not_started',
-    statusDate: '—',
-    aiRecommended: { quantitative: 72.8, qualitative: 75.3, composite: 74.0 },
-    evaluations: [
-      { category: '직무 태도',   stars: 3, score: 72, comment: '' },
-      { category: '팀 기여도',   stars: 3, score: 70, comment: '' },
-      { category: '문제 해결',   stars: 3, score: 68, comment: '' },
-      { category: '커뮤니케이션', stars: 3, score: 74, comment: '' },
-      { category: '성장 가능성', stars: 4, score: 76, comment: '' },
-    ],
-  },
-])
-
+const members = ref(evalMembers.map((m) => ({ ...m, evaluations: m.evaluations.map((e) => ({ ...e })) })))
 const selectedMember = ref(members.value[2]) // 황자현 selected by default
-
-const deadline = '2026.03.10'
+const deadline = evalDeadline
 const totalCount = members.value.length
 const submittedCount = computed(() => members.value.filter((m) => m.status === 'submitted').length)
 const progressPercent = computed(() => (submittedCount.value / totalCount) * 100)

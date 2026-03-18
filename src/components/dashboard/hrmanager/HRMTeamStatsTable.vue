@@ -49,8 +49,8 @@ defineProps({
 }
 
 .team-stats__title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
   margin-bottom: 18px;
 }
@@ -62,7 +62,7 @@ defineProps({
 .team-stats__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .team-stats__table thead tr {
@@ -72,8 +72,8 @@ defineProps({
 .team-stats__table th {
   padding: 10px 14px;
   text-align: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
 }
 
@@ -94,16 +94,16 @@ defineProps({
 
 .team-name {
   text-align: left !important;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .avg-col {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-700) !important;
 }
 
-.tier-col--s { color: var(--tier-s) !important; font-weight: 700; }
-.tier-col--a { color: var(--tier-a) !important; font-weight: 700; }
-.tier-col--b { color: var(--tier-b) !important; font-weight: 700; }
-.tier-col--c { color: var(--tier-c) !important; font-weight: 700; }
+.tier-col--s { color: var(--tier-s) !important; font-weight: var(--font-weight-bold); }
+.tier-col--a { color: var(--tier-a) !important; font-weight: var(--font-weight-bold); }
+.tier-col--b { color: var(--tier-b) !important; font-weight: var(--font-weight-bold); }
+.tier-col--c { color: var(--tier-c) !important; font-weight: var(--font-weight-bold); }
 </style>

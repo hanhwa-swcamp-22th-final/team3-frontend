@@ -87,13 +87,13 @@ defineEmits(['approve', 'reject', 'hold'])
   background: var(--color-primary-600);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: var(--color-white); flex-shrink: 0;
+  font-size: var(--font-size-lg); font-weight: 900; color: var(--color-white); flex-shrink: 0;
 }
-.hrm-detail__name { font-size: 18px; font-weight: 900; color: var(--color-primary-800); line-height: 1.4; }
-.hrm-detail__dept { font-size: 11px; color: #a89ed8; }
+.hrm-detail__name { font-size: var(--font-size-lg); font-weight: 900; color: var(--color-primary-800); line-height: 1.4; }
+.hrm-detail__dept { font-size: var(--font-size-xs); color: #a89ed8; }
 .hrm-badge {
   display: inline-flex; align-items: center; height: 18px; padding: 0 8px;
-  border-radius: 3px; font-size: 12px; font-weight: 900; white-space: nowrap;
+  border-radius: 3px; font-size: var(--font-size-xs); font-weight: 900; white-space: nowrap;
 }
 
 .hrm-score-box {
@@ -103,10 +103,10 @@ defineEmits(['approve', 'reject', 'hold'])
   border-radius: 8px;
 }
 .hrm-score-item { display: flex; flex-direction: column; gap: 2px; }
-.hrm-score-label { font-size: 10px; color: #a89ed8; }
-.hrm-score-value { font-size: 36px; font-weight: 400; color: var(--color-primary-800); line-height: 1; font-family: 'Inter', sans-serif; }
+.hrm-score-label { font-size: var(--font-size-xs); color: #a89ed8; }
+.hrm-score-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-regular); color: var(--color-primary-800); line-height: 1; font-family: 'Inter', sans-serif; }
 .hrm-score-value--total { color: var(--tier-s); }
-.hrm-score-diff { font-size: 10px; color: #7a6fa8; }
+.hrm-score-diff { font-size: var(--font-size-2xs); color: #7a6fa8; }
 
 .hrm-ai-box {
   padding: 16px;
@@ -114,14 +114,14 @@ defineEmits(['approve', 'reject', 'hold'])
   border: 1.5px solid var(--color-border-default);
   border-radius: 8px; display: flex; flex-direction: column; gap: 8px;
 }
-.hrm-ai-box__title { font-size: 11px; font-weight: 700; color: var(--color-primary-600); }
+.hrm-ai-box__title { font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-primary-600); }
 .hrm-ai-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .hrm-ai-tag {
   display: inline-block; padding: 2px 8px; height: 19px;
   background: var(--color-success-soft); color: var(--color-info);
-  font-size: 10px; font-weight: 700; border-radius: 3px; line-height: 15px;
+  font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold); border-radius: 3px; line-height: 15px;
 }
-.hrm-ai-box__trust { font-size: 11px; color: #7a6fa8; }
+.hrm-ai-box__trust { font-size: var(--font-size-xs); color: #7a6fa8; }
 
 .hrm-comment-box {
   padding: 15px; background: var(--color-bg-surface);
@@ -132,20 +132,20 @@ defineEmits(['approve', 'reject', 'hold'])
 .hrm-comment-box__avatar {
   width: 24px; height: 24px; background: #1a8060; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; color: var(--color-white); flex-shrink: 0;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-white); flex-shrink: 0;
 }
 .hrm-comment-box__role,
-.hrm-comment-box__date { font-size: 10px; color: #a89ed8; }
-.hrm-comment-box__text { font-size: 12px; color: #7a6fa8; line-height: 1.5; }
+.hrm-comment-box__date { font-size: var(--font-size-2xs); color: #a89ed8; }
+.hrm-comment-box__text { font-size: var(--font-size-sm); color: #7a6fa8; line-height: 1.5; }
 
 .hrm-objection { text-align: center; padding: 8px 0; }
-.hrm-objection__none   { font-size: 11px; color: #a89ed8; }
-.hrm-objection__exists { font-size: 11px; color: #c0103e; font-weight: 700; }
+.hrm-objection__none   { font-size: var(--font-size-xs); color: #a89ed8; }
+.hrm-objection__exists { font-size: var(--font-size-xs); color: #c0103e; font-weight: var(--font-weight-bold); }
 
 .hrm-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .hrm-btn {
   height: 40px; padding: 0 16px; border-radius: 4px;
-  font-size: 12px; font-weight: 700; cursor: pointer; border: 1.5px solid transparent;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); cursor: pointer; border: 1.5px solid transparent;
 }
 .hrm-btn--reject  { background: #de152d; border-color: var(--color-danger); color: var(--color-white); }
 .hrm-btn--reject:hover  { background: #c0103e; }

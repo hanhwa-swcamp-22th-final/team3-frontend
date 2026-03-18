@@ -20,6 +20,7 @@ import {
   knowledgeHubSummaryCards,
   knowledgeHubContributors,
   knowledgeHubAiRecommendations,
+  knowledgeHubInitialStats,
 } from '@/mocks/departmentleader/knowledgeHub'
 
 const showWriteModal = ref(false)
@@ -31,10 +32,7 @@ const mentoringState = reactive({
   ongoing: [...knowledgeHubMentoring.ongoing],
   pending: [...knowledgeHubMentoring.pending],
 })
-const statState = reactive({
-  totalArticles: 1247,
-  newThisMonth: 38,
-})
+const statState = reactive({ ...knowledgeHubInitialStats })
 
 const summaryCards = computed(() =>
   knowledgeHubSummaryCards.map((card) => {

@@ -301,12 +301,12 @@ function removeMember(team, emp) {
   display: flex; align-items: center; justify-content: space-between;
 }
 .org-tree__title {
-  font-size: 15px; font-weight: 800; color: var(--color-primary-800);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
 }
 .org-tree__add-btn {
   height: 30px; padding: 0 14px;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 .org-tree__search-wrap {
@@ -315,13 +315,13 @@ function removeMember(team, emp) {
   border-radius: 8px; padding: 0 10px; height: 36px;
   background: var(--color-bg-app);
 }
-.org-tree__search-icon { font-size: 12px; color: #a89ed8; margin-right: 6px; }
+.org-tree__search-icon { font-size: var(--font-size-xs); color: #a89ed8; margin-right: 6px; }
 .org-tree__search {
   border: none; outline: none; background: transparent;
-  font-size: 13px; width: 100%; color: var(--color-primary-800);
+  font-size: var(--font-size-sm); width: 100%; color: var(--color-primary-800);
 }
 .org-tree__list { display: flex; flex-direction: column; gap: 6px; }
-.org-tree__empty { font-size: 12px; color: #a89ed8; text-align: center; padding: 16px 0; }
+.org-tree__empty { font-size: var(--font-size-xs); color: #a89ed8; text-align: center; padding: 16px 0; }
 
 /* 그룹 노드 */
 .group-node { display: flex; flex-direction: column; gap: 3px; }
@@ -333,19 +333,19 @@ function removeMember(team, emp) {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
 .group-node__name {
-  flex: 1; font-size: 14px; font-weight: 700; color: var(--color-primary-800);
+  flex: 1; font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
 }
 .group-node__team-btn {
   height: 22px; padding: 0 8px;
   background: var(--color-primary-100); color: var(--color-primary-600);
   border: 1px solid var(--color-primary-200);
-  border-radius: 6px; font-size: 10px; font-weight: 700;
+  border-radius: 6px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 .group-node__count {
   min-width: 20px; height: 20px; padding: 0 6px;
   background: var(--color-primary-100); color: var(--color-primary-600);
-  border-radius: 10px; font-size: 11px; font-weight: 700;
+  border-radius: 10px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -358,9 +358,9 @@ function removeMember(team, emp) {
 }
 .team-node:hover { background: var(--color-primary-100); }
 .team-node--active { background: var(--color-primary-100); }
-.team-node__icon { font-size: 13px; }
-.team-node__name { flex: 1; font-size: 13px; font-weight: 600; color: var(--color-primary-700); }
-.team-node__count { font-size: 11px; color: #a89ed8; }
+.team-node__icon { font-size: var(--font-size-sm); }
+.team-node__name { flex: 1; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-primary-700); }
+.team-node__count { font-size: var(--font-size-xs); color: #a89ed8; }
 
 /* ── 팀 상세 ── */
 .team-detail {
@@ -372,7 +372,7 @@ function removeMember(team, emp) {
 }
 .team-detail--empty {
   align-items: center; justify-content: center;
-  color: #a89ed8; font-size: 14px;
+  color: #a89ed8; font-size: var(--font-size-base);
 }
 
 .team-detail__header {
@@ -384,34 +384,34 @@ function removeMember(team, emp) {
 .team-detail__dot {
   width: 10px; height: 10px; border-radius: 50;
 }
-.team-detail__group { font-size: 14px; color: var(--color-primary-600); font-weight: 600; }
-.team-detail__arrow { font-size: 13px; color: #a89ed8; }
-.team-detail__team-name { font-size: 15px; font-weight: 800; color: var(--color-primary-800); }
+.team-detail__group { font-size: var(--font-size-base); color: var(--color-primary-600); font-weight: var(--font-weight-semibold); }
+.team-detail__arrow { font-size: var(--font-size-sm); color: #a89ed8; }
+.team-detail__team-name { font-size: var(--font-size-base); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800); }
 .team-detail__badge {
   padding: 2px 8px; background: var(--color-primary-100);
   color: var(--color-primary-600); border-radius: 6px;
-  font-size: 11px; font-weight: 700;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
 }
 .team-detail__edit-btn {
   height: 32px; padding: 0 16px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: 13px; font-weight: 700;
+  border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
 }
-.team-detail__desc { font-size: 13px; color: #7a6fa8; }
+.team-detail__desc { font-size: var(--font-size-sm); color: #7a6fa8; }
 
 .team-detail__member-header {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
 }
 .team-detail__member-title {
-  font-size: 13px; font-weight: 700; color: var(--color-primary-800);
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
 }
 .team-detail__filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .team-detail__select {
   height: 32px; padding: 0 10px;
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: 12px;
+  border-radius: 8px; font-size: var(--font-size-xs);
   color: var(--color-primary-600); background: var(--color-bg-app); cursor: pointer;
 }
 .team-detail__search-wrap {
@@ -420,10 +420,10 @@ function removeMember(team, emp) {
   border-radius: 8px; padding: 0 10px; height: 32px;
   background: var(--color-bg-app);
 }
-.team-detail__search-icon { font-size: 12px; color: #a89ed8; margin-right: 4px; }
+.team-detail__search-icon { font-size: var(--font-size-xs); color: #a89ed8; margin-right: 4px; }
 .team-detail__search {
   border: none; outline: none; background: transparent;
-  font-size: 12px; color: var(--color-primary-800); width: 130px;
+  font-size: var(--font-size-xs); color: var(--color-primary-800); width: 130px;
 }
 
 /* 멤버 카드 */
@@ -431,7 +431,7 @@ function removeMember(team, emp) {
   display: flex; flex-direction: column; gap: 8px;
 }
 .member-list__empty {
-  font-size: 13px; color: #a89ed8; text-align: center; padding: 24px 0;
+  font-size: var(--font-size-sm); color: #a89ed8; text-align: center; padding: 24px 0;
 }
 .member-card {
   display: flex; align-items: center; gap: 12px;
@@ -443,35 +443,35 @@ function removeMember(team, emp) {
 .member-card__avatar {
   width: 38px; height: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 800; color: var(--color-white);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-extrabold); color: var(--color-white);
   flex-shrink: 0;
 }
 .member-card__info { flex: 1; }
 .member-card__row1 { display: flex; align-items: center; gap: 6px; }
-.member-card__name { font-size: 14px; font-weight: 700; color: var(--color-primary-800); }
+.member-card__name { font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800); }
 .member-card__tier {
   display: inline-flex; align-items: center; justify-content: center;
   width: 18px; height: 18px; border-radius: 50%;
-  font-size: 10px; font-weight: 800;
+  font-size: var(--font-size-2xs); font-weight: var(--font-weight-extrabold);
 }
 .member-card__leader-badge {
   padding: 2px 6px;
   background: var(--color-primary-600); color: var(--color-white);
-  border-radius: 4px; font-size: 10px; font-weight: 700;
+  border-radius: 4px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
 }
-.member-card__sub { font-size: 12px; color: #7a6fa8; margin-top: 2px; }
+.member-card__sub { font-size: var(--font-size-xs); color: #7a6fa8; margin-top: 2px; }
 .member-card__actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 .member-card__assign-btn {
   height: 32px; padding: 0 14px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: 12px; font-weight: 700;
+  border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
 }
 .member-card__remove-btn {
   height: 32px; padding: 0 14px;
   background: var(--color-danger); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 </style>

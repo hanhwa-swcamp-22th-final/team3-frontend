@@ -31,17 +31,17 @@ defineProps({
   border-radius: 999px;
   background: rgba(24, 195, 170, 0.16);
   color: var(--color-info);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
 }
 .notice__title {
   margin-top: 16px;
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   color: var(--color-primary-800);
 }
 .notice__description {
   margin-top: 12px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--color-primary-500);
 }

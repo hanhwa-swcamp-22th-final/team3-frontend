@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import { knowledgeApprovalItems } from '@/mocks/teamleader'
+import { approvalStats } from '@/mocks/departmentleader/knowledgeApproval.js'
 
 const items = ref([...knowledgeApprovalItems])
 const activeFilter = ref('all')
@@ -11,8 +12,8 @@ const reviewNote = ref(items.value[0]?.reviewComment ?? '')
 
 const stats = computed(() => ({
   pending: items.value.length,
-  approvedThisMonth: 31,
-  rejectionRate: '8.3%',
+  approvedThisMonth: approvalStats.approvedThisMonth,
+  rejectionRate: approvalStats.rejectionRate,
 }))
 
 const filters = computed(() => {

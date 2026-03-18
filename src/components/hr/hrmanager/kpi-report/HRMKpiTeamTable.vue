@@ -63,8 +63,8 @@ function rateColor(rate) {
   gap: 16px;
 }
 .kpi-team-table__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
@@ -73,15 +73,15 @@ function rateColor(rate) {
   border-collapse: collapse;
 }
 .kpi-table th {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   text-align: left;
   padding: 8px 12px;
   border-bottom: 1px solid var(--color-border-default);
 }
 .kpi-table td {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-default);
   padding: 14px 12px;
   border-bottom: 1px solid var(--color-border-muted);
@@ -106,21 +106,21 @@ function rateColor(rate) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-white);
   flex-shrink: 0;
 }
 .kpi-table__name {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-strong);
 }
 .kpi-table__score {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 .kpi-table__tier {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 

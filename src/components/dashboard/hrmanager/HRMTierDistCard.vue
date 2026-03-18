@@ -48,8 +48,8 @@ defineProps({
 }
 
 .tier-dist-card__title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -68,14 +68,14 @@ defineProps({
 }
 
 .tier-num__value {
-  font-size: 48px;
-  font-weight: 700;
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
 .tier-num__label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
 }
 
@@ -90,7 +90,7 @@ defineProps({
 }
 
 .process-label {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 

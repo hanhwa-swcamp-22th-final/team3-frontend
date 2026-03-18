@@ -106,8 +106,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
   gap: 16px;
 }
 .kpi-donut-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
   align-self: flex-start;
 }
@@ -127,7 +127,7 @@ onBeforeUnmount(() => chartInstance?.destroy())
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-default);
 }
 .kpi-donut-card__dot {

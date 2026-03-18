@@ -1,35 +1,55 @@
 <script setup>
-import { computed } from 'vue'
-import DepartmentLeaderNotificationList from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationList.vue'
+import { computed, ref } from 'vue'
+import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+import DepartmentLeaderNotificationFilterBarWrapper from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationFilterBarWrapper.vue'
+import DepartmentLeaderNotificationListWrapper      from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationListWrapper.vue'
 import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
-const totalCount   = computed(() => notificationItems.length)
-const unreadCount  = computed(() => notificationItems.filter((i) => i.unread).length)
-const urgentCount  = computed(() => notificationItems.filter((i) => i.category === 'fault').length)
+const activeFilter = ref('all')
+
+const filterTabItems = computed(() =>
+  notificationFilters.map((f) => ({
+    key:   f.key,
+    label: f.label,
+    count: f.categoryKey
+      ? notificationItems.filter((i) => i.category === f.categoryKey).length
+      : notificationItems.length,
+  })),
+)
+
+const filteredItems = computed(() => {
+  const f = notificationFilters.find((f) => f.key === activeFilter.value)
+  if (!f || !f.categoryKey) return notificationItems.map(toBaseItem)
+  return notificationItems.filter((i) => i.category === f.categoryKey).map(toBaseItem)
+})
+
+// BaseNotificationList expects item.type (not item.categoryLabel)
+function toBaseItem(i) {
+  return { ...i, type: i.categoryLabel }
+}
+
+const totalCount  = notificationItems.length
+const unreadCount = computed(() => notificationItems.filter((i) => i.unread).length)
+const urgentCount = computed(() => notificationItems.filter((i) => i.category === 'fault').length)
 </script>
 
 <template>
   <section class="dl-notif-view">
     <!-- Metric cards -->
     <div class="dl-notif-view__metrics">
-      <div class="dl-notif-view__metric-card">
-        <span class="dl-notif-view__metric-label">전체 알림</span>
-        <span class="dl-notif-view__metric-value">{{ totalCount }}건</span>
-      </div>
-      <div class="dl-notif-view__metric-card">
-        <span class="dl-notif-view__metric-label">미확인</span>
-        <span class="dl-notif-view__metric-value dl-notif-view__metric-value--alert">{{ unreadCount }}건</span>
-      </div>
-      <div class="dl-notif-view__metric-card">
-        <span class="dl-notif-view__metric-label">긴급</span>
-        <span class="dl-notif-view__metric-value dl-notif-view__metric-value--alert">{{ urgentCount }}건</span>
-      </div>
+      <BaseStatCard label="전체 알림"  :value="`${totalCount}건`"  tone="primary" variant="compact" />
+      <BaseStatCard label="미확인"     :value="`${unreadCount}건`" tone="danger"  variant="compact" />
+      <BaseStatCard label="긴급"       :value="`${urgentCount}건`" tone="danger"  variant="compact" />
     </div>
 
-    <!-- Notification list with built-in filter tabs -->
-    <DepartmentLeaderNotificationList
-      :items="notificationItems"
-      :filters="notificationFilters"
+    <!-- Filter bar + list -->
+    <DepartmentLeaderNotificationFilterBarWrapper
+      :filters="filterTabItems"
+      :active-filter="activeFilter"
+      @change-filter="activeFilter = $event"
+    />
+    <DepartmentLeaderNotificationListWrapper
+      :items="filteredItems"
       :page-size="6"
     />
   </section>
@@ -47,42 +67,13 @@ const urgentCount  = computed(() => notificationItems.filter((i) => i.category =
   gap: 20px;
 }
 
-/* Metric cards */
 .dl-notif-view__metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.dl-notif-view__metric-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 20px 24px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 16px;
-  background: var(--color-bg-surface);
-}
-
-.dl-notif-view__metric-label {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-.dl-notif-view__metric-value {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--color-primary-800);
-}
-
-.dl-notif-view__metric-value--alert {
-  color: #e03a5a;
-}
-
 @media (max-width: 720px) {
-  .dl-notif-view__metrics {
-    grid-template-columns: 1fr;
-  }
+  .dl-notif-view__metrics { grid-template-columns: 1fr; }
 }
 </style>

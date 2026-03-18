@@ -240,7 +240,7 @@ function handleHold()    { alert(`${selectedItem.value.name} 보류`) }
   overflow: auto;
   min-height: 0;
 }
-.hrm-approval__loading { color: #a89ed8; font-size: 14px; }
-.hrm-approval__error   { color: var(--color-danger); font-size: 14px; }
+.hrm-approval__loading { color: #a89ed8; font-size: var(--font-size-base); }
+.hrm-approval__error   { color: var(--color-danger); font-size: var(--font-size-base); }
 .hrm-approval__content { display: flex; gap: 16px; align-items: flex-start; flex: 1; min-height: 0; }
 </style>
