@@ -153,6 +153,7 @@ function categoryClass(category) {
       >
         <div class="feed__card-top">
           <div class="feed__badges">
+            <span v-if="article.status === 'draft'" class="feed__badge feed__badge--draft">임시 저장</span>
             <span v-if="article.isPopular" class="feed__badge feed__badge--popular">인기</span>
             <span class="feed__badge" :class="categoryClass(article.category)">{{ article.category }}</span>
             <span class="feed__badge feed__badge--equip">{{ article.equipment }}</span>
@@ -283,6 +284,11 @@ function categoryClass(category) {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: #fff;
+}
+
+.feed__badge--draft {
+  background: #fff4d8;
+  color: #9a6a00;
 }
 
 .feed__more {

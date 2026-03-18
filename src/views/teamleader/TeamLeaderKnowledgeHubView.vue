@@ -5,10 +5,10 @@ import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/te
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
 import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
 import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModal.vue'
+import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModalWrapper.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
-import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModal.vue'
-import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModal.vue'
+import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModalWrapper.vue'
+import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModalWrapper.vue'
 import {
   knowledgeHubSummaryCards,
   knowledgeHubCategories,
@@ -24,7 +24,11 @@ const showWriteModal = ref(false)
 const selectedArticle = ref(null)
 const selectedMentoringRequest = ref(null)
 const showMentoringRequestModal = ref(false)
-const articles = ref([...knowledgeHubArticles])
+const publishedArticles = ref([...knowledgeHubArticles.map((article) => ({
+  ...article,
+  status: 'submitted',
+}))])
+const draftArticles = ref([])
 const mentoringState = reactive({
   ongoing: [...knowledgeHubMentoring.ongoing],
   pending: [...knowledgeHubMentoring.pending],
@@ -47,6 +51,11 @@ const summaryCards = computed(() => knowledgeHubSummaryCards.map((card) => {
   }
   return card
 }))
+
+const articles = computed(() => [
+  ...draftArticles.value,
+  ...publishedArticles.value,
+])
 
 function openWriteModal() {
   showWriteModal.value = true
@@ -81,14 +90,15 @@ function submitDetailComment(body) {
   article.commentList = [...(article.commentList ?? []), nextComment]
   article.comments = article.commentList.length
 
-  const targetIndex = articles.value.findIndex((item) => item.id === article.id)
+  const targetCollection = article.status === 'draft' ? draftArticles : publishedArticles
+  const targetIndex = targetCollection.value.findIndex((item) => item.id === article.id)
   if (targetIndex !== -1) {
-    articles.value[targetIndex] = {
-      ...articles.value[targetIndex],
+    targetCollection.value[targetIndex] = {
+      ...targetCollection.value[targetIndex],
       commentList: [...article.commentList],
       comments: article.comments,
     }
-    selectedArticle.value = articles.value[targetIndex]
+    selectedArticle.value = targetCollection.value[targetIndex]
   }
 }
 
@@ -130,8 +140,12 @@ function submitMentoringRequest(payload) {
 }
 
 function handleSubmitKnowledge(payload) {
-  const nextId = Math.max(...articles.value.map((item) => item.id), 0) + 1
-  articles.value.unshift({
+  const nextId = Math.max(
+    ...publishedArticles.value.map((item) => item.id),
+    ...draftArticles.value.map((item) => item.id),
+    0
+  ) + 1
+  publishedArticles.value.unshift({
     id: nextId,
     code: `KMS-${2100 + nextId}`,
     title: payload.title,
@@ -147,11 +161,40 @@ function handleSubmitKnowledge(payload) {
     commentList: [],
     isPopular: false,
     isSubscribed: true,
+    status: 'submitted',
   })
 
   statState.totalArticles += 1
   statState.newThisMonth += 1
   statState.pendingApproval += 1
+  closeWriteModal()
+}
+
+function handleDraftKnowledge(payload) {
+  const nextId = Math.max(
+    ...publishedArticles.value.map((item) => item.id),
+    ...draftArticles.value.map((item) => item.id),
+    0
+  ) + 1
+  draftArticles.value.unshift({
+    id: nextId,
+    code: `KMS-DRAFT-${2100 + nextId}`,
+    title: payload.title || '임시 저장 문서',
+    preview: payload.summary || payload.content.slice(0, 90) || '작성 중인 임시 저장 문서입니다.',
+    category: payload.category,
+    equipment: payload.equipment,
+    date: '03.17',
+    author: '최민정',
+    authorInitial: '최',
+    authorTier: 'S',
+    comments: 0,
+    content: payload.content,
+    commentList: [],
+    isPopular: false,
+    isSubscribed: false,
+    status: 'draft',
+  })
+
   closeWriteModal()
 }
 </script>
@@ -183,6 +226,7 @@ function handleSubmitKnowledge(payload) {
       v-if="showWriteModal"
       :options="knowledgeWriteModalOptions"
       @close="closeWriteModal"
+      @draft="handleDraftKnowledge"
       @submit="handleSubmitKnowledge"
     />
 
