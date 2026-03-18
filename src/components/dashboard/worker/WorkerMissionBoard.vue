@@ -1,4 +1,13 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+
+const animated = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
+})
+
 defineProps({
   missions: {
     type: Array,
@@ -25,7 +34,7 @@ defineProps({
         <div class="missions__bar-track">
           <div
             class="missions__bar-fill"
-            :style="{ width: (m.current / m.target) * 100 + '%' }"
+            :style="{ width: animated ? (m.current / m.target) * 100 + '%' : '0%', transitionDelay: i * 0.15 + 's' }"
           ></div>
         </div>
       </div>
@@ -113,6 +122,30 @@ defineProps({
   height: 100%;
   background: linear-gradient(90deg, var(--tier-b), var(--tier-s));
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.missions__bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out 0.8s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  60% { left: 100%; }
+  100% { left: 100%; }
 }
 </style>

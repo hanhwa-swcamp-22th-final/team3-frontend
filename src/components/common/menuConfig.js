@@ -112,7 +112,7 @@ export const roleSidebarSections = {
       key: 'hr',
       label: 'HR',
       items: [
-        { label: '내 능력치 카드', icon: '👤', to: { name: 'WorkerDashboard' } },
+        { label: '대시보드', icon: '👤', to: { name: 'WorkerDashboard' } },
         { label: '포인트 / 미션', icon: '🎯', to: { name: 'PointMission' } },
         { label: '내 평가 결과', icon: '📊', to: { name: 'WorkerEvaluationResult' } },
         { label: '평가 이의 신청', icon: '✋', to: { name: 'AppealRequest' } },

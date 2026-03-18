@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   skills: {
@@ -43,9 +43,23 @@ const axisLines = computed(() => {
   })
 })
 
+const animProgress = ref(0)
+
+onMounted(() => {
+  let start = null
+  const duration = 800
+  function step(ts) {
+    if (!start) start = ts
+    const t = Math.min((ts - start) / duration, 1)
+    animProgress.value = 1 - Math.pow(1 - t, 3)
+    if (t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+})
+
 const dataPath = computed(() => {
   const points = props.skills.map((s, i) => {
-    const r = (s.value / 100) * maxR
+    const r = (s.value / 100) * maxR * animProgress.value
     const p = polarToXY(i * angleStep.value, r)
     return `${p.x},${p.y}`
   })
@@ -54,7 +68,7 @@ const dataPath = computed(() => {
 
 const dataPoints = computed(() => {
   return props.skills.map((s, i) => {
-    const r = (s.value / 100) * maxR
+    const r = (s.value / 100) * maxR * animProgress.value
     return polarToXY(i * angleStep.value, r)
   })
 })
@@ -118,7 +132,7 @@ const labelPositions = computed(() => {
           <div class="radar__list-bar-track">
             <div
               class="radar__list-bar-fill"
-              :style="{ width: s.value + '%' }"
+              :style="{ width: s.value * animProgress + '%' }"
             ></div>
           </div>
           <span class="radar__list-value">{{ s.value }}</span>
