@@ -1,3 +1,8 @@
+export const knowledgeHubInitialStats = {
+  totalArticles: 1247,
+  newThisMonth: 38,
+}
+
 export const knowledgeHubSummaryCards = [
   { key: 'totalArticles', label: '등록 지식 수',  value: '1,247건', helper: '전월 대비 +19건' },
   { key: 'newThisMonth',  label: '이달 신규',     value: '38건',    helper: '▲12' },
