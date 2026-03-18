@@ -1,5 +1,67 @@
 <template>
-  <div class="admin-knowledge-hub">
-    <p>KMS 지식허브 (준비 중)</p>
+  <div class="kms-view">
+    <!-- 상단 통계 카드 -->
+    <KmsStatCards />
+
+    <!-- 메인 2열 레이아웃 -->
+    <div class="kms-layout">
+      <!-- 좌: 피드 -->
+      <div class="kms-feed-col">
+        <KmsFeed
+          :selectedFilter="selectedFilter"
+          :selectedTagFilter="selectedTagFilter"
+          @filterChange="selectedFilter = $event"
+          @tagFilterChange="selectedTagFilter = $event"
+        />
+      </div>
+
+      <!-- 우: 사이드 패널 -->
+      <div class="kms-side-col">
+        <KmsSidePanel />
+      </div>
+    </div>
   </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+import KmsStatCards from '@/components/admin/kms/KmsStatCards.vue'
+import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
+import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
+
+const selectedFilter = ref('전체')
+const selectedTagFilter = ref(null)
+</script>
+
+<style scoped>
+.kms-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--color-bg-app, #fafbff);
+  flex: 1;
+  min-width: 0;
+  height: calc(100vh - 80px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-family: var(--font-family-base);
+}
+
+.kms-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kms-feed-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.kms-side-col {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+</style>

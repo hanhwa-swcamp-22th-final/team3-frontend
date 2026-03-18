@@ -68,7 +68,7 @@ const routes = [
             {
                 path: 'knowledge-hub',
                 name: 'AdminKnowledgeHub',
-                component: Placeholder,
+                component: () => import('@/views/admin/AdminKnowledgeHub.vue'),
             },
         ],
     },
