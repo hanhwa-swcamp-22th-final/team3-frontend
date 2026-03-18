@@ -87,8 +87,8 @@ const comment = ref('')
   gap: 16px;
 }
 .promo-detail__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
@@ -105,24 +105,24 @@ const comment = ref('')
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   font-weight: 900;
   color: #fff;
   flex-shrink: 0;
 }
 .promo-detail__name {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 .promo-detail__subtitle {
-  font-size: 11px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 .promo-detail__score {
   margin-left: auto;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -133,8 +133,8 @@ const comment = ref('')
   gap: 8px;
 }
 .promo-detail__section-title {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
 }
 
@@ -150,14 +150,14 @@ const comment = ref('')
   gap: 8px;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .promo-req--met  { background: #e3fbef; }
 .promo-req--fail { background: #fff0f0; }
 
 .promo-req__icon {
   font-weight: 900;
-  font-size: 11px;
+  font-size: var(--font-size-sm);
   width: 14px;
   flex-shrink: 0;
 }
@@ -167,10 +167,10 @@ const comment = ref('')
 .promo-req__label {
   flex: 1;
   color: var(--color-primary-800);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 .promo-req__value {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .promo-req--met  .promo-req__value { color: var(--color-mint-500); }
 .promo-req--fail .promo-req__value { color: var(--color-danger); }
@@ -187,7 +187,7 @@ const comment = ref('')
   padding: 10px 12px;
   border: 1px solid var(--color-border-default);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--color-primary-800);
   background: var(--color-bg-app);
   resize: none;
@@ -204,7 +204,7 @@ const comment = ref('')
   gap: 4px;
 }
 .promo-detail__history-item {
-  font-size: 11px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
@@ -218,8 +218,8 @@ const comment = ref('')
   flex: 1;
   height: 40px;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   border: none;
 }

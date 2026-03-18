@@ -121,7 +121,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
   max-height: 90vh; overflow-y: auto;
 }
 .modal__title {
-  font-size: 18px; font-weight: 800;
+  font-size: var(--font-size-lg); font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
   margin-bottom: 4px;
 }
@@ -130,7 +130,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
 .modal__toggles { display: flex; justify-content: flex-end; gap: 8px; }
 .modal__toggle {
   height: 34px; padding: 0 16px;
-  border-radius: 8px; font-size: 13px; font-weight: 700;
+  border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
   border: 1.5px solid var(--color-border-default);
   background: var(--color-bg-app);
@@ -143,7 +143,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
 }
 
 .modal__label {
-  font-size: 12px; font-weight: 700;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
   margin-top: 4px;
 }
@@ -152,7 +152,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
   padding: 0 14px;
   border: 1.5px solid var(--color-border-default);
   border-radius: 8px;
-  font-size: 13px; color: var(--color-primary-800);
+  font-size: var(--font-size-sm); color: var(--color-primary-800);
   background: var(--color-bg-app);
   box-sizing: border-box;
 }
@@ -176,7 +176,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
   padding: 10px 14px;
   border: 1.5px solid var(--color-border-default);
   border-radius: 8px;
-  font-size: 13px; color: var(--color-primary-800);
+  font-size: var(--font-size-sm); color: var(--color-primary-800);
   background: var(--color-bg-app);
   resize: none; box-sizing: border-box;
   font-family: inherit;
@@ -189,7 +189,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
 .modal__file-btn {
   height: 42px; padding: 0 16px; flex-shrink: 0;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -200,7 +200,7 @@ function handleDraft() { emit('draft', buildPayload('임시')) }
 }
 .modal__btn {
   height: 40px; padding: 0 20px;
-  border-radius: 8px; font-size: 14px; font-weight: 700;
+  border-radius: 8px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
   cursor: pointer; border: none;
 }
 .modal__btn--close {

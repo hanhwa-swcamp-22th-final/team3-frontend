@@ -23,9 +23,9 @@ defineEmits(['bulk-review'])
   border-left: 3px solid var(--tier-b);
   border-radius: 8px; flex-shrink: 0;
 }
-.hrm-banner__text { font-size: 13px; color: #a07000; }
+.hrm-banner__text { font-size: var(--font-size-sm); color: #a07000; }
 .hrm-banner__btn {
-  height: 34px; padding: 0 14px; font-size: 11px; font-weight: 700;
+  height: 34px; padding: 0 14px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   color: #7a6fa8;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);

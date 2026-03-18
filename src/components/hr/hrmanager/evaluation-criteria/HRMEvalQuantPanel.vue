@@ -67,12 +67,12 @@ function updateWeight(index, value) {
   gap: 16px;
 }
 .eval-quant-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 .eval-quant-card__subtitle {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin-top: -8px;
 }
@@ -92,8 +92,8 @@ function updateWeight(index, value) {
   justify-content: space-between;
 }
 .eval-quant-card__label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-800);
 }
 .eval-quant-card__input-wrap {
@@ -106,14 +106,14 @@ function updateWeight(index, value) {
   padding: 3px 6px;
   border: 1px solid var(--color-border-default);
   border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   text-align: center;
   color: var(--color-primary-800);
   background: var(--color-bg-app);
 }
 .eval-quant-card__unit {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 .eval-slider {
@@ -122,8 +122,8 @@ function updateWeight(index, value) {
   cursor: pointer;
 }
 .eval-quant-card__total {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
   text-align: right;
 }

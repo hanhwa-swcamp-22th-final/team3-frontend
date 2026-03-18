@@ -52,20 +52,20 @@ const toneClassMap = {
   background: var(--color-bg-surface);
 }
 .metric-card__label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-300);
 }
 .metric-card__value {
-  font-size: 52px;
+  font-size: var(--font-size-display);
   line-height: 1;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 .metric-card__delta,
 .metric-card__helper {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
 }
 .metric-card--primary .metric-card__delta,
 .metric-card--primary .metric-card__helper {

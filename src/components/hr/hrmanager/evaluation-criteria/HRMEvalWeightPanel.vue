@@ -62,8 +62,8 @@ const qualWeight = computed(() => 100 - props.quantWeight)
   gap: 20px;
 }
 .eval-weight-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 .eval-weight-card__bar {
@@ -83,8 +83,8 @@ const qualWeight = computed(() => 100 - props.quantWeight)
 .eval-weight-card__bar-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   margin-top: -12px;
 }
 .eval-weight-card__bar-label--quant { color: var(--color-primary-600); }
@@ -101,13 +101,13 @@ const qualWeight = computed(() => 100 - props.quantWeight)
   align-items: center;
 }
 .eval-weight-card__item-label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-800);
 }
 .eval-weight-card__item-value {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
 }
 .eval-slider {
@@ -127,8 +127,8 @@ const qualWeight = computed(() => 100 - props.quantWeight)
   transition: width 0.2s;
 }
 .eval-weight-card__total {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
   text-align: right;
 }

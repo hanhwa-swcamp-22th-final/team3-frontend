@@ -120,8 +120,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .donut-card__eyebrow {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
@@ -149,7 +149,7 @@ onBeforeUnmount(() => chartInstance?.destroy())
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .legend-item__dot {
@@ -160,7 +160,7 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .legend-item__tier {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
   width: 12px;
 }

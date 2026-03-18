@@ -91,9 +91,9 @@ function apply() {
   padding: 6px 4px; cursor: pointer; border-radius: 6px;
 }
 .team-filter__item:hover { background: var(--color-primary-100); }
-.team-filter__check { font-size: 12px; color: transparent; width: 16px; flex-shrink: 0; }
+.team-filter__check { font-size: var(--font-size-xs); color: transparent; width: 16px; flex-shrink: 0; }
 .team-filter__check--on { color: var(--color-primary-600); }
-.team-filter__name { font-size: 13px; color: var(--color-primary-800); }
+.team-filter__name { font-size: var(--font-size-sm); color: var(--color-primary-800); }
 
 .team-filter__tags {
   display: flex; flex-wrap: wrap; gap: 4px;
@@ -103,7 +103,7 @@ function apply() {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 8px;
   background: var(--color-primary-100); color: var(--color-primary-700);
-  border-radius: 20px; font-size: 11px; font-weight: 600;
+  border-radius: 20px; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold);
 }
 .team-filter__tag-x {
   background: none; border: none; cursor: pointer;
@@ -113,7 +113,7 @@ function apply() {
 .team-filter__actions { display: flex; justify-content: space-between; align-items: center; }
 .team-filter__btn {
   height: 30px; padding: 0 12px;
-  border-radius: 8px; font-size: 12px; font-weight: 700;
+  border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer; border: none;
   display: flex; align-items: center; gap: 4px;
 }

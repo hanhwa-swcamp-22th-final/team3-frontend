@@ -135,6 +135,24 @@
   --font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-num: 'Inter', var(--font-family-base);
   --font-family-mono: 'JetBrains Mono', monospace;
+
+  /* --- Font Size (B2B Dashboard) --- */
+  --font-size-2xs: 10px;      /* 극소 보조, 오버레이 레이블 */
+  --font-size-xs: 11px;       /* 뱃지, 태그, 칩 */
+  --font-size-sm: 13px;       /* 날짜, 보조 텍스트 */
+  --font-size-base: 14px;     /* 메인 본문 */
+  --font-size-md: 16px;       /* 강조 본문 */
+  --font-size-lg: 18px;       /* 서브타이틀, 이름 */
+  --font-size-xl: 24px;       /* 섹션 헤더 */
+  --font-size-2xl: 36px;      /* 대형 수치 */
+  --font-size-display: 46px;  /* 대형 수치 (티어 카드, 메트릭 카드) */
+
+  /* --- Font Weight --- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;  /* 타이틀 강조, 뱃지 */
 }
 
 *,

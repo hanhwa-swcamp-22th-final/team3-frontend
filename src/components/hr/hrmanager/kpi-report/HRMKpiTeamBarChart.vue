@@ -106,8 +106,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
   gap: 10px;
 }
 .kpi-bar-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 .kpi-bar-card__chart {

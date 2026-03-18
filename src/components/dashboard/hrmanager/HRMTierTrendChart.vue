@@ -124,8 +124,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .trend-card__eyebrow {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
@@ -135,8 +135,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .trend-card__delta {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-500);
   text-align: center;
 }

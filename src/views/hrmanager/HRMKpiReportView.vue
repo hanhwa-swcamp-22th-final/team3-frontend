@@ -119,7 +119,7 @@ onMounted(async () => {
   padding: 60px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 15px;
+  font-size: var(--font-size-base);
 }
 
 /* 툴바 */
@@ -135,8 +135,8 @@ onMounted(async () => {
   border: 1px solid var(--color-border-default);
   border-radius: 8px;
   background: var(--color-bg-surface);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-strong);
   cursor: pointer;
 }
@@ -148,8 +148,8 @@ onMounted(async () => {
   height: 38px;
   padding: 0 16px;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
 }
