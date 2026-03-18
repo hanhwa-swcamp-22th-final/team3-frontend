@@ -6,17 +6,96 @@ import TeamLeaderNotificationAssistPanel from '@/components/hr/teamleader/notifi
 import { notificationFilters, notificationHeadlineAlert, notificationItems, notificationAssistPanels } from '@/mocks/teamleader/notification'
 
 const activeFilter = ref('all')
+const notifications = ref(notificationItems.map((item) => ({ ...item })))
+const assistPanels = ref(
+  notificationAssistPanels.map((panel) => ({
+    ...panel,
+    equipment: { ...panel.equipment },
+    candidates: panel.candidates.map((candidate) => ({ ...candidate })),
+  }))
+)
+const selectedNotificationId = ref(null)
+const activeAssistPanelId = ref(null)
+const headlineFeedback = ref('')
 
 const filteredNotifications = computed(() => {
   if (activeFilter.value === 'all') {
-    return notificationItems
+    return notifications.value
   }
 
-  return notificationItems.filter((item) => item.tone === activeFilter.value)
+  return notifications.value.filter((item) => item.tone === activeFilter.value)
 })
 
 function handleFilterChange(filterKey) {
   activeFilter.value = filterKey
+}
+
+function extractEquipmentCode(title = '') {
+  return title.split(' - ')[0]?.trim() ?? ''
+}
+
+function findMatchingPanelId(item) {
+  const equipmentCode = extractEquipmentCode(item.title)
+  return assistPanels.value.find((panel) => panel.equipment.code === equipmentCode)?.id ?? null
+}
+
+function selectNotification(item) {
+  selectedNotificationId.value = item.id
+  activeAssistPanelId.value = findMatchingPanelId(item)
+}
+
+function handleHeadlineAction() {
+  const headlineItem = notifications.value.find((item) => extractEquipmentCode(item.title) === 'WLD-01')
+
+  if (!headlineItem) {
+    return
+  }
+
+  selectNotification(headlineItem)
+  headlineFeedback.value = '선택된 알림에 맞춰 우측 빠른 재배정 후보를 불러왔습니다.'
+}
+
+function handleQuickAssign({ panel, candidate }) {
+  if (!panel || !candidate) {
+    return
+  }
+
+  assistPanels.value = assistPanels.value.map((entry) =>
+    entry.id === panel.id
+      ? {
+          ...entry,
+          equipment: {
+            ...entry.equipment,
+            assignee: `현재 담당: ${candidate.name} (${candidate.tier}-Tier)`,
+            status: '배정 완료',
+          },
+          actionLabel: '배정 완료',
+        }
+      : entry
+  )
+
+  notifications.value = notifications.value.map((item) =>
+    extractEquipmentCode(item.title) === panel.equipment.code
+      ? {
+          ...item,
+          type: '완료',
+          title: `${panel.equipment.code} - ${candidate.name} 배정 확정`,
+          description: `${panel.equipment.line} · ${candidate.scoreLabel} 기준 즉시 배정`,
+          time: '방금 전',
+          actionLabel: '보기',
+          tone: 'success',
+          unread: false,
+        }
+      : item
+  )
+
+  const updatedItem = notifications.value.find((item) => item.title.startsWith(`${panel.equipment.code} - `))
+
+  if (updatedItem) {
+    selectedNotificationId.value = updatedItem.id
+  }
+
+  headlineFeedback.value = `${panel.equipment.code} 설비를 ${candidate.name}에게 즉시 배정했습니다.`
 }
 </script>
 
@@ -26,8 +105,11 @@ function handleFilterChange(filterKey) {
       <div>
         <h1>{{ notificationHeadlineAlert.title }}</h1>
         <p>{{ notificationHeadlineAlert.description }}</p>
+        <p v-if="headlineFeedback" class="teamleader-notification-view__headline-feedback">
+          {{ headlineFeedback }}
+        </p>
       </div>
-      <button type="button">{{ notificationHeadlineAlert.actionLabel }}</button>
+      <button type="button" @click="handleHeadlineAction">{{ notificationHeadlineAlert.actionLabel }}</button>
     </section>
 
     <section class="teamleader-notification-view__content">
@@ -37,10 +119,21 @@ function handleFilterChange(filterKey) {
           :active-filter="activeFilter"
           @change-filter="handleFilterChange"
         />
-        <TeamLeaderNotificationList :items="filteredNotifications" :page-size="4" />
+        <TeamLeaderNotificationList
+          :items="filteredNotifications"
+          :selected-item-id="selectedNotificationId"
+          :page-size="4"
+          @click-item="selectNotification"
+          @click-action="selectNotification"
+        />
       </div>
 
-      <TeamLeaderNotificationAssistPanel :panels="notificationAssistPanels" :page-size="1" />
+      <TeamLeaderNotificationAssistPanel
+        :panels="assistPanels"
+        :active-panel-id="activeAssistPanelId"
+        :page-size="1"
+        @quick-assign="handleQuickAssign"
+      />
     </section>
   </section>
 </template>
@@ -75,6 +168,18 @@ function handleFilterChange(filterKey) {
   margin-top: 6px;
   font-size: 15px;
   color: #dc627c;
+}
+
+.teamleader-notification-view__headline-feedback {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(243, 41, 79, 0.08);
+  color: #bf2442;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .teamleader-notification-view__headline button {
@@ -121,7 +226,3 @@ function handleFilterChange(filterKey) {
   }
 }
 </style>
-
-
-
-
