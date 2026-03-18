@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { BaseFilterTabs, BaseDataTable } from '@/components/common/base'
 import { POINT_CATEGORY_STYLES as categoryStyles } from '@/constants'
 
 const props = defineProps({
@@ -18,6 +19,13 @@ const filteredHistory = computed(() => {
   return props.history.filter((h) => h.category === activeTab.value)
 })
 
+const columns = [
+  { key: 'date', label: '날짜' },
+  { key: 'category', label: '구분' },
+  { key: 'description', label: '내용' },
+  { key: 'points', label: '포인트' },
+]
+
 function badgeStyle(category) {
   const s = categoryStyles[category] || { bg: '#f0eeff', color: '#2D1F6E' }
   return { background: s.bg, color: s.color }
@@ -31,40 +39,30 @@ function badgeStyle(category) {
       <h3 class="history__title">포인트 적립 내역</h3>
     </div>
 
-    <div class="history__tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab"
-        class="history__tab"
-        :class="{ 'history__tab--active': activeTab === tab }"
-        @click="activeTab = tab"
-      >
-        {{ tab }}
-      </button>
-    </div>
+    <BaseFilterTabs
+      v-model="activeTab"
+      :items="tabs"
+      variant="underline"
+    />
 
-    <table class="history__table">
-      <thead>
-        <tr>
-          <th>날짜</th>
-          <th>구분</th>
-          <th>내용</th>
-          <th>포인트</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in filteredHistory" :key="row.id">
-          <td class="history__date">{{ row.date }}</td>
-          <td>
-            <span class="history__badge" :style="badgeStyle(row.category)">
-              {{ row.category }}
-            </span>
-          </td>
-          <td class="history__desc">{{ row.description }}</td>
-          <td class="history__points">+{{ row.points }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <BaseDataTable
+      :columns="columns"
+      :rows="filteredHistory"
+      :page-size="10"
+      empty-message="적립 내역이 없습니다."
+    >
+      <template #cell-date="{ row }">
+        <span class="history__date">{{ row.date }}</span>
+      </template>
+      <template #cell-category="{ row }">
+        <span class="history__badge" :style="badgeStyle(row.category)">
+          {{ row.category }}
+        </span>
+      </template>
+      <template #cell-points="{ row }">
+        <span class="history__points">+{{ row.points }}</span>
+      </template>
+    </BaseDataTable>
   </div>
 </template>
 
@@ -94,52 +92,6 @@ function badgeStyle(category) {
   margin: 0;
 }
 
-.history__tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--color-border-muted);
-}
-
-.history__tab {
-  padding: 8px 16px;
-  border: none;
-  background: none;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-
-.history__tab--active {
-  color: var(--color-primary-800);
-  font-weight: 700;
-  border-bottom-color: var(--color-primary-800);
-}
-
-.history__table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.history__table th {
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  padding: 8px 4px;
-  border-bottom: 1px solid var(--color-border-default);
-}
-
-.history__table td {
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--color-border-muted);
-  font-size: 14px;
-  color: var(--color-text-default);
-}
-
 .history__date {
   font-weight: 600;
   color: var(--color-text-strong);
@@ -153,10 +105,6 @@ function badgeStyle(category) {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.history__desc {
-  color: var(--color-text-default);
 }
 
 .history__points {

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 import { CATEGORY_CLASS_MAP } from '@/constants'
 
 const props = defineProps({
@@ -75,17 +76,12 @@ function actionLabel(status) {
     </div>
 
     <!-- Category Tabs -->
-    <div class="mkl__tabs">
-      <button
-        v-for="cat in categories"
-        :key="cat"
-        class="mkl__tab"
-        :class="{ 'mkl__tab--active': activeCategory === cat }"
-        @click="activeCategory = cat"
-      >
-        {{ cat }}
-      </button>
-    </div>
+    <BaseFilterTabs
+      v-model="activeCategory"
+      :items="categories"
+      variant="chip"
+      class="mkl__tabs"
+    />
 
     <!-- Article Cards -->
     <div class="mkl__list">
@@ -199,25 +195,7 @@ function actionLabel(status) {
 }
 
 /* ── Tabs ─────────────────────────────────────────────── */
-.mkl__tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.mkl__tab {
-  padding: 8px 18px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-default);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.mkl__tab--active {
+.mkl__tabs :deep(.base-filter-tabs__item--active) {
   background: var(--color-primary-800);
   color: var(--color-white);
   border-color: var(--color-primary-800);
