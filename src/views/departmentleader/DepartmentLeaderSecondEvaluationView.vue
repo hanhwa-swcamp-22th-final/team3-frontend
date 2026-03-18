@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
-import DepartmentLeaderEvalMemberListPanel from '@/components/departmentleader/hr/DepartmentLeaderEvalMemberListPanel.vue'
-import DepartmentLeaderEvalFormPanel from '@/components/departmentleader/hr/DepartmentLeaderEvalFormPanel.vue'
+import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
+import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
 
 const members = ref([
   {

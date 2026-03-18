@@ -1,8 +1,8 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/teamleader/scm/TeamLeaderScmSummaryCard.vue'
-import TeamLeaderTaskMatchingDashboardPanel from '@/components/teamleader/scm/TeamLeaderTaskMatchingDashboardPanel.vue'
-import TeamLeaderTaskMatchingAssignmentPanel from '@/components/teamleader/scm/TeamLeaderTaskMatchingAssignmentPanel.vue'
+import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import TeamLeaderTaskMatchingDashboardPanel from '@/components/scm/teamleader/task-matching/TeamLeaderTaskMatchingDashboardPanel.vue'
+import TeamLeaderTaskMatchingAssignmentPanel from '@/components/scm/teamleader/task-matching/TeamLeaderTaskMatchingAssignmentPanel.vue'
 import {
   taskMatchingSummaryCards,
   taskMatchingTabs,

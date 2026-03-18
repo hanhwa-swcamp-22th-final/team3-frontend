@@ -1,10 +1,9 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ROLE_ROUTE_MAP } from '@/constants'
-import LoginView from '@/views/LoginView.vue'
-import DashboardView from '@/views/DashboardView.vue'
-
-const Placeholder = () => import('@/views/PlaceholderView.vue')
+import LoginView from '@/views/common/LoginView.vue'
+import DashboardView from '@/views/common/DashboardView.vue'
+const Placeholder = () => import('@/views/common/PlaceholderView.vue')
 
 const routes = [
     {
@@ -250,42 +249,42 @@ const routes = [
             {
                 path: 'point-mission',
                 name: 'PointMission',
-                component: () => import('@/views/worker/PointMissionView.vue'),
+                component: () => import('@/views/worker/WorkerPointMissionView.vue'),
             },
             {
                 path: 'evaluation-result',
                 name: 'WorkerEvaluationResult',
-                component: () => import('@/views/worker/EvaluationResultView.vue'),
+                component: () => import('@/views/worker/WorkerEvaluationResultView.vue'),
             },
             {
                 path: 'appeal',
                 name: 'AppealRequest',
-                component: () => import('@/views/worker/AppealRequestView.vue'),
+                component: () => import('@/views/worker/WorkerAppealRequestView.vue'),
             },
             {
                 path: 'noticeboard',
                 name: 'WorkerNoticeBoard',
-                component: () => import('@/views/worker/NoticeBoardView.vue'),
+                component: () => import('@/views/worker/WorkerNoticeBoardView.vue'),
             },
             {
                 path: 'today-task',
                 name: 'TodayTask',
-                component: () => import('@/views/worker/TodayTaskView.vue'),
+                component: () => import('@/views/worker/WorkerTodayTaskView.vue'),
             },
             {
                 path: 'knowledgehub',
                 name: 'WorkerKnowledgeHub',
-                component: () => import('@/views/worker/KnowledgeHubView.vue'),
+                component: () => import('@/views/worker/WorkerKnowledgeHubView.vue'),
             },
             {
                 path: 'my-knowledge',
                 name: 'MyKnowledgeManagement',
-                component: () => import('@/views/worker/MyKnowledgeManagementView.vue'),
+                component: () => import('@/views/worker/WorkerMyKnowledgeManagementView.vue'),
             },
             {
                 path: 'skill-gap',
                 name: 'SkillGapAnalysis',
-                component: () => import('@/views/worker/SkillGapView.vue'),
+                component: () => import('@/views/worker/WorkerSkillGapView.vue'),
             },
         ],
     },

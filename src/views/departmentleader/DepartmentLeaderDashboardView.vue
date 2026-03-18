@@ -1,8 +1,8 @@
 <script setup>
-import DepartmentLeaderDashboardNotice from '@/components/departmentleader/dashboard/DepartmentLeaderDashboardNotice.vue'
-import DepartmentLeaderMetricCard     from '@/components/departmentleader/dashboard/DepartmentLeaderMetricCard.vue'
-import DepartmentLeaderGroupKpiCard   from '@/components/departmentleader/dashboard/DepartmentLeaderGroupKpiCard.vue'
-import DepartmentLeaderTeamStatusCard from '@/components/departmentleader/dashboard/DepartmentLeaderTeamStatusCard.vue'
+import DepartmentLeaderDashboardNotice from '@/components/dashboard/common/DepartmentLeaderDashboardNotice.vue'
+import DepartmentLeaderMetricCard     from '@/components/dashboard/departmentleader/DepartmentLeaderMetricCard.vue'
+import DepartmentLeaderGroupKpiCard   from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
+import DepartmentLeaderTeamStatusCard from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
 
 const notice = {
   badge: '📌 중요 공지',

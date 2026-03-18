@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { EVAL_MESSAGES } from '@/constants'
-import HRMEvalWeightPanel from '@/components/hrmanager/hr/HRMEvalWeightPanel.vue'
-import HRMEvalTierPanel   from '@/components/hrmanager/hr/HRMEvalTierPanel.vue'
-import HRMEvalQuantPanel  from '@/components/hrmanager/hr/HRMEvalQuantPanel.vue'
+import HRMEvalWeightPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalWeightPanel.vue'
+import HRMEvalTierPanel   from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalTierPanel.vue'
+import HRMEvalQuantPanel  from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalQuantPanel.vue'
 import {
   defaultQuantWeight  as DEFAULT_QUANT_WEIGHT,
   defaultThresholds   as DEFAULT_THRESHOLDS,

@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { API_BASE, SCORE_WEIGHT_QUANT, SCORE_WEIGHT_QUAL, GRADE_THRESHOLDS, AI_TAG_LIMIT, TYPE_STYLE, GRADE_STYLE, EVAL_TYPE_LABEL, scoreToGrade } from '@/constants'
-import HRMApprovalBanner from '@/components/hrmanager/hr/HRMApprovalBanner.vue'
-import HRMApprovalList   from '@/components/hrmanager/hr/HRMApprovalList.vue'
-import HRMApprovalDetail from '@/components/hrmanager/hr/HRMApprovalDetail.vue'
+import HRMApprovalBanner from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalBanner.vue'
+import HRMApprovalList   from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalList.vue'
+import HRMApprovalDetail from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalDetail.vue'
 
 // ── 유틸 함수 ─────────────────────────────────────────────────────
 function gradeStyle(grade) {

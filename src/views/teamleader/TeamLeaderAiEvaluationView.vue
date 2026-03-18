@@ -1,7 +1,7 @@
 ﻿<script setup>
-import TeamLeaderAiEvaluationTargetList from '@/components/teamleader/hr/TeamLeaderAiEvaluationTargetList.vue'
-import TeamLeaderAiEvaluationPanel from '@/components/teamleader/hr/TeamLeaderAiEvaluationPanel.vue'
-import TeamLeaderAiEvaluationActionBar from '@/components/teamleader/hr/TeamLeaderAiEvaluationActionBar.vue'
+import TeamLeaderAiEvaluationTargetList from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationTargetList.vue'
+import TeamLeaderAiEvaluationPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationPanel.vue'
+import TeamLeaderAiEvaluationActionBar from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationActionBar.vue'
 import { aiEvaluationSearchPlaceholder, aiEvaluationTargets, aiEvaluationSelectedTarget } from '@/mocks/teamleader/aiEvaluation'
 
 

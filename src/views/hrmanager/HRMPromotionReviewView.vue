@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
-import HRMMetricCard       from '@/components/hrmanager/dashboard/HRMMetricCard.vue'
-import HRMPromotionList    from '@/components/hrmanager/hr/HRMPromotionList.vue'
-import HRMPromotionDetail  from '@/components/hrmanager/hr/HRMPromotionDetail.vue'
+import HRMMetricCard       from '@/components/hr/hrmanager/kpi-report/HRMMetricCard.vue'
+import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
+import HRMPromotionDetail  from '@/components/hr/hrmanager/promotion-review/HRMPromotionDetail.vue'
 
 const loading    = ref(true)
 const summary    = ref(null)

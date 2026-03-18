@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderKnowledgeApprovalQueue from '@/components/teamleader/kms/TeamLeaderKnowledgeApprovalQueue.vue'
-import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/teamleader/kms/TeamLeaderKnowledgeApprovalReviewPanel.vue'
+import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
+import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import { knowledgeApprovalItems } from '@/mocks/teamleader'
 
 const items = ref([...knowledgeApprovalItems])

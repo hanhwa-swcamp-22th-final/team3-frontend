@@ -1,8 +1,8 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
-import TeamLeaderFacilityStatusCard from '@/components/teamleader/scm/TeamLeaderFacilityStatusCard.vue'
-import TeamLeaderFacilityTrendPanel from '@/components/teamleader/scm/TeamLeaderFacilityTrendPanel.vue'
-import TeamLeaderFacilityHistoryPanel from '@/components/teamleader/scm/TeamLeaderFacilityHistoryPanel.vue'
+import TeamLeaderFacilityStatusCard from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityStatusCard.vue'
+import TeamLeaderFacilityTrendPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityTrendPanel.vue'
+import TeamLeaderFacilityHistoryPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityHistoryPanel.vue'
 import {
   facilityStatusFilters,
   facilityStatusCards,

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { mockOrganization, POSITION_MAP } from '@/mocks/hrmanager/organization.js'
-import HRMGroupAddModal from '@/components/hrmanager/hr/HRMGroupAddModal.vue'
-import HRMTeamAddModal  from '@/components/hrmanager/hr/HRMTeamAddModal.vue'
+import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
+import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModal.vue'
 
 const API = 'http://localhost:3001'
 

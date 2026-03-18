@@ -1,10 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import DLPerformanceSummary        from '@/components/departmentleader/hr/DLPerformanceSummary.vue'
-import DLGradeDistributionChart    from '@/components/departmentleader/hr/DLGradeDistributionChart.vue'
-import DLTeamComparisonChart       from '@/components/departmentleader/hr/DLTeamComparisonChart.vue'
-import DLPerformanceTable          from '@/components/departmentleader/hr/DLPerformanceTable.vue'
+import DLPerformanceSummary        from '@/components/hr/departmentleader/perfomance/DLPerformanceSummary.vue'
+import DLGradeDistributionChart    from '@/components/hr/departmentleader/perfomance/DLGradeDistributionChart.vue'
+import DLTeamComparisonChart       from '@/components/hr/departmentleader/perfomance/DLTeamComparisonChart.vue'
+import DLPerformanceTable          from '@/components/hr/departmentleader/perfomance/DLPerformanceTable.vue'
 import {
   performanceSummary,
   gradeDistribution,

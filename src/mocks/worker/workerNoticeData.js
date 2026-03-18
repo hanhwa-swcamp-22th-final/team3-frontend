@@ -1,6 +1,6 @@
 /**
  * Mock data for Worker Notice Board
- * Used by NoticeBoardView.vue
+ * Used by WorkerNoticeBoardView.vue
  */
 export const workerNotices = [
   {
