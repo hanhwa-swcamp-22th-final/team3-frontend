@@ -34,7 +34,7 @@ defineProps({
   flex-direction: column;
   padding: 16px;
   background: var(--color-bg-terminal);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   flex: 1;
   overflow-y: auto;
   min-height: 0;

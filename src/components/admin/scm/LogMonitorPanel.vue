@@ -113,7 +113,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   padding: 21.5px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   width: 462px;
   flex-shrink: 0;
   overflow-y: auto;
@@ -216,7 +216,7 @@ const kafkaMax = computed(() => Math.max(...KAFKA_CHART.bars))
   background: var(--color-danger-bg);
   border: 1.5px solid var(--color-danger);
   border-left-width: 3px;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   flex-shrink: 0;
 }
 

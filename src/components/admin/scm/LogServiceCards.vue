@@ -30,7 +30,7 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
   padding: 13.5px 15.5px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   flex: 1;
 }
 
