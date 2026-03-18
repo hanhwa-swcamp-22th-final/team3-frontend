@@ -265,7 +265,7 @@ const handleSave = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 .modal {
@@ -397,7 +397,7 @@ select {
   border-radius: 8px;
   font-size: 13px;
   color: #2d1f6e;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   outline: none;
   box-sizing: border-box;
 }
@@ -412,7 +412,7 @@ textarea {
   border-radius: 8px;
   font-size: 13px;
   color: #2d1f6e;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   outline: none;
   resize: none;
   height: 72px;
@@ -485,7 +485,7 @@ textarea:focus { border-color: #5b4fcf; }
   font-size: 12px;
   font-weight: 700;
   color: #7a6fa8;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
@@ -500,7 +500,7 @@ textarea:focus { border-color: #5b4fcf; }
   font-size: 12px;
   font-weight: 700;
   color: #ffffff;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
