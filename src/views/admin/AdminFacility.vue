@@ -13,7 +13,7 @@ const isModalOpen     = ref(false)
 const editingFacility = ref(null)
 
 // ── 페이지네이션 ─────────────────────────────────────
-const PAGE_SIZE   = 7
+const PAGE_SIZE   = 8
 const currentPage = ref(1)
 
 // ── 필터링 ──────────────────────────────────────────
