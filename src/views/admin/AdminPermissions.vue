@@ -151,7 +151,7 @@ const onCancelSave = () => {
   height: calc(100vh - 58px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .tab-bar {
@@ -213,7 +213,7 @@ const onCancelSave = () => {
   font-weight: 700;
   color: var(--color-white);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .btn-save:hover { background: var(--color-primary-700); }
@@ -315,7 +315,7 @@ const onCancelSave = () => {
   font-weight: 700;
   color: var(--color-text-placeholder);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .btn-cancel-save:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
@@ -330,7 +330,7 @@ const onCancelSave = () => {
   font-weight: 700;
   color: var(--color-white);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .btn-confirm-save:hover { background: var(--color-primary-700); }

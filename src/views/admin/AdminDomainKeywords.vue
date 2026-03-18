@@ -122,7 +122,7 @@ const onDeleteClick = (id) => {
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: var(--font-family-base);
+
 }
 
 /* 헤더 */
@@ -161,7 +161,7 @@ const onDeleteClick = (id) => {
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -196,7 +196,7 @@ const onDeleteClick = (id) => {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-secondary);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
   display: flex;
   align-items: center;
