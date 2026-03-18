@@ -26,17 +26,15 @@ const filteredCards = computed(() => {
 <template>
   <div class="kms-feed">
 
-    <!-- 필터 탭 -->
-    <BaseFilterTabs
-      :items="KMS_FILTERS"
-      :model-value="selectedFilter"
-      variant="chip"
-      class="kms-filter-tabs"
-      @change="emit('filterChange', $event)"
-    />
-
-    <!-- 태그 필터 -->
-    <div class="tag-row">
+    <!-- 필터 탭 + 태그 필터 (한 행) -->
+    <div class="filter-row">
+      <BaseFilterTabs
+        :items="KMS_FILTERS.map(f => ({ key: f.key, label: f.key }))"
+        :model-value="selectedFilter"
+        variant="chip"
+        class="kms-filter-tabs"
+        @change="emit('filterChange', $event)"
+      />
       <span
         v-for="t in KMS_TAG_FILTERS"
         :key="t.key"
@@ -111,12 +109,12 @@ const filteredCards = computed(() => {
 
 /* 필터 탭 */
 .kms-filter-tabs :deep(.base-filter-tabs__item) {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1.5px solid var(--color-border-default, #e0dcff);
+  height: 32px;
+  padding: 7px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  border: 1px solid var(--color-border-default, #e0dcff);
   transition: background 0.15s;
 }
 
@@ -126,9 +124,10 @@ const filteredCards = computed(() => {
   border-color: var(--color-primary-800, #2d1f6e);
 }
 
-/* 태그 필터 */
-.tag-row {
+/* 필터 + 태그 한 행 */
+.filter-row {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
