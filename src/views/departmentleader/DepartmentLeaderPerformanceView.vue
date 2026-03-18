@@ -1,14 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import DLPerformanceSummary        from '@/components/hr/departmentleader/perfomance/DLPerformanceSummary.vue'
-import DLGradeDistributionChart    from '@/components/hr/departmentleader/perfomance/DLGradeDistributionChart.vue'
-import DLTeamComparisonChart       from '@/components/hr/departmentleader/perfomance/DLTeamComparisonChart.vue'
-import DLPerformanceTable          from '@/components/hr/departmentleader/perfomance/DLPerformanceTable.vue'
+import DLPerformanceSummary from '@/components/hr/departmentleader/perfomance/DLPerformanceSummary.vue'
+import DLPerformanceTable   from '@/components/hr/departmentleader/perfomance/DLPerformanceTable.vue'
 import {
   performanceSummary,
-  gradeDistribution,
-  teamComparison,
   performanceMembers,
   teamOptions,
   gradeOptions,
@@ -17,8 +13,36 @@ import {
 
 const router = useRouter()
 
+const selectedTeam = ref('전체')
+const teamTabs = teamOptions // ['전체', '정밀가공 1팀', ...]
+
+const activeSummary = computed(() => {
+  if (selectedTeam.value === '전체') return performanceSummary
+
+  const members = performanceMembers.filter(m => m.team === selectedTeam.value)
+  const completed = members.filter(m => m.status === '완료').length
+  const avg = members.length
+    ? +(members.reduce((s, m) => s + m.total, 0) / members.length).toFixed(1)
+    : 0
+  const delta = +(avg - performanceSummary.deptAvg).toFixed(1)
+
+  return {
+    totalMembers: members.length,
+    totalTeams: 1,
+    evalCompleted: completed,
+    evalTotal: members.length,
+    deptAvg: avg,
+    deptAvgDelta: delta,
+    period: performanceSummary.period,
+  }
+})
+
 function handleViewCapability(member) {
   router.push({ path: '/departmentleader/team-capability', query: { empId: member.empId } })
+}
+
+function handleGoEvaluation() {
+  router.push({ path: '/departmentleader/evaluation' })
 }
 </script>
 
@@ -26,28 +50,25 @@ function handleViewCapability(member) {
   <div class="dl-performance">
     <header class="dl-performance__header">
       <h2 class="dl-performance__title">그룹 성과 현황</h2>
+      <span class="dl-performance__dept-name">{{ performanceSummary.deptName }}</span>
       <span class="dl-performance__period">{{ performanceSummary.period }}</span>
     </header>
 
-    <!-- 1. 상단: 부서 성과 요약 -->
-    <DLPerformanceSummary :summary="performanceSummary" />
+    <!-- 성과 요약 (팀 선택 탭 포함) -->
+    <DLPerformanceSummary
+      :summary="activeSummary"
+      :team-tabs="teamTabs"
+      v-model:selectedTeam="selectedTeam"
+    />
 
-    <!-- 2&3. 중앙: 등급 분포 + 팀별 비교 -->
-    <div class="dl-performance__charts">
-      <DLGradeDistributionChart
-        :distribution="gradeDistribution"
-        :total-members="performanceSummary.totalMembers"
-      />
-      <DLTeamComparisonChart :team-data="teamComparison" />
-    </div>
-
-    <!-- 4. 하단: 상세 데이터 그리드 -->
+    <!-- 직원 상세 테이블 -->
     <DLPerformanceTable
       :members="performanceMembers"
       :team-options="teamOptions"
       :grade-options="gradeOptions"
       :period-options="periodOptions"
       @view-capability="handleViewCapability"
+      @go-evaluation="handleGoEvaluation"
     />
   </div>
 </template>
@@ -78,6 +99,16 @@ function handleViewCapability(member) {
   margin: 0;
 }
 
+.dl-performance__dept-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary-700);
+  background: var(--color-primary-50, #f5f4ff);
+  border: 1px solid var(--color-primary-200, #d4cfff);
+  border-radius: 99px;
+  padding: 3px 12px;
+}
+
 .dl-performance__period {
   font-size: 13px;
   font-weight: 600;
@@ -88,16 +119,7 @@ function handleViewCapability(member) {
   padding: 3px 12px;
 }
 
-.dl-performance__charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
 @media (max-width: 960px) {
-  .dl-performance__charts {
-    grid-template-columns: 1fr;
-  }
   .dl-performance {
     padding: 20px 16px;
   }
