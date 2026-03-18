@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   evaluation: { type: Object, required: true },
@@ -21,17 +22,12 @@ function isHighlight(val) {
         <h3 class="qn__title">정량 평가 산출 내역</h3>
         <span class="qn__sub">설비 E_idx 보정 적용 기준</span>
       </div>
-      <div class="qn__tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab"
-          class="qn__tab"
-          :class="{ 'qn__tab--active': activeTab === tab }"
-          @click="activeTab = tab"
-        >
-          {{ tab }}
-        </button>
-      </div>
+      <BaseFilterTabs
+        v-model="activeTab"
+        :items="tabs"
+        variant="chip"
+        class="qn__tabs"
+      />
     </div>
 
     <!-- Formula steps -->
@@ -118,24 +114,7 @@ function isHighlight(val) {
   color: var(--color-text-muted);
 }
 
-.qn__tabs {
-  display: flex;
-  gap: 8px;
-}
-
-.qn__tab {
-  padding: 9px 20px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-default);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.qn__tab--active {
+.qn__tabs :deep(.base-filter-tabs__item--active) {
   background: var(--color-primary-800);
   color: var(--color-white);
   border-color: var(--color-primary-800);

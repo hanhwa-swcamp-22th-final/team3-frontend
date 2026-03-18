@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseFormModal } from '@/components/common/base'
 
 const props = defineProps({
   job: { type: Object, required: true },
@@ -32,114 +33,103 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div class="modal-overlay" @click.self="emit('close')">
-    <div class="fm">
+  <BaseFormModal
+    :show-close-button="false"
+    width="520px"
+    cancelText="닫기"
+    draftText="임시 저장"
+    confirmText="완료 보고 제출"
+    showDraftButton
+    @close="emit('close')"
+    @cancel="emit('close')"
+    @draft="emit('save-draft')"
+    @confirm="handleSubmit"
+  >
+    <template #header>
       <div class="fm__header">
         <h2 class="fm__title">작업 완료 보고</h2>
         <p class="fm__desc">
           완료 수량, 작업 이슈, 품질 체크 결과를 입력하면 작업 이력이 저장되고 TL/GL에게 즉시 공유됩니다.
         </p>
       </div>
+    </template>
 
-      <!-- Info row -->
-      <div class="fm__info">
-        <div class="fm__info-col">
-          <span class="fm__info-label">작업 번호</span>
-          <span class="fm__info-value">{{ job.orderCode }}</span>
-        </div>
-        <div class="fm__info-divider"></div>
-        <div class="fm__info-col">
-          <span class="fm__info-label">진행 시간</span>
-          <span class="fm__info-value">{{ job.elapsedTime || '—' }}</span>
-        </div>
-        <div class="fm__info-divider"></div>
-        <div class="fm__info-col">
-          <span class="fm__info-label">현재 진척률</span>
-          <span class="fm__info-value">{{ job.target ? Math.round((job.current / job.target) * 100) : 0 }}%</span>
-        </div>
+    <!-- Info row -->
+    <div class="fm__info">
+      <div class="fm__info-col">
+        <span class="fm__info-label">작업 번호</span>
+        <span class="fm__info-value">{{ job.orderCode }}</span>
       </div>
-
-      <!-- Quantity -->
-      <div class="fm__section">
-        <span class="fm__section-label">완료 수량 / 불량 수량</span>
-        <div class="fm__qty-row">
-          <div class="fm__qty-field">
-            <span class="fm__qty-prefix">완료</span>
-            <input v-model="completedQty" type="text" class="fm__input" placeholder="24EA" />
-          </div>
-          <span class="fm__qty-sep">/</span>
-          <div class="fm__qty-field">
-            <span class="fm__qty-prefix">불량</span>
-            <input v-model="defectQty" type="text" class="fm__input" placeholder="1EA" />
-          </div>
-        </div>
+      <div class="fm__info-divider"></div>
+      <div class="fm__info-col">
+        <span class="fm__info-label">진행 시간</span>
+        <span class="fm__info-value">{{ job.elapsedTime || '—' }}</span>
       </div>
-
-      <!-- Memo -->
-      <div class="fm__section">
-        <span class="fm__section-label">작업 메모</span>
-        <textarea
-          v-model="memo"
-          class="fm__textarea"
-          rows="3"
-          placeholder="작업 중 발생한 이슈나 특이사항을 기록해 주세요."
-        ></textarea>
-      </div>
-
-      <!-- Quality checks -->
-      <div class="fm__section">
-        <span class="fm__section-label">품질 체크</span>
-        <div class="fm__checks">
-          <div v-for="(item, i) in qualityChecks" :key="i" class="fm__check">
-            <span class="fm__check-text">{{ item.label }}</span>
-            <button
-              class="fm__check-btn"
-              :class="{ 'fm__check-btn--done': item.done }"
-              @click="toggleQuality(i)"
-            >
-              {{ item.btnLabel }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="fm__actions">
-        <button class="fm__btn fm__btn--draft" @click="emit('save-draft')">임시 저장</button>
-        <button class="fm__btn fm__btn--submit" @click="handleSubmit">완료 보고 제출</button>
+      <div class="fm__info-divider"></div>
+      <div class="fm__info-col">
+        <span class="fm__info-label">현재 진척률</span>
+        <span class="fm__info-value">{{ job.target ? Math.round((job.current / job.target) * 100) : 0 }}%</span>
       </div>
     </div>
-  </div>
+
+    <!-- Quantity -->
+    <div class="fm__section">
+      <span class="fm__section-label">완료 수량 / 불량 수량</span>
+      <div class="fm__qty-row">
+        <div class="fm__qty-field">
+          <span class="fm__qty-prefix">완료</span>
+          <input v-model="completedQty" type="text" class="fm__input" placeholder="24EA" />
+        </div>
+        <span class="fm__qty-sep">/</span>
+        <div class="fm__qty-field">
+          <span class="fm__qty-prefix">불량</span>
+          <input v-model="defectQty" type="text" class="fm__input" placeholder="1EA" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Memo -->
+    <div class="fm__section">
+      <span class="fm__section-label">작업 메모</span>
+      <textarea
+        v-model="memo"
+        class="fm__textarea"
+        rows="3"
+        placeholder="작업 중 발생한 이슈나 특이사항을 기록해 주세요."
+      ></textarea>
+    </div>
+
+    <!-- Quality checks -->
+    <div class="fm__section">
+      <span class="fm__section-label">품질 체크</span>
+      <div class="fm__checks">
+        <div v-for="(item, i) in qualityChecks" :key="i" class="fm__check">
+          <span class="fm__check-text">{{ item.label }}</span>
+          <button
+            class="fm__check-btn"
+            :class="{ 'fm__check-btn--done': item.done }"
+            @click="toggleQuality(i)"
+          >
+            {{ item.btnLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </BaseFormModal>
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.fm {
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+/* Override BaseModal header wrapper for full-bleed dark banner */
+:deep(.base-modal__head) {
+  display: block;
+  margin: -24px -24px 0;
+  padding: 0;
 }
 
 .fm__header {
   background: var(--color-primary-800);
-  margin: -32px -32px 0;
-  padding: 28px 32px;
-  border-radius: 20px 20px 0 0;
+  padding: 28px 24px;
+  border-radius: 22px 22px 0 0;
 }
 
 .fm__title {
@@ -297,32 +287,5 @@ function handleSubmit() {
   background: var(--color-success-soft);
   border-color: #bbf7d0;
   color: #166534;
-}
-
-/* ── Actions ────────────────────────────────────────────── */
-.fm__actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.fm__btn {
-  padding: 10px 28px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.fm__btn--draft {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  color: var(--color-text-default);
-}
-
-.fm__btn--submit {
-  background: var(--color-primary-800);
-  border: none;
-  color: var(--color-white);
 }
 </style>
