@@ -27,15 +27,13 @@ const filteredCards = computed(() => {
   <div class="kms-feed">
 
     <!-- 필터 탭 -->
-    <div class="filter-row">
-      <button
-        v-for="f in KMS_FILTERS"
-        :key="f.key"
-        class="filter-btn"
-        :class="selectedFilter === f.key ? 'filter-btn--active' : 'filter-btn--inactive'"
-        @click="emit('filterChange', f.key)"
-      >{{ f.key }}</button>
-    </div>
+    <BaseFilterTabs
+      :items="KMS_FILTERS"
+      :model-value="selectedFilter"
+      variant="chip"
+      class="kms-filter-tabs"
+      @change="emit('filterChange', $event)"
+    />
 
     <!-- 태그 필터 -->
     <div class="tag-row">
