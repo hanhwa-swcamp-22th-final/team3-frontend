@@ -6,13 +6,20 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  activePanelId: {
+    type: Number,
+    default: null,
+  },
   pageSize: {
     type: Number,
     default: 1,
   },
 })
 
+const emit = defineEmits(['quick-assign'])
+
 const currentPage = ref(1)
+const selectedCandidateId = ref(null)
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.panels.length / props.pageSize)))
 const currentPanel = computed(() => {
@@ -27,8 +34,52 @@ watch(
   }
 )
 
+watch(
+  () => props.activePanelId,
+  (panelId) => {
+    if (!panelId) {
+      return
+    }
+
+    const panelIndex = props.panels.findIndex((panel) => panel.id === panelId)
+
+    if (panelIndex === -1) {
+      return
+    }
+
+    currentPage.value = Math.floor(panelIndex / props.pageSize) + 1
+  },
+)
+
+watch(
+  currentPanel,
+  (panel) => {
+    selectedCandidateId.value = panel?.candidates?.[0]?.id ?? null
+  },
+  { immediate: true }
+)
+
 function goToPage(page) {
   currentPage.value = page
+}
+
+function selectCandidate(candidateId) {
+  selectedCandidateId.value = candidateId
+}
+
+function handleQuickAssign() {
+  if (!currentPanel.value || !currentPanel.value.candidates?.length) {
+    return
+  }
+
+  const selectedCandidate =
+    currentPanel.value.candidates.find((candidate) => candidate.id === selectedCandidateId.value) ??
+    currentPanel.value.candidates[0]
+
+  emit('quick-assign', {
+    panel: currentPanel.value,
+    candidate: selectedCandidate,
+  })
 }
 </script>
 
@@ -57,6 +108,8 @@ function goToPage(page) {
         v-for="candidate in currentPanel.candidates"
         :key="candidate.id"
         class="assist-panel__candidate"
+        :class="{ 'assist-panel__candidate--selected': candidate.id === selectedCandidateId }"
+        @click="selectCandidate(candidate.id)"
       >
         <div class="assist-panel__candidate-copy">
           <div class="assist-panel__avatar" :class="`assist-panel__avatar--${candidate.avatarTone}`">
@@ -82,7 +135,9 @@ function goToPage(page) {
       </button>
     </footer>
 
-    <button type="button" class="assist-panel__action">{{ currentPanel.actionLabel }}</button>
+    <button type="button" class="assist-panel__action" @click="handleQuickAssign">
+      {{ currentPanel.actionLabel }}
+    </button>
   </aside>
 </template>
 
@@ -160,6 +215,13 @@ function goToPage(page) {
   padding: 12px 14px;
   border: 1px solid #e7e1ff;
   border-radius: 12px;
+  cursor: pointer;
+}
+
+.assist-panel__candidate--selected {
+  border-color: #6557dd;
+  background: #f7f5ff;
+  box-shadow: 0 0 0 2px rgba(101, 87, 221, 0.1);
 }
 
 .assist-panel__candidate-copy {

@@ -6,7 +6,7 @@ const props = defineProps({
   selectedOrderId: { type: Number, default: null },
 })
 
-const emit = defineEmits(['select-order'])
+const emit = defineEmits(['select-order', 'assign-order'])
 
 const timelineHours = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']
 
@@ -101,7 +101,7 @@ function tierClass(tier) {
             <strong>{{ item.title }}</strong>
             <div class="alerts-card__item-bottom">
               <span>{{ item.helper }}</span>
-              <span class="alerts-card__assign">배정</span>
+              <span class="alerts-card__assign" @click.stop="emit('assign-order', item.id)">배정</span>
             </div>
           </button>
         </div>

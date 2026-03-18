@@ -6,6 +6,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  selectedItemId: {
+    type: Number,
+    default: null,
+  },
   pageSize: {
     type: Number,
     default: 4,
@@ -53,7 +57,10 @@ function handleClickAction(item) {
       v-for="item in paginatedItems"
       :key="item.id"
       class="base-notification-list__item"
-      :class="`base-notification-list__item--${item.tone}`"
+      :class="[
+        `base-notification-list__item--${item.tone}`,
+        { 'base-notification-list__item--selected': item.id === selectedItemId },
+      ]"
       @click="handleClickItem(item)"
     >
       <div class="base-notification-list__body">
@@ -117,6 +124,11 @@ function handleClickAction(item) {
   border-radius: 12px;
   background: #fff;
   cursor: pointer;
+}
+
+.base-notification-list__item--selected {
+  box-shadow: 0 0 0 3px rgba(101, 87, 221, 0.12);
+  transform: translateY(-1px);
 }
 
 .base-notification-list__item--fault {
