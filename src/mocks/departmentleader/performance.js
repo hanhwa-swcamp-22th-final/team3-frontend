@@ -1,4 +1,5 @@
 export const performanceSummary = {
+  deptName: '정밀가공 부서',
   totalMembers: 14,
   totalTeams: 4,
   evalCompleted: 12,
@@ -45,5 +46,5 @@ export const performanceMembers = [
 ]
 
 export const teamOptions = ['전체', '정밀가공 1팀', '정밀가공 2팀', '프레스라인팀', '용접팀']
-export const gradeOptions = ['전체', 'S', 'A', 'B', 'C', 'D']
+export const gradeOptions = ['전체', 'S', 'A', 'B', 'C']
 export const periodOptions = ['2026 1분기', '2025 4분기', '2025 3분기', '2025 2분기']

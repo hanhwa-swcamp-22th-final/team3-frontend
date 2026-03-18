@@ -2,12 +2,19 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  summary: { type: Object, required: true },
+  summary:      { type: Object, required: true },
+  teamTabs:     { type: Array,  default: () => [] },
+  selectedTeam: { type: String, default: '전체' },
 })
+
+const emit = defineEmits(['update:selectedTeam'])
 
 const progressPercent = computed(() =>
   Math.round((props.summary.evalCompleted / props.summary.evalTotal) * 100),
 )
+
+const avgLabel   = computed(() => props.selectedTeam === '전체' ? '부서 평균 점수' : '팀 평균 점수')
+const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동기 대비'  : '부서 평균 대비')
 </script>
 
 <template>
@@ -25,6 +32,16 @@ const progressPercent = computed(() =>
           <span class="dl-perf-summary__big">{{ summary.totalTeams }}<span class="dl-perf-summary__unit">팀</span></span>
           <span class="dl-perf-summary__sub">소속 팀</span>
         </div>
+      </div>
+      <!-- 팀 선택 탭 -->
+      <div class="dl-perf-summary__team-tabs">
+        <button
+          v-for="team in teamTabs"
+          :key="team"
+          class="dl-perf-summary__team-tab"
+          :class="{ 'dl-perf-summary__team-tab--active': selectedTeam === team }"
+          @click="emit('update:selectedTeam', team)"
+        >{{ team }}</button>
       </div>
     </div>
 
@@ -45,9 +62,9 @@ const progressPercent = computed(() =>
       <p class="dl-perf-summary__period">{{ summary.period }}</p>
     </div>
 
-    <!-- 부서 평균 점수 -->
+    <!-- 평균 점수 -->
     <div class="dl-perf-summary__card">
-      <p class="dl-perf-summary__label">부서 평균 점수</p>
+      <p class="dl-perf-summary__label">{{ avgLabel }}</p>
       <span class="dl-perf-summary__big dl-perf-summary__big--primary">
         {{ summary.deptAvg }}<span class="dl-perf-summary__unit">점</span>
       </span>
@@ -55,7 +72,7 @@ const progressPercent = computed(() =>
         class="dl-perf-summary__delta"
         :class="summary.deptAvgDelta >= 0 ? 'dl-perf-summary__delta--up' : 'dl-perf-summary__delta--down'"
       >
-        {{ summary.deptAvgDelta >= 0 ? '▲' : '▼' }} {{ Math.abs(summary.deptAvgDelta) }} 전년 동기 대비
+        {{ summary.deptAvgDelta >= 0 ? '▲' : '▼' }} {{ Math.abs(summary.deptAvgDelta) }} {{ deltaLabel }}
       </span>
     </div>
   </section>
@@ -124,6 +141,33 @@ const progressPercent = computed(() =>
 .dl-perf-summary__sub {
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+/* 팀 선택 탭 */
+.dl-perf-summary__team-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.dl-perf-summary__team-tab {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.dl-perf-summary__team-tab--active {
+  background: var(--color-primary-600);
+  color: #fff;
+  border-color: var(--color-primary-600);
 }
 
 /* 진행률 */

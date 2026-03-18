@@ -8,7 +8,7 @@ const props = defineProps({
   periodOptions: { type: Array, default: () => [] },
 })
 
-const emit = defineEmits(['view-capability'])
+const emit = defineEmits(['view-capability', 'go-evaluation'])
 
 const filterPeriod = ref(props.periodOptions[0] ?? '')
 const filterTeam   = ref('전체')
@@ -55,7 +55,7 @@ function closeDetail()      { selectedMember.value = null }
         <option v-for="p in periodOptions" :key="p" :value="p">{{ p }}</option>
       </select>
       <select v-model="filterTeam" class="dl-filter-select">
-        <option v-for="t in teamOptions" :key="t" :value="t">{{ t }}</option>
+        <option v-for="t in teamOptions" :key="t" :value="t">팀: {{ t }}</option>
       </select>
       <select v-model="filterGrade" class="dl-filter-select">
         <option v-for="g in gradeOptions" :key="g" :value="g">등급: {{ g }}</option>
@@ -78,13 +78,12 @@ function closeDetail()      { selectedMember.value = null }
         <thead>
           <tr>
             <th>사번</th>
+            <th>등급</th>
             <th>이름</th>
-            <th>직급</th>
             <th>소속팀</th>
             <th>정량</th>
             <th>정성</th>
             <th>총점</th>
-            <th>등급</th>
             <th>평가 상태</th>
           </tr>
         </thead>
@@ -96,18 +95,17 @@ function closeDetail()      { selectedMember.value = null }
             @click="openDetail(m)"
           >
             <td class="dl-perf-table__empid">{{ m.empId }}</td>
-            <td class="dl-perf-table__name">{{ m.name }}</td>
-            <td>{{ m.position }}</td>
-            <td>{{ m.team }}</td>
-            <td class="dl-perf-table__score">{{ m.quantitative }}</td>
-            <td class="dl-perf-table__score">{{ m.qualitative }}</td>
-            <td class="dl-perf-table__total">{{ m.total }}</td>
             <td>
               <span
                 class="dl-perf-table__grade"
                 :style="{ background: gradeColors[m.grade]?.bg, color: gradeColors[m.grade]?.text }"
               >{{ m.grade }}</span>
             </td>
+            <td class="dl-perf-table__name">{{ m.name }}</td>
+            <td>{{ m.team }}</td>
+            <td class="dl-perf-table__score">{{ m.quantitative }}</td>
+            <td class="dl-perf-table__score">{{ m.qualitative }}</td>
+            <td class="dl-perf-table__total">{{ m.total }}</td>
             <td>
               <span class="dl-perf-table__status" :style="{ color: statusColors[m.status]?.color }">
                 {{ m.status }}
@@ -115,7 +113,7 @@ function closeDetail()      { selectedMember.value = null }
             </td>
           </tr>
           <tr v-if="filtered.length === 0">
-            <td colspan="9" class="dl-perf-table__empty">검색 결과가 없습니다.</td>
+            <td colspan="8" class="dl-perf-table__empty">검색 결과가 없습니다.</td>
           </tr>
         </tbody>
       </table>
@@ -139,7 +137,7 @@ function closeDetail()      { selectedMember.value = null }
                 :style="{ background: gradeColors[selectedMember.grade]?.bg, color: gradeColors[selectedMember.grade]?.text }"
               >{{ selectedMember.grade }}</span>
             </div>
-            <span class="dl-detail-modal__meta">{{ selectedMember.position }} · {{ selectedMember.team }} · {{ selectedMember.empId }}</span>
+            <span class="dl-detail-modal__meta">{{ selectedMember.team }} · {{ selectedMember.empId }}</span>
           </div>
         </div>
 
@@ -167,6 +165,13 @@ function closeDetail()      { selectedMember.value = null }
 
         <div class="dl-detail-modal__actions">
           <button class="dl-detail-modal__btn dl-detail-modal__btn--secondary" @click="closeDetail">닫기</button>
+          <button
+            v-if="selectedMember.status !== '완료'"
+            class="dl-detail-modal__btn dl-detail-modal__btn--warn"
+            @click="emit('go-evaluation', selectedMember); closeDetail()"
+          >
+            2차 평가 작성 →
+          </button>
           <button
             class="dl-detail-modal__btn dl-detail-modal__btn--primary"
             @click="emit('view-capability', selectedMember); closeDetail()"
@@ -434,5 +439,11 @@ function closeDetail()      { selectedMember.value = null }
 .dl-detail-modal__btn--primary {
   background: var(--color-primary-600);
   color: #fff;
+}
+
+.dl-detail-modal__btn--warn {
+  background: #fff4e6;
+  color: #c47a00;
+  border: 1px solid #f4c54b;
 }
 </style>
