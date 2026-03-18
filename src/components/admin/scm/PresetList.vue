@@ -64,7 +64,7 @@ const emit = defineEmits(['select'])
   flex-shrink: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 21px;
   display: flex;
   flex-direction: column;
@@ -77,7 +77,7 @@ const emit = defineEmits(['select'])
 .section-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   margin-bottom: 4px;
   flex-shrink: 0;
 }
@@ -92,7 +92,7 @@ const emit = defineEmits(['select'])
   height: 66px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -104,7 +104,7 @@ const emit = defineEmits(['select'])
 }
 
 .preset-item:not(.preset-item--active):hover {
-  background: #f5f3ff;
+  background: var(--color-primary-50);
 }
 
 /* 아이콘 박스 */
@@ -112,7 +112,7 @@ const emit = defineEmits(['select'])
   width: 36px;
   height: 36px;
   background: var(--color-bg-app);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,15 +144,15 @@ const emit = defineEmits(['select'])
 
 .item-desc {
   font-size: 10px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 /* 적용중 배지 */
 .badge-active {
   font-size: 10px;
   font-weight: 700;
-  color: #007a60;
-  background: #e3fbef;
+  color: var(--color-equip-active);
+  background: var(--color-equip-active-bg);
   border-radius: 4px;
   padding: 3px 8px;
   flex-shrink: 0;
@@ -163,7 +163,7 @@ const emit = defineEmits(['select'])
   margin-top: 4px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 13px;
   display: flex;
   flex-direction: column;
@@ -174,7 +174,7 @@ const emit = defineEmits(['select'])
 .compare-title {
   font-size: 10px;
   font-weight: 700;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 .compare-grid {
@@ -192,13 +192,13 @@ const emit = defineEmits(['select'])
 
 .compare-col-label {
   font-size: 10px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
   margin-bottom: 2px;
 }
 
 .compare-row {
   font-size: 10px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   line-height: 17px;
 }
 </style>

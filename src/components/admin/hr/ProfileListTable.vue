@@ -123,12 +123,12 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .section {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 20px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .section-title {

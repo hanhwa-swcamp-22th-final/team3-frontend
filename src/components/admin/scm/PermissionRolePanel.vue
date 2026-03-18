@@ -46,27 +46,27 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .role-panel {
   width: 384px;
   flex-shrink: 0;
-  background: #fff;
-  border: 1.5px solid #E0DCFF;
-  border-radius: 12px;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-base);
   padding: 21px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .panel-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7A6FA8;
+  color: var(--color-text-secondary);
 }
 
 .role-card {
-  background: #F0EEFF;
-  border: 1.5px solid #E0DCFF;
-  border-radius: 8px;
+  background: var(--color-primary-100);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -76,19 +76,19 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .role-card-title {
   font-size: 13px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   line-height: 1.6;
 }
 
 .role-card-desc {
   font-size: 11px;
-  color: #7A6FA8;
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
 .section-label {
   font-size: 11px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
 }
 
 .account-list {
@@ -101,9 +101,9 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #FAFBFF;
-  border: 1.5px solid #E0DCFF;
-  border-radius: 6px;
+  background: var(--color-bg-app);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-2xs);
   padding: 0 13px;
   height: 58px;
 }
@@ -111,14 +111,14 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .account-avatar {
   width: 28px;
   height: 28px;
-  background: #2D1F6E;
+  background: var(--color-primary-800);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 900;
-  color: #fff;
+  color: var(--color-white);
   flex-shrink: 0;
 }
 
@@ -132,23 +132,23 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .account-name {
   font-size: 12px;
   font-weight: 700;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
 }
 
 .account-team {
   font-size: 11px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
 }
 
 .account-status {
   font-size: 11px;
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .level-box {
-  background: #FAFBFF;
-  border: 1.5px solid #E0DCFF;
-  border-radius: 8px;
+  background: var(--color-bg-app);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -157,7 +157,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 
 .level-label {
   font-size: 10px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -165,14 +165,14 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .level-bar-bg {
   width: 100%;
   height: 8px;
-  background: #E0DCFF;
+  background: var(--color-border-default);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .level-bar-fill {
   height: 100%;
-  background: #5B4FCF;
+  background: var(--color-primary-600);
   border-radius: 4px;
   transition: width 0.3s;
 }
@@ -181,6 +181,6 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   display: flex;
   justify-content: space-between;
   font-size: 10px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
 }
 </style>

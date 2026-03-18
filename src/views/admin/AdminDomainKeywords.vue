@@ -122,7 +122,7 @@ const onDeleteClick = (id) => {
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: var(--font-family-base);
+
 }
 
 /* 헤더 */
@@ -148,7 +148,7 @@ const onDeleteClick = (id) => {
 
 .page-desc {
   font-size: 13px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -157,11 +157,11 @@ const onDeleteClick = (id) => {
   padding: 0 20px;
   background: var(--color-primary-600);
   border: 1px solid var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -178,7 +178,7 @@ const onDeleteClick = (id) => {
 
 .pagination-info {
   font-size: 12px;
-  color: #7a6fa8; /* --color-text-sub 없음, 유지 */
+  color: var(--color-text-secondary);
 }
 
 .pagination-btns {
@@ -195,8 +195,8 @@ const onDeleteClick = (id) => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
-  font-family: var(--font-family-base);
+  color: var(--color-text-secondary);
+
   cursor: pointer;
   display: flex;
   align-items: center;

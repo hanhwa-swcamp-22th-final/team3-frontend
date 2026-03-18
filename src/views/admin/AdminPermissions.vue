@@ -151,14 +151,14 @@ const onCancelSave = () => {
   height: calc(100vh - 58px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .tab-bar {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 1.5px solid #E0DCFF;
+  border-bottom: 1.5px solid var(--color-border-default);
   flex-shrink: 0;
   height: 43px;
 }
@@ -174,7 +174,7 @@ const onCancelSave = () => {
   align-items: center;
   font-size: 13px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
   cursor: pointer;
   border-bottom: 1.5px solid transparent;
   margin-bottom: -1.5px;
@@ -183,8 +183,8 @@ const onCancelSave = () => {
 }
 
 .tab--active {
-  color: #5B4FCF;
-  border-bottom-color: #5B4FCF;
+  color: var(--color-primary-600);
+  border-bottom-color: var(--color-primary-600);
 }
 
 .actions {
@@ -196,27 +196,27 @@ const onCancelSave = () => {
 
 .badge-pending {
   padding: 5px 12px;
-  background: #FFD166;
+  background: var(--tier-b);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #A07000;
+  color: var(--color-warning-text);
 }
 
 .btn-save {
   height: 28px;
   padding: 0 19px;
-  background: #5B4FCF;
-  border: 1.5px solid #7F75DB;
+  background: var(--color-primary-600);
+  border: 1.5px solid var(--color-primary-400);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
-.btn-save:hover { background: #4A3FB0; }
+.btn-save:hover { background: var(--color-primary-700); }
 
 .btn-save-wrap {
   position: relative;
@@ -227,9 +227,9 @@ const onCancelSave = () => {
   top: calc(100% + 8px);
   right: 0;
   width: 360px;
-  background: #fff;
-  border: 1.5px solid #E0DCFF;
-  border-radius: 8px;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
   box-shadow: 0 4px 16px rgba(45, 31, 110, 0.1);
   z-index: 100;
   overflow: hidden;
@@ -246,45 +246,45 @@ const onCancelSave = () => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  background: #F0EEFF;
+  background: var(--color-primary-100);
   font-size: 12px;
   font-weight: 700;
-  color: #5B4FCF;
+  color: var(--color-primary-600);
 }
 
 .change-log__close {
   cursor: pointer;
   font-size: 11px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
 }
 
-.change-log__close:hover { color: #5B4FCF; }
+.change-log__close:hover { color: var(--color-primary-600); }
 
 .change-log__item {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-bottom: 1px solid #EEEBFF;
+  border-bottom: 1px solid var(--color-border-row);
   font-size: 11px;
 }
 
 .change-log__item:last-child { border-bottom: none; }
 
 .log-category {
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
   flex-shrink: 0;
 }
 
 .log-feature {
-  color: #2D1F6E;
+  color: var(--color-primary-800);
   font-weight: 700;
   flex: 1;
 }
 
 .log-role {
-  background: #F0EEFF;
-  color: #5B4FCF;
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
@@ -301,39 +301,39 @@ const onCancelSave = () => {
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 14px;
-  border-top: 1.5px solid #EEEBFF;
-  background: #FAFBFF;
+  border-top: 1.5px solid var(--color-border-row);
+  background: var(--color-bg-app);
 }
 
 .btn-cancel-save {
   height: 28px;
   padding: 0 16px;
-  background: #fff;
-  border: 1.5px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
-.btn-cancel-save:hover { background: #F0EEFF; color: #5B4FCF; }
+.btn-cancel-save:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
 
 .btn-confirm-save {
   height: 28px;
   padding: 0 16px;
-  background: #5B4FCF;
-  border: 1.5px solid #7F75DB;
+  background: var(--color-primary-600);
+  border: 1.5px solid var(--color-primary-400);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
-.btn-confirm-save:hover { background: #4A3FB0; }
+.btn-confirm-save:hover { background: var(--color-primary-700); }
 
 .panels {
   display: flex;

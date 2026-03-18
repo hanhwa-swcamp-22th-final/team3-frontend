@@ -41,6 +41,5 @@ const onSave   = ()   => { presets.value.forEach(p => { p.active = p.id === sele
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: var(--font-family-base);
 }
 </style>

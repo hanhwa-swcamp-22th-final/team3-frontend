@@ -40,7 +40,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  font-family: var(--font-family-base);
+
 }
 
 .search-input {
@@ -49,16 +49,16 @@ const onBlur    = ()  => emit('search', localSearch.value)
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   box-sizing: border-box;
   flex-shrink: 0;
 }
 
-.search-input::placeholder { color: #a89ed8; }
+.search-input::placeholder { color: var(--color-text-placeholder); }
 .search-input:focus { border-color: var(--color-primary-600); }
 
 .category-select {
@@ -67,10 +67,10 @@ const onBlur    = ()  => emit('search', localSearch.value)
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   cursor: pointer;
   flex-shrink: 0;

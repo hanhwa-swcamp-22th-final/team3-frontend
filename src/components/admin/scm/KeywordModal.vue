@@ -93,18 +93,18 @@ const handleSave = () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(45, 31, 110, 0.2);
+  background: var(--color-overlay-primary-soft);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  font-family: var(--font-family-base);
+
 }
 
 .modal {
   width: 480px;
   background: var(--color-bg-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   box-shadow: 0 20px 60px rgba(45, 31, 110, 0.2);
   display: flex;
   flex-direction: column;
@@ -130,7 +130,7 @@ const handleSave = () => {
   background: none;
   border: none;
   font-size: 18px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -169,34 +169,34 @@ select {
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   box-sizing: border-box;
 }
 
-input::placeholder { color: #a89ed8; }
+input::placeholder { color: var(--color-text-placeholder); }
 input:focus, select:focus { border-color: var(--color-primary-600); }
-select.select-placeholder { color: #a89ed8; }
+select.select-placeholder { color: var(--color-text-placeholder); }
 
 textarea {
   height: 60px;
   padding: 10px 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
-  font-family: var(--font-family-base);
+
   outline: none;
   resize: none;
   box-sizing: border-box;
   width: 100%;
 }
 
-textarea::placeholder { color: #a89ed8; }
+textarea::placeholder { color: var(--color-text-placeholder); }
 textarea:focus { border-color: var(--color-primary-600); }
 
 /* 푸터 */
@@ -212,11 +212,11 @@ textarea:focus { border-color: var(--color-primary-600); }
   height: 36px;
   background: var(--color-primary-100);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-primary-600);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 
@@ -227,11 +227,11 @@ textarea:focus { border-color: var(--color-primary-600); }
   height: 36px;
   background: var(--color-primary-600);
   border: 1px solid var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 

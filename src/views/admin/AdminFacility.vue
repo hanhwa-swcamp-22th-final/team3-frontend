@@ -119,7 +119,6 @@ const onSave = (fac) => {
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
 }
 
 

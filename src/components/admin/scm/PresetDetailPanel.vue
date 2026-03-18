@@ -81,7 +81,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   min-width: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 25px;
   display: flex;
   flex-direction: column;
@@ -94,7 +94,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .panel-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
@@ -102,7 +102,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .block {
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 17px;
   display: flex;
   flex-direction: column;
@@ -112,7 +112,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .block-title {
   font-size: 11px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   margin-bottom: 10px;
 }
 
@@ -122,23 +122,23 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   display: flex;
   align-items: center;
   height: 34px;
-  border-bottom: 1.5px solid #eeebff;
+  border-bottom: 1.5px solid var(--color-border-row);
 }
 
 .table-header span {
   font-size: 11px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .table-row span {
   font-size: 11px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .stage-label {
   color: var(--color-primary-600) !important;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
 }
 
 .col-stage     { width: 140px; flex-shrink: 0; padding-left: 12px; }
@@ -151,7 +151,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   display: flex;
   align-items: center;
   height: 32px;
-  border-bottom: 1.5px solid #eeebff;
+  border-bottom: 1.5px solid var(--color-border-row);
   gap: 8px;
 }
 
@@ -159,7 +159,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   width: 80px;
   flex-shrink: 0;
   font-size: 11px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .weight-bar-wrap {
@@ -180,14 +180,14 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   text-align: right;
   font-size: 11px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
 .weight-sum {
   font-size: 12px;
   font-weight: 700;
-  color: #00bf95;
+  color: var(--tier-s);
   text-align: right;
   margin-top: 8px;
 }
@@ -209,8 +209,8 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .badge-applied {
   font-size: 12px;
   font-weight: 700;
-  color: #007a60;
-  background: #e3fbef;
+  color: var(--color-equip-active);
+  background: var(--color-equip-active-bg);
   border-radius: 4px;
   padding: 4px 12px;
 }
@@ -224,7 +224,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   font-size: 12px;
   font-weight: 700;
   color: var(--color-bg-surface);
-  font-family: var(--font-family-base);
+
   cursor: pointer;
 }
 
@@ -235,7 +235,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   align-items: center;
   gap: 12px;
   height: 32px;
-  border-bottom: 1.5px solid #eeebff;
+  border-bottom: 1.5px solid var(--color-border-row);
 }
 
 .tier-badge {
@@ -253,6 +253,6 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .tier-desc {
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 </style>

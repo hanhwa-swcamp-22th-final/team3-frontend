@@ -116,10 +116,10 @@ const PARAMS = [
 .section {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 20px;
   flex: 1;
-  font-family: 'Pretendard', sans-serif;
+
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -143,7 +143,7 @@ const PARAMS = [
 /* 공식 박스 */
 .formula-box {
   background: var(--color-primary-800);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -152,19 +152,19 @@ const PARAMS = [
 
 .formula-box__label {
   font-size: 10px;
-  color: rgba(255,255,255,0.5);
+  color: var(--color-text-on-dark);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .formula-box__formula {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 13px;
-  color: #00BF95;
+  color: var(--tier-s);
 }
 
 .formula-box__divider {
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid var(--color-border-on-dark);
 }
 
 .formula-box__metrics {
@@ -181,29 +181,29 @@ const PARAMS = [
 }
 
 .metric--border {
-  border-left: 1px solid rgba(255,255,255,0.1);
-  border-right: 1px solid rgba(255,255,255,0.1);
+  border-left: 1px solid var(--color-border-on-dark);
+  border-right: 1px solid var(--color-border-on-dark);
 }
 
 .metric__label {
   font-size: 10px;
-  color: rgba(255,255,255,0.5);
+  color: var(--color-text-on-dark);
 }
 
 .metric__value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 13px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--color-white);
 }
 
-.metric__value--yellow { color: #FFD166; }
+.metric__value--yellow { color: var(--tier-b); }
 .metric__value--purple { color: var(--color-primary-600); }
 
 .formula-box__result {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 11px;
-  color: #00BF95;
+  color: var(--tier-s);
   text-align: center;
 }
 
@@ -235,7 +235,7 @@ const PARAMS = [
 }
 
 .param-row__value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 12px;
   color: var(--color-primary-300);
 }
@@ -244,7 +244,7 @@ const PARAMS = [
 .sim-box {
   background: var(--color-bg-app);
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -266,7 +266,7 @@ const PARAMS = [
 .sim-card {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
@@ -281,7 +281,7 @@ const PARAMS = [
 }
 
 .sim-card__score {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 20px;
   font-weight: 700;
 }

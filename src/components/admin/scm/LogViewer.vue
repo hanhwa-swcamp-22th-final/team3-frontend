@@ -33,13 +33,13 @@ defineProps({
   display: flex;
   flex-direction: column;
   padding: 16px;
-  background: #1a1035;
-  border-radius: 8px;
+  background: var(--color-bg-terminal);
+  border-radius: var(--radius-xs);
   flex: 1;
   overflow-y: auto;
   min-height: 0;
   gap: 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
 }
 
 .log-row {
@@ -54,7 +54,7 @@ defineProps({
 .log-time {
   font-size: 11px;
   font-weight: 400;
-  color: #5b8bff;
+  color: var(--color-log-time);
   width: 93px;
   flex-shrink: 0;
 }
@@ -71,7 +71,7 @@ defineProps({
 .log-message {
   font-size: 11px;
   font-weight: 400;
-  color: #d8e2ff;
+  color: var(--color-log-message);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -79,7 +79,7 @@ defineProps({
 
 .log-empty {
   font-size: 12px;
-  color: #5b4fcf;
+  color: var(--color-primary-600);
   text-align: center;
   padding: 40px 0;
 }

@@ -20,7 +20,7 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
   display: flex;
   gap: 12px;
   flex-shrink: 0;
-  font-family: 'Pretendard', sans-serif;
+
 }
 
 .service-card {
@@ -28,21 +28,21 @@ import { SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
   flex-direction: column;
   gap: 8px;
   padding: 13.5px 15.5px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
-  border-radius: 12px;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-base);
   flex: 1;
 }
 
 .card-label {
   font-size: 10px;
   font-weight: 400;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
   text-transform: uppercase;
 }
 
 .card-value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-family-mono);
   font-size: 18px;
   font-weight: 700;
   line-height: 24px;
