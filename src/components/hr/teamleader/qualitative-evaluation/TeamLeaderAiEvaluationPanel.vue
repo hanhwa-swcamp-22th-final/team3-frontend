@@ -5,6 +5,8 @@ defineProps({
     required: true,
   },
 })
+
+const emit = defineEmits(['update:converted-text'])
 </script>
 
 <template>
@@ -36,7 +38,11 @@ defineProps({
       변환 결과는 초안으로만 사용하고 아래 패널에서 최종 평가 문장을 직접 수정하세요.
     </div>
 
-    <textarea class="evaluation-form-panel__editor" :value="selectedTarget.convertedText"></textarea>
+    <textarea
+      class="evaluation-form-panel__editor"
+      :value="selectedTarget.convertedText"
+      @input="emit('update:converted-text', $event.target.value)"
+    ></textarea>
 
     <div class="evaluation-form-panel__recording-zone">
       <div class="evaluation-form-panel__recording-ring">

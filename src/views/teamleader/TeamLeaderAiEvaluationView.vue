@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import TeamLeaderAiEvaluationTargetList from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationTargetListWrapper.vue'
 import TeamLeaderAiEvaluationPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationPanel.vue'
 import TeamLeaderAiEvaluationActionBar from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationActionBar.vue'
@@ -7,6 +7,16 @@ import { aiEvaluationSearchPlaceholder, aiEvaluationTargets, aiEvaluationSelecte
 
 const searchQuery = ref('')
 const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
+
+function buildConvertedText(target) {
+  return aiEvaluationSelectedTarget.convertedText.replaceAll('김신우', target.name)
+}
+
+const evaluationDrafts = reactive(
+  Object.fromEntries(
+    aiEvaluationTargets.map((target) => [String(target.id), buildConvertedText(target)]),
+  ),
+)
 
 const filteredTargets = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
@@ -48,12 +58,20 @@ const selectedTarget = computed(() => {
     ...aiEvaluationSelectedTarget,
     voiceLabel: `${target.name} 음성 초안 작성`,
     voiceDescription: `${target.name} (${target.code}) 평가 내용을 음성으로 작성하고 텍스트로 변환할 수 있습니다.`,
-    convertedText: aiEvaluationSelectedTarget.convertedText.replaceAll('김신우', target.name),
+    convertedText: evaluationDrafts[String(target.id)] ?? buildConvertedText(target),
   }
 })
 
 function handleSelectTarget(targetId) {
   selectedTargetId.value = targetId
+}
+
+function handleUpdateConvertedText(value) {
+  if (!selectedTargetId.value) {
+    return
+  }
+
+  evaluationDrafts[selectedTargetId.value] = value
 }
 </script>
 
@@ -70,7 +88,10 @@ function handleSelectTarget(targetId) {
       />
 
       <div class="teamleader-ai-evaluation-view__form">
-        <TeamLeaderAiEvaluationPanel :selected-target="selectedTarget" />
+        <TeamLeaderAiEvaluationPanel
+          :selected-target="selectedTarget"
+          @update:converted-text="handleUpdateConvertedText"
+        />
         <TeamLeaderAiEvaluationActionBar />
       </div>
     </section>
