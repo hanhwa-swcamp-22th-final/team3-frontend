@@ -1,10 +1,10 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/teamleader/scm/TeamLeaderScmSummaryCard.vue'
-import TeamLeaderScmFilterBar from '@/components/teamleader/scm/TeamLeaderScmFilterBar.vue'
-import TeamLeaderScmPipelineBoard from '@/components/teamleader/scm/TeamLeaderScmPipelineBoard.vue'
-import TeamLeaderScmUrgentPanel from '@/components/teamleader/scm/TeamLeaderScmUrgentPanel.vue'
-import TeamLeaderScmLineSummaryCard from '@/components/teamleader/scm/TeamLeaderScmLineSummaryCard.vue'
+import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import TeamLeaderScmFilterBar from '@/components/scm/teamleader/order-status/TeamLeaderScmFilterBar.vue'
+import TeamLeaderScmPipelineBoard from '@/components/scm/teamleader/order-status/TeamLeaderScmPipelineBoard.vue'
+import TeamLeaderScmUrgentPanel from '@/components/scm/teamleader/order-status/TeamLeaderScmUrgentPanel.vue'
+import TeamLeaderScmLineSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmLineSummaryCard.vue'
 import { scmSummaryCards, scmFilters, scmBaseColumns, scmUrgentOrders, scmLineSummaries } from '@/mocks/teamleader/scmOrders'
 
 const activeFilter = ref('all')

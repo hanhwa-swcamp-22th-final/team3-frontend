@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import DepartmentLeaderNotificationList from '@/components/departmentleader/hr/DepartmentLeaderNotificationList.vue'
+import DepartmentLeaderNotificationList from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationList.vue'
 import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
 const totalCount   = computed(() => notificationItems.length)

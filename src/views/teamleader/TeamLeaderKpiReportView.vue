@@ -1,8 +1,8 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderKpiSummaryCard from '@/components/teamleader/hr/TeamLeaderKpiSummaryCard.vue'
-import TeamLeaderKpiMemberTable from '@/components/teamleader/hr/TeamLeaderKpiMemberTable.vue'
-import TeamLeaderKpiTrendPanel from '@/components/teamleader/hr/TeamLeaderKpiTrendPanel.vue'
+import TeamLeaderKpiSummaryCard from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiSummaryCard.vue'
+import TeamLeaderKpiMemberTable from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiMemberTable.vue'
+import TeamLeaderKpiTrendPanel from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiTrendPanel.vue'
 import { kpiSummaryCards, kpiRows, kpiTrendPanelMap } from '@/mocks/teamleader/kpiReport'
 
 const selectedMemberId = ref(1)

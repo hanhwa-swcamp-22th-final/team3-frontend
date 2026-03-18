@@ -1,6 +1,6 @@
 /**
  * Mock data for Worker My Knowledge Management (KMS)
- * Used by MyKnowledgeManagementView.vue
+ * Used by WorkerMyKnowledgeManagementView.vue
  */
 
 export const knowledgeOverallCount = {

@@ -1,14 +1,14 @@
 ﻿<script setup>
 import { computed, reactive, ref } from 'vue'
-import TeamLeaderKnowledgeHubHeader from '@/components/teamleader/kms/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/teamleader/kms/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubContributors from '@/components/teamleader/kms/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubMentoring from '@/components/teamleader/kms/TeamLeaderKnowledgeHubMentoring.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/teamleader/kms/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeWriteModal from '@/components/teamleader/kms/TeamLeaderKnowledgeWriteModal.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/teamleader/kms/TeamLeaderKnowledgeDetailModal.vue'
-import TeamLeaderKnowledgeMentoringReviewModal from '@/components/teamleader/kms/TeamLeaderKnowledgeMentoringReviewModal.vue'
-import TeamLeaderKnowledgeMentoringRequestModal from '@/components/teamleader/kms/TeamLeaderKnowledgeMentoringRequestModal.vue'
+import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
+import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
+import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
+import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
+import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
+import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModal.vue'
+import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModal.vue'
+import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModal.vue'
 import {
   knowledgeHubSummaryCards,
   knowledgeHubCategories,

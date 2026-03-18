@@ -1,6 +1,6 @@
 /**
  * Mock data for Worker Today's Task (SCM)
- * Used by TodayTaskView.vue
+ * Used by WorkerTodayTaskView.vue
  */
 export const todayJobs = [
   {

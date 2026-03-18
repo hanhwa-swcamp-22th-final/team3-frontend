@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
-import WorkerNoticeList from '@/components/worker/hr/WorkerNoticeList.vue'
-import WorkerNoticeDetail from '@/components/worker/hr/WorkerNoticeDetail.vue'
+import WorkerNoticeList from '@/components/hr/common/notices/WorkerNoticeList.vue'
+import WorkerNoticeDetail from '@/components/hr/common/notices/WorkerNoticeDetail.vue'
 import { dlNotices } from '@/mocks/departmentleader/noticeData'
 
 const notices = ref(dlNotices)

@@ -2,11 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { API_BASE } from '@/constants'
-import WorkerNotificationBanner from '@/components/worker/dashboard/WorkerNotificationBanner.vue'
-import WorkerOverallStatusCard from '@/components/worker/dashboard/WorkerOverallStatusCard.vue'
-import WorkerSkillsRadarChart from '@/components/worker/dashboard/WorkerSkillsRadarChart.vue'
-import WorkerTierGrowthHistory from '@/components/worker/dashboard/WorkerTierGrowthHistory.vue'
-import WorkerMissionBoard from '@/components/worker/dashboard/WorkerMissionBoard.vue'
+import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
+import WorkerOverallStatusCard from '@/components/dashboard/worker/WorkerOverallStatusCard.vue'
+import WorkerSkillsRadarChart from '@/components/dashboard/worker/WorkerSkillsRadarChart.vue'
+import WorkerTierGrowthHistory from '@/components/dashboard/worker/WorkerTierGrowthHistory.vue'
+import WorkerMissionBoard from '@/components/dashboard/worker/WorkerMissionBoard.vue'
 const authStore = useAuthStore()
 
 const loading = ref(true)

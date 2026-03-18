@@ -1,9 +1,9 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/teamleader/scm/TeamLeaderScmSummaryCard.vue'
-import TeamLeaderOcsaOrderList from '@/components/teamleader/scm/TeamLeaderOcsaOrderList.vue'
-import TeamLeaderOcsaDetailPanel from '@/components/teamleader/scm/TeamLeaderOcsaDetailPanel.vue'
-import TeamLeaderOcsaTechnicianList from '@/components/teamleader/scm/TeamLeaderOcsaTechnicianList.vue'
+import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import TeamLeaderOcsaOrderList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaOrderList.vue'
+import TeamLeaderOcsaDetailPanel from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaDetailPanel.vue'
+import TeamLeaderOcsaTechnicianList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaTechnicianList.vue'
 import { ocsaSummaryCards, ocsaFilterConfigs, ocsaOrders, ocsaDetailMap, ocsaTechnicianRecommendationMap } from '@/mocks/teamleader/ocsaScore'
 
 const activeFilter = ref('all')

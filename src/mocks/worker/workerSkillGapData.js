@@ -1,6 +1,6 @@
 /**
  * Mock data for Worker Skill Gap Analysis (KMS)
- * Used by SkillGapView.vue
+ * Used by WorkerSkillGapView.vue
  */
 
 export const skillGapSkills = [

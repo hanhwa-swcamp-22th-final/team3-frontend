@@ -4,8 +4,8 @@ import {
   mockNotices, nextId,
   STATUS_STYLE, FILTER_TABS,
 } from '@/mocks/hrmanager/noticeboard.js'
-import HRMNoticeTeamFilter  from '@/components/hrmanager/hr/HRMNoticeTeamFilter.vue'
-import HRMNoticeFormModal   from '@/components/hrmanager/hr/HRMNoticeFormModal.vue'
+import HRMNoticeTeamFilter  from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
+import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'
 
 const notices    = ref([...mockNotices])
 const activeTab  = ref('')          // '' = 전체

@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
-import HRMMetricCard       from '@/components/hrmanager/dashboard/HRMMetricCard.vue'
-import HRMKpiTeamBarChart   from '@/components/hrmanager/kpi/HRMKpiTeamBarChart.vue'
-import HRMKpiTierTrendChart from '@/components/hrmanager/kpi/HRMKpiTierTrendChart.vue'
-import HRMKpiCompletionDonut from '@/components/hrmanager/kpi/HRMKpiCompletionDonut.vue'
-import HRMKpiTeamTable      from '@/components/hrmanager/kpi/HRMKpiTeamTable.vue'
+import HRMMetricCard       from '@/components/hr/hrmanager/kpi-report/HRMMetricCard.vue'
+import HRMKpiTeamBarChart   from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamBarChart.vue'
+import HRMKpiTierTrendChart from '@/components/hr/hrmanager/kpi-report/HRMKpiTierTrendChart.vue'
+import HRMKpiCompletionDonut from '@/components/hr/hrmanager/kpi-report/HRMKpiCompletionDonut.vue'
+import HRMKpiTeamTable      from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamTable.vue'
 
 const loading      = ref(true)
 const report       = ref(null)
