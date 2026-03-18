@@ -111,6 +111,18 @@ const removeEmployee = (id) => {
 <template>
   <div class="admin-profiles">
 
+    <ProfileSearchToolbar
+        :searchQuery="searchQuery"
+        :selectedTier="selectedTier"
+        :selectedLine="selectedLine"
+        :lines="lines"
+        @search="onSearch"
+        @tierChange="onTierChange"
+        @lineChange="onLineChange"
+        @addClick="openAddModal"
+    />
+
+
     <ProfileStatusBoard
       :totalCount="totalCount"
       :topTierCount="topTierCount"
@@ -118,16 +130,6 @@ const removeEmployee = (id) => {
       :avgScore="avgScore"
     />
 
-    <ProfileSearchToolbar
-      :searchQuery="searchQuery"
-      :selectedTier="selectedTier"
-      :selectedLine="selectedLine"
-      :lines="lines"
-      @search="onSearch"
-      @tierChange="onTierChange"
-      @lineChange="onLineChange"
-      @addClick="openAddModal"
-    />
 
     <ProfileListTable
       :employees="employees"
