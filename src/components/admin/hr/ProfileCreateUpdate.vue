@@ -95,13 +95,6 @@ const handleSave = () => {
       v-if="isOpen"
       :title="employee ? '테크니션 정보 수정' : '테크니션 등록'"
       width="688px"
-      confirm-text="저장 완료"
-      cancel-text="취소"
-      :show-draft-button="true"
-      draft-text="임시 저장"
-      @cancel="emit('close')"
-      @close="emit('close')"
-      @confirm="handleSave"
     >
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
