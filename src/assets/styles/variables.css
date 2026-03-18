@@ -6,6 +6,7 @@
   --color-primary-700: #4330a0;
   --color-primary-600: #5b4fcf;
   --color-primary-500: #7468e2;
+  --color-primary-400: #7f75db;
   --color-primary-300: #b8b1f2;
   --color-primary-200: #e0dcff;
   --color-primary-100: #f0eeff;
@@ -32,6 +33,7 @@
   --color-mint-500: #18c3aa;
   --color-mint-200: #aeece3;
   --color-mint-100: #e8fbf7;
+  --color-glow-mint: rgba(0, 191, 149, 0.15);
 
   --color-bg-page: linear-gradient(135deg, #1a1147 0%, #2d1f6e 40%, #3a2a7a 100%);
   --color-bg-app: #fafbff;
@@ -48,6 +50,7 @@
   --color-border-default: #e0dcff;
   --color-border-muted: #ece9ff;
   --color-border-soft: #f1eeff;
+  --color-border-row: #eeebff;
 
   --shadow-card: 0 20px 60px rgba(17, 24, 39, 0.18);
   --shadow-soft: 0 10px 30px rgba(45, 31, 110, 0.08);
@@ -131,6 +134,7 @@
 
   --font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-num: 'Inter', var(--font-family-base);
+  --font-family-mono: 'JetBrains Mono', monospace;
 }
 
 *,

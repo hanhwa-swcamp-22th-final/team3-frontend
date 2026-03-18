@@ -75,7 +75,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
   height: calc(100vh - 80px);
   box-sizing: border-box;
   overflow: hidden;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 /* 상태바 */
@@ -125,7 +125,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
   font-size: 12px;
   font-weight: 700;
   color: #7a6fa8;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
   cursor: pointer;
 }
 
