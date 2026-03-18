@@ -56,50 +56,50 @@ const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
   flex: 1;
   height: 36px;
   padding: 0 12px;
-  background: #ffffff;
-  border: 1px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: 8px;
   font-size: 12px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
   font-family: var(--font-family-base);
   box-sizing: border-box;
   outline: none;
 }
 
-.search-input::placeholder { color: #a89ed8; }
-.search-input:focus { border-color: #5b4fcf; }
+.search-input::placeholder { color: var(--color-text-placeholder); }
+.search-input:focus { border-color: var(--color-primary-600); }
 
 .select-line {
   height: 32px;
   padding: 0 12px;
-  background: #ffffff;
-  border: 1px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   font-family: var(--font-family-base);
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
 }
 
-.select-line:focus { border-color: #5b4fcf; }
+.select-line:focus { border-color: var(--color-primary-600); }
 
 .btn-add {
   height: 32px;
   padding: 0 14px;
-  background: #5b4fcf;
-  border: 1px solid #7f75db;
+  background: var(--color-primary-600);
+  border: 1px solid var(--color-primary-500);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-bg-surface);
   font-family: var(--font-family-base);
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-.btn-add:hover { background: #4a3fb0; }
+.btn-add:hover { background: var(--color-primary-700); }
 </style>

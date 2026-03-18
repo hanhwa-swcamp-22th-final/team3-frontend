@@ -260,7 +260,7 @@ const handleSave = () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(45, 31, 110, 0.3);
+  background: var(--color-overlay-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,10 +272,10 @@ const handleSave = () => {
   position: relative;
   width: 1100px;
   max-height: 90vh;
-  background: #ffffff;
-  border: 3px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 16px;
-  box-shadow: 0px 24px 80px rgba(45, 31, 110, 0.22);
+  box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -288,32 +288,32 @@ const handleSave = () => {
   align-items: center;
   padding: 0 24px;
   height: 64px;
-  border-bottom: 3px solid #e0dcff;
+  border-bottom: 3px solid var(--color-border-default);
   flex-shrink: 0;
 }
 
 .modal-title {
   font-size: 18px;
   font-weight: 900;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 .btn-close {
   width: 32px;
   height: 32px;
-  background: #f0eeff;
+  background: var(--color-primary-100);
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 900;
-  color: #5b4fcf;
+  color: var(--color-primary-600);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.btn-close:hover { background: #e0dcff; }
+.btn-close:hover { background: var(--color-border-default); }
 
 /* 바디 */
 .modal-body {
@@ -336,7 +336,7 @@ const handleSave = () => {
   gap: 12px;
   padding: 17px 17px 12px;
   background: linear-gradient(180deg, rgba(240, 238, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%);
-  border: 3px solid #e0dcff;
+  border: 3px solid var(--color-border-default);
   border-radius: 14px;
 }
 
@@ -349,16 +349,16 @@ const handleSave = () => {
 .section-title {
   font-size: 13px;
   font-weight: 900;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 .badge-required {
   padding: 3px 8px;
-  background: rgba(0, 191, 149, 0.1);
+  background: var(--color-mint-100);
   border-radius: 999px;
   font-size: 10px;
   font-weight: 900;
-  color: #028a6b;
+  color: var(--color-success-text);
 }
 
 /* 필드 그리드 */
@@ -385,33 +385,33 @@ const handleSave = () => {
 label {
   font-size: 12px;
   font-weight: 700;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 input,
 select {
   height: 40px;
   padding: 0 12px;
-  background: #ffffff;
-  border: 3px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 8px;
   font-size: 13px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
   font-family: var(--font-family-base);
   outline: none;
   box-sizing: border-box;
 }
 
-input::placeholder { color: #a89ed8; }
-input:focus, select:focus { border-color: #5b4fcf; }
+input::placeholder { color: var(--color-text-placeholder); }
+input:focus, select:focus { border-color: var(--color-primary-600); }
 
 textarea {
   padding: 12px;
-  background: #ffffff;
-  border: 3px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 8px;
   font-size: 13px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
   font-family: var(--font-family-base);
   outline: none;
   resize: none;
@@ -420,8 +420,8 @@ textarea {
   width: 100%;
 }
 
-textarea::placeholder { color: #a89ed8; }
-textarea:focus { border-color: #5b4fcf; }
+textarea::placeholder { color: var(--color-text-placeholder); }
+textarea:focus { border-color: var(--color-primary-600); }
 
 /* 계산 카드 */
 .calc-cards {
@@ -436,21 +436,21 @@ textarea:focus { border-color: #5b4fcf; }
   flex-direction: column;
   gap: 5px;
   padding: 13px 15px 8px;
-  background: #ffffff;
-  border: 3px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 10px;
 }
 
 .calc-label {
   font-size: 10px;
   font-weight: 700;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 .calc-value {
   font-size: 13px;
   font-weight: 900;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 /* 푸터 */
@@ -460,13 +460,13 @@ textarea:focus { border-color: #5b4fcf; }
   align-items: center;
   padding: 0 24px;
   height: 62px;
-  border-top: 3px solid #e0dcff;
+  border-top: 3px solid var(--color-border-default);
   flex-shrink: 0;
 }
 
 .footer-desc {
   font-size: 11px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   flex: 1;
   margin-right: 16px;
 }
@@ -479,30 +479,30 @@ textarea:focus { border-color: #5b4fcf; }
 .btn-cancel {
   height: 36px;
   padding: 0 18px;
-  background: #ffffff;
-  border: 3px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-cancel:hover { background: #f0eeff; color: #5b4fcf; }
+.btn-cancel:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
 
 .btn-submit {
   height: 36px;
   padding: 0 18px;
-  background: #5b4fcf;
-  border: 3px solid #7f75db;
+  background: var(--color-primary-600);
+  border: 3px solid var(--color-primary-500);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-bg-surface);
   font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-submit:hover { background: #4a3fb0; }
+.btn-submit:hover { background: var(--color-primary-700); }
 </style>

@@ -6,9 +6,9 @@ defineProps({
 const emit = defineEmits(['editClick'])
 
 const statusStyle = (status) => {
-  if (status === '운영중')  return { bg: '#E3FBEF', border: '#B4EFD9', color: '#007A60' }
-  if (status === '점검 예정') return { bg: '#FFF8E0', border: '#FFE49E', color: '#9A6A00' }
-  return                           { bg: '#FFF0F3', border: '#FFC3D2', color: '#C42B56' }
+  if (status === '운영중')  return { bg: 'var(--color-equip-active-bg)',  border: 'var(--color-equip-active-border)',  color: 'var(--color-equip-active)' }
+  if (status === '점검 예정') return { bg: 'var(--color-equip-warning-bg)', border: 'var(--color-equip-warning-border)', color: 'var(--color-equip-warning)' }
+  return                           { bg: 'var(--color-equip-stopped-bg)', border: 'var(--color-equip-stopped-border)', color: 'var(--color-equip-stopped)' }
 }
 </script>
 
@@ -55,7 +55,7 @@ const statusStyle = (status) => {
 <style scoped>
 .table-wrap {
   flex: 1;
-  border: 1px solid #e0dcff;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
   overflow: hidden;
   font-family: var(--font-family-base);
@@ -65,14 +65,14 @@ const statusStyle = (status) => {
   display: flex;
   align-items: center;
   height: 40px;
-  background: #f0eeff;
+  background: var(--color-primary-100);
   padding: 0 14px;
 }
 
 .table-header span {
   font-size: 11px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .table-row {
@@ -80,14 +80,14 @@ const statusStyle = (status) => {
   align-items: center;
   height: 48px;
   padding: 0 14px;
-  border-top: 1px solid #e0dcff;
+  border-top: 1px solid var(--color-border-default);
 }
 
-.table-row:hover { background: #fafbff; }
+.table-row:hover { background: var(--color-bg-app); }
 
 .table-row span {
   font-size: 12px;
-  color: #2d1f6e;
+  color: var(--color-primary-800);
 }
 
 /* 컬럼 너비 */
@@ -109,22 +109,22 @@ const statusStyle = (status) => {
 .btn-edit {
   height: 32px;
   padding: 0 14px;
-  background: #f0eeff;
-  border: 1px solid #e0dcff;
+  background: var(--color-primary-100);
+  border: 1px solid var(--color-border-default);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #5b4fcf;
+  color: var(--color-primary-600);
   font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-edit:hover { background: #e0dcff; }
+.btn-edit:hover { background: var(--color-border-default); }
 
 .empty {
   padding: 40px 0;
   text-align: center;
   font-size: 13px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 </style>
