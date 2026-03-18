@@ -1,7 +1,7 @@
 <template>
   <div class="kms-view">
     <!-- 상단 통계 카드 -->
-    <KmsStatCards />
+    <KmsStatCards :items="KMS_STATS" />
 
     <!-- 메인 2열 레이아웃 -->
     <div class="kms-layout">
@@ -25,9 +25,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import KmsStatCards from '@/components/admin/kms/KmsStatCards.vue'
+import KmsStatCards from '@/components/admin/kms/KmsStatCardsWrapper.vue'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
+import { KMS_STATS } from '@/mocks/admin/kms/kmsData.js'
 
 const selectedFilter = ref('전체')
 const selectedTagFilter = ref(null)
