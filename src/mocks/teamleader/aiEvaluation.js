@@ -1,10 +1,10 @@
 ﻿export const aiEvaluationSearchPlaceholder = '팀원 검색...'
 
 export const aiEvaluationTargets = [
-  { id: 1, name: '손창우', code: 'MCH-01', tier: 'S', scoreHint: 'Overall 91', avatar: '손', avatarTone: 'purple' },
-  { id: 2, name: '김신우', code: 'MCH-02', tier: 'A', scoreHint: '84', avatar: '김', avatarTone: 'purple' },
-  { id: 3, name: '황자현', code: 'PRS-01', tier: 'A', scoreHint: '81', avatar: '황', avatarTone: 'green' },
-  { id: 4, name: '임원석', code: 'WLD-01', tier: 'B', scoreHint: '74', avatar: '임', avatarTone: 'gold' },
+  { id: 1, name: '손창우', code: 'TEAM3-2603-001', tier: 'S', scoreHint: 'Overall 91', avatar: '손', avatarTone: 'purple' },
+  { id: 2, name: '김신우', code: 'TEAM3-2603-002', tier: 'A', scoreHint: '84', avatar: '김', avatarTone: 'purple' },
+  { id: 3, name: '황자현', code: 'TEAM3-2603-003', tier: 'A', scoreHint: '81', avatar: '황', avatarTone: 'green' },
+  { id: 4, name: '임원석', code: 'TEAM3-2603-004', tier: 'B', scoreHint: '74', avatar: '임', avatarTone: 'gold' },
 ]
 
 export const aiEvaluationSelectedTarget = {

@@ -12,9 +12,17 @@ defineProps({
     type: String,
     default: '팀원 검색...',
   },
+  searchValue: {
+    type: String,
+    default: '',
+  },
 })
 
-const emit = defineEmits(['select-target'])
+const emit = defineEmits(['select-target', 'update:searchValue'])
+
+function handleSearchInput(event) {
+  emit('update:searchValue', event.target.value)
+}
 </script>
 
 <template>
@@ -24,10 +32,10 @@ const emit = defineEmits(['select-target'])
     </header>
 
     <div class="target-list-panel__search">
-      <input type="text" :placeholder="searchPlaceholder" />
+      <input type="text" :value="searchValue" :placeholder="searchPlaceholder" @input="handleSearchInput" />
     </div>
 
-    <div class="target-list">
+    <div v-if="targets.length" class="target-list">
       <article
         v-for="target in targets"
         :key="target.id"
@@ -52,6 +60,8 @@ const emit = defineEmits(['select-target'])
         </div>
       </article>
     </div>
+
+    <p v-else class="target-list-panel__empty">검색 결과가 없습니다.</p>
   </section>
 </template>
 
@@ -91,6 +101,13 @@ const emit = defineEmits(['select-target'])
 .target-list {
   display: grid;
   gap: 10px;
+}
+
+.target-list-panel__empty {
+  padding: 20px 8px 10px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-muted);
 }
 
 .target-card {

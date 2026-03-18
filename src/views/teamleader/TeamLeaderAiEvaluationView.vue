@@ -1,14 +1,44 @@
 ﻿<script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TeamLeaderAiEvaluationTargetList from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationTargetListWrapper.vue'
 import TeamLeaderAiEvaluationPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationPanel.vue'
 import TeamLeaderAiEvaluationActionBar from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationActionBar.vue'
 import { aiEvaluationSearchPlaceholder, aiEvaluationTargets, aiEvaluationSelectedTarget } from '@/mocks/teamleader/aiEvaluation'
 
+const searchQuery = ref('')
 const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
 
+const filteredTargets = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+
+  if (!keyword) {
+    return aiEvaluationTargets
+  }
+
+  return aiEvaluationTargets.filter((target) => {
+    return target.name?.toLowerCase().includes(keyword)
+  })
+})
+
+watch(
+  filteredTargets,
+  (targets) => {
+    if (!targets.length) {
+      selectedTargetId.value = ''
+      return
+    }
+
+    const hasSelectedTarget = targets.some((target) => String(target.id) === selectedTargetId.value)
+
+    if (!hasSelectedTarget) {
+      selectedTargetId.value = String(targets[0].id)
+    }
+  },
+  { immediate: true },
+)
+
 const selectedTarget = computed(() => {
-  const target = aiEvaluationTargets.find((item) => String(item.id) === selectedTargetId.value) ?? aiEvaluationTargets[0]
+  const target = aiEvaluationTargets.find((item) => String(item.id) === selectedTargetId.value) ?? filteredTargets.value[0]
 
   if (!target) {
     return aiEvaluationSelectedTarget
@@ -31,10 +61,12 @@ function handleSelectTarget(targetId) {
   <section class="teamleader-ai-evaluation-view">
     <section class="teamleader-ai-evaluation-view__content">
       <TeamLeaderAiEvaluationTargetList
-        :targets="aiEvaluationTargets"
+        :targets="filteredTargets"
         :selected-id="selectedTargetId"
         :search-placeholder="aiEvaluationSearchPlaceholder"
+        :search-value="searchQuery"
         @select-target="handleSelectTarget"
+        @update:search-value="searchQuery = $event"
       />
 
       <div class="teamleader-ai-evaluation-view__form">
