@@ -48,7 +48,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   flex-shrink: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 21px;
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .role-card {
   background: var(--color-primary-100);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
   gap: 10px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   padding: 0 13px;
   height: 58px;
 }
@@ -148,7 +148,7 @@ const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
 .level-box {
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 15px;
   display: flex;
   flex-direction: column;

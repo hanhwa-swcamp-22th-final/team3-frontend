@@ -50,7 +50,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   flex: 1;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -72,7 +72,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   display: flex;
   align-items: center;
   background: var(--color-primary-100);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   height: 26px;
   padding: 0 12px;
   flex-shrink: 0;
@@ -128,7 +128,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   display: inline-block;
   width: 20px;
   height: 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }

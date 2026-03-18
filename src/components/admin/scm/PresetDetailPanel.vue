@@ -81,7 +81,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
   min-width: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 25px;
   display: flex;
   flex-direction: column;
@@ -102,7 +102,7 @@ const maxWeight = (weights) => Math.max(...weights.map(w => w.value))
 .block {
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 17px;
   display: flex;
   flex-direction: column;

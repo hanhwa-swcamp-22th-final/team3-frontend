@@ -64,7 +64,7 @@ const emit = defineEmits(['select'])
   flex-shrink: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   padding: 21px;
   display: flex;
   flex-direction: column;
@@ -92,7 +92,7 @@ const emit = defineEmits(['select'])
   height: 66px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -112,7 +112,7 @@ const emit = defineEmits(['select'])
   width: 36px;
   height: 36px;
   background: var(--color-bg-app);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +163,7 @@ const emit = defineEmits(['select'])
   margin-top: 4px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   padding: 13px;
   display: flex;
   flex-direction: column;
