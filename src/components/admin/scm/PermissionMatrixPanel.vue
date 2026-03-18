@@ -48,8 +48,8 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 <style scoped>
 .matrix-panel {
   flex: 1;
-  background: #fff;
-  border: 1.5px solid #E0DCFF;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 12px;
   padding: 14px;
   display: flex;
@@ -63,7 +63,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 .panel-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7A6FA8;
+  color: var(--color-text-secondary);
   margin-bottom: 8px;
   flex-shrink: 0;
 }
@@ -71,7 +71,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 .table-header {
   display: flex;
   align-items: center;
-  background: #F0EEFF;
+  background: var(--color-primary-100);
   border-radius: 6px;
   height: 26px;
   padding: 0 12px;
@@ -81,7 +81,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 .table-header span {
   font-size: 10px;
   font-weight: 700;
-  color: #7A6FA8;
+  color: var(--color-text-secondary);
 }
 
 .col-name  { flex: 1.8; }
@@ -95,8 +95,8 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 }
 
 .category-row {
-  background: #2D1F6E;
-  color: #fff;
+  background: var(--color-primary-800);
+  color: var(--color-white);
   font-size: 11px;
   font-weight: 700;
   padding: 0 12px;
@@ -113,7 +113,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   align-items: center;
   height: 30px;
   padding: 0 12px;
-  border-bottom: 1.5px solid #EEEBFF;
+  border-bottom: 1.5px solid var(--color-border-row);
   flex-shrink: 0;
 }
 
@@ -121,7 +121,7 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 
 .item-name {
   font-size: 11px;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
 }
 
 .toggle {
@@ -133,12 +133,12 @@ const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
   transition: background 0.15s;
 }
 
-.toggle--on  { background: #5B4FCF; }
-.toggle--off { background: #E0DCFF; }
+.toggle--on  { background: var(--color-primary-600); }
+.toggle--off { background: var(--color-border-default); }
 
 .note-text {
   font-size: 10px;
-  color: #A89ED8;
+  color: var(--color-text-placeholder);
   padding-left: 8px;
 }
 </style>
