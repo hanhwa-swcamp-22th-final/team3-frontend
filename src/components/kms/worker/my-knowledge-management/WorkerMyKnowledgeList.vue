@@ -7,6 +7,8 @@ const props = defineProps({
   articles: { type: Array, required: true },
 })
 
+const emit = defineEmits(['detail', 'edit'])
+
 const categories = ['전체', '정밀가공', '설비점검', '품질관리', '승인대기', '반려']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
@@ -109,8 +111,8 @@ function actionLabel(status) {
             <span>재사용 {{ article.reuses }}회</span>
           </div>
           <div class="mkl__card-actions">
-            <button class="mkl__action-btn">상세</button>
-            <button class="mkl__action-btn">{{ actionLabel(article.status) }}</button>
+            <button class="mkl__action-btn" @click="emit('detail', article)">상세</button>
+            <button class="mkl__action-btn" @click="emit('edit', article)">{{ actionLabel(article.status) }}</button>
           </div>
         </div>
       </div>

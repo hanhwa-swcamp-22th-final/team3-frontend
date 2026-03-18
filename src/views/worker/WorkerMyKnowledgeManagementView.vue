@@ -6,6 +6,8 @@ import WorkerMyKnowledgeList from '@/components/kms/worker/my-knowledge-manageme
 import WorkerKnowledgeApprovalStatus from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeApprovalStatus.vue'
 import WorkerKnowledgeEditHistory from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditHistory.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
+import WorkerKnowledgeDetailModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeDetailModal.vue'
+import WorkerKnowledgeEditModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditModal.vue'
 
 import {
   knowledgeOverallCount,
@@ -15,6 +17,9 @@ import {
 } from '@/mocks/worker/workerMyKnowledgeData'
 
 const showAddModal = ref(false)
+const showDetailModal = ref(false)
+const showEditModal = ref(false)
+const selectedArticle = ref(null)
 
 function handleAddArticle() {
   showAddModal.value = false
@@ -22,6 +27,24 @@ function handleAddArticle() {
 
 function handleSaveDraft() {
   showAddModal.value = false
+}
+
+function openDetailModal(article) {
+  selectedArticle.value = article
+  showDetailModal.value = true
+}
+
+function openEditModal(article) {
+  selectedArticle.value = article
+  showEditModal.value = true
+}
+
+function handleEditSubmit() {
+  showEditModal.value = false
+}
+
+function handleEditSaveDraft() {
+  showEditModal.value = false
 }
 </script>
 
@@ -35,7 +58,11 @@ function handleSaveDraft() {
 
     <!-- Main Grid: List (left) + Sidebar (right) -->
     <div class="mkm-grid">
-      <WorkerMyKnowledgeList :articles="myKnowledgeArticles" />
+      <WorkerMyKnowledgeList
+        :articles="myKnowledgeArticles"
+        @detail="openDetailModal"
+        @edit="openEditModal"
+      />
 
       <div class="mkm-sidebar">
         <WorkerKnowledgeApprovalStatus :status="approvalStatus" />
@@ -49,6 +76,22 @@ function handleSaveDraft() {
       @close="showAddModal = false"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"
+    />
+
+    <!-- Detail Modal -->
+    <WorkerKnowledgeDetailModal
+      v-if="showDetailModal && selectedArticle"
+      :article="selectedArticle"
+      @close="showDetailModal = false"
+    />
+
+    <!-- Edit Modal -->
+    <WorkerKnowledgeEditModal
+      v-if="showEditModal && selectedArticle"
+      :article="selectedArticle"
+      @close="showEditModal = false"
+      @submit="handleEditSubmit"
+      @saveDraft="handleEditSaveDraft"
     />
   </div>
 </template>
