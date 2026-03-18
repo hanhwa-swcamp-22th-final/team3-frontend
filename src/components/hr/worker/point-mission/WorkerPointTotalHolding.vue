@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   summary: {
@@ -7,6 +7,19 @@ const props = defineProps({
     required: true,
     // { totalPoints, monthGain, monthGainPercent, distribution: [{ label, value, color }] }
   },
+})
+
+const animProgress = ref(0)
+onMounted(() => {
+  let start = null
+  const duration = 800
+  function step(ts) {
+    if (!start) start = ts
+    const t = Math.min((ts - start) / duration, 1)
+    animProgress.value = 1 - Math.pow(1 - t, 3)
+    if (t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 })
 
 const total = computed(() => props.summary.totalPoints)
@@ -49,8 +62,8 @@ const segments = computed(() => {
           fill="none"
           :stroke="seg.color"
           stroke-width="14"
-          :stroke-dasharray="`${(seg.pct / 100) * 314.16} ${314.16}`"
-          :stroke-dashoffset="`${-(seg.offset / 100) * 314.16}`"
+          :stroke-dasharray="`${(seg.pct / 100) * 314.16 * animProgress} ${314.16}`"
+          :stroke-dashoffset="`${-(seg.offset / 100) * 314.16 * animProgress}`"
           stroke-linecap="butt"
         />
         <text x="60" y="56" text-anchor="middle" class="holding__donut-number">

@@ -1,9 +1,26 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   skills: { type: Array, required: true },
   summary: { type: Object, required: true },
+})
+
+const animProgress = ref(0)
+const animated = ref(false)
+onMounted(() => {
+  let start = null
+  const duration = 800
+  function step(ts) {
+    if (!start) start = ts
+    const t = Math.min((ts - start) / duration, 1)
+    animProgress.value = 1 - Math.pow(1 - t, 3)
+    if (t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
 })
 
 const size = 220
@@ -42,7 +59,7 @@ const axisLines = computed(() => {
 
 const currentPath = computed(() => {
   const points = props.skills.map((s, i) => {
-    const r = (s.current / 100) * maxR
+    const r = (s.current / 100) * maxR * animProgress.value
     const p = polarToXY(i * angleStep.value, r)
     return `${p.x},${p.y}`
   })
@@ -51,7 +68,7 @@ const currentPath = computed(() => {
 
 const targetPath = computed(() => {
   const points = props.skills.map((s, i) => {
-    const r = (s.target / 100) * maxR
+    const r = (s.target / 100) * maxR * animProgress.value
     const p = polarToXY(i * angleStep.value, r)
     return `${p.x},${p.y}`
   })
@@ -139,7 +156,7 @@ const overallPercent = computed(() => {
     <!-- Overall Progress Bar -->
     <div class="sg__progress">
       <div class="sg__progress-bar">
-        <div class="sg__progress-fill" :style="{ width: overallPercent + '%' }"></div>
+        <div class="sg__progress-fill" :style="{ width: animated ? overallPercent + '%' : '0%' }"></div>
       </div>
       <span class="sg__progress-text">
         현재 {{ summary.currentOverall }}점 → 목표 {{ summary.targetOverall }}점
@@ -151,7 +168,7 @@ const overallPercent = computed(() => {
       <div v-for="skill in skills" :key="skill.label" class="sg__row">
         <span class="sg__row-label">{{ skill.label }}</span>
         <div class="sg__row-bar-track">
-          <div class="sg__row-bar-fill" :style="{ width: skill.current + '%' }"></div>
+          <div class="sg__row-bar-fill" :style="{ width: animated ? skill.current + '%' : '0%' }"></div>
         </div>
         <span class="sg__row-current">{{ skill.current }}</span>
         <span class="sg__row-arrow">→</span>
@@ -258,7 +275,7 @@ const overallPercent = computed(() => {
   height: 100%;
   background: var(--color-primary-700);
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sg__progress-text {
@@ -298,6 +315,7 @@ const overallPercent = computed(() => {
   height: 100%;
   background: var(--color-primary-700);
   border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sg__row-current {

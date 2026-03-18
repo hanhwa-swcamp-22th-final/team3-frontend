@@ -1,8 +1,21 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   status: { type: Object, required: true },
+})
+
+const animProgress = ref(0)
+onMounted(() => {
+  let start = null
+  const duration = 800
+  function step(ts) {
+    if (!start) start = ts
+    const t = Math.min((ts - start) / duration, 1)
+    animProgress.value = 1 - Math.pow(1 - t, 3)
+    if (t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 })
 
 const scoreAngle = computed(() => (props.status.overallScore / 100) * 360)
@@ -32,7 +45,7 @@ function diffText(val) {
           stroke="#5B4FCF"
           stroke-width="6"
           stroke-linecap="round"
-          :stroke-dasharray="`${dashLen} ${circumference}`"
+          :stroke-dasharray="`${dashLen * animProgress} ${circumference}`"
           transform="rotate(-90 50 50)"
         />
       </svg>

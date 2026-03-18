@@ -43,23 +43,16 @@ const axisLines = computed(() => {
   })
 })
 
-const animProgress = ref(0)
-
+const animated = ref(false)
 onMounted(() => {
-  let start = null
-  const duration = 800
-  function step(ts) {
-    if (!start) start = ts
-    const t = Math.min((ts - start) / duration, 1)
-    animProgress.value = 1 - Math.pow(1 - t, 3)
-    if (t < 1) requestAnimationFrame(step)
-  }
-  requestAnimationFrame(step)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
 })
 
 const dataPath = computed(() => {
   const points = props.skills.map((s, i) => {
-    const r = (s.value / 100) * maxR * animProgress.value
+    const r = (s.value / 100) * maxR
     const p = polarToXY(i * angleStep.value, r)
     return `${p.x},${p.y}`
   })
@@ -68,7 +61,7 @@ const dataPath = computed(() => {
 
 const dataPoints = computed(() => {
   return props.skills.map((s, i) => {
-    const r = (s.value / 100) * maxR * animProgress.value
+    const r = (s.value / 100) * maxR
     return polarToXY(i * angleStep.value, r)
   })
 })
@@ -104,7 +97,14 @@ const labelPositions = computed(() => {
           stroke-width="1"
         />
         <!-- Data area -->
-        <path :d="dataPath" fill="rgba(91, 79, 207, 0.2)" stroke="#5B4FCF" stroke-width="2" />
+        <path
+          :d="dataPath"
+          fill="rgba(91, 79, 207, 0.2)"
+          stroke="#5B4FCF"
+          stroke-width="2"
+          class="radar__data-area"
+          :class="{ 'radar__data-area--visible': animated }"
+        />
         <!-- Data points -->
         <circle
           v-for="(p, i) in dataPoints"
@@ -112,6 +112,8 @@ const labelPositions = computed(() => {
           :cx="p.x" :cy="p.y"
           r="3"
           fill="#5B4FCF"
+          class="radar__data-point"
+          :class="{ 'radar__data-point--visible': animated }"
         />
         <!-- Labels -->
         <text
@@ -132,7 +134,7 @@ const labelPositions = computed(() => {
           <div class="radar__list-bar-track">
             <div
               class="radar__list-bar-fill"
-              :style="{ width: s.value * animProgress + '%' }"
+              :style="{ width: animated ? s.value + '%' : '0%' }"
             ></div>
           </div>
           <span class="radar__list-value">{{ s.value }}</span>
@@ -165,6 +167,30 @@ const labelPositions = computed(() => {
 
 .radar__svg {
   flex-shrink: 0;
+}
+
+.radar__data-area {
+  transform-origin: 90px 90px;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.radar__data-area--visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.radar__data-point {
+  transform-origin: 90px 90px;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 0.4s ease 0.15s;
+}
+
+.radar__data-point--visible {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .radar__label {
@@ -207,7 +233,7 @@ const labelPositions = computed(() => {
   height: 100%;
   background: linear-gradient(90deg, var(--color-primary-600), var(--tier-s));
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .radar__list-value {
