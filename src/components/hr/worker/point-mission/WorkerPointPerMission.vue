@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   missions: {
@@ -9,6 +9,13 @@ const props = defineProps({
   },
   overallCurrent: { type: Number, default: 91 },
   overallTarget: { type: Number, default: 95 },
+})
+
+const animated = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
 })
 
 const overallPercent = computed(() => {
@@ -42,7 +49,7 @@ function progressLabel(m) {
       <div class="pm__bar-track pm__bar-track--overall">
         <div
           class="pm__bar-fill pm__bar-fill--overall"
-          :style="{ width: overallPercent + '%' }"
+          :style="{ width: animated ? overallPercent + '%' : '0%' }"
         ></div>
       </div>
     </div>
@@ -70,7 +77,7 @@ function progressLabel(m) {
         <div class="pm__bar-track">
           <div
             class="pm__bar-fill"
-            :style="{ width: missionPercent(m) + '%', background: m.barColor }"
+            :style="{ width: animated ? missionPercent(m) + '%' : '0%', background: m.barColor }"
           ></div>
         </div>
         <div class="pm__card-bottom">
@@ -152,7 +159,7 @@ function progressLabel(m) {
 .pm__bar-fill {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .pm__bar-fill--overall {

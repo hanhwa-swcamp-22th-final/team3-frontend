@@ -1,6 +1,15 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+
 defineProps({
   evaluation: { type: Object, required: true },
+})
+
+const animated = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
 })
 </script>
 
@@ -32,7 +41,7 @@ defineProps({
         <div class="ql__bar-track">
           <div
             class="ql__bar-fill"
-            :style="{ width: cat.score + '%', background: cat.barColor }"
+            :style="{ width: animated ? cat.score + '%' : '0%', background: cat.barColor }"
           ></div>
         </div>
         <div class="ql__tags">
@@ -162,7 +171,7 @@ defineProps({
 .ql__bar-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.3s;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ql__tags {

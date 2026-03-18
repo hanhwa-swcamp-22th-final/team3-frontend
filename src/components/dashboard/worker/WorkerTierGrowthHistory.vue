@@ -1,5 +1,13 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { tierColor, tierBgColor as tierBg, tierBarColor as barColor } from '@/constants'
+
+const animated = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
+})
 
 defineProps({
   milestones: {
@@ -55,8 +63,9 @@ defineProps({
         <div
           class="tier-history__bar"
           :style="{
-            height: d.value + '%',
+            height: animated ? d.value + '%' : '0%',
             background: barColor(d.tier),
+            transitionDelay: i * 0.1 + 's',
           }"
         ></div>
         <span class="tier-history__bar-label">{{ d.period }}</span>
@@ -156,7 +165,7 @@ defineProps({
   width: 100%;
   border-radius: 4px 4px 0 0;
   min-height: 6px;
-  transition: height 0.3s;
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tier-history__bar-label {

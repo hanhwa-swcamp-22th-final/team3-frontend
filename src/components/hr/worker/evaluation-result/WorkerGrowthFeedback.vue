@@ -1,8 +1,15 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const props = defineProps({
   data: { type: Object, required: true },
+})
+
+const animated = ref(false)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { animated.value = true })
+  })
 })
 
 const chartPoints = computed(() => {
@@ -54,6 +61,8 @@ const chartPoints = computed(() => {
           stroke="var(--tier-s)"
           stroke-width="2"
           stroke-dasharray="6 3"
+          class="gf__line gf__line--team"
+          :class="{ 'gf__line--drawn': animated }"
         />
         <!-- Overall (solid) -->
         <polyline
@@ -61,6 +70,8 @@ const chartPoints = computed(() => {
           fill="none"
           stroke="var(--color-primary-800)"
           stroke-width="2.5"
+          class="gf__line gf__line--overall"
+          :class="{ 'gf__line--drawn': animated }"
         />
         <!-- Current point dot -->
         <circle
@@ -69,6 +80,8 @@ const chartPoints = computed(() => {
           :cy="110 - ((data.chartData[data.chartData.length - 1].overall - 60) / 30) * 100 + 5"
           r="4"
           fill="var(--color-primary-800)"
+          class="gf__dot"
+          :class="{ 'gf__dot--visible': animated }"
         />
       </svg>
     </div>
@@ -132,6 +145,29 @@ const chartPoints = computed(() => {
 .gf__chart-svg {
   width: 100%;
   height: 120px;
+}
+
+.gf__line {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  transition: stroke-dashoffset 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gf__line--team {
+  transition-delay: 0.15s;
+}
+
+.gf__line--drawn {
+  stroke-dashoffset: 0;
+}
+
+.gf__dot {
+  opacity: 0;
+  transition: opacity 0.3s ease 1.5s;
+}
+
+.gf__dot--visible {
+  opacity: 1;
 }
 
 .gf__feedback {
