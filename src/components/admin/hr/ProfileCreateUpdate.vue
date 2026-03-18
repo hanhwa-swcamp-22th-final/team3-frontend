@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
 // Kiosk KeypadModal 패턴: isOpen=열림여부 / employee=null→등록, object→수정
 const props = defineProps(['isOpen', 'employee'])
@@ -89,12 +90,8 @@ const handleSave = () => {
 </script>
 
 <template>
-  <!-- Kiosk KeypadModal 패턴: Teleport → body 직하에 렌더링 -->
   <Teleport to="body">
-    <div v-if="isOpen" class="modal-overlay" @click.self="$emit('close')">
-
-      <!-- modal-box: Figma 688px × 739px, padding 27px, gap 13px -->
-      <form class="modal-box" @submit.prevent="handleSave">
+    <BaseFormModal v-if="isOpen">
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
         <p class="section-label">✏️ {{ employee ? '기본 정보 수정' : '기본 정보 입력' }}</p>
@@ -237,8 +234,7 @@ const handleSave = () => {
           </button>
         </div>
 
-      </form>
-    </div>
+    </BaseFormModal>
   </Teleport>
 </template>
 
