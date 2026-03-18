@@ -243,31 +243,6 @@ const handleSave = () => {
 </template>
 
 <style scoped>
-/* ── 오버레이 ───────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-/* ── 모달 박스 (Figma: 688px, padding 27px, gap 13px) ─ */
-.modal-box {
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-  padding: 27px;
-  width: 688px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: var(--color-bg-surface);
-  border: 3px solid var(--color-border-default);
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-card);
-}
 
 /* ── 섹션 레이블 (Figma: 9px, uppercase, #A89ED8) ──── */
 .section-label {
