@@ -99,37 +99,37 @@ const onSearch       = (v) => { searchQuery.value    = v }
 .status-dot {
   width: 8px;
   height: 8px;
-  background: #00bf95;
+  background: var(--tier-s);
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(0, 191, 149, 0.15);
+  box-shadow: 0 0 0 4px var(--color-glow-mint);
   flex-shrink: 0;
 }
 
 .status-text {
   font-size: 11px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
 }
 
 .status-batch {
   font-size: 10px;
-  color: #a89ed8;
+  color: var(--color-text-placeholder);
 }
 
 .btn-refresh {
   height: 35px;
   padding: 0 14px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   font-family: var(--font-family-base);
   cursor: pointer;
 }
 
-.btn-refresh:hover { background: #f0eeff; color: #5b4fcf; }
+.btn-refresh:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
 
 /* 메인 컨텐츠 */
 .content {
@@ -147,8 +147,8 @@ const onSearch       = (v) => { searchQuery.value    = v }
   flex: 1;
   min-width: 0;
   padding: 21.5px;
-  background: #ffffff;
-  border: 1.5px solid #e0dcff;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -156,7 +156,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
 .section-title {
   font-size: 12px;
   font-weight: 900;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 </style>

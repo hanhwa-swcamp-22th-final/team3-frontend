@@ -148,7 +148,7 @@ const onDeleteClick = (id) => {
 
 .page-desc {
   font-size: 13px;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -178,7 +178,7 @@ const onDeleteClick = (id) => {
 
 .pagination-info {
   font-size: 12px;
-  color: #7a6fa8; /* --color-text-sub 없음, 유지 */
+  color: var(--color-text-secondary);
 }
 
 .pagination-btns {
@@ -195,7 +195,7 @@ const onDeleteClick = (id) => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6fa8;
+  color: var(--color-text-secondary);
   font-family: var(--font-family-base);
   cursor: pointer;
   display: flex;

@@ -106,7 +106,7 @@ const onSave            = ()    => {
 .badge-editing {
   padding: 6px 12px;
   background: var(--color-warning-soft);
-  border: 1.5px solid #FFD166;
+  border: 1.5px solid var(--tier-b);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
@@ -133,7 +133,7 @@ const onSave            = ()    => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--color-white);
   cursor: pointer;
 }
 
