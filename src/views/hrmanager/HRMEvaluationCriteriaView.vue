@@ -84,8 +84,8 @@ function handleApply() {
   background: var(--color-primary-100);
   border: 1px solid var(--color-primary-200);
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-600);
 }
 .eval-view__panels {
@@ -103,8 +103,8 @@ function handleApply() {
   height: 40px;
   padding: 0 24px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   border: none;
 }

@@ -179,11 +179,11 @@ function deleteNotice(id) {
   display: flex; align-items: baseline; gap: 12px;
 }
 .notice-header__title {
-  font-size: 20px; font-weight: 800; color: var(--color-primary-800);
+  font-size: var(--font-size-lg); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
 }
 .notice-header__count {
   margin-left: auto;
-  font-size: 13px; color: #a89ed8;
+  font-size: var(--font-size-sm); color: #a89ed8;
 }
 
 /* 툴바 */
@@ -193,7 +193,7 @@ function deleteNotice(id) {
 .notice-tabs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .notice-tab {
   height: 34px; padding: 0 16px;
-  border-radius: 20px; font-size: 13px; font-weight: 600;
+  border-radius: 20px; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
   cursor: pointer;
   border: 1.5px solid var(--color-border-default);
   background: var(--color-bg-surface);
@@ -216,7 +216,7 @@ function deleteNotice(id) {
 .notice-create-btn {
   height: 38px; padding: 0 20px; flex-shrink: 0;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+  border: none; border-radius: 10px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -231,7 +231,7 @@ function deleteNotice(id) {
 .notice-table-head {
   padding: 0 16px 10px;
   border-bottom: 1.5px solid var(--color-border-default);
-  font-size: 12px; font-weight: 700; color: #a89ed8;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: #a89ed8;
   text-align: center;
 }
 .notice-table-head .col-title { text-align: left; }
@@ -239,7 +239,7 @@ function deleteNotice(id) {
 .notice-list { display: flex; flex-direction: column; gap: 6px; }
 .notice-list__empty {
   padding: 32px 0; text-align: center;
-  font-size: 13px; color: #a89ed8;
+  font-size: var(--font-size-sm); color: #a89ed8;
 }
 
 .notice-row {
@@ -249,21 +249,21 @@ function deleteNotice(id) {
   border-radius: 10px;
 }
 .notice-row__title {
-  font-size: 14px; font-weight: 600; color: var(--color-primary-800);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--color-primary-800);
 }
 .notice-row__target {
-  font-size: 13px; color: var(--color-primary-600);
+  font-size: var(--font-size-sm); color: var(--color-primary-600);
   text-align: center;
 }
 .notice-row__date {
-  font-size: 13px; color: #7a6fa8;
+  font-size: var(--font-size-sm); color: #7a6fa8;
   text-align: center;
 }
 
 .notice-badge {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 3px 10px; border-radius: 20px;
-  font-size: 12px; font-weight: 700;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   margin: auto;
 }
 .col-status { display: flex; justify-content: center; }
@@ -275,14 +275,14 @@ function deleteNotice(id) {
   height: 30px; padding: 0 14px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 7px; font-size: 12px; font-weight: 700;
+  border-radius: 7px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
 }
 .notice-row__delete-btn {
   height: 30px; padding: 0 14px;
   background: var(--color-danger-soft);
   border: 1.5px solid var(--color-danger);
-  border-radius: 7px; font-size: 12px; font-weight: 700;
+  border-radius: 7px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   color: var(--color-danger); cursor: pointer;
 }
 </style>

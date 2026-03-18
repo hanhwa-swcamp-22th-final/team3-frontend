@@ -72,8 +72,8 @@ function updateThreshold(tier, value) {
   gap: 12px;
 }
 .eval-tier-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
   margin-bottom: 4px;
 }
@@ -95,7 +95,7 @@ function updateThreshold(tier, value) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 900;
   flex-shrink: 0;
   color: var(--color-white);
@@ -106,8 +106,8 @@ function updateThreshold(tier, value) {
 .eval-tier-card__badge--c { background: var(--tier-c); }
 
 .eval-tier-card__label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
   width: 48px;
   flex-shrink: 0;
@@ -117,23 +117,23 @@ function updateThreshold(tier, value) {
   padding: 4px 8px;
   border: 1px solid var(--color-border-default);
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-align: center;
   color: var(--color-primary-800);
   background: var(--color-bg-surface);
 }
 .eval-tier-card__auto {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 .eval-tier-card__desc {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin-left: auto;
 }
 .eval-tier-card__note {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-mint-500);
   background: #e3fbef;
   padding: 10px 14px;

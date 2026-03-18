@@ -121,7 +121,7 @@ function metricValue(key, suffix) {
   padding: 60px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 15px;
+  font-size: var(--font-size-base);
 }
 
 .hrm-dashboard__metrics {

@@ -111,8 +111,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
   gap: 16px;
 }
 .kpi-trend-card__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 .kpi-trend-card__chart {
