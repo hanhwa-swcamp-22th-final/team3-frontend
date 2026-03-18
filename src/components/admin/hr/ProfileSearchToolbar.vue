@@ -51,7 +51,7 @@ const emit = defineEmits(['search', 'tierChange', 'lineChange', 'addClick'])
   height: 37px;
   padding: 0 14px;
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   color: var(--color-primary-800);
   outline: none;
@@ -63,7 +63,7 @@ const emit = defineEmits(['search', 'tierChange', 'lineChange', 'addClick'])
   height: 37px;
   padding: 0 10px;
   border: 1px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   color: var(--color-primary-800);
   background: var(--color-bg-surface);

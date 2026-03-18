@@ -292,7 +292,7 @@ const handleSave = async () => {
   overflow-y: auto;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   box-shadow: var(--shadow-card);
 }
 
@@ -334,7 +334,7 @@ const handleSave = async () => {
   padding: 9px 12px;
   background: var(--color-bg-surface);
   border: 3px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 12px;
   color: var(--color-primary-800);
   outline: none;
@@ -448,7 +448,7 @@ const handleSave = async () => {
   padding: 17px;
   background: var(--color-bg-app);
   border: 3px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   display: flex;
   flex-direction: column;
   gap: 4px;

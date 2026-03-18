@@ -104,7 +104,7 @@ const handleSave = () => {
 .modal {
   width: 480px;
   background: var(--color-bg-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   box-shadow: 0 20px 60px rgba(45, 31, 110, 0.2);
   display: flex;
   flex-direction: column;
@@ -169,7 +169,7 @@ select {
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
 
@@ -186,7 +186,7 @@ textarea {
   padding: 10px 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
 
@@ -212,7 +212,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   height: 36px;
   background: var(--color-primary-100);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-primary-600);
@@ -227,7 +227,7 @@ textarea:focus { border-color: var(--color-primary-600); }
   height: 36px;
   background: var(--color-primary-600);
   border: 1px solid var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   font-weight: 700;
   color: var(--color-bg-surface);

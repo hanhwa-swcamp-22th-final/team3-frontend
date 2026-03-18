@@ -37,7 +37,7 @@ defineProps({
   padding: 15px 17px;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: var(--radius-base);
   display: flex;
   flex-direction: column;
   gap: 4px;

@@ -49,7 +49,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
 
@@ -67,7 +67,7 @@ const onBlur    = ()  => emit('search', localSearch.value)
   padding: 0 12px;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 6px;
+  border-radius: var(--radius-2xs);
   font-size: 13px;
   color: var(--color-primary-800);
 

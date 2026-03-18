@@ -59,7 +59,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   flex: 1;
   background: var(--color-bg-surface);
   border: 2px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: var(--radius-xs);
   box-shadow: var(--shadow-table);
   overflow: hidden;
   display: flex;
