@@ -169,29 +169,6 @@ const onCancelSave = () => {
   height: 43px;
 }
 
-.tabs {
-  display: flex;
-}
-
-.tab {
-  padding: 0 18px;
-  height: 41px;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-placeholder);
-  cursor: pointer;
-  border-bottom: 1.5px solid transparent;
-  margin-bottom: -1.5px;
-  transition: color 0.15s;
-  white-space: nowrap;
-}
-
-.tab--active {
-  color: var(--color-primary-600);
-  border-bottom-color: var(--color-primary-600);
-}
 
 .actions {
   display: flex;
