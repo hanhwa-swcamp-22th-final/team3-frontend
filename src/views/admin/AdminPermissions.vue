@@ -88,15 +88,12 @@ const onCancelSave = () => {
 
     <!-- 탭 바 -->
     <div class="tab-bar">
-      <div class="tabs">
-        <div
-          v-for="role in ROLES"
-          :key="role"
-          class="tab"
-          :class="{ 'tab--active': selectedRole === role }"
-          @click="onSelectRole(role)"
-        >{{ role }}</div>
-      </div>
+      <BaseFilterTabs
+        :items="ROLES"
+        v-model="selectedRole"
+        variant="underline"
+        class="permission-tabs"
+      />
       <div class="actions">
         <span v-if="pendingChanges > 0" class="badge-pending">변경사항 {{ pendingChanges }}건</span>
         <div class="btn-save-wrap">
@@ -153,6 +150,14 @@ const onCancelSave = () => {
   box-sizing: border-box;
   overflow: hidden;
 
+}
+
+.permission-tabs :deep(.base-filter-tabs__item) {
+  height: 41px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: -1.5px;
 }
 
 .tab-bar {
