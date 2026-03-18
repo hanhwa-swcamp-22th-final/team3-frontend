@@ -16,10 +16,8 @@ defineProps({
       variant="compact"
     >
       <template #value>
-        <div class="stat-bottom">
-          <span class="stat-value">
-            {{ item.value }}<span class="stat-unit">{{ item.unit }}</span>
-          </span>
+        <div class="value-block">
+          <span class="stat-value">{{ item.value }}<span class="stat-unit">{{ item.unit }}</span></span>
           <span v-if="item.trend" class="stat-trend">{{ item.trend }}</span>
         </div>
       </template>
@@ -38,28 +36,30 @@ defineProps({
   flex: 1;
   min-height: 80px;
   height: auto;
-  padding: 15px 17px;
-  gap: 8px;
+  padding: 15px 17px 1px;
+  gap: 4px;
 }
 
 .stat-cards :deep(.base-stat-card__label) {
   font-size: 10px;
   font-weight: 400;
-  color: var(--color-text-muted, #a89ed8);
+  color: #A89ED8;
   text-transform: uppercase;
+  line-height: 12px;
 }
 
-.stat-bottom {
+.value-block {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0px;
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-primary-800, #2d1f6e);
-  line-height: 1;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #2D1F6E;
 }
 
 .stat-unit {
@@ -71,10 +71,8 @@ defineProps({
 
 .stat-trend {
   font-size: 11px;
-  font-weight: 700;
-  color: #00bf95;
-  background: #e3fbef;
-  padding: 2px 7px;
-  border-radius: 4px;
+  font-weight: 400;
+  line-height: 13px;
+  color: #00BF95;
 }
 </style>
