@@ -91,7 +91,15 @@ const handleSave = () => {
 
 <template>
   <Teleport to="body">
-    <BaseFormModal v-if="isOpen">
+    <BaseFormModal
+      v-if="isOpen"
+      :title="employee ? '테크니션 정보 수정' : '테크니션 등록'"
+      width="688px"
+      confirm-text="저장 완료"
+      cancel-text="취소"
+      :show-draft-button="true"
+      draft-text="임시 저장"
+    >
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
         <p class="section-label">✏️ {{ employee ? '기본 정보 수정' : '기본 정보 입력' }}</p>
