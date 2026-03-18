@@ -99,6 +99,9 @@ const handleSave = () => {
       cancel-text="취소"
       :show-draft-button="true"
       draft-text="임시 저장"
+      @cancel="emit('close')"
+      @close="emit('close')"
+      @confirm="handleSave"
     >
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
