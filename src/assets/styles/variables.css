@@ -85,6 +85,50 @@
   --tier-a: #5b4fcf;
   --tier-b: #ffd166;
   --tier-c: #ef476f;
+
+  /* 텍스트 확장 */
+  --color-text-secondary: #7a6fa8;
+  --color-text-placeholder: #a89ed8;
+
+  /* Primary 확장 */
+  --color-primary-50: #f5f3ff;
+
+  /* 설비 상태 (운영중 / 점검예정 / 정지) */
+  --color-equip-active: #007a60;
+  --color-equip-active-bg: #e3fbef;
+  --color-equip-active-border: #b4efd9;
+  --color-equip-warning: #9a6a00;
+  --color-equip-warning-bg: #fff8e0;
+  --color-equip-warning-border: #ffe49e;
+  --color-equip-stopped: #c42b56;
+  --color-equip-stopped-bg: #fff0f3;
+  --color-equip-stopped-border: #ffc3d2;
+
+  /* 상태 텍스트/배지 */
+  --color-success-text: #028a6b;
+  --color-danger-text: #c0103e;
+  --color-warning-text: #a07000;
+
+  /* danger 확장 */
+  --color-danger-bg: #ffecf1;
+  --color-danger-light: #ffd6e0;
+
+  /* 오버레이 / 그림자 */
+  --color-overlay-primary: rgba(45, 31, 110, 0.3);
+  --color-overlay-primary-soft: rgba(45, 31, 110, 0.2);
+  --shadow-modal: 0px 24px 80px rgba(45, 31, 110, 0.22);
+  --shadow-table: 0 2px 8px rgba(45, 31, 110, 0.06);
+  --shadow-mint: 0 0 8px rgba(0, 191, 149, 0.15);
+
+  /* 터미널 / 로그 뷰어 */
+  --color-bg-terminal: #1a1035;
+  --color-log-time: #5b8bff;
+  --color-log-message: #d8e2ff;
+
+  /* 어두운 배경 위 색상 */
+  --color-text-on-dark: rgba(255, 255, 255, 0.5);
+  --color-border-on-dark: rgba(255, 255, 255, 0.1);
+
   --font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-num: 'Inter', var(--font-family-base);
 }
