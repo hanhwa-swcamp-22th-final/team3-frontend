@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import FacilityToolbar from '@/components/admin/scm/FacilityToolbar.vue'
 import FacilityTable   from '@/components/admin/scm/FacilityTable.vue'
-import FacilityModal   from '@/components/admin/scm/FacilityModal.vue'
+import FacilityModal   from '@/components/admin/scm/FacilityModalWrapper.vue'
 import { DUMMY_FACILITIES } from '@/mocks/admin/facility/facilityData.js'
 
 // ── State ──────────────────────────────────────────

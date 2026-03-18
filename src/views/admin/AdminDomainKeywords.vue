@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
 import KeywordTable   from '@/components/admin/scm/KeywordTable.vue'
-import KeywordModal   from '@/components/admin/scm/KeywordModal.vue'
+import KeywordModal   from '@/components/admin/scm/KeywordModalWrapper.vue'
 import { DUMMY_KEYWORDS, PAGE_SIZE } from '@/mocks/admin/keyword/keywordData.js'
 
 const keywords         = ref(DUMMY_KEYWORDS.map(k => ({ ...k })))
