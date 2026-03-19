@@ -28,6 +28,15 @@ const customForm = ref(EMPTY_CUSTOM())
 
 watch(isCustom, (val) => { if (val) customForm.value = EMPTY_CUSTOM() })
 
+// ── 복잡도 테이블 편집 ──────────────────────────────
+const editableComplexity = ref([])
+
+watch(() => props.preset, (p) => {
+  if (p && !isCustom.value) {
+    editableComplexity.value = p.complexity.map(row => ({ ...row }))
+  }
+}, { immediate: true })
+
 const vWeightSum = computed(() => {
   const sum = [customForm.value.v1, customForm.value.v2, customForm.value.v3, customForm.value.v4]
     .map(v => parseFloat(v) || 0)
@@ -131,11 +140,11 @@ const handleCustomSave = () => {
           <span class="col-tolerance">허용공차</span>
           <span class="col-weight">난이도가중</span>
         </div>
-        <div v-for="row in preset.complexity" :key="row.stage" class="table-row">
+        <div v-for="row in editableComplexity" :key="row.stage" class="table-row">
           <span class="col-stage stage-label">{{ row.stage }}</span>
-          <span class="col-process">{{ row.processes }}</span>
-          <span class="col-tolerance">{{ row.tolerance }}</span>
-          <span class="col-weight">{{ row.weight }}</span>
+          <input class="col-process cell-input" v-model="row.processes" />
+          <input class="col-tolerance cell-input" v-model="row.tolerance" />
+          <input class="col-weight cell-input cell-input--num" type="number" step="0.1" v-model.number="row.weight" />
         </div>
       </div>
 
@@ -158,7 +167,7 @@ const handleCustomSave = () => {
           <span class="block-title">🏆 Tier 승급 기준점</span>
           <div class="tier-actions">
             <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
-            <button class="btn-save" @click="emit('save')">프리셋 저장</button>
+            <button class="btn-save" @click="emit('save', { complexity: editableComplexity })">프리셋 저장</button>
           </div>
         </div>
         <div v-for="t in preset.tiers" :key="t.tier" class="tier-row">
@@ -237,6 +246,23 @@ const handleCustomSave = () => {
   color: var(--color-primary-600) !important;
   font-family: var(--font-family-mono);
 }
+
+.cell-input {
+  height: 26px;
+  padding: 0 6px;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.cell-input--num { text-align: right; }
+.cell-input:focus { border-color: var(--color-primary-600); }
 
 .col-stage     { width: 140px; flex-shrink: 0; padding-left: 12px; }
 .col-process   { flex: 1; }
