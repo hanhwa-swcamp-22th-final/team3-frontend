@@ -12,7 +12,7 @@ export const STATUS_STYLE = {
   임시:   { bg: '#ffecf1', color: '#c0103e' },
 }
 
-export const FILTER_TABS = ['게시중', '예약', '임시 저장']
+export const FILTER_TABS = ['전체', '게시중', '예약', '임시']
 
 export const MOCK_TEAMS = ['전체', 'TL', 'GL', 'Worker', 'HRM']
 
@@ -24,6 +24,8 @@ export const mockNotices = [
     status: '게시중',
     targets: ['TL', 'GL', 'Worker'],
     date: '2026.03.18',
+    author: 'HRM_평가운영팀',
+    views: 128,
     isImportant: true,
     content: `이번 달 평가 결과는 3월 21일(토) 18:00 이후 시스템에서 확인 가능합니다.
 
@@ -44,9 +46,11 @@ export const mockNotices = [
   {
     id: 2,
     title: '2026년 1분기 승진 심사 대상자 안내',
-    status: '중요',
+    status: '게시중',
     targets: ['TL', 'GL'],
     date: '2026.03.15',
+    author: 'HRM_인사운영팀',
+    views: 74,
     isImportant: true,
     content: `2026년 1분기 승진 심사 대상자를 아래와 같이 안내드립니다.
 
@@ -70,6 +74,8 @@ export const mockNotices = [
     status: '예약',
     targets: ['TL', 'GL', 'Worker'],
     date: '2026.03.25',
+    author: 'HRM_교육운영팀',
+    views: 0,
     isImportant: false,
     content: `4월 정기 교육 일정을 사전 안내드립니다. 대상자는 반드시 사전 신청 후 참석해 주시기 바랍니다.
 
@@ -92,6 +98,8 @@ export const mockNotices = [
     status: '임시',
     targets: ['HRM'],
     date: null,
+    author: 'HRM_시스템팀',
+    views: 0,
     isImportant: false,
     content: `조직도 관리 메뉴 개편 내용을 안내드립니다. (작성 중)
 
