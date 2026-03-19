@@ -47,6 +47,12 @@ const selectedAppeal = computed(() => {
   return appealForms.value[selectedId.value] ?? null
 })
 
+const selectedStatus = computed(() => {
+  if (!selectedId.value) return null
+  const item = evalHistory.value.find((h) => h.id === selectedId.value)
+  return item?.statusBadge ?? null
+})
+
 function handleSelect(id) {
   selectedId.value = id
 }
@@ -56,7 +62,13 @@ function handleCancel() {
 }
 
 function handleSubmit(payload) {
-  console.log('Appeal submitted:', payload)
+  if (!selectedId.value) return
+  const form = appealForms.value[selectedId.value]
+  if (form) {
+    form.categories = [...payload.categories]
+    form.content = payload.content
+    form.attachments = [...payload.attachments]
+  }
 }
 </script>
 
@@ -77,6 +89,7 @@ function handleSubmit(payload) {
         <WorkerAppealForm
           v-if="selectedAppeal"
           :appeal-data="selectedAppeal"
+          :status-badge="selectedStatus"
           @cancel="handleCancel"
           @submit="handleSubmit"
         />

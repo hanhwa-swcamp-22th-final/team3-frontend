@@ -1,13 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   evaluation: { type: Object, required: true },
 })
 
-const tabs = ['정량 세부 산식', 'AI 평가 근거 보기']
-const activeTab = ref(tabs[0])
+const showFormula = ref(false)
 
 function isHighlight(val) {
   return val.endsWith('%') || val.endsWith('점')
@@ -36,12 +34,13 @@ function parseLabel(label) {
         <h3 class="qn__title">정량 평가 산출 내역</h3>
         <span class="qn__sub">설비 E_idx 보정 적용 기준</span>
       </div>
-      <BaseFilterTabs
-        v-model="activeTab"
-        :items="tabs"
-        variant="chip"
-        class="qn__tabs"
-      />
+      <button
+        class="qn__toggle"
+        :class="{ 'qn__toggle--active': showFormula }"
+        @click="showFormula = !showFormula"
+      >
+        정량 세부 산식
+      </button>
     </div>
 
     <!-- Formula steps -->
@@ -49,7 +48,7 @@ function parseLabel(label) {
       <div v-for="(step, i) in evaluation.steps" :key="i" class="qn__step">
         <div class="qn__step-label">
           <span class="qn__step-name">{{ parseLabel(step.label).name }}</span>
-          <span v-if="parseLabel(step.label).formula" class="qn__step-formula">
+          <span v-if="showFormula && parseLabel(step.label).formula" class="qn__step-formula">
             {{ parseLabel(step.label).formula }}
           </span>
         </div>
@@ -133,7 +132,19 @@ function parseLabel(label) {
   color: var(--color-text-muted);
 }
 
-.qn__tabs :deep(.base-filter-tabs__item--active) {
+.qn__toggle {
+  padding: 8px 18px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-default);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qn__toggle--active {
   background: var(--color-primary-800);
   color: var(--color-white);
   border-color: var(--color-primary-800);

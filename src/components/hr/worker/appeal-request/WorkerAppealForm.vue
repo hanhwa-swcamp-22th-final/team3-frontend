@@ -3,7 +3,10 @@ import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   appealData: { type: Object, required: true },
+  statusBadge: { type: String, default: null },
 })
+
+const isConfirmed = computed(() => props.statusBadge === '확정')
 
 const emit = defineEmits(['cancel', 'submit'])
 
@@ -56,9 +59,24 @@ const processSteps = computed(() => {
   ]
 })
 
+const showToast = ref(false)
+
 const submitLabel = computed(() => {
   return props.appealData.processStatus >= 1 ? '수정 제출' : '제출'
 })
+
+function handleSubmit() {
+  const payload = {
+    categories: [...checkedCategories.value],
+    content: appealContent.value,
+    attachments: [...attachments.value],
+  }
+  emit('submit', payload)
+  if (props.appealData.processStatus >= 1) {
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 2500)
+  }
+}
 </script>
 
 <template>
@@ -103,6 +121,7 @@ const submitLabel = computed(() => {
           <input
             type="checkbox"
             :checked="checkedCategories.includes(cat)"
+            :disabled="isConfirmed"
             @change="toggleCategory(cat)"
           />
           <span>{{ cat }}</span>
@@ -118,6 +137,7 @@ const submitLabel = computed(() => {
         class="af__textarea"
         rows="4"
         placeholder="이의 제기 내용을 입력해주세요."
+        :disabled="isConfirmed"
       ></textarea>
     </div>
 
@@ -128,9 +148,9 @@ const submitLabel = computed(() => {
         <div v-for="(file, i) in attachments" :key="i" class="af__file">
           <span class="af__file-icon">📎</span>
           <span class="af__file-name">{{ file }}</span>
-          <button class="af__file-remove" @click="removeFile(i)">X</button>
+          <button v-if="!isConfirmed" class="af__file-remove" @click="removeFile(i)">X</button>
         </div>
-        <button class="af__file-add" @click="addFile">+ 파일 추가</button>
+        <button v-if="!isConfirmed" class="af__file-add" @click="addFile">+ 파일 추가</button>
       </div>
     </div>
 
@@ -159,16 +179,16 @@ const submitLabel = computed(() => {
     </div>
 
     <!-- Actions -->
-    <div class="af__actions">
+    <div v-if="!isConfirmed" class="af__actions">
       <button class="af__btn af__btn--cancel" @click="emit('cancel')">취소</button>
-      <button class="af__btn af__btn--submit" @click="emit('submit', {
-        categories: checkedCategories,
-        content: appealContent,
-        attachments,
-      })">
+      <button class="af__btn af__btn--submit" @click="handleSubmit">
         {{ submitLabel }}
       </button>
     </div>
+
+    <Transition name="af__toast-fade">
+      <div v-if="showToast" class="af__toast">수정되었습니다</div>
+    </Transition>
   </div>
 </template>
 
@@ -445,5 +465,31 @@ const submitLabel = computed(() => {
 
 .af__btn--submit:hover {
   background: var(--color-primary-700);
+}
+
+.af__toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-primary-800);
+  color: var(--color-white);
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+}
+
+.af__toast-fade-enter-active,
+.af__toast-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.af__toast-fade-enter-from,
+.af__toast-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
 }
 </style>

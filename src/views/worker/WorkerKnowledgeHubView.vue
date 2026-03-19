@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import WorkerKnowledgeHubContentHeader from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubContentHeader.vue'
-import WorkerKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubFeed.vue'
+import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import WorkerKnowledgeHubMonthlyRank from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubMonthlyRank.vue'
 import WorkerKnowledgeHubMentoringMatchingStatus from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubMentoringMatchingStatus.vue'
 import WorkerKnowledgeHubAIRecommendation from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubAIRecommendation.vue'
@@ -11,6 +11,7 @@ import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-manage
 
 import {
   knowledgeStats,
+  knowledgeCategories,
   knowledgeArticles,
   monthlyRanking,
   ongoingMentoring,
@@ -71,7 +72,11 @@ function closeModal() {
 
     <!-- Main Grid: Feed (left) + Sidebar (right) -->
     <div class="kh-grid">
-      <WorkerKnowledgeHubFeed :articles="knowledgeArticles" @openAddModal="showAddModal = true" />
+      <TeamLeaderKnowledgeHubFeed
+        :categories="knowledgeCategories"
+        :articles="knowledgeArticles"
+        @open-write="showAddModal = true"
+      />
 
       <div class="kh-sidebar">
         <WorkerKnowledgeHubMonthlyRank :ranking="monthlyRanking" />
