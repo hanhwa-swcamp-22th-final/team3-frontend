@@ -9,7 +9,7 @@ defineProps({
   pageButtons:  { type: Array,  default: () => [] },
 })
 
-const emit = defineEmits(['editClick'])
+const emit = defineEmits(['editClick', 'deleteClick'])
 
 const statusStyle = (status) => {
   if (status === '운영중')  return { bg: 'var(--color-equip-active-bg)',  border: 'var(--color-equip-active-border)',  color: 'var(--color-equip-active)' }
@@ -50,6 +50,7 @@ const statusStyle = (status) => {
       </span>
       <span class="col-action">
         <button class="btn-edit" @click="emit('editClick', facility)">수정</button>
+        <button class="btn-delete" @click="emit('deleteClick', facility)">삭제</button>
       </span>
     </div>
 
@@ -125,7 +126,7 @@ const statusStyle = (status) => {
 .col-name   { flex: 1; }
 .col-line   { width: 210px; flex-shrink: 0; }
 .col-status { width: 210px; flex-shrink: 0; }
-.col-action { width: 66px;  flex-shrink: 0; }
+.col-action { width: 130px; flex-shrink: 0; display: flex; gap: 6px; }
 
 .status-badge {
   display: inline-flex;
@@ -150,6 +151,20 @@ const statusStyle = (status) => {
 }
 
 .btn-edit:hover { background: var(--color-border-default); }
+
+.btn-delete {
+  height: 32px;
+  padding: 0 14px;
+  background: #fff0f3;
+  border: 1px solid #f5c2cc;
+  border-radius: var(--radius-2xs);
+  font-size: 12px;
+  font-weight: 700;
+  color: #c42b56;
+  cursor: pointer;
+}
+
+.btn-delete:hover { background: #ffd6de; }
 
 .empty {
   padding: 40px 0;
