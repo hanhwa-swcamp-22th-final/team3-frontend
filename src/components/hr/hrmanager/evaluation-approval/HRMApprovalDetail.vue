@@ -1,6 +1,8 @@
 <script setup>
 defineProps({
-  item: { type: Object, required: true },
+  item:     { type: Object,  required: true },
+  readonly: { type: Boolean, default: false },
+  held:     { type: Boolean, default: false },
 })
 defineEmits(['approve', 'reject', 'hold'])
 </script>
@@ -48,27 +50,41 @@ defineEmits(['approve', 'reject', 'hold'])
       <p class="hrm-ai-box__trust">데이터 신뢰도 {{ item.detail.dataTrust }}</p>
     </div>
 
-    <!-- 라인장 코멘트 -->
-    <div class="hrm-comment-box">
-      <div class="hrm-comment-box__header">
-        <div class="hrm-comment-box__avatar">{{ item.detail.avatar }}</div>
-        <span class="hrm-comment-box__role">라인장 코멘트</span>
-        <span class="hrm-comment-box__date">· {{ item.detail.commentDate }}</span>
+    <!-- 이의신청 내용 -->
+    <div class="hrm-appeal-box">
+      <div class="hrm-appeal-box__row">
+        <span class="hrm-appeal-box__label">대상 분기</span>
+        <span class="hrm-appeal-box__value">{{ item.detail.quarter }}</span>
       </div>
-      <p class="hrm-comment-box__text">"{{ item.detail.comment }}"</p>
-    </div>
-
-    <!-- 이의신청 여부 -->
-    <div class="hrm-objection">
-      <p v-if="!item.detail.objection" class="hrm-objection__none">이의신청 내역 없음</p>
-      <p v-else class="hrm-objection__exists">이의신청 접수됨</p>
+      <div class="hrm-appeal-box__row">
+        <span class="hrm-appeal-box__label">신청 사유</span>
+        <span class="hrm-appeal-box__value hrm-appeal-box__value--reason">{{ item.detail.reason }}</span>
+      </div>
+      <p class="hrm-appeal-box__content">{{ item.detail.content }}</p>
+      <div v-if="item.detail.attachments?.length" class="hrm-appeal-box__attachments">
+        <span v-for="f in item.detail.attachments" :key="f" class="hrm-appeal-attachment">📎 {{ f }}</span>
+      </div>
     </div>
 
     <!-- 액션 버튼 -->
-    <div class="hrm-actions">
+    <div v-if="!readonly && !held" class="hrm-actions">
       <button class="hrm-btn hrm-btn--reject"  @click="$emit('reject')">반려</button>
       <button class="hrm-btn hrm-btn--hold"    @click="$emit('hold')">보류</button>
       <button class="hrm-btn hrm-btn--approve" @click="$emit('approve')">최종 승인</button>
+    </div>
+    <div v-else-if="held" class="hrm-held-actions">
+      <div class="hrm-processed-result" :style="{ background: item.processedBg, color: item.processedColor }">
+        <span class="hrm-processed-result__label">보류 처리됨</span>
+        <span v-if="item.processedReason" class="hrm-processed-result__reason">사유: {{ item.processedReason }}</span>
+      </div>
+      <div class="hrm-actions">
+        <button class="hrm-btn hrm-btn--reject"  @click="$emit('reject')">반려</button>
+        <button class="hrm-btn hrm-btn--approve" @click="$emit('approve')">최종 승인</button>
+      </div>
+    </div>
+    <div v-else class="hrm-processed-result" :style="{ background: item.processedBg, color: item.processedColor }">
+      <span class="hrm-processed-result__label">{{ item.processedLabel }} 처리 완료</span>
+      <span v-if="item.processedReason" class="hrm-processed-result__reason">사유: {{ item.processedReason }}</span>
     </div>
   </article>
 </template>
@@ -123,26 +139,51 @@ defineEmits(['approve', 'reject', 'hold'])
 }
 .hrm-ai-box__trust { font-size: var(--font-size-xs); color: #7a6fa8; }
 
-.hrm-comment-box {
-  padding: 15px; background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-primary-600);
-  border-radius: 4px; display: flex; flex-direction: column; gap: 6px;
+.hrm-appeal-box {
+  padding: 14px 16px;
+  background: #fff8f9;
+  border: 1.5px solid #f5c0cc;
+  border-radius: 8px;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.hrm-comment-box__header { display: flex; align-items: center; gap: 6px; }
-.hrm-comment-box__avatar {
-  width: 24px; height: 24px; background: #1a8060; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-white); flex-shrink: 0;
+.hrm-appeal-box__row { display: flex; align-items: baseline; gap: 10px; }
+.hrm-appeal-box__label {
+  font-size: var(--font-size-xs); color: #a89ed8;
+  white-space: nowrap; flex-shrink: 0; min-width: 60px;
 }
-.hrm-comment-box__role,
-.hrm-comment-box__date { font-size: var(--font-size-2xs); color: #a89ed8; }
-.hrm-comment-box__text { font-size: var(--font-size-sm); color: #7a6fa8; line-height: 1.5; }
-
-.hrm-objection { text-align: center; padding: 8px 0; }
-.hrm-objection__none   { font-size: var(--font-size-xs); color: #a89ed8; }
-.hrm-objection__exists { font-size: var(--font-size-xs); color: #c0103e; font-weight: var(--font-weight-bold); }
+.hrm-appeal-box__value { font-size: var(--font-size-sm); color: var(--color-primary-800); }
+.hrm-appeal-box__value--reason { font-weight: var(--font-weight-bold); color: #c0103e; }
+.hrm-appeal-box__content {
+  font-size: var(--font-size-sm); color: #7a6fa8;
+  line-height: 1.6; padding-top: 4px;
+  border-top: 1px solid #f5c0cc;
+}
+.hrm-appeal-box__attachments { display: flex; flex-wrap: wrap; gap: 6px; }
+.hrm-appeal-attachment {
+  display: inline-block; padding: 2px 8px; height: 20px;
+  background: #fee2e2; color: #991b1b;
+  font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
+  border-radius: 3px; line-height: 16px;
+}
 
 .hrm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.hrm-held-actions { display: flex; flex-direction: column; gap: 10px; }
+.hrm-processed-result {
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hrm-processed-result__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+.hrm-processed-result__reason {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+  text-align: center;
+}
 .hrm-btn {
   height: 40px; padding: 0 16px; border-radius: 4px;
   font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); cursor: pointer; border: 1.5px solid transparent;
