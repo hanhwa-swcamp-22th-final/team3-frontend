@@ -16,10 +16,25 @@ const props = defineProps({
 const emit = defineEmits(['filterChange', 'tagFilterChange'])
 
 const filteredCards = computed(() => {
-  if (!props.selectedTagFilter) return DUMMY_KNOWLEDGE
-  return DUMMY_KNOWLEDGE.filter(card =>
-    card.tags.some(t => t === props.selectedTagFilter)
-  )
+  let list = [...DUMMY_KNOWLEDGE]
+
+  // 탭 필터 적용
+  if (props.selectedFilter === '인기') {
+    list = list.sort((a, b) => b.views - a.views)
+  } else if (props.selectedFilter === '최신') {
+    list = list.sort((a, b) => b.date.localeCompare(a.date))
+  } else if (props.selectedFilter === '내 구독') {
+    list = list.filter(card => card.subscribed)
+  }
+
+  // 태그 필터 적용 (AND 조합)
+  if (props.selectedTagFilter) {
+    list = list.filter(card =>
+      card.tags.some(t => t === props.selectedTagFilter)
+    )
+  }
+
+  return list
 })
 </script>
 
