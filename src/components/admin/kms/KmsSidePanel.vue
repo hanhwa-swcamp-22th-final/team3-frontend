@@ -70,9 +70,8 @@ const handleAccept = () => {
       <span class="section-title">🤖 AI 추천 학습</span>
       <div class="ai-list">
         <div v-for="(item, i) in AI_RECOMMENDATIONS" :key="i" class="ai-item">
-          <span class="ai-num">{{ i + 1 }}</span>
           <span class="ai-text">{{ item }}</span>
-          <span class="ai-arrow">›</span>
+          <span class="ai-arrow">→</span>
         </div>
       </div>
     </div>
@@ -327,8 +326,13 @@ const handleAccept = () => {
 
 /* AI 추천 섹션 배경 */
 .panel-section--ai {
-  background: linear-gradient(160deg, #f0eeff 0%, #e8fdf5 100%);
-  border-color: var(--color-primary-300, #a89ed8);
+  background: var(--color-primary-800, #2d1f6e);
+  border-color: var(--color-primary-800, #2d1f6e);
+  padding: 18px 18px 0;
+}
+
+.panel-section--ai .section-title {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 수락 모달 오버레이 */
@@ -540,45 +544,31 @@ const handleAccept = () => {
 .ai-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding-bottom: 18px;
 }
 
 .ai-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 0 10px;
   height: 34px;
-  border-bottom: 1px solid var(--color-border-soft, #f1eeff);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
   cursor: pointer;
-}
-
-.ai-item:last-child {
-  border-bottom: none;
-}
-
-.ai-num {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--color-primary-800, #2d1f6e);
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .ai-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary-800, #2d1f6e);
-  flex: 1;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .ai-arrow {
-  font-size: 16px;
-  color: var(--color-text-muted, #a89ed8);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
 }
 </style>
