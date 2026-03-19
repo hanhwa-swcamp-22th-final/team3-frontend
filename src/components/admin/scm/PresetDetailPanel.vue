@@ -55,7 +55,13 @@ const handleCustomSave = () => {
   <div v-if="preset" class="detail-panel">
 
     <!-- 패널 타이틀 -->
-    <span class="panel-title">{{ preset.icon }} {{ preset.name }} 프리셋 — 세부 파라미터</span>
+    <div class="panel-title-row">
+      <span class="panel-title">{{ preset.icon }} {{ preset.name }} 프리셋 — 세부 파라미터</span>
+      <template v-if="!isCustom">
+        <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
+        <button class="btn-save" @click="emit('save', { complexity: editableComplexity })">프리셋 저장</button>
+      </template>
+    </div>
 
     <!-- ── 커스텀 프리셋 폼 ── -->
     <template v-if="isCustom">
@@ -163,13 +169,7 @@ const handleCustomSave = () => {
 
       <!-- Block 3: Tier 승급 기준점 -->
       <div class="block">
-        <div class="tier-header">
-          <span class="block-title">🏆 Tier 승급 기준점</span>
-          <div class="tier-actions">
-            <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
-            <button class="btn-save" @click="emit('save', { complexity: editableComplexity })">프리셋 저장</button>
-          </div>
-        </div>
+        <span class="block-title">🏆 Tier 승급 기준점</span>
         <div v-for="t in preset.tiers" :key="t.tier" class="tier-row">
           <span class="tier-badge" :style="{ background: t.bg, color: t.color }">{{ t.tier }}-Tier</span>
           <span class="tier-desc">{{ t.score }} {{ t.desc }}</span>
@@ -197,11 +197,18 @@ const handleCustomSave = () => {
 }
 
 /* 패널 타이틀 */
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .panel-title {
   font-size: 12px;
   font-weight: 900;
   color: var(--color-text-secondary);
-  flex-shrink: 0;
+  flex: 1;
 }
 
 /* 공통 블록 */
