@@ -60,8 +60,8 @@ const emit = defineEmits(['edit', 'delete'])
 .hrm-detail__badges { display: flex; gap: 6px; }
 
 .hrm-detail__badge {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   padding: 3px 10px;
   border-radius: 4px;
 }
@@ -72,15 +72,15 @@ const emit = defineEmits(['edit', 'delete'])
 }
 
 .hrm-detail__title {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-text-strong);
   line-height: 1.5;
   margin: 0;
 }
 
 .hrm-detail__body {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-default);
   line-height: 1.8;
   white-space: pre-wrap;
@@ -94,7 +94,7 @@ const emit = defineEmits(['edit', 'delete'])
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
@@ -105,8 +105,8 @@ const emit = defineEmits(['edit', 'delete'])
 }
 
 .hrm-detail__attachment-title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
   margin: 0 0 10px;
 }
@@ -119,7 +119,7 @@ const emit = defineEmits(['edit', 'delete'])
 }
 
 .hrm-detail__attachment-file {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-default);
 }
 
@@ -128,8 +128,8 @@ const emit = defineEmits(['edit', 'delete'])
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xs);
   background: var(--color-bg-surface);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-default);
   cursor: pointer;
   white-space: nowrap;
@@ -148,7 +148,7 @@ const emit = defineEmits(['edit', 'delete'])
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
   border-radius: var(--radius-xs);
-  font-size: 13px; font-weight: 600;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
   color: var(--color-primary-600); cursor: pointer;
 }
 .hrm-detail__edit-btn:hover { border-color: var(--color-primary-300); }
@@ -158,7 +158,7 @@ const emit = defineEmits(['edit', 'delete'])
   background: var(--color-danger-soft);
   border: 1.5px solid var(--color-danger);
   border-radius: var(--radius-xs);
-  font-size: 13px; font-weight: 600;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
   color: var(--color-danger); cursor: pointer;
 }
 </style>
