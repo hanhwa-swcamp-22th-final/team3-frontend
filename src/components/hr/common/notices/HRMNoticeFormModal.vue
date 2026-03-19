@@ -17,6 +17,7 @@ const targets     = ref(props.initialData.targets    ?? [])
 
 const showTeamFilter = ref(false)
 const isDragging     = ref(false)
+const fileInputRef   = ref(null)
 
 watch(() => props.initialData, d => {
   title.value       = d.title       ?? ''
@@ -45,6 +46,15 @@ function onDrop(e) {
   isDragging.value = false
   const file = e.dataTransfer?.files?.[0]
   if (file) attachment.value = file.name
+}
+
+function onFileChange(e) {
+  const file = e.target.files?.[0]
+  if (file) attachment.value = file.name
+}
+
+function openFilePicker() {
+  fileInputRef.value?.click()
 }
 </script>
 
@@ -102,16 +112,18 @@ function onDrop(e) {
 
       <!-- 첨부 파일 -->
       <label class="modal__label">첨부 파일</label>
+      <input ref="fileInputRef" type="file" style="display:none" @change="onFileChange" />
       <div
         class="modal__dropzone"
         :class="{ 'modal__dropzone--drag': isDragging }"
         @dragover.prevent="isDragging = true"
         @dragleave="isDragging = false"
         @drop.prevent="onDrop"
+        @click="openFilePicker"
       >
         <span class="modal__dropzone-icon">⬆</span>
-        <span class="modal__dropzone-text">파일을 끌어다 놓거나 업로드하려면 클릭하세요</span>
-        <button class="modal__file-btn" type="button">파일 첨부</button>
+        <span class="modal__dropzone-text">파일을 끌어다 놓거나 클릭하세요</span>
+        <button class="modal__file-btn" type="button" @click.stop="openFilePicker">파일 첨부</button>
       </div>
       <div v-if="attachment" class="modal__file-list">
         <div class="modal__file-item">
