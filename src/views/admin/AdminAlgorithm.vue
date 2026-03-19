@@ -11,8 +11,12 @@ const isDirty           = ref(false)
 const globalThreshold   = ref(0.80)
 
 // ── 핸들러 ───────────────────────────────────────────
-const onSelectEquipment = (eq)  => { selectedEquipment.value = { ...eq }; isDirty.value = false }
+const onSelectEquipment = (eq)  => { selectedEquipment.value = { ...eq, params: { ...eq.params } }; isDirty.value = false }
 const onThresholdChange = (val) => { globalThreshold.value = val; isDirty.value = true }
+const onParamChange     = (key, val) => {
+  selectedEquipment.value.params = { ...selectedEquipment.value.params, [key]: val }
+  isDirty.value = true
+}
 const onSave            = ()    => {
   const idx = equipments.value.findIndex(e => e.id === selectedEquipment.value.id)
   if (idx !== -1) equipments.value[idx] = { ...selectedEquipment.value }
@@ -41,13 +45,14 @@ const onSave            = ()    => {
         :equipments="equipments"
         :selectedId="selectedEquipment?.id"
         :globalThreshold="globalThreshold"
-        :isLoading="isLoading"
+
         @select="onSelectEquipment"
         @thresholdChange="onThresholdChange"
       />
 
       <AlgorithmDetailPanel
         :equipment="selectedEquipment"
+        @param-change="onParamChange"
       />
     </div>
 
