@@ -111,8 +111,14 @@ export const MENTORING_ACTIVE = [
 ]
 
 export const MENTORING_REQUEST = {
-  applicant: { initial: '이', color: '#7A6FA8' },
+  applicant: { initial: '이', name: '이수연', color: '#8A7FC5' },
+  subText: '용접 기술 멘토 구합니다',
   text: '이수연 · 용접 기술 멘토 구합니다',
+  field: '정밀가공',
+  duration: '2주',
+  priority: '높음',
+  reason: '현재 용접 작업 중 전류값 보정이 어려워 숙련 멘토의 실무 지도가 필요합니다. 기초 이론은 숙지했으나 현장 적용이 미숙합니다.',
+  memo: '',
 }
 
 // ── AI 추천 학습 ─────────────────────────────────────

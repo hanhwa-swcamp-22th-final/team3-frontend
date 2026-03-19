@@ -83,13 +83,59 @@ const handleAccept = () => {
   <Teleport to="body">
     <div v-if="showAcceptModal" class="accept-overlay" @click.self="showAcceptModal = false">
       <div class="accept-modal">
-        <p class="accept-modal__title">🤝 멘토링 수락 확인</p>
-        <p class="accept-modal__body">{{ MENTORING_REQUEST.text }}</p>
-        <p class="accept-modal__desc">해당 멘토링 신청을 수락하시겠습니까?</p>
-        <div class="accept-modal__actions">
-          <button class="accept-modal__btn accept-modal__btn--cancel" @click="showAcceptModal = false">취소</button>
-          <button class="accept-modal__btn accept-modal__btn--confirm" @click="handleAccept">수락 확정</button>
+
+        <!-- 헤더 -->
+        <div class="am-header">
+          <p class="am-title">매칭 신청 수락</p>
+          <p class="am-desc">아래 멘토링 신청 내용을 확인하고 수락 여부를 결정해주세요.</p>
         </div>
+
+        <!-- 신청자 카드 -->
+        <div class="am-applicant">
+          <div class="am-avatar" :style="{ background: MENTORING_REQUEST.applicant.color }">
+            {{ MENTORING_REQUEST.applicant.initial }}
+          </div>
+          <div class="am-applicant-info">
+            <span class="am-applicant-name">{{ MENTORING_REQUEST.applicant.name }}</span>
+            <span class="am-applicant-sub">{{ MENTORING_REQUEST.subText }}</span>
+          </div>
+          <span class="am-badge">매칭 신청</span>
+        </div>
+
+        <!-- 3개 정보 카드 -->
+        <div class="am-info-row">
+          <div class="am-info-card">
+            <span class="am-info-label">요청 분야</span>
+            <span class="am-info-value">{{ MENTORING_REQUEST.field }}</span>
+          </div>
+          <div class="am-info-card">
+            <span class="am-info-label">희망 기간</span>
+            <span class="am-info-value">{{ MENTORING_REQUEST.duration }}</span>
+          </div>
+          <div class="am-info-card">
+            <span class="am-info-label">우선도</span>
+            <span class="am-info-value am-info-value--high">{{ MENTORING_REQUEST.priority }}</span>
+          </div>
+        </div>
+
+        <!-- 신청 사유 -->
+        <div class="am-box">
+          <span class="am-box-label">신청 사유</span>
+          <p class="am-box-text">{{ MENTORING_REQUEST.reason }}</p>
+        </div>
+
+        <!-- 관리 메모 -->
+        <div class="am-box">
+          <span class="am-box-label">관리 메모</span>
+          <textarea class="am-box-textarea" placeholder="메모를 입력하세요..." rows="3"></textarea>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="am-actions">
+          <button class="am-btn am-btn--cancel" @click="showAcceptModal = false">취소</button>
+          <button class="am-btn am-btn--confirm" @click="handleAccept">수락</button>
+        </div>
+
       </div>
     </div>
   </Teleport>
@@ -289,7 +335,7 @@ const handleAccept = () => {
 .accept-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(45, 31, 110, 0.35);
+  background: rgba(40, 27, 83, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -298,67 +344,197 @@ const handleAccept = () => {
 
 .accept-modal {
   background: #ffffff;
-  border: 1.5px solid var(--color-border-default, #e0dcff);
-  border-radius: 12px;
-  padding: 24px;
-  width: 320px;
+  border: 3px solid rgba(93, 80, 215, 0.12);
+  border-radius: 28px;
+  padding: 32px 32px 28px;
+  width: 720px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0px 34px 80px rgba(40, 27, 83, 0.26);
+}
+
+/* 헤더 */
+.am-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #ECE8F6;
+}
+
+.am-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #32265F;
+  margin: 0;
+}
+
+.am-desc {
+  font-size: 15px;
+  color: #938ABF;
+  margin: 0;
+}
+
+/* 신청자 카드 */
+.am-applicant {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #FBFAFF;
+  border: 3px solid #E6E1F4;
+  border-radius: 18px;
+}
+
+.am-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.am-applicant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.am-applicant-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #32265F;
+}
+
+.am-applicant-sub {
+  font-size: 14px;
+  color: #938ABF;
+}
+
+.am-badge {
+  padding: 5px 14px;
+  background: #F8EFD8;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #B8841D;
+  flex-shrink: 0;
+}
+
+/* 3개 정보 카드 */
+.am-info-row {
+  display: flex;
+  gap: 12px;
+}
+
+.am-info-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  background: #FFFFFF;
+  border: 3px solid #E6E1F4;
+  border-radius: 16px;
+}
+
+.am-info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #938ABF;
+}
+
+.am-info-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #32265F;
+}
+
+.am-info-value--high {
+  color: #C0103E;
+}
+
+/* 신청 사유 / 관리 메모 박스 */
+.am-box {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 16px 18px;
+  background: #FBFAFF;
+  border: 3px solid #E6E1F4;
+  border-radius: 18px;
 }
 
-.accept-modal__title {
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--color-primary-800, #2d1f6e);
-}
-
-.accept-modal__body {
-  font-size: 13px;
+.am-box-label {
+  font-size: 12px;
   font-weight: 700;
-  color: var(--color-primary-600, #5b4fcf);
-  background: var(--color-primary-100, #f0eeff);
-  border-radius: 6px;
-  padding: 10px 12px;
+  color: #938ABF;
 }
 
-.accept-modal__desc {
-  font-size: 11px;
-  color: var(--color-text-sub, #7a6fa8);
+.am-box-text {
+  font-size: 13px;
+  color: #32265F;
+  line-height: 1.6;
+  margin: 0;
 }
 
-.accept-modal__actions {
+.am-box-textarea {
+  width: 100%;
+  resize: none;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #32265F;
+  font-family: var(--font-family-base);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.am-box-textarea::placeholder {
+  color: #C4BADF;
+}
+
+/* 버튼 */
+.am-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
   margin-top: 4px;
 }
 
-.accept-modal__btn {
-  height: 32px;
-  padding: 0 16px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
+.am-btn {
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
   cursor: pointer;
   font-family: var(--font-family-base);
 }
 
-.accept-modal__btn--cancel {
-  background: #ffffff;
-  border: 1.5px solid var(--color-border-default, #e0dcff);
-  color: var(--color-text-sub, #7a6fa8);
+.am-btn--cancel {
+  background: #FFFFFF;
+  border: 3px solid #DDD8F2;
+  color: #938ABF;
 }
 
-.accept-modal__btn--cancel:hover { background: var(--color-primary-100, #f0eeff); }
+.am-btn--cancel:hover { background: #F5F3FF; }
 
-.accept-modal__btn--confirm {
-  background: var(--color-primary-600, #5b4fcf);
-  border: 1.5px solid var(--color-primary-500, #7f75db);
+.am-btn--confirm {
+  background: #5D50D7;
+  border: none;
   color: #ffffff;
 }
 
-.accept-modal__btn--confirm:hover { background: var(--color-primary-700, #4a3fb0); }
+.am-btn--confirm:hover { background: #4a3fb0; }
 
 /* AI 추천 */
 .ai-list {
