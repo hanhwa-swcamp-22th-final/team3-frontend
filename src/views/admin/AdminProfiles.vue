@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import ProfileStatusBoard  from '@/components/admin/hr/ProfileStatusBoard.vue'
+import ProfileStatusBoard  from '@/components/admin/hr/ProfileStatusBoardWrapper.vue'
 import ProfileSearchToolbar from '@/components/admin/hr/ProfileSearchToolbar.vue'
 import ProfileListTable    from '@/components/admin/hr/ProfileListTable.vue'
 import ProfileCreateUpdate from '@/components/admin/hr/ProfileCreateUpdate.vue'
@@ -111,6 +111,18 @@ const removeEmployee = (id) => {
 <template>
   <div class="admin-profiles">
 
+    <ProfileSearchToolbar
+        :searchQuery="searchQuery"
+        :selectedTier="selectedTier"
+        :selectedLine="selectedLine"
+        :lines="lines"
+        @search="onSearch"
+        @tierChange="onTierChange"
+        @lineChange="onLineChange"
+        @addClick="openAddModal"
+    />
+
+
     <ProfileStatusBoard
       :totalCount="totalCount"
       :topTierCount="topTierCount"
@@ -118,16 +130,6 @@ const removeEmployee = (id) => {
       :avgScore="avgScore"
     />
 
-    <ProfileSearchToolbar
-      :searchQuery="searchQuery"
-      :selectedTier="selectedTier"
-      :selectedLine="selectedLine"
-      :lines="lines"
-      @search="onSearch"
-      @tierChange="onTierChange"
-      @lineChange="onLineChange"
-      @addClick="openAddModal"
-    />
 
     <ProfileListTable
       :employees="employees"

@@ -1,12 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import employeeApi from '@/services/employeeApi.js'
+import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
 // Kiosk KeypadModal 패턴: isOpen=열림여부 / employee=null→등록, object→수정
 const props = defineProps(['isOpen', 'employee'])
 const emit  = defineEmits(['close', 'save'])
-
-const isSubmitting = ref(false)
 
 // EMPTY_FORM: watch에서 { ...EMPTY_FORM }으로 매번 새 객체를 만들어야 이전 입력값이 남지 않음
 const EMPTY_FORM = {
@@ -81,47 +79,24 @@ const historyLines = computed(() => {
 })
 
 // ── handleSave (수업 패턴: try-catch-finally) ─────────
-const handleSave = async () => {
+const handleSave = () => {
   if (!form.value.employee_name.trim()) return alert('이름을 입력해주세요.')
   if (!form.value.employee_code.trim()) return alert('사원번호를 입력해주세요.')
   if (!form.value.employee_line.trim()) return alert('소속라인을 입력해주세요.')
 
-  isSubmitting.value = true
-  try {
-    const payload = { ...form.value, updated_at: new Date().toISOString() }
-
-    if (props.employee) {
-      // 수정 모드
-      await employeeApi.update(props.employee.id, payload)
-    } else {
-      // 등록 모드: 자동 세팅값 추가
-      payload.created_at       = form.value.hire_date
-        ? new Date(form.value.hire_date).toISOString()
-        : new Date().toISOString()
-      payload.employee_status  = '재직'
-      payload.login_fail_count = 0
-      payload.is_locked        = false
-      payload.mfa_enabled      = false
-      payload.last_login_at    = null
-      await employeeApi.create(payload)
-    }
-    emit('save')   // 부모에게 목록 새로고침 요청
-    emit('close')  // 모달 닫기
-  } catch (e) {
-    console.error('저장 실패:', e)
-  } finally {
-    isSubmitting.value = false
-  }
+  emit('save', { ...form.value })
+  emit('close')
 }
 </script>
 
 <template>
-  <!-- Kiosk KeypadModal 패턴: Teleport → body 직하에 렌더링 -->
   <Teleport to="body">
-    <div v-if="isOpen" class="modal-overlay" @click.self="$emit('close')">
-
-      <!-- modal-box: Figma 688px × 739px, padding 27px, gap 13px -->
-      <form class="modal-box" @submit.prevent="handleSave">
+    <BaseFormModal
+      v-if="isOpen"
+      :title="employee ? '테크니션 정보 수정' : '테크니션 등록'"
+      width="688px"
+      @close="emit('close')"
+    >
 
         <!-- ① 기본 정보 수정 ───────────────────────────── -->
         <p class="section-label">✏️ {{ employee ? '기본 정보 수정' : '기본 정보 입력' }}</p>
@@ -255,46 +230,19 @@ const handleSave = async () => {
           <p v-for="(line, i) in historyLines" :key="i" class="history-line">{{ line }}</p>
         </div>
 
-        <!-- ⑤ 버튼 행 ──────────────────────────────────── -->
+      <template #footer>
         <div class="modal-footer">
-          <button type="button" class="btn btn-cancel" @click="$emit('close')">취소</button>
-          <button type="button" class="btn btn-temp" :disabled="isSubmitting">임시 저장</button>
-          <button type="submit" class="btn btn-save" :disabled="isSubmitting">
-            {{ isSubmitting ? '저장 중…' : '저장 완료' }}
-          </button>
+          <button type="button" class="btn btn-cancel" @click="emit('close')">취소</button>
+          <button type="button" class="btn btn-temp">임시 저장</button>
+          <button type="button" class="btn btn-save" @click="handleSave">저장 완료</button>
         </div>
+      </template>
 
-      </form>
-    </div>
+    </BaseFormModal>
   </Teleport>
 </template>
 
 <style scoped>
-/* ── 오버레이 ───────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-/* ── 모달 박스 (Figma: 688px, padding 27px, gap 13px) ─ */
-.modal-box {
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-  padding: 27px;
-  width: 688px;
-  max-height: 90vh;
-  overflow-y: auto;
-  background: var(--color-bg-surface);
-  border: 3px solid var(--color-border-default);
-  border-radius: var(--radius-base);
-  box-shadow: var(--shadow-card);
-}
 
 /* ── 섹션 레이블 (Figma: 9px, uppercase, #A89ED8) ──── */
 .section-label {
@@ -471,7 +419,9 @@ const handleSave = async () => {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 /* 공통 버튼 (Figma: height 27px, border-radius 4px, font 11px bold) */

@@ -7,6 +7,7 @@ import {
   TAG_STYLE,
   TIER_BADGE,
 } from '@/mocks/admin/kms/kmsData.js'
+import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
 
 const props = defineProps({
   selectedFilter:    { type: String, default: '전체' },
@@ -25,19 +26,15 @@ const filteredCards = computed(() => {
 <template>
   <div class="kms-feed">
 
-    <!-- 필터 탭 -->
+    <!-- 필터 탭 + 태그 필터 (한 행) -->
     <div class="filter-row">
-      <button
-        v-for="f in KMS_FILTERS"
-        :key="f.key"
-        class="filter-btn"
-        :class="selectedFilter === f.key ? 'filter-btn--active' : 'filter-btn--inactive'"
-        @click="emit('filterChange', f.key)"
-      >{{ f.key }}</button>
-    </div>
-
-    <!-- 태그 필터 -->
-    <div class="tag-row">
+      <BaseFilterTabs
+        :items="KMS_FILTERS.map(f => ({ key: f.key, label: f.key }))"
+        :model-value="selectedFilter"
+        variant="chip"
+        class="kms-filter-tabs"
+        @change="emit('filterChange', $event)"
+      />
       <span
         v-for="t in KMS_TAG_FILTERS"
         :key="t.key"
@@ -111,37 +108,26 @@ const filteredCards = computed(() => {
 }
 
 /* 필터 탭 */
-.filter-row {
-  display: flex;
-  gap: 8px;
-}
-
-.filter-btn {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  border: 1.5px solid transparent;
-  font-family: var(--font-family-base);
+.kms-filter-tabs :deep(.base-filter-tabs__item) {
+  height: 32px;
+  padding: 7px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  border: 1px solid var(--color-border-default, #e0dcff);
   transition: background 0.15s;
 }
 
-.filter-btn--active {
+.kms-filter-tabs :deep(.base-filter-tabs__item--active) {
   background: var(--color-primary-800, #2d1f6e);
   color: #ffffff;
+  border-color: var(--color-primary-800, #2d1f6e);
 }
 
-.filter-btn--inactive {
-  background: var(--color-bg-surface, #ffffff);
-  color: var(--color-text-sub, #7a6fa8);
-  border-color: var(--color-border-default, #e0dcff);
-}
-
-/* 태그 필터 */
-.tag-row {
+/* 필터 + 태그 한 행 */
+.filter-row {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }

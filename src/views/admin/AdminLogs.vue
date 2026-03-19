@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import LogServiceCards from '@/components/admin/scm/LogServiceCards.vue'
+import LogServiceCards from '@/components/admin/scm/LogServiceCardsWrapper.vue'
 import LogToolbar      from '@/components/admin/scm/LogToolbar.vue'
 import LogViewer       from '@/components/admin/scm/LogViewer.vue'
 import LogMonitorPanel from '@/components/admin/scm/LogMonitorPanel.vue'
-import { DUMMY_LOGS }  from '@/mocks/admin/record/logData.js'
+import { DUMMY_LOGS, SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
 
 // ── State ──────────────────────────────────────────
 const selectedFilter = ref('전체')
@@ -39,7 +39,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
     </div>
 
     <!-- 서비스 상태 카드 -->
-    <LogServiceCards />
+    <LogServiceCards :items="SERVICE_STATUS" />
 
     <!-- 메인 컨텐츠 -->
     <div class="content">

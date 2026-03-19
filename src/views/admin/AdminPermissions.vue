@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
+import BaseFilterTabs        from '@/components/common/base/navigation/BaseFilterTabs.vue'
 import { ROLES, ROLE_DEFINITIONS, DUMMY_MATRIX } from '@/mocks/admin/permission/permissionData.js'
 
 const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
@@ -87,15 +88,12 @@ const onCancelSave = () => {
 
     <!-- 탭 바 -->
     <div class="tab-bar">
-      <div class="tabs">
-        <div
-          v-for="role in ROLES"
-          :key="role"
-          class="tab"
-          :class="{ 'tab--active': selectedRole === role }"
-          @click="onSelectRole(role)"
-        >{{ role }}</div>
-      </div>
+      <BaseFilterTabs
+        :items="ROLES"
+        v-model="selectedRole"
+        variant="underline"
+        class="permission-tabs"
+      />
       <div class="actions">
         <span v-if="pendingChanges > 0" class="badge-pending">변경사항 {{ pendingChanges }}건</span>
         <div class="btn-save-wrap">
@@ -154,6 +152,14 @@ const onCancelSave = () => {
 
 }
 
+.permission-tabs :deep(.base-filter-tabs__item) {
+  height: 41px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: -1.5px;
+}
+
 .tab-bar {
   display: flex;
   justify-content: space-between;
@@ -163,29 +169,6 @@ const onCancelSave = () => {
   height: 43px;
 }
 
-.tabs {
-  display: flex;
-}
-
-.tab {
-  padding: 0 18px;
-  height: 41px;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-placeholder);
-  cursor: pointer;
-  border-bottom: 1.5px solid transparent;
-  margin-bottom: -1.5px;
-  transition: color 0.15s;
-  white-space: nowrap;
-}
-
-.tab--active {
-  color: var(--color-primary-600);
-  border-bottom-color: var(--color-primary-600);
-}
 
 .actions {
   display: flex;
