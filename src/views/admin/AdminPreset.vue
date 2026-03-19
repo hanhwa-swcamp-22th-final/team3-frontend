@@ -11,7 +11,15 @@ const selectedPreset = computed(() => presets.value.find(p => p.id === selectedI
 const activePreset   = computed(() => presets.value.find(p => p.active))
 
 const onSelect = (id) => { selectedId.value = id }
-const onSave   = ()   => { presets.value.forEach(p => { p.active = p.id === selectedId.value }) }
+const onSave   = (data) => {
+  presets.value = presets.value.map(p => {
+    const isSelected = p.id === selectedId.value
+    if (isSelected && data?.complexity) {
+      return { ...p, active: true, complexity: data.complexity }
+    }
+    return { ...p, active: isSelected }
+  })
+}
 </script>
 
 <template>
