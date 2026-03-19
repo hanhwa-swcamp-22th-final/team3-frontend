@@ -47,15 +47,19 @@ defineProps({
     <div class="status-card__stats">
       <div class="status-card__stat">
         <span class="status-card__stat-value">{{ worker.historyPeriod }}</span>
+        <span class="status-card__stat-label">경력</span>
       </div>
       <div class="status-card__stat">
         <span class="status-card__stat-value">{{ worker.worksDone }}</span>
+        <span class="status-card__stat-label">완료작업</span>
       </div>
       <div class="status-card__stat">
         <span class="status-card__stat-value">{{ worker.finishRate }}%</span>
+        <span class="status-card__stat-label">완료율</span>
       </div>
       <div class="status-card__stat">
         <span class="status-card__stat-value">{{ worker.aiEval }}</span>
+        <span class="status-card__stat-label">AI평가</span>
       </div>
     </div>
   </div>
@@ -210,10 +214,18 @@ defineProps({
 .status-card__stat {
   text-align: center;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .status-card__stat-value {
   font-size: 13px;
   font-weight: 600;
+}
+
+.status-card__stat-label {
+  font-size: 10px;
+  opacity: 0.5;
 }
 </style>

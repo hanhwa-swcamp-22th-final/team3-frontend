@@ -36,8 +36,8 @@ function isActive(target) {
 
 <style scoped>
 .role-sidebar {
-  width: 304px;
-  min-width: 304px;
+  width: 14%;
+  min-width: 14%;
   padding: 18px 14px 28px;
   border-right: 1px solid var(--color-border-soft);
   background: var(--color-bg-surface);
