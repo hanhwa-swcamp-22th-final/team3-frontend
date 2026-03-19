@@ -13,7 +13,7 @@ const EMPTY_FORM = {
   employee_line:           '',
   employee_role:           'worker',
   hire_date:               '',
-  employee_equipment:      '',
+  assigned_equipment:      '',
   employee_certifications: '',
   employee_notes:          '',
   score_precision:         0,   // 정밀도
@@ -164,7 +164,7 @@ const handleSave = () => {
           <div class="field">
             <label class="field-label">담당설비</label>
             <input
-              v-model="form.employee_equipment"
+              v-model="form.assigned_equipment"
               class="field-input"
               type="text"
               placeholder="MCH-01"

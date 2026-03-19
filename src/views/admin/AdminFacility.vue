@@ -60,6 +60,11 @@ const openAddModal  = ()    => { editingFacility.value = null;       isModalOpen
 const openEditModal = (fac) => { editingFacility.value = { ...fac }; isModalOpen.value = true }
 const closeModal    = ()    => { isModalOpen.value = false; editingFacility.value = null }
 
+const onDelete = (fac) => {
+  if (!confirm(`"${fac.equipment_name}" 설비를 삭제하시겠습니까?`)) return
+  facilities.value = facilities.value.filter(f => f.id !== fac.id)
+}
+
 const onSave = (fac) => {
   if (fac.id) {
     const idx = facilities.value.findIndex(f => f.id === fac.id)
@@ -94,6 +99,7 @@ const onSave = (fac) => {
       :pageEnd="pageEnd"
       :pageButtons="pageButtons"
       @editClick="openEditModal"
+      @deleteClick="onDelete"
       @pageChange="currentPage = $event"
     />
 

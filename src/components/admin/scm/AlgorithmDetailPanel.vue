@@ -25,13 +25,15 @@ const simCurrent  = computed(() => ({ eidx: eIdx.value.toFixed(2),          scor
 const simWarning  = computed(() => ({ eidx: props.equipment?.e_idx_threshold?.toFixed(2) ?? '0.80', score: simScore(props.equipment?.e_idx_threshold ?? 0.80), label: '경고수준' }))
 
 const PARAMS = [
-  { key: 'base_production',   label: '기준 생산량 (E_exp)', unit: '개/일' },
-  { key: 'base_speed_factor', label: '기준 속도 계수',      unit: '' },
-  { key: 'min_correction',    label: '보정 하한값',          unit: '' },
-  { key: 'max_correction',    label: '보정 상한값',          unit: '' },
-  { key: 'update_cycle',      label: '갱신 주기',            unit: '' },
-  { key: 'anomaly_threshold', label: '이상 감지 임계',       unit: '%' },
+  { key: 'base_production',   label: '기준 생산량 (E_exp)', unit: '개/일', type: 'number' },
+  { key: 'base_speed_factor', label: '기준 속도 계수',      unit: '',       type: 'number' },
+  { key: 'min_correction',    label: '보정 하한값',          unit: '',       type: 'number' },
+  { key: 'max_correction',    label: '보정 상한값',          unit: '',       type: 'number' },
+  { key: 'update_cycle',      label: '갱신 주기',            unit: '',       type: 'select' },
+  { key: 'anomaly_threshold', label: '이상 감지 임계',       unit: '%',      type: 'number' },
 ]
+
+const UPDATE_CYCLE_OPTIONS = ['실시간', '1시간']
 </script>
 
 <template>
@@ -77,9 +79,25 @@ const PARAMS = [
           class="param-row"
         >
           <span class="param-row__label">{{ p.label }}</span>
-          <span class="param-row__value">
-            {{ equipment.params[p.key] }}{{ p.unit ? ' ' + p.unit : '' }}
-          </span>
+          <div class="param-row__input-wrap">
+            <select
+              v-if="p.type === 'select'"
+              class="param-row__input"
+              :value="equipment.params[p.key]"
+              @change="emit('paramChange', p.key, $event.target.value)"
+            >
+              <option v-for="o in UPDATE_CYCLE_OPTIONS" :key="o" :value="o">{{ o }}</option>
+            </select>
+            <template v-else>
+              <input
+                class="param-row__input"
+                type="number"
+                :value="equipment.params[p.key]"
+                @change="emit('paramChange', p.key, parseFloat($event.target.value))"
+              />
+              <span v-if="p.unit" class="param-row__unit">{{ p.unit }}</span>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -234,9 +252,32 @@ const PARAMS = [
   color: var(--color-primary-300);
 }
 
-.param-row__value {
+.param-row__input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.param-row__input {
   font-family: var(--font-family-mono);
   font-size: 12px;
+  color: #7A6FA8;
+  border: 1.5px solid #E0DCFF;
+  border-radius: 4px;
+  background: transparent;
+  outline: none;
+  height: 26px;
+  padding: 0 6px;
+  width: 80px;
+  text-align: right;
+}
+
+.param-row__input:focus {
+  border-color: var(--color-primary-600);
+}
+
+.param-row__unit {
+  font-size: 11px;
   color: var(--color-primary-300);
 }
 

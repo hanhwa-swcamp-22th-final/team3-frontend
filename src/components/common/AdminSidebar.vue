@@ -33,11 +33,15 @@ function isActive(target) {
 
 <style scoped>
 .admin-sidebar {
-  width: 264px;
-  min-width: 264px;
+  width: 14%;
+  min-width: 14%;
   padding: 18px 14px 28px;
   border-right: 1px solid var(--color-border-soft);
   background: var(--color-bg-surface);
+}
+
+.admin-sidebar__section {
+  margin-top: 26px;
 }
 
 .admin-sidebar__title {
@@ -67,6 +71,8 @@ function isActive(target) {
 
 .admin-sidebar__link--active {
   color: var(--color-primary-700);
+  background: var(--color-primary-100);
+  border-radius: 6px;
 }
 
 .admin-sidebar__icon {

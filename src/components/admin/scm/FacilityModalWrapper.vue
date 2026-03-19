@@ -279,6 +279,7 @@ const handleSave = () => {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: space-between;
 }
 
 .section-title {

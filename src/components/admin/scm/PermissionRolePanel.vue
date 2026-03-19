@@ -4,7 +4,7 @@ defineProps({
   selectedRole: { type: String, required: true },
 })
 
-const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'LM', 'Tech']
+const LEVEL_LABELS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
 </script>
 
 <template>
