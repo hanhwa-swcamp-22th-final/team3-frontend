@@ -47,7 +47,7 @@ function buildChart() {
         data: props.data.map(d => d.score),
         backgroundColor: props.data.map((_, i) => colors[i] ?? colors[colors.length - 1]),
         borderRadius: 6,
-        barThickness: 28,
+        barThickness: 36,
       }],
     },
     options: {
@@ -60,7 +60,7 @@ function buildChart() {
         tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}점` } },
       },
       scales: {
-        x: { display: false, min: 70, max: 100 },
+        x: { display: false, min: 0, max: 100 },
         y: {
           grid: { display: false },
           ticks: { color: '#7c739f', font: { size: 12 } },
@@ -111,7 +111,7 @@ onBeforeUnmount(() => chartInstance?.destroy())
   color: var(--color-primary-500);
 }
 .kpi-bar-card__chart {
-  height: 200px;
+  height: 260px;
   position: relative;
 }
 </style>

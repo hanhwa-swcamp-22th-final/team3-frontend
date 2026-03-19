@@ -42,7 +42,7 @@ function resultStyle(result) {
           <th>미달항목</th>
           <th>성장추이</th>
           <th>예상결과</th>
-          <th>액션</th>
+          <th>처리결과</th>
         </tr>
       </thead>
       <tbody>
@@ -85,26 +85,22 @@ function resultStyle(result) {
             </span>
           </td>
           <td>
-            <button
-              v-if="item.result === '승급 확정'"
-              class="promo-table__btn promo-table__btn--confirm"
-              @click.stop="$emit('confirm', item.id)"
-            >확정처리</button>
-            <button
-              v-else
-              class="promo-table__btn promo-table__btn--detail"
-              @click.stop="$emit('select', item.id)"
-            >상세보기</button>
+            <span
+              class="promo-table__process"
+              :class="{
+                'promo-table__process--confirm': item.processedStatus === 'confirm',
+                'promo-table__process--hold':    item.processedStatus === 'hold',
+                'promo-table__process--none':    !item.processedStatus,
+              }"
+            >
+              {{ item.processedStatus === 'confirm' ? '승급확정' : item.processedStatus === 'hold' ? '보류' : '미처리' }}
+            </span>
           </td>
         </tr>
       </tbody>
     </table>
 
     <div class="promo-list__actions">
-      <button class="promo-list__btn promo-list__btn--confirm">
-        승급 확정 ({{ list.filter(i => i.result === '승급 확정').length }}명)
-      </button>
-      <button class="promo-list__btn promo-list__btn--hold">일괄 보류</button>
       <button class="promo-list__btn promo-list__btn--excel">Excel 내보내기</button>
     </div>
   </article>
@@ -210,25 +206,19 @@ function resultStyle(result) {
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
 }
-.promo-table__btn {
-  height: 24px;
+.promo-table__process {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
   padding: 0 10px;
   border-radius: 6px;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
-  cursor: pointer;
-  border: none;
   white-space: nowrap;
 }
-.promo-table__btn--confirm {
-  background: var(--color-mint-500);
-  color: #fff;
-}
-.promo-table__btn--detail {
-  background: var(--color-bg-app);
-  color: var(--color-primary-600);
-  border: 1px solid var(--color-border-default);
-}
+.promo-table__process--none    { background: var(--color-bg-app);  color: #a89ed8; border: 1px solid var(--color-border-default); }
+.promo-table__process--confirm { background: #e3fbef; color: #007a60; border: 1px solid var(--color-mint-500); }
+.promo-table__process--hold    { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
 
 /* 하단 액션 */
 .promo-list__actions {
@@ -245,15 +235,6 @@ function resultStyle(result) {
   font-weight: var(--font-weight-bold);
   cursor: pointer;
   border: none;
-}
-.promo-list__btn--confirm {
-  background: var(--color-mint-500);
-  color: #fff;
-}
-.promo-list__btn--hold {
-  background: var(--color-bg-app);
-  color: var(--color-primary-600);
-  border: 1.5px solid var(--color-border-default);
 }
 .promo-list__btn--excel {
   background: var(--color-bg-app);
