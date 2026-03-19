@@ -30,12 +30,16 @@ watch(isCustom, (val) => { if (val) customForm.value = EMPTY_CUSTOM() })
 
 // ── 복잡도 테이블 편집 ──────────────────────────────
 const editableComplexity = ref([])
+const isDirty = ref(false)
 
 watch(() => props.preset, (p) => {
   if (p && !isCustom.value) {
     editableComplexity.value = p.complexity.map(row => ({ ...row }))
+    isDirty.value = false
   }
 }, { immediate: true })
+
+watch(editableComplexity, () => { isDirty.value = true }, { deep: true })
 
 const vWeightSum = computed(() => {
   const sum = [customForm.value.v1, customForm.value.v2, customForm.value.v3, customForm.value.v4]
@@ -58,8 +62,9 @@ const handleCustomSave = () => {
     <div class="panel-title-row">
       <span class="panel-title">{{ preset.icon }} {{ preset.name }} 프리셋 — 세부 파라미터</span>
       <template v-if="!isCustom">
+        <span v-if="isDirty" class="badge-editing">수정 중</span>
         <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
-        <button class="btn-save" @click="emit('save', { complexity: editableComplexity })">프리셋 저장</button>
+        <button class="btn-save" @click="emit('save', { complexity: editableComplexity }); isDirty.value = false">프리셋 저장</button>
       </template>
     </div>
 
@@ -417,6 +422,16 @@ const handleCustomSave = () => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.badge-editing {
+  padding: 4px 10px;
+  background: #FFF8E0;
+  border: 1.5px solid #FFD166;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #A07000;
 }
 
 .badge-applied {
