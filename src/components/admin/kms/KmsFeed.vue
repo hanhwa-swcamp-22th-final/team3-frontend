@@ -20,7 +20,7 @@ const filteredCards = computed(() => {
 
   // 탭 필터 적용
   if (props.selectedFilter === '인기') {
-    list = list.sort((a, b) => b.views - a.views)
+    list = list.filter(card => card.tags.includes('🔥 인기'))
   } else if (props.selectedFilter === '최신') {
     list = list.sort((a, b) => b.date.localeCompare(a.date))
   } else if (props.selectedFilter === '내 구독') {
