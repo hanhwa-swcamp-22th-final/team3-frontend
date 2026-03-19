@@ -116,7 +116,8 @@ onBeforeUnmount(() => chartInstance?.destroy())
   color: var(--color-primary-500);
 }
 .kpi-trend-card__chart {
-  height: 180px;
+  flex: 1;
+  min-height: 180px;
   position: relative;
 }
 </style>
