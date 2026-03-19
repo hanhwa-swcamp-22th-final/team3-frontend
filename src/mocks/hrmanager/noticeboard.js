@@ -12,7 +12,7 @@ export const STATUS_STYLE = {
   임시:   { bg: '#ffecf1', color: '#c0103e' },
 }
 
-export const FILTER_TABS = ['전체', '게시중', '예약', '임시']
+export const FILTER_TABS = ['전체', '중요', '게시중', '예약', '임시']
 
 export const MOCK_TEAMS = ['전체', 'TL', 'GL', 'Worker', 'HRM']
 

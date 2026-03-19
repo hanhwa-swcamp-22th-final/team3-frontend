@@ -21,7 +21,8 @@ const selectedId = ref(mockNotices[0]?.id ?? null)
 // ── 필터링 ────────────────────────────────────────────────────────
 const filtered = computed(() => {
   return notices.value.filter(n => {
-    if (activeTab.value && n.status !== activeTab.value) return false
+    if (activeTab.value === '중요' && !n.isImportant) return false
+    if (activeTab.value && activeTab.value !== '중요' && n.status !== activeTab.value) return false
     if (orgFilter.value.length && !n.targets.some(t => orgFilter.value.includes(t))) return false
     return true
   })
@@ -220,8 +221,8 @@ function deleteNotice(id) {
 .notice-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .notice-tabs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .notice-tab {
-  height: 34px; padding: 0 16px;
-  border-radius: 20px; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
+  height: 28px; padding: 0 12px;
+  border-radius: 20px; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold);
   cursor: pointer;
   border: 1.5px solid var(--color-border-default);
   background: var(--color-bg-surface);
@@ -230,8 +231,13 @@ function deleteNotice(id) {
 }
 .notice-tab:hover { border-color: var(--color-primary-300); color: var(--color-primary-600); }
 .notice-tab--active {
-  background: var(--color-primary-600); color: var(--color-white);
-  border-color: var(--color-primary-600);
+  background: var(--color-primary-800); color: var(--color-white);
+  border-color: var(--color-primary-800);
+}
+.notice-tab--org {
+  background: var(--color-bg-surface-muted);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
 }
 .notice-tab--org.notice-tab--active {
   background: var(--color-primary-100); color: var(--color-primary-700);
