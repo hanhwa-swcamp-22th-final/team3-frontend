@@ -9,7 +9,7 @@ const props = defineProps({
   },
 })
 
-const size = 180
+const size = 200
 const cx = size / 2
 const cy = size / 2
 const maxR = 70
@@ -149,14 +149,14 @@ const labelPositions = computed(() => {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-card);
-  padding: 20px;
+  padding: 12px 20px 20px;
 }
 
 .radar__title {
   font-size: 14px;
   font-weight: 700;
   color: var(--color-primary-800);
-  margin: 0 0 16px;
+  margin: 0 0 24px;
 }
 
 .radar__content {
@@ -170,7 +170,7 @@ const labelPositions = computed(() => {
 }
 
 .radar__data-area {
-  transform-origin: 90px 90px;
+  transform-origin: 100px 100px;
   transform: scale(0);
   opacity: 0;
   transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
@@ -182,7 +182,7 @@ const labelPositions = computed(() => {
 }
 
 .radar__data-point {
-  transform-origin: 90px 90px;
+  transform-origin: 100px 100px;
   transform: scale(0);
   opacity: 0;
   transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 0.4s ease 0.15s;

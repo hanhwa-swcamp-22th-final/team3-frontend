@@ -1,8 +1,24 @@
 <script setup>
-defineProps({
+import { ref, watch } from 'vue'
+
+const props = defineProps({
   courses: { type: Array, required: true },
   articles: { type: Array, required: true },
 })
+
+const localCourses = ref([])
+
+// Initialize or update local copy when prop changes
+watch(() => props.courses, (newVal) => {
+  localCourses.value = newVal.map(c => ({ ...c }))
+}, { immediate: true })
+
+const startCourse = (id) => {
+  const course = localCourses.value.find(c => c.id === id)
+  if (course && course.status === '시작하기') {
+    course.status = '진행중'
+  }
+}
 </script>
 
 <template>
@@ -11,7 +27,7 @@ defineProps({
 
     <!-- Course Cards -->
     <div class="lr__courses">
-      <div v-for="course in courses" :key="course.id" class="lr__course">
+      <div v-for="course in localCourses" :key="course.id" class="lr__course">
         <div class="lr__course-top">
           <div class="lr__course-badges">
             <span
@@ -28,7 +44,13 @@ defineProps({
         <p v-if="course.description" class="lr__course-desc">{{ course.description }}</p>
         <div class="lr__course-bottom">
           <span v-if="course.durationDiff" class="lr__course-diff">{{ course.durationDiff }}</span>
-          <button class="lr__course-btn">{{ course.status }}</button>
+          <button
+            class="lr__course-btn"
+            :class="{ 'lr__course-btn--active': course.status === '진행중' }"
+            @click="startCourse(course.id)"
+          >
+            {{ course.status }}
+          </button>
         </div>
       </div>
     </div>
@@ -154,6 +176,18 @@ defineProps({
 .lr__course-btn:hover {
   border-color: var(--color-primary-300);
   color: var(--color-primary-700);
+}
+
+.lr__course-btn--active {
+  background: var(--color-primary-600);
+  color: var(--color-white);
+  border-color: var(--color-primary-600);
+}
+
+.lr__course-btn--active:hover {
+  background: var(--color-primary-700);
+  color: var(--color-white);
+  border-color: var(--color-primary-700);
 }
 
 /* ── Related Articles ──────────────────────────────────── */

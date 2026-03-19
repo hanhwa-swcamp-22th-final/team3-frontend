@@ -12,6 +12,20 @@ const activeTab = ref(tabs[0])
 function isHighlight(val) {
   return val.endsWith('%') || val.endsWith('점')
 }
+
+function parseLabel(label) {
+  const index = label.substring(0, 2)
+  const rest = label.substring(2)
+  const splitMatch = rest.match(/ (?:[A-Z]|MCH|R')/)
+  if (splitMatch) {
+    const splitIndex = splitMatch.index
+    return {
+      name: index + rest.substring(0, splitIndex).trim(),
+      formula: rest.substring(splitIndex).trim(),
+    }
+  }
+  return { name: label, formula: '' }
+}
 </script>
 
 <template>
@@ -33,7 +47,12 @@ function isHighlight(val) {
     <!-- Formula steps -->
     <div class="qn__steps">
       <div v-for="(step, i) in evaluation.steps" :key="i" class="qn__step">
-        <span class="qn__step-label">{{ step.label }}</span>
+        <div class="qn__step-label">
+          <span class="qn__step-name">{{ parseLabel(step.label).name }}</span>
+          <span v-if="parseLabel(step.label).formula" class="qn__step-formula">
+            {{ parseLabel(step.label).formula }}
+          </span>
+        </div>
         <span
           class="qn__step-value"
           :class="{ 'qn__step-value--accent': isHighlight(step.value) }"
@@ -137,9 +156,21 @@ function isHighlight(val) {
 }
 
 .qn__step-label {
-  color: var(--color-text-default);
-  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qn__step-name {
   font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.qn__step-formula {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .qn__step-value {

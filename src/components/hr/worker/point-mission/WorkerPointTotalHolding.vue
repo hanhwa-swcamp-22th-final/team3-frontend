@@ -51,33 +51,35 @@ const segments = computed(() => {
       <span class="holding__compare">전월 대비 +{{ summary.monthGainPercent }}%</span>
     </div>
 
-    <div class="holding__chart">
-      <svg viewBox="0 0 120 120" class="holding__donut">
-        <circle
-          v-for="(seg, i) in segments"
-          :key="i"
-          cx="60"
-          cy="60"
-          r="50"
-          fill="none"
-          :stroke="seg.color"
-          stroke-width="14"
-          :stroke-dasharray="`${(seg.pct / 100) * 314.16 * animProgress} ${314.16}`"
-          :stroke-dashoffset="`${-(seg.offset / 100) * 314.16 * animProgress}`"
-          stroke-linecap="butt"
-        />
-        <text x="60" y="56" text-anchor="middle" class="holding__donut-number">
-          {{ total.toLocaleString() }}
-        </text>
-        <text x="60" y="72" text-anchor="middle" class="holding__donut-sub">pts</text>
-      </svg>
-    </div>
+    <div class="holding__right">
+      <div class="holding__chart">
+        <svg viewBox="0 0 120 120" class="holding__donut">
+          <circle
+            v-for="(seg, i) in segments"
+            :key="i"
+            cx="60"
+            cy="60"
+            r="50"
+            fill="none"
+            :stroke="seg.color"
+            stroke-width="14"
+            :stroke-dasharray="`${(seg.pct / 100) * 314.16 * animProgress} ${314.16}`"
+            :stroke-dashoffset="`${-(seg.offset / 100) * 314.16 * animProgress}`"
+            stroke-linecap="butt"
+          />
+          <text x="60" y="56" text-anchor="middle" class="holding__donut-number">
+            {{ total.toLocaleString() }}
+          </text>
+          <text x="60" y="72" text-anchor="middle" class="holding__donut-sub">pts</text>
+        </svg>
+      </div>
 
-    <div class="holding__legend">
-      <div v-for="(seg, i) in segments" :key="i" class="holding__legend-item">
-        <span class="holding__legend-dot" :style="{ background: seg.color }"></span>
-        <span class="holding__legend-label">{{ seg.label }}</span>
-        <span class="holding__legend-value">{{ seg.value.toLocaleString() }}</span>
+      <div class="holding__legend">
+        <div v-for="(seg, i) in segments" :key="i" class="holding__legend-item">
+          <span class="holding__legend-dot" :style="{ background: seg.color }"></span>
+          <span class="holding__legend-label">{{ seg.label }}</span>
+          <span class="holding__legend-value">{{ seg.value.toLocaleString() }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -87,7 +89,7 @@ const segments = computed(() => {
 .holding {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 30%;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-card);
@@ -99,6 +101,12 @@ const segments = computed(() => {
   flex-direction: column;
   gap: 4px;
   min-width: 160px;
+}
+
+.holding__right {
+  display: flex;
+  align-items: center;
+  gap: 40px;
 }
 
 .holding__label {
