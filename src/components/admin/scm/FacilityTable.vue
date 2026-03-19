@@ -121,11 +121,11 @@ const statusStyle = (status) => {
 }
 
 /* 컬럼 너비 */
-.col-id     { width: 200px; flex-shrink: 0; }
+.col-id     { width: 300px; flex-shrink: 0; }
 .col-name   { flex: 1; }
-.col-line   { width: 120px; flex-shrink: 0; }
-.col-status { width: 120px; flex-shrink: 0; }
-.col-action { width: 80px;  flex-shrink: 0; }
+.col-line   { width: 210px; flex-shrink: 0; }
+.col-status { width: 210px; flex-shrink: 0; }
+.col-action { width: 66px;  flex-shrink: 0; }
 
 .status-badge {
   display: inline-flex;
