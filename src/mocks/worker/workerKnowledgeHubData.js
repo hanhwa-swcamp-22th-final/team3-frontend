@@ -11,6 +11,16 @@ export const knowledgeStats = {
   myArticlesDiff: 3.1,
 }
 
+export const knowledgeCategories = [
+  { key: 'all', label: '전체' },
+  { key: 'popular', label: '인기' },
+  { key: 'latest', label: '최신' },
+  { key: 'subscribed', label: '내 구독' },
+  { key: '정밀가공', label: '정밀가공' },
+  { key: '설비점검', label: '설비점검' },
+  { key: '품질관리', label: '품질관리' },
+]
+
 export const knowledgeArticles = [
   {
     id: 1,

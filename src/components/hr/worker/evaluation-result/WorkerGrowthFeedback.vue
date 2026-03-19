@@ -102,7 +102,7 @@ const chartPoints = computed(() => {
           <div class="gf__goal-values">
             <span class="gf__goal-current">{{ goal.current }}</span>
             <span class="gf__goal-arrow">→</span>
-            <span class="gf__goal-target">{{ goal.target }}</span>
+            <span class="gf__goal-target">{{ String(goal.target).replace('건', '') }}</span>
           </div>
         </div>
       </div>
