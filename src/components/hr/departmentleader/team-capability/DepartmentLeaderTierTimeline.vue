@@ -49,8 +49,8 @@ function tierStyle(tier) {
 }
 
 .tier-timeline__label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
@@ -75,18 +75,18 @@ function tierStyle(tier) {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .tier-timeline__score {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
   line-height: 1;
 }
 
 .tier-timeline__date {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 

@@ -62,8 +62,8 @@ const statusConfig = {
 }
 
 .eval-member-list__title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
   margin: 0;
 }
@@ -125,8 +125,8 @@ const statusConfig = {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -144,8 +144,8 @@ const statusConfig = {
 }
 
 .eval-card__name {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
 }
 
 .card--submitted .eval-card__name,
@@ -164,13 +164,13 @@ const statusConfig = {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .eval-card__status {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
 }
 
 .card--submitted .eval-card__status {
@@ -187,7 +187,7 @@ const statusConfig = {
 
 /* Date */
 .eval-card__date {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   flex-shrink: 0;
 }
 

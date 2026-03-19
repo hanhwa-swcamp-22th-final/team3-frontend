@@ -136,13 +136,13 @@ function handleHold() {
 }
 
 .approval-stat-card p {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-300);
 }
 
 .approval-stat-card strong {
-  font-size: 52px;
+  font-size: var(--font-size-display);
   line-height: 1;
   color: #e7395f;
 }

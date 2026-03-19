@@ -94,7 +94,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-muted);
 }
 
@@ -121,8 +121,8 @@ defineProps({
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -139,8 +139,8 @@ defineProps({
 }
 
 .capability-detail__name {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -151,18 +151,18 @@ defineProps({
   height: 26px;
   padding: 0 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .capability-detail__sub {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
 .capability-detail__score {
-  font-size: 52px;
-  font-weight: 800;
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
   line-height: 1;
   flex-shrink: 0;
@@ -193,13 +193,13 @@ defineProps({
 }
 
 .capability-detail__score-value {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
 .capability-detail__score-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 

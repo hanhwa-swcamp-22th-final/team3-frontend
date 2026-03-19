@@ -1,4 +1,4 @@
-// category: 'fault' | 'eval' | 'facility' | 'member'
+// category: 'fault' | 'eval' | 'facility' | 'member' | 'kms'
 // tone:     'fault' | 'warn' | 'success' | 'info' | 'neutral'
 export const notificationItems = [
   {
@@ -58,11 +58,11 @@ export const notificationItems = [
   },
   {
     id: 6,
-    category: 'member',
-    categoryLabel: '팀원',
+    category: 'kms',
+    categoryLabel: 'KMS',
     tone: 'info',
-    unread: false,
-    title: '임원석 KMS 지식 등록',
+    unread: true,
+    title: '임원석 KMS 지식 등록 — 승인 대기',
     description: '용접 전류 보정 체크리스트 신규 등록',
     time: '2일 전',
     actionLabel: '보기',
@@ -133,6 +133,17 @@ export const notificationItems = [
     time: '6일 전',
     actionLabel: '보기',
   },
+  {
+    id: 13,
+    category: 'kms',
+    categoryLabel: 'KMS',
+    tone: 'info',
+    unread: false,
+    title: '손창우 KMS 지식 수정 요청',
+    description: 'CNC 선반 가공 파라미터 가이드 내용 변경',
+    time: '6일 전',
+    actionLabel: '보기',
+  },
 ]
 
 // category key → filter key mapping
@@ -142,4 +153,5 @@ export const notificationFilters = [
   { key: 'eval',     label: '평가',  categoryKey: 'eval' },
   { key: 'facility', label: '설비',  categoryKey: 'facility' },
   { key: 'member',   label: '팀원',  categoryKey: 'member' },
+  { key: 'kms',      label: 'KMS',   categoryKey: 'kms' },
 ]

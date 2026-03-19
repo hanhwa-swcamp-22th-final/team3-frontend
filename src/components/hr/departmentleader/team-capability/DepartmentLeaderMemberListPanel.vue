@@ -117,8 +117,8 @@ function selectTeam(t) {
 }
 
 .member-list-panel__title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -131,8 +131,8 @@ function selectTeam(t) {
   border: none;
   border-radius: var(--radius-sm);
   padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-700);
   cursor: pointer;
 }
@@ -153,7 +153,7 @@ function selectTeam(t) {
 
 .member-list-panel__dropdown-item {
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   color: var(--color-text-default);
 }
@@ -161,7 +161,7 @@ function selectTeam(t) {
   background: var(--color-primary-100);
 }
 .member-list-panel__dropdown-item--active {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
 }
 
@@ -176,7 +176,7 @@ function selectTeam(t) {
 }
 
 .member-list-panel__search-icon {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
@@ -184,7 +184,7 @@ function selectTeam(t) {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-default);
   width: 100%;
 }
@@ -225,8 +225,8 @@ function selectTeam(t) {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -244,8 +244,8 @@ function selectTeam(t) {
 }
 
 .member-list-panel__name {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -256,12 +256,12 @@ function selectTeam(t) {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .member-list-panel__sub {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 </style>
