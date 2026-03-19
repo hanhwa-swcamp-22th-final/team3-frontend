@@ -249,7 +249,7 @@ function deleteNotice(id) {
 }
 
 /* 목록 */
-.notice-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; min-height: 0; }
+.notice-list { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; min-height: 0; }
 .notice-list__empty {
   padding: 32px 0; text-align: center;
   font-size: var(--font-size-sm); color: #a89ed8;
