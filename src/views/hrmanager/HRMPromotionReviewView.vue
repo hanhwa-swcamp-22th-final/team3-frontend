@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
-import HRMMetricCard       from '@/components/hr/hrmanager/kpi-report/HRMMetricCard.vue'
+import BaseStatCard        from '@/components/common/base/display/BaseStatCard.vue'
 import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
 import HRMPromotionDetail  from '@/components/hr/hrmanager/promotion-review/HRMPromotionDetail.vue'
 
@@ -65,24 +65,24 @@ function handleConfirm(id) {
     <template v-else>
       <!-- 지표 카드 -->
       <section class="promo-view__metrics" v-if="summary">
-        <HRMMetricCard
+        <BaseStatCard
           label="S-TIER 심사대상"
           :value="`${summary.sTierCount}명`"
           :delta="`▲${summary.sTierDelta} 전분기비`"
           tone="primary"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="A-TIER 심사대상"
           :value="`${summary.aTierCount}명`"
           :delta="`▲${summary.aTierDelta}`"
           tone="primary"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="이번분기 승급확정"
           :value="`${summary.confirmedCount}명`"
           tone="success"
         />
-        <HRMMetricCard
+        <BaseStatCard
           label="승급률"
           :value="`${summary.promotionRate}%`"
           :delta="`전분기 ${summary.prevPromotionRate}%`"

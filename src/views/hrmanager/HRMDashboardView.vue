@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
-import HRMDashboardNotice from '@/components/dashboard/common/HRMDashboardNotice.vue'
-import HRMMetricCard from '@/components/hr/hrmanager/kpi-report/HRMMetricCard.vue'
+import BaseNoticeBanner from '@/components/common/base/display/BaseNoticeBanner.vue'
+import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
 import HRMTierDonutChart from '@/components/dashboard/hrmanager/HRMTierDonutChart.vue'
 import HRMTierTrendChart from '@/components/dashboard/hrmanager/HRMTierTrendChart.vue'
 import HRMTeamStatsTable from '@/components/dashboard/hrmanager/HRMTeamStatsTable.vue'
@@ -63,14 +63,16 @@ function metricValue(key, suffix) {
     <div v-if="loading" class="hrm-dashboard__loading">로딩 중...</div>
 
     <template v-else>
-      <HRMDashboardNotice
+      <BaseNoticeBanner
         badge="📌 중요 공지"
         :title="notification?.notification_title ?? ''"
         :description="notification?.notification_content ?? ''"
+        tone="success"
+        variant="soft"
       />
 
       <section class="hrm-dashboard__metrics">
-        <HRMMetricCard
+        <BaseStatCard
           v-for="m in metrics"
           :key="m.key"
           :label="m.label"
@@ -142,8 +144,8 @@ function metricValue(key, suffix) {
   gap: 20px;
 }
 
-:deep(.notice),
-:deep(.metric-card) {
+:deep(.base-notice-banner),
+:deep(.base-stat-card) {
   width: 100%;
   box-sizing: border-box;
 }
