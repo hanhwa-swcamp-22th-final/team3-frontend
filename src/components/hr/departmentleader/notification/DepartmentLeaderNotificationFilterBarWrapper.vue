@@ -38,8 +38,8 @@ function handleChange(filterKey) {
 }
 
 .dl-notif-filter__eyebrow {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-300);
 }
 

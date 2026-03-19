@@ -1,10 +1,12 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
 import DepartmentLeaderNotificationFilterBarWrapper from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationFilterBarWrapper.vue'
 import DepartmentLeaderNotificationListWrapper      from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationListWrapper.vue'
 import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
+const router = useRouter()
 const activeFilter = ref('all')
 
 const filterTabItems = computed(() =>
@@ -26,6 +28,16 @@ const filteredItems = computed(() => {
 // BaseNotificationList expects item.type (not item.categoryLabel)
 function toBaseItem(i) {
   return { ...i, type: i.categoryLabel }
+}
+
+function handleClickAction(item) {
+  const routeMap = {
+    kms:    'DLKnowledgeApproval',
+    member: 'TeamCapability',
+    eval:   'DepartmentLeaderDashboardEvaluation',
+  }
+  const routeName = routeMap[item.category]
+  if (routeName) router.push({ name: routeName })
 }
 
 const totalCount  = notificationItems.length
@@ -51,6 +63,7 @@ const urgentCount = computed(() => notificationItems.filter((i) => i.category ==
     <DepartmentLeaderNotificationListWrapper
       :items="filteredItems"
       :page-size="6"
+      @click-action="handleClickAction"
     />
   </section>
 </template>

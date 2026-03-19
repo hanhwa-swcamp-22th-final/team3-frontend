@@ -96,8 +96,8 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
 }
 
 .dl-perf-summary__label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-muted);
   margin: 0;
 }
@@ -122,8 +122,8 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
 }
 
 .dl-perf-summary__big {
-  font-size: 40px;
-  font-weight: 800;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
   line-height: 1;
 }
@@ -133,13 +133,13 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
 }
 
 .dl-perf-summary__unit {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   margin-left: 2px;
 }
 
 .dl-perf-summary__sub {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -156,8 +156,8 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
   padding: 0 12px;
   border: 1px solid var(--color-border-default);
   border-radius: 99px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   background: var(--color-bg-surface);
   cursor: pointer;
@@ -178,8 +178,8 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
 }
 
 .dl-perf-summary__progress-count {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-600);
 }
 
@@ -205,22 +205,22 @@ const deltaLabel = computed(() => props.selectedTeam === '전체' ? '전년 동�
 }
 
 .dl-perf-summary__bar-pct {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-700);
   white-space: nowrap;
 }
 
 .dl-perf-summary__period {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin: 0;
 }
 
 /* 증감 */
 .dl-perf-summary__delta {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 .dl-perf-summary__delta--up   { color: #16a37a; }
 .dl-perf-summary__delta--down { color: #e05a5a; }

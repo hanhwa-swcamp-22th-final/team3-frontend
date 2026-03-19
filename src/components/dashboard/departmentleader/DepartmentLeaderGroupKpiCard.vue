@@ -138,13 +138,13 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .dl-kpi-card__dot {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--color-primary-500);
 }
 
 .dl-kpi-card__title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -157,16 +157,16 @@ onBeforeUnmount(() => chartInstance?.destroy())
   border-radius: 999px;
   background: var(--color-primary-700);
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .dl-kpi-card__detail-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-500);
 }
 .dl-kpi-card__detail-btn:hover {
@@ -185,13 +185,13 @@ onBeforeUnmount(() => chartInstance?.destroy())
 }
 
 .dl-kpi-card__stat-value {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
 .dl-kpi-card__stat-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 

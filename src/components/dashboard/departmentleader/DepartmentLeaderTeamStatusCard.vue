@@ -65,13 +65,13 @@ const statusConfig = {
 }
 
 .dl-team-card__dot {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--color-primary-500);
 }
 
 .dl-team-card__title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
@@ -79,8 +79,8 @@ const statusConfig = {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-500);
 }
 .dl-team-card__all-btn:hover {
@@ -118,7 +118,7 @@ const statusConfig = {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
@@ -131,13 +131,13 @@ const statusConfig = {
 }
 
 .dl-team-card__name {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
 .dl-team-card__sub {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -148,8 +148,8 @@ const statusConfig = {
   height: 26px;
   padding: 0 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   white-space: nowrap;
   flex-shrink: 0;
 }

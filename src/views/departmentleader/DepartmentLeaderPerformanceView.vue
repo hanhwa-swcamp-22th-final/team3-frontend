@@ -49,7 +49,7 @@ function handleGoEvaluation() {
 <template>
   <div class="dl-performance">
     <header class="dl-performance__header">
-      <h2 class="dl-performance__title">그룹 성과 현황</h2>
+      <h2 class="dl-performance__title">부서 성과 현황</h2>
       <span class="dl-performance__dept-name">{{ performanceSummary.deptName }}</span>
       <span class="dl-performance__period">{{ performanceSummary.period }}</span>
     </header>
@@ -93,15 +93,15 @@ function handleGoEvaluation() {
 }
 
 .dl-performance__title {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
   margin: 0;
 }
 
 .dl-performance__dept-name {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
   background: var(--color-primary-50, #f5f4ff);
   border: 1px solid var(--color-primary-200, #d4cfff);
@@ -110,8 +110,8 @@ function handleGoEvaluation() {
 }
 
 .dl-performance__period {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   background: var(--color-bg-surface-muted, #f5f4ff);
   border: 1px solid var(--color-border-default);

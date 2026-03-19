@@ -84,8 +84,8 @@ function handleSubmit(evals) {
 }
 
 .dl-eval-view__progress-label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
   white-space: nowrap;
 }
@@ -106,16 +106,16 @@ function handleSubmit(evals) {
 }
 
 .dl-eval-view__progress-count {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
   white-space: nowrap;
 }
 
 .dl-eval-view__deadline {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #e05a5a;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   white-space: nowrap;
 }
 

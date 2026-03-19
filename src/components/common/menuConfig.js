@@ -84,7 +84,7 @@ export const roleSidebarSections = {
       label: 'HR',
       items: [
         { label: '대시보드', icon: '👥', to: { name: 'DepartmentLeaderDashboard' } },
-        { label: '그룹 성과 현황', icon: '📊', to: { name: 'DepartmentLeaderDashboardPerformance' } },
+        { label: '부서 성과 현황', icon: '📊', to: { name: 'DepartmentLeaderDashboardPerformance' } },
         { label: '팀원 역량 조회', icon: '🔍', to: { name: 'TeamCapability' } },
         { label: '2차 평가 작성', icon: '📝', to: { name: 'DepartmentLeaderDashboardEvaluation' } },
         { label: '알림', icon: '🔔', to: { name: 'DLNotifications' } },

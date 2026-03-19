@@ -158,7 +158,7 @@ const canSubmit = computed(() =>
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 /* Header */
@@ -176,8 +176,8 @@ const canSubmit = computed(() =>
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 
@@ -194,8 +194,8 @@ const canSubmit = computed(() =>
 }
 
 .eval-form__name {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
 }
 
@@ -206,12 +206,12 @@ const canSubmit = computed(() =>
   width: 26px;
   height: 26px;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .eval-form__meta {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
@@ -227,8 +227,8 @@ const canSubmit = computed(() =>
 }
 
 .eval-form__ai-label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-700);
   white-space: nowrap;
 }
@@ -247,13 +247,13 @@ const canSubmit = computed(() =>
 }
 
 .eval-form__ai-value {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-800);
 }
 
 .eval-form__ai-kind {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -283,16 +283,16 @@ const canSubmit = computed(() =>
 }
 
 .eval-category__name {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
 .eval-category__score {
   width: 72px;
   text-align: center;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-primary-600);
   border: 1.5px solid var(--color-primary-300);
   border-radius: 8px;
@@ -317,7 +317,7 @@ const canSubmit = computed(() =>
 }
 
 .eval-category__star {
-  font-size: 22px;
+  font-size: var(--font-size-xl);
   color: #ddd;
   cursor: pointer;
   line-height: 1;
@@ -339,7 +339,7 @@ const canSubmit = computed(() =>
   padding: 0 14px;
   border: 1px solid var(--color-border-default);
   border-radius: 10px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-default);
   background: var(--color-bg-surface-muted);
   box-sizing: border-box;
@@ -364,7 +364,7 @@ const canSubmit = computed(() =>
 
 .eval-form__submit-hint {
   flex: 1;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: #e05a5a;
   text-align: left;
 }
@@ -373,8 +373,8 @@ const canSubmit = computed(() =>
   height: 42px;
   padding: 0 24px;
   border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   border: none;
   transition: opacity 0.15s;
