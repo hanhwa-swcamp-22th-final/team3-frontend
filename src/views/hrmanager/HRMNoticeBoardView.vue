@@ -179,13 +179,13 @@ function deleteNotice(id) {
 
 <style scoped>
 .notice-view {
-  flex: 1;
+  height: calc(100vh - 80px);
   padding: 24px 28px;
   background: var(--color-bg-app);
   overflow: hidden;
-  min-height: 0;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .notice-grid {
