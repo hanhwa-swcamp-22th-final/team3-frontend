@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import {
   TOP_CONTRIBUTORS,
   MENTORING_ACTIVE,
@@ -6,6 +7,14 @@ import {
   AI_RECOMMENDATIONS,
   TIER_BADGE,
 } from '@/mocks/admin/kms/kmsData.js'
+
+const showAcceptModal = ref(false)
+const accepted = ref(false)
+
+const handleAccept = () => {
+  accepted.value = true
+  showAcceptModal.value = false
+}
 </script>
 
 <template>
@@ -51,12 +60,13 @@ import {
           {{ MENTORING_REQUEST.applicant.initial }}
         </div>
         <span class="request-text">{{ MENTORING_REQUEST.text }}</span>
-        <button class="btn-match">매칭</button>
+        <button v-if="!accepted" class="btn-match" @click="showAcceptModal = true">수락</button>
+        <span v-else class="request-accepted">✓ 수락됨</span>
       </div>
     </div>
 
     <!-- AI 추천 학습 -->
-    <div class="panel-section">
+    <div class="panel-section panel-section--ai">
       <span class="section-title">🤖 AI 추천 학습</span>
       <div class="ai-list">
         <div v-for="(item, i) in AI_RECOMMENDATIONS" :key="i" class="ai-item">
@@ -68,6 +78,21 @@ import {
     </div>
 
   </div>
+
+  <!-- 수락 확인 모달 -->
+  <Teleport to="body">
+    <div v-if="showAcceptModal" class="accept-overlay" @click.self="showAcceptModal = false">
+      <div class="accept-modal">
+        <p class="accept-modal__title">🤝 멘토링 수락 확인</p>
+        <p class="accept-modal__body">{{ MENTORING_REQUEST.text }}</p>
+        <p class="accept-modal__desc">해당 멘토링 신청을 수락하시겠습니까?</p>
+        <div class="accept-modal__actions">
+          <button class="accept-modal__btn accept-modal__btn--cancel" @click="showAcceptModal = false">취소</button>
+          <button class="accept-modal__btn accept-modal__btn--confirm" @click="handleAccept">수락 확정</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -245,6 +270,95 @@ import {
   font-family: var(--font-family-base);
   flex-shrink: 0;
 }
+
+/* 수락됨 텍스트 */
+.request-accepted {
+  font-size: 10px;
+  font-weight: 700;
+  color: #007A60;
+  flex-shrink: 0;
+}
+
+/* AI 추천 섹션 배경 */
+.panel-section--ai {
+  background: linear-gradient(160deg, #f0eeff 0%, #e8fdf5 100%);
+  border-color: var(--color-primary-300, #a89ed8);
+}
+
+/* 수락 모달 오버레이 */
+.accept-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 31, 110, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.accept-modal {
+  background: #ffffff;
+  border: 1.5px solid var(--color-border-default, #e0dcff);
+  border-radius: 12px;
+  padding: 24px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accept-modal__title {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-primary-800, #2d1f6e);
+}
+
+.accept-modal__body {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary-600, #5b4fcf);
+  background: var(--color-primary-100, #f0eeff);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.accept-modal__desc {
+  font-size: 11px;
+  color: var(--color-text-sub, #7a6fa8);
+}
+
+.accept-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.accept-modal__btn {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+}
+
+.accept-modal__btn--cancel {
+  background: #ffffff;
+  border: 1.5px solid var(--color-border-default, #e0dcff);
+  color: var(--color-text-sub, #7a6fa8);
+}
+
+.accept-modal__btn--cancel:hover { background: var(--color-primary-100, #f0eeff); }
+
+.accept-modal__btn--confirm {
+  background: var(--color-primary-600, #5b4fcf);
+  border: 1.5px solid var(--color-primary-500, #7f75db);
+  color: #ffffff;
+}
+
+.accept-modal__btn--confirm:hover { background: var(--color-primary-700, #4a3fb0); }
 
 /* AI 추천 */
 .ai-list {
