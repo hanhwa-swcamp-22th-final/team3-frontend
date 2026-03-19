@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   categories: { type: Array, default: () => [] },
@@ -7,6 +8,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['open-write', 'open-detail'])
+const authStore = useAuthStore()
 
 const activeCategory = ref('all')
 const searchQuery = ref('')
@@ -14,6 +16,7 @@ const showAllCategories = ref(false)
 const currentPage = ref(1)
 const defaultVisibleCategoryCount = 4
 const pageSize = 4
+const isWorker = computed(() => authStore.role() === 'worker')
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
@@ -93,7 +96,7 @@ function categoryClass(category) {
         <p class="feed__eyebrow">지식 허브</p>
         <h2 class="feed__title">지식 피드</h2>
       </div>
-      <button type="button" class="feed__write-button" @click="emit('open-write')">지식 작성</button>
+      <button v-if="isWorker" type="button" class="feed__write-button" @click="emit('open-write')">지식 작성</button>
     </div>
 
     <div class="feed__controls">
