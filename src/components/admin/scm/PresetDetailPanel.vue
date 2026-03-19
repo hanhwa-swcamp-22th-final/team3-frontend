@@ -30,16 +30,21 @@ watch(isCustom, (val) => { if (val) customForm.value = EMPTY_CUSTOM() })
 
 // ── 복잡도 테이블 편집 ──────────────────────────────
 const editableComplexity = ref([])
+const originalComplexity = ref('')
 const isDirty = ref(false)
 
 watch(() => props.preset, (p) => {
   if (p && !isCustom.value) {
-    editableComplexity.value = p.complexity.map(row => ({ ...row }))
+    const copy = p.complexity.map(row => ({ ...row }))
+    editableComplexity.value = copy
+    originalComplexity.value = JSON.stringify(copy)
     isDirty.value = false
   }
 }, { immediate: true })
 
-watch(editableComplexity, () => { isDirty.value = true }, { deep: true })
+watch(editableComplexity, () => {
+  isDirty.value = JSON.stringify(editableComplexity.value) !== originalComplexity.value
+}, { deep: true })
 
 const vWeightSum = computed(() => {
   const sum = [customForm.value.v1, customForm.value.v2, customForm.value.v3, customForm.value.v4]
@@ -64,7 +69,7 @@ const handleCustomSave = () => {
       <template v-if="!isCustom">
         <span v-if="isDirty" class="badge-editing">수정 중</span>
         <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
-        <button class="btn-save" @click="emit('save', { complexity: editableComplexity }); isDirty.value = false">프리셋 저장</button>
+        <button class="btn-save" @click="emit('save', { complexity: editableComplexity }); originalComplexity.value = JSON.stringify(editableComplexity.value); isDirty.value = false">프리셋 저장</button>
       </template>
     </div>
 
