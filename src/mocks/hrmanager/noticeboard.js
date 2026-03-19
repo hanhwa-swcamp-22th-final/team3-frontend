@@ -14,7 +14,7 @@ export const STATUS_STYLE = {
 
 export const FILTER_TABS = ['게시중', '예약', '임시 저장']
 
-export const MOCK_TEAMS = ['전체', '정밀가공1팀', '정밀가공2팀', '품질검사팀', 'HRM']
+export const MOCK_TEAMS = ['전체', 'TL', 'GL', 'Worker', 'HRM']
 
 let _id = 5
 export const mockNotices = [
