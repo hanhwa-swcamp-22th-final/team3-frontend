@@ -424,6 +424,38 @@
         { "label": "KMS 기여", "score": 72, "tags": ["등록필요"], "barColor": "#FFD166" }
       ],
       "aiAnalysis": "이번 분기 작업 태도와 기술 역량은 전반적으로 우수합니다. 협업 측면에서 동료 피드백 기반 개선 여지가 있으며, KMS 기여 활동 독려가 필요합니다."
+    },
+    {
+      "id": 2,
+      "employee_id": 3,
+      "evaluator": "이팀장",
+      "evaluatorRole": "Team Leader",
+      "nlpConfidence": 0.91,
+      "categories": [
+        { "label": "작업 태도", "score": 86, "tags": ["성실함", "리더십"], "barColor": "#2D1F6E" },
+        { "label": "기술 역량", "score": 88, "tags": ["정밀도↑", "전문성"], "barColor": "#2D1F6E" },
+        { "label": "협업 능력", "score": 85, "tags": ["소통원활"], "barColor": "#2D1F6E" },
+        { "label": "안전 준수", "score": 87, "tags": ["규정준수", "모범적"], "barColor": "#2D1F6E" },
+        { "label": "문제 해결", "score": 84, "tags": ["분석적", "자발적"], "barColor": "#2D1F6E" },
+        { "label": "KMS 기여", "score": 79, "tags": ["문서화필요"], "barColor": "#FFD166" }
+      ],
+      "aiAnalysis": "전반적으로 우수한 성과를 보이고 있습니다. 기술 역량과 안전 준수 면에서 팀 내 상위권을 유지하고 있으며, KMS 기여 활동 보강이 필요합니다."
+    },
+    {
+      "id": 3,
+      "employee_id": 4,
+      "evaluator": "이팀장",
+      "evaluatorRole": "Team Leader",
+      "nlpConfidence": 0.88,
+      "categories": [
+        { "label": "작업 태도", "score": 80, "tags": ["성실함"], "barColor": "#2D1F6E" },
+        { "label": "기술 역량", "score": 79, "tags": ["숙련됨", "개선중"], "barColor": "#FFD166" },
+        { "label": "협업 능력", "score": 83, "tags": ["팀워크"], "barColor": "#2D1F6E" },
+        { "label": "안전 준수", "score": 82, "tags": ["규정준수"], "barColor": "#2D1F6E" },
+        { "label": "문제 해결", "score": 78, "tags": ["개선여지"], "barColor": "#FFD166" },
+        { "label": "KMS 기여", "score": 75, "tags": ["등록필요"], "barColor": "#FFD166" }
+      ],
+      "aiAnalysis": "협업 능력과 안전 준수 측면에서 안정적인 성과를 보이고 있습니다. 기술 역량 향상을 위한 추가 교육 및 KMS 기여 활동 독려가 권장됩니다."
     }
   ],
   "evalHistory": [
@@ -484,6 +516,32 @@
       "attachments": [],
       "processStatus": 0,
       "submittedDate": ""
+    },
+    {
+      "id": 5,
+      "employee_id": 3,
+      "evalHistoryId": null,
+      "quarter": "2026년 1분기",
+      "scores": { "quantitative": 86.2, "qualitative": 84.8, "composite": 85.7, "quantFlagDown": false },
+      "reason": "정성 평가 항목 누락",
+      "categories": ["정성 평가 오류"],
+      "content": "2월 품질 개선 활동(KMS 등록 2건) 내용이 정성 평가에 반영되지 않은 것으로 확인됩니다. 해당 활동 기록을 첨부합니다.",
+      "attachments": ["KMS_Feb_Records.pdf"],
+      "processStatus": 2,
+      "submittedDate": "2026.03.11"
+    },
+    {
+      "id": 6,
+      "employee_id": 4,
+      "evalHistoryId": null,
+      "quarter": "2026년 1분기",
+      "scores": { "quantitative": 80.1, "qualitative": 78.4, "composite": 79.4, "quantFlagDown": true },
+      "reason": "설비 보정 계수 미적용",
+      "categories": ["정량 평가 점수 오류"],
+      "content": "3월 초 MCH-02 설비 점검 기간(3/2~3/5) 동안의 생산량이 보정 없이 그대로 반영되었습니다. 해당 기간 설비 이력 확인을 요청드립니다.",
+      "attachments": ["MCH02_Mar_Maintenance.xlsx"],
+      "processStatus": 2,
+      "submittedDate": "2026.03.13"
     }
   ],
   "growthFeedback": [

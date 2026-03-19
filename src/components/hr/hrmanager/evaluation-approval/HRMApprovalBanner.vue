@@ -9,7 +9,7 @@ defineEmits(['bulk-review'])
 <template>
   <div class="hrm-banner">
     <p class="hrm-banner__text">
-      ⏰ 승인 대기 중인 평가가 {{ count }}건 있습니다 — 월말 고과 확정까지 D-{{ daysLeft }}
+      ⏰ 검토 대기 중인 이의신청이 {{ count }}건 있습니다 — 월말 고과 확정까지 D-{{ daysLeft }}
     </p>
     <button class="hrm-banner__btn" @click="$emit('bulk-review')">일괄 검토</button>
   </div>

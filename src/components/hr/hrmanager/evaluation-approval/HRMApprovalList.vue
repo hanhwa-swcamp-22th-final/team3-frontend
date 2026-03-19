@@ -2,18 +2,24 @@
 import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
 
 defineProps({
-  list: { type: Array, required: true },
-  total: { type: Number, required: true },
-  tabs: { type: Array, required: true },
-  activeTab: { type: String, required: true },
-  selectedId: { default: null },
+  list:           { type: Array,  required: true },
+  pendingCount:   { type: Number, required: true },
+  heldCount:      { type: Number, default: 0 },
+  processedCount: { type: Number, default: 0 },
+  tabs:           { type: Array,  required: true },
+  activeTab:      { type: String, required: true },
+  selectedId:     { default: null },
 })
 defineEmits(['tab-change', 'select'])
 </script>
 
 <template>
   <article class="hrm-panel">
-    <p class="hrm-panel__header">📋 승인 대기 ({{ total }}건)</p>
+    <p class="hrm-panel__header">
+      <template v-if="activeTab === '처리 완료'">✅ 처리 완료 ({{ processedCount }}건)</template>
+      <template v-else-if="activeTab === '보류'">⏳ 보류 ({{ heldCount }}건)</template>
+      <template v-else>📋 이의신청 검토 대기 ({{ pendingCount }}건)</template>
+    </p>
 
     <BaseFilterTabs
       :items="tabs"
@@ -38,6 +44,7 @@ defineEmits(['tab-change', 'select'])
             <span class="hrm-badge" :style="{ background: item.typeBg, color: item.typeColor }">{{ item.type }}</span>
             <span class="hrm-list-item__name">{{ item.name }}</span>
             <span class="hrm-grade" :style="{ background: item.gradeBg, color: item.gradeColor }">{{ item.grade }}</span>
+            <span v-if="item.processedLabel" class="hrm-processed-badge" :style="{ background: item.processedBg, color: item.processedColor }">{{ item.processedLabel }}</span>
           </div>
           <p class="hrm-list-item__desc">{{ item.desc }}</p>
           <p class="hrm-list-item__date">{{ item.date }}</p>
@@ -95,4 +102,9 @@ defineEmits(['tab-change', 'select'])
   border-radius: 7px; flex-shrink: 0;
 }
 .hrm-list-item__check--filled { background: var(--color-primary-600); border-color: var(--color-primary-600); }
+
+.hrm-processed-badge {
+  display: inline-flex; align-items: center; height: 14px; padding: 0 7px;
+  border-radius: 3px; font-size: var(--font-size-2xs); font-weight: 900;
+}
 </style>
