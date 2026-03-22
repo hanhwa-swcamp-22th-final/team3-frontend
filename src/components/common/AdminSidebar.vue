@@ -38,10 +38,19 @@ function isActive(target) {
   padding: 18px 14px 28px;
   border-right: 1px solid var(--color-border-soft);
   background: var(--color-bg-surface);
+  position: fixed;
+  left: 0;
+  top: 80px;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  z-index: 99;
 }
 
 .admin-sidebar__section {
-  margin-top: 26px;
+  margin-top: 24px;
+}
+.admin-sidebar__section:first-child {
+  margin-top: 0;
 }
 
 .admin-sidebar__title {

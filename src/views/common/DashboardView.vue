@@ -79,6 +79,9 @@ function handleLogout() {
   border-top: 1px solid var(--color-border-default);
   border-bottom: 1px solid var(--color-border-default);
   background: var(--color-bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .dashboard-brand,
@@ -151,5 +154,6 @@ function handleLogout() {
 .dashboard-content {
   display: flex;
   flex: 1;
+  margin-left: 14%;
 }
 </style>
