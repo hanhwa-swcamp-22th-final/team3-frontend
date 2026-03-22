@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
 import BaseStatCard         from '@/components/common/base/display/BaseStatCard.vue'
 import HRMKpiTeamBarChart   from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamBarChart.vue'
@@ -7,12 +7,16 @@ import HRMKpiTierTrendChart from '@/components/hr/hrmanager/kpi-report/HRMKpiTie
 import HRMKpiCompletionDonut from '@/components/hr/hrmanager/kpi-report/HRMKpiCompletionDonut.vue'
 import HRMKpiTeamTable      from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamTable.vue'
 
-const loading      = ref(true)
-const report       = ref(null)
-const teamScores   = ref([])
-const tierTrend    = ref([])
-const teamLeaders  = ref([])
+const loading         = ref(true)
+const allReports      = ref([])
+const allTeamScores   = ref([])
+const allTeamLeaders  = ref([])
+const tierTrend       = ref([])
 const selectedQuarter = ref('2026년 1분기')
+
+const report      = computed(() => allReports.value.find(r => r.quarter === selectedQuarter.value) ?? null)
+const teamScores  = computed(() => allTeamScores.value.filter(s => s.quarter === selectedQuarter.value))
+const teamLeaders = computed(() => allTeamLeaders.value.filter(l => l.quarter === selectedQuarter.value))
 
 async function fetchJson(url) {
   const res = await fetch(url)
@@ -27,11 +31,10 @@ onMounted(async () => {
       fetchJson(`${API_BASE}/kpiTierTrend`),
       fetchJson(`${API_BASE}/kpiTeamLeaders`),
     ])
-    report.value      = kpi[0] ?? null
-    teamScores.value  = scores
-    tierTrend.value   = trend
-    teamLeaders.value = leaders
-    if (report.value?.quarter) selectedQuarter.value = report.value.quarter
+    allReports.value     = kpi
+    allTeamScores.value  = scores
+    tierTrend.value      = trend
+    allTeamLeaders.value = leaders
   } catch (e) {
     console.error('KPI 데이터 로딩 실패:', e)
   } finally {
@@ -54,7 +57,6 @@ onMounted(async () => {
         </select>
         <div class="kpi-view__toolbar-actions">
           <button class="kpi-view__btn kpi-view__btn--primary">📥 전체 보고서 다운로드</button>
-          <button class="kpi-view__btn kpi-view__btn--outline">⚙ 정밀가공 1라인</button>
         </div>
       </div>
 
@@ -159,12 +161,6 @@ onMounted(async () => {
   border: none;
 }
 .kpi-view__btn--primary:hover { background: var(--color-primary-700); }
-.kpi-view__btn--outline {
-  background: var(--color-bg-surface);
-  color: var(--color-primary-600);
-  border: 1.5px solid var(--color-border-strong);
-}
-.kpi-view__btn--outline:hover { background: var(--color-primary-100); }
 
 /* 지표 카드 */
 .kpi-view__metrics {

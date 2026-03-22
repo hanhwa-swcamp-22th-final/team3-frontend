@@ -603,24 +603,44 @@
     {
       "id": 1,
       "quarter": "2026년 1분기",
-      "avgScore": 83.4,
-      "avgScoreDelta": 1.8,
-      "saRatio": 38.5,
-      "saRatioDelta": 3.2,
-      "completedTasks": 1247,
-      "completedTasksDelta": 108,
-      "avgMtbf": 312,
-      "avgMtbfDelta": 18,
-      "completionRate": 78,
-      "inProgressRate": 14,
-      "pendingRate": 8
+      "avgScore": 83.4, "avgScoreDelta": 1.8,
+      "saRatio": 38.5,  "saRatioDelta": 3.2,
+      "completedTasks": 1247, "completedTasksDelta": 108,
+      "avgMtbf": 312,   "avgMtbfDelta": 18,
+      "completionRate": 78, "inProgressRate": 14, "pendingRate": 8
+    },
+    {
+      "id": 2,
+      "quarter": "2025년 4분기",
+      "avgScore": 81.6, "avgScoreDelta": 2.1,
+      "saRatio": 35.3,  "saRatioDelta": 1.8,
+      "completedTasks": 1139, "completedTasksDelta": 94,
+      "avgMtbf": 294,   "avgMtbfDelta": 12,
+      "completionRate": 74, "inProgressRate": 16, "pendingRate": 10
+    },
+    {
+      "id": 3,
+      "quarter": "2025년 3분기",
+      "avgScore": 79.5, "avgScoreDelta": 1.4,
+      "saRatio": 33.5,  "saRatioDelta": 2.4,
+      "completedTasks": 1045, "completedTasksDelta": 76,
+      "avgMtbf": 282,   "avgMtbfDelta": 9,
+      "completionRate": 70, "inProgressRate": 18, "pendingRate": 12
     }
   ],
   "kpiTeamScores": [
-    { "id": 1, "team": "정밀가공1라인", "score": 87.3 },
-    { "id": 2, "team": "정밀가공2라인", "score": 84.1 },
-    { "id": 3, "team": "프레스라인",    "score": 81.5 },
-    { "id": 4, "team": "용접라인",      "score": 78.2 }
+    { "id": 1,  "quarter": "2026년 1분기", "team": "정밀가공1라인", "score": 87.3 },
+    { "id": 2,  "quarter": "2026년 1분기", "team": "정밀가공2라인", "score": 84.1 },
+    { "id": 3,  "quarter": "2026년 1분기", "team": "프레스라인",    "score": 81.5 },
+    { "id": 4,  "quarter": "2026년 1분기", "team": "용접라인",      "score": 78.2 },
+    { "id": 5,  "quarter": "2025년 4분기", "team": "정밀가공1라인", "score": 85.1 },
+    { "id": 6,  "quarter": "2025년 4분기", "team": "정밀가공2라인", "score": 82.4 },
+    { "id": 7,  "quarter": "2025년 4분기", "team": "프레스라인",    "score": 79.8 },
+    { "id": 8,  "quarter": "2025년 4분기", "team": "용접라인",      "score": 76.5 },
+    { "id": 9,  "quarter": "2025년 3분기", "team": "정밀가공1라인", "score": 82.7 },
+    { "id": 10, "quarter": "2025년 3분기", "team": "정밀가공2라인", "score": 80.3 },
+    { "id": 11, "quarter": "2025년 3분기", "team": "프레스라인",    "score": 77.2 },
+    { "id": 12, "quarter": "2025년 3분기", "team": "용접라인",      "score": 74.8 }
   ],
   "kpiTierTrend": [
     { "id": 1, "quarter": "Q1'25", "S": 8,  "A": 30, "B": 35, "C": 27 },
@@ -630,10 +650,18 @@
     { "id": 5, "quarter": "Q1'26", "S": 12, "A": 34, "B": 28, "C": 26 }
   ],
   "kpiTeamLeaders": [
-    { "id": 1, "name": "김팀장", "line": "정밀가공1라인", "members": 6, "evaluated": 5, "total": 6, "avgScore": 83.4, "tierDist": "S:1 A:3 B:2", "completionRate": 83, "avatarColor": "#7c6514" },
-    { "id": 2, "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 6, "total": 7, "avgScore": 84.1, "tierDist": "A:4 B:3",     "completionRate": 86, "avatarColor": "#23185d" },
-    { "id": 3, "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 4, "total": 7, "avgScore": 81.5, "tierDist": "A:2 B:4 C:1", "completionRate": 57, "avatarColor": "#1a5c3a" },
-    { "id": 4, "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 3, "total": 6, "avgScore": 78.2, "tierDist": "B:4 C:2",     "completionRate": 50, "avatarColor": "#8b0000" }
+    { "id": 1,  "quarter": "2026년 1분기", "name": "김팀장", "line": "정밀가공1라인", "members": 6, "evaluated": 5, "total": 6, "avgScore": 87.3, "tierDist": "S:1 A:3 B:2", "completionRate": 83, "avatarColor": "#7c6514" },
+    { "id": 2,  "quarter": "2026년 1분기", "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 6, "total": 7, "avgScore": 84.1, "tierDist": "A:4 B:3",     "completionRate": 86, "avatarColor": "#23185d" },
+    { "id": 3,  "quarter": "2026년 1분기", "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 4, "total": 7, "avgScore": 81.5, "tierDist": "A:2 B:4 C:1", "completionRate": 57, "avatarColor": "#1a5c3a" },
+    { "id": 4,  "quarter": "2026년 1분기", "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 3, "total": 6, "avgScore": 78.2, "tierDist": "B:4 C:2",     "completionRate": 50, "avatarColor": "#8b0000" },
+    { "id": 5,  "quarter": "2025년 4분기", "name": "김팀장", "line": "정밀가공1라인", "members": 6, "evaluated": 6, "total": 6, "avgScore": 85.1, "tierDist": "S:1 A:3 B:2", "completionRate": 100, "avatarColor": "#7c6514" },
+    { "id": 6,  "quarter": "2025년 4분기", "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 7, "total": 7, "avgScore": 82.4, "tierDist": "A:4 B:3",     "completionRate": 100, "avatarColor": "#23185d" },
+    { "id": 7,  "quarter": "2025년 4분기", "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 5, "total": 7, "avgScore": 79.8, "tierDist": "A:2 B:4 C:1", "completionRate": 71,  "avatarColor": "#1a5c3a" },
+    { "id": 8,  "quarter": "2025년 4분기", "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 4, "total": 6, "avgScore": 76.5, "tierDist": "B:4 C:2",     "completionRate": 67,  "avatarColor": "#8b0000" },
+    { "id": 9,  "quarter": "2025년 3분기", "name": "김팀장", "line": "정밀가공1라인", "members": 6, "evaluated": 6, "total": 6, "avgScore": 82.7, "tierDist": "A:4 B:2",     "completionRate": 100, "avatarColor": "#7c6514" },
+    { "id": 10, "quarter": "2025년 3분기", "name": "이팀장", "line": "정밀가공2라인", "members": 7, "evaluated": 5, "total": 7, "avgScore": 80.3, "tierDist": "A:3 B:4",     "completionRate": 71,  "avatarColor": "#23185d" },
+    { "id": 11, "quarter": "2025년 3분기", "name": "박팀장", "line": "프레스라인",    "members": 7, "evaluated": 4, "total": 7, "avgScore": 77.2, "tierDist": "A:1 B:4 C:2", "completionRate": 57,  "avatarColor": "#1a5c3a" },
+    { "id": 12, "quarter": "2025년 3분기", "name": "최팀장", "line": "용접라인",      "members": 6, "evaluated": 3, "total": 6, "avgScore": 74.8, "tierDist": "B:3 C:3",     "completionRate": 50,  "avatarColor": "#8b0000" }
   ],
   "promotionSummary": [
     {

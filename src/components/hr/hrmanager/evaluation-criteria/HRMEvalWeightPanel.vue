@@ -68,8 +68,8 @@ const qualWeight = computed(() => 100 - props.quantWeight)
 }
 .eval-weight-card__bar {
   display: flex;
-  height: 10px;
-  border-radius: 5px;
+  height: 8px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .eval-weight-card__bar-quant {
@@ -116,9 +116,9 @@ const qualWeight = computed(() => 100 - props.quantWeight)
   cursor: pointer;
 }
 .eval-weight-card__track {
-  height: 6px;
+  height: 8px;
   background: var(--color-border-default);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .eval-weight-card__track-fill {
