@@ -203,7 +203,7 @@ function removeMember(team, emp) {
 
       <!-- 멤버 목록 -->
       <div class="team-detail__member-header">
-        <span class="team-detail__member-title">탈원 목록</span>
+        <span class="team-detail__member-title">팀원 목록</span>
         <div class="team-detail__filters">
           <select v-model="tierFilter" class="team-detail__select">
             <option value="">전체 Tier</option>
@@ -301,7 +301,7 @@ function removeMember(team, emp) {
   display: flex; align-items: center; justify-content: space-between;
 }
 .org-tree__title {
-  font-size: var(--font-size-base); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
+  font-size: var(--font-size-lg); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
 }
 .org-tree__add-btn {
   height: 30px; padding: 0 14px;

@@ -92,7 +92,7 @@ function deleteNotice(id) {
       <div class="notice-card">
         <!-- 헤더 -->
         <div class="notice-header">
-          <h2 class="notice-header__title">공지 리스트</h2>
+          <h2 class="notice-header__title">공지 목록</h2>
           <span class="notice-header__count">총 {{ notices.length }}건</span>
         </div>
 
@@ -248,9 +248,9 @@ function deleteNotice(id) {
 .notice-org-popup { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; }
 
 .notice-create-btn {
-  height: 38px; padding: 0 20px; flex-shrink: 0;
+  height: 30px; padding: 0 14px; flex-shrink: 0;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 10px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
