@@ -18,6 +18,14 @@ const showGroupModal = ref(false)
 const showTeamModal  = ref(false)
 const isEditMode     = ref(false)
 
+const toast = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
+function showToast(message, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = { show: true, message, type }
+  toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
+}
+
 const tierFilter   = ref('')
 const posFilter    = ref('')
 const nameSearch   = ref('')
@@ -110,6 +118,7 @@ function handleGroupSubmit(data) {
     teams:       [],
   })
   showGroupModal.value = false
+  showToast(`'${data.name}' 그룹이 추가되었습니다.`)
 }
 
 function handleTeamSubmit(data) {
@@ -118,6 +127,7 @@ function handleTeamSubmit(data) {
     team.name        = data.name
     team.description = data.description
     team.memberIds   = data.memberIds
+    showToast(`'${data.name}' 팀 정보가 수정되었습니다.`)
   } else {
     const group = groups.value.find(g => g.id === selectedGroup.value.id)
     if (!group) return
@@ -128,18 +138,22 @@ function handleTeamSubmit(data) {
       memberIds:   data.memberIds,
       leaderId:    null,
     })
+    showToast(`'${data.name}' 팀이 추가되었습니다.`)
   }
   showTeamModal.value = false
 }
 
 function setLeader(team, emp) {
-  team.leaderId = team.leaderId === emp.employee_id ? null : emp.employee_id
+  const wasLeader = team.leaderId === emp.employee_id
+  team.leaderId = wasLeader ? null : emp.employee_id
+  showToast(wasLeader ? '팀장을 해제했습니다.' : `${emp.employee_name}님을 팀장으로 지정했습니다.`)
 }
 
 function removeMember(team, emp) {
   const idx = team.memberIds.indexOf(emp.employee_id)
   if (idx !== -1) team.memberIds.splice(idx, 1)
   if (team.leaderId === emp.employee_id) team.leaderId = null
+  showToast(`${emp.employee_name}님을 팀에서 제거했습니다.`)
 }
 </script>
 
@@ -275,6 +289,13 @@ function removeMember(team, emp) {
       @close="showTeamModal = false"
       @submit="handleTeamSubmit"
     />
+
+    <Transition name="org-toast">
+      <div v-if="toast.show" class="org-toast" :class="`org-toast--${toast.type}`">
+        <span class="org-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -474,4 +495,26 @@ function removeMember(team, emp) {
   border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
+
+/* ── 토스트 ── */
+.org-toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 10px;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
+  color: var(--color-white); z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.org-toast--success { background: var(--color-primary-700); }
+.org-toast--error   { background: var(--color-danger); }
+.org-toast__icon {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold); flex-shrink: 0;
+}
+.org-toast-enter-active,
+.org-toast-leave-active { transition: all 0.25s ease; }
+.org-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.org-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

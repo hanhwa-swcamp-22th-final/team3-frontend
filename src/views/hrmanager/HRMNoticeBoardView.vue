@@ -16,6 +16,14 @@ const showOrgFilter = ref(false)
 const showFormModal = ref(false)
 const editTarget    = ref(null)
 
+const toast = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
+function showToast(message, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = { show: true, message, type }
+  toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
+}
+
 const selectedId = ref(mockNotices[0]?.id ?? null)
 
 // ── 필터링 ────────────────────────────────────────────────────────
@@ -57,10 +65,12 @@ function openEdit(notice) {
 function handleSave(data) {
   if (editTarget.value) {
     Object.assign(editTarget.value, data)
+    showToast('공지가 수정되었습니다.')
   } else {
     const n = { id: nextId(), ...data }
     notices.value.unshift(n)
     selectedId.value = n.id
+    showToast('공지가 등록되었습니다.')
   }
   showFormModal.value = false
 }
@@ -75,12 +85,14 @@ function handleDraft(data) {
     selectedId.value = n.id
   }
   showFormModal.value = false
+  showToast('임시저장되었습니다.')
 }
 
 // ── 삭제 ──────────────────────────────────────────────────────────
 function deleteNotice(id) {
   notices.value = notices.value.filter(n => n.id !== id)
   selectedId.value = filtered.value[0]?.id ?? null
+  showToast('공지가 삭제되었습니다.')
 }
 </script>
 
@@ -175,6 +187,13 @@ function deleteNotice(id) {
       @save="handleSave"
       @draft="handleDraft"
     />
+
+    <Transition name="notice-toast">
+      <div v-if="toast.show" class="notice-toast" :class="`notice-toast--${toast.type}`">
+        <span class="notice-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -331,4 +350,26 @@ function deleteNotice(id) {
 @media (max-width: 1100px) {
   .notice-grid { grid-template-columns: 1fr; }
 }
+
+/* ── 토스트 ── */
+.notice-toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 10px;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
+  color: var(--color-white); z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.notice-toast--success { background: var(--color-primary-700); }
+.notice-toast--error   { background: var(--color-danger); }
+.notice-toast__icon {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold); flex-shrink: 0;
+}
+.notice-toast-enter-active,
+.notice-toast-leave-active { transition: all 0.25s ease; }
+.notice-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.notice-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>
