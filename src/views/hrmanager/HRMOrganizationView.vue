@@ -14,9 +14,11 @@ const treeSearch   = ref('')
 const selectedTeam = ref(null)   // { groupId, team }
 const selectedGroup = ref(null)  // 팀 추가 모달 열 때 어느 그룹인지
 
-const showGroupModal = ref(false)
-const showTeamModal  = ref(false)
-const isEditMode     = ref(false)
+const showGroupModal     = ref(false)
+const showGroupEditModal = ref(false)
+const showTeamModal      = ref(false)
+const isEditMode         = ref(false)
+const selectedGroupDetail = ref(null)
 
 const toast = ref({ show: false, message: '', type: 'success' })
 let toastTimer = null
@@ -32,6 +34,18 @@ const nameSearch   = ref('')
 
 const TIERS    = ['S', 'A', 'B', 'C']
 const POSITIONS = ['팀장', '선임연구원', '대리', '주임', '사원', '과장']
+
+// 그룹 접기/펼치기
+const collapsedGroups = ref(new Set())
+function toggleGroup(groupId) {
+  const next = new Set(collapsedGroups.value)
+  if (next.has(groupId)) next.delete(groupId)
+  else next.add(groupId)
+  collapsedGroups.value = next
+}
+function isExpanded(groupId) {
+  return !collapsedGroups.value.has(groupId)
+}
 
 // ── 데이터 로딩 ───────────────────────────────────────────────────
 onMounted(async () => {
@@ -59,6 +73,19 @@ function employeesOfTeam(team) {
 }
 function isLeader(team, emp) {
   return team.leaderId === emp.employee_id
+}
+function leaderOf(team) {
+  if (!team.leaderId) return null
+  return employees.value.find(e => e.employee_id === team.leaderId) ?? null
+}
+
+const COLOR_NAMES = {
+  '#7c6fcd': 'Purple Point', '#4b89c8': 'Blue Sky', '#1aaa8e': 'Teal Wave',
+  '#d94f6e': 'Rose Red', '#a07826': 'Golden Brown', '#e07c7c': 'Coral Pink',
+  '#2bbfb0': 'Cyan Mint', '#e8a020': 'Amber Gold',
+}
+function colorName(color) {
+  return COLOR_NAMES[color?.toLowerCase()] ?? 'Custom'
 }
 
 // ── 트리 필터링 ───────────────────────────────────────────────────
@@ -90,9 +117,25 @@ const selectedGroup$ = computed(() =>
   selectedTeam.value ? groups.value.find(g => g.id === selectedTeam.value.groupId) : null
 )
 
+// ── 인력풀 필터링 (이미 다른 팀에 속한 직원 제외) ──────────────────
+const availableEmployees = computed(() => {
+  const currentTeamId = isEditMode.value ? selectedTeam.value?.team?.id : null
+  const usedIds = new Set()
+  groups.value.forEach(g => g.teams.forEach(t => {
+    if (t.id !== currentTeamId) t.memberIds.forEach(id => usedIds.add(id))
+  }))
+  return employees.value.filter(e => e.employee_id && !usedIds.has(e.employee_id))
+})
+
 // ── 이벤트 핸들러 ─────────────────────────────────────────────────
+function selectGroup(group) {
+  selectedGroupDetail.value = group
+  selectedTeam.value = null
+}
+
 function selectTeam(group, team) {
   selectedTeam.value = { groupId: group.id, team }
+  selectedGroupDetail.value = null
   tierFilter.value = ''
   posFilter.value  = ''
   nameSearch.value = ''
@@ -119,6 +162,15 @@ function handleGroupSubmit(data) {
   })
   showGroupModal.value = false
   showToast(`'${data.name}' 그룹이 추가되었습니다.`)
+}
+
+function handleGroupEditSubmit(data) {
+  const group = selectedGroupDetail.value
+  group.name        = data.name
+  group.description = data.description
+  group.color       = data.color
+  showGroupEditModal.value = false
+  showToast(`'${data.name}' 그룹이 수정되었습니다.`)
 }
 
 function handleTeamSubmit(data) {
@@ -150,10 +202,26 @@ function setLeader(team, emp) {
 }
 
 function removeMember(team, emp) {
+  if (!confirm(`${emp.employee_name}님을 팀에서 제거하시겠습니까?`)) return
   const idx = team.memberIds.indexOf(emp.employee_id)
   if (idx !== -1) team.memberIds.splice(idx, 1)
   if (team.leaderId === emp.employee_id) team.leaderId = null
   showToast(`${emp.employee_name}님을 팀에서 제거했습니다.`)
+}
+
+function deleteTeam(group, team) {
+  if (!confirm(`'${team.name}' 팀을 삭제하시겠습니까?`)) return
+  group.teams = group.teams.filter(t => t.id !== team.id)
+  if (selectedTeam.value?.team?.id === team.id) selectedTeam.value = null
+  showToast(`'${team.name}' 팀이 삭제되었습니다.`)
+}
+
+function deleteGroup(group) {
+  if (!confirm(`'${group.name}' 그룹을 삭제하시겠습니까?\n소속된 모든 팀 정보도 함께 삭제됩니다.`)) return
+  groups.value = groups.value.filter(g => g.id !== group.id)
+  if (group.teams.some(t => t.id === selectedTeam.value?.team?.id)) selectedTeam.value = null
+  selectedGroupDetail.value = null
+  showToast(`'${group.name}' 그룹이 삭제되었습니다.`)
 }
 </script>
 
@@ -174,26 +242,54 @@ function removeMember(team, emp) {
 
       <div class="org-tree__list">
         <div v-for="group in filteredGroups" :key="group.id" class="group-node">
+
           <!-- 그룹 행 -->
-          <div class="group-node__row">
+          <div
+            class="group-node__row"
+            :class="{ 'group-node__row--active': selectedGroupDetail?.id === group.id }"
+            @click="selectGroup(group)"
+          >
+            <button
+              class="group-node__chevron"
+              :class="{ 'group-node__chevron--open': isExpanded(group.id) }"
+              @click.stop="toggleGroup(group.id)"
+            >&gt;</button>
             <span class="group-node__dot" :style="{ background: group.color }" />
             <span class="group-node__name">{{ group.name }}</span>
-            <button class="group-node__team-btn" @click="openTeamModal(group)">+팀 추가</button>
             <span class="group-node__count">{{ group.teams.length }}</span>
           </div>
 
           <!-- 팀 행들 -->
-          <div
-            v-for="team in group.teams"
-            :key="team.id"
-            class="team-node"
-            :class="{ 'team-node--active': selectedTeam?.team?.id === team.id }"
-            @click="selectTeam(group, team)"
-          >
-            <span class="team-node__icon">&#128101;</span>
-            <span class="team-node__name">{{ team.name }}</span>
-            <span class="team-node__count">{{ team.memberIds.length }}명</span>
-          </div>
+          <template v-if="isExpanded(group.id) || treeSearch.trim()">
+            <div
+              v-for="(team, idx) in group.teams"
+              :key="team.id"
+              class="team-node"
+              :class="{ 'team-node--active': selectedTeam?.team?.id === team.id }"
+              @click="selectTeam(group, team)"
+            >
+              <div
+                class="team-node__connector"
+                :class="{ 'team-node__connector--last': idx === group.teams.length - 1 }"
+              />
+              <svg class="team-node__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+              </svg>
+              <div class="team-node__info">
+                <span class="team-node__name">{{ team.name }}</span>
+                <div class="team-node__leader" v-if="leaderOf(team)">
+                  <span class="team-node__leader-label">팀장 :</span>
+                  <div class="team-node__leader-avatar">{{ leaderOf(team).employee_name[0] }}</div>
+                  <span class="team-node__leader-name">{{ leaderOf(team).employee_name }}</span>
+                </div>
+                <div class="team-node__leader" v-else>
+                  <span class="team-node__leader-label team-node__leader-label--empty">팀장 미지정</span>
+                </div>
+              </div>
+              <span class="team-node__count">{{ team.memberIds.length }}명</span>
+            </div>
+          </template>
+
         </div>
 
         <div v-if="filteredGroups.length === 0" class="org-tree__empty">검색 결과가 없습니다.</div>
@@ -211,7 +307,10 @@ function removeMember(team, emp) {
           <span class="team-detail__team-name">{{ selectedTeam.team.name }}</span>
           <span class="team-detail__badge">팀</span>
         </div>
-        <button class="team-detail__edit-btn" @click="openEditModal">편집</button>
+        <div class="team-detail__actions">
+          <button class="team-detail__edit-btn" @click="openEditModal">편집</button>
+          <button class="team-detail__delete-btn" @click="deleteTeam(selectedGroup$, selectedTeam.team)">삭제</button>
+        </div>
       </div>
       <p class="team-detail__desc">{{ selectedTeam.team.description || '설명 없음' }}</p>
 
@@ -268,9 +367,99 @@ function removeMember(team, emp) {
       </div>
     </section>
 
-    <!-- 팀 미선택 시 -->
+    <!-- 그룹 상세 -->
+    <section class="team-detail" v-else-if="selectedGroupDetail">
+      <div class="team-detail__header">
+        <div class="team-detail__breadcrumb">
+          <span class="team-detail__dot" :style="{ background: selectedGroupDetail.color }" />
+          <span class="team-detail__team-name">{{ selectedGroupDetail.name }}</span>
+          <span class="team-detail__badge">그룹</span>
+        </div>
+        <div class="team-detail__actions">
+          <button class="team-detail__edit-btn" @click="showGroupEditModal = true">편집</button>
+          <button class="team-detail__delete-btn" @click="deleteGroup(selectedGroupDetail); selectedGroupDetail = null">삭제</button>
+        </div>
+      </div>
+      <p class="team-detail__desc">{{ selectedGroupDetail.description || '설명 없음' }}</p>
+
+      <!-- 통계 카드 -->
+      <div class="group-detail__stats">
+        <div class="group-detail__stat-card">
+          <div class="group-detail__stat-icon group-detail__stat-icon--team">
+            <svg class="org-icon org-icon--lg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+          </div>
+          <div class="group-detail__stat-info">
+            <span class="group-detail__stat-label">소속 팀</span>
+            <div class="group-detail__stat-value">
+              <span class="group-detail__stat-num">{{ selectedGroupDetail.teams.length }}</span>
+              <span class="group-detail__stat-unit">개</span>
+            </div>
+          </div>
+        </div>
+        <div class="group-detail__stat-card">
+          <div class="group-detail__stat-icon group-detail__stat-icon--person">
+            <svg class="org-icon org-icon--lg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <div class="group-detail__stat-info">
+            <span class="group-detail__stat-label">전체 인원</span>
+            <div class="group-detail__stat-value">
+              <span class="group-detail__stat-num">{{ selectedGroupDetail.teams.reduce((s, t) => s + t.memberIds.length, 0) }}</span>
+              <span class="group-detail__stat-unit">명</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 팀 구성 & 상세 -->
+      <div class="group-detail__team-list">
+        <div class="group-detail__team-list-header">
+          <span class="team-detail__member-title">팀 구성 &amp; 상세</span>
+          <button class="group-node__team-btn" @click="openTeamModal(selectedGroupDetail)">+ 팀 추가</button>
+        </div>
+        <div v-if="selectedGroupDetail.teams.length === 0" class="member-list__empty">소속 팀이 없습니다.</div>
+        <div
+          v-for="team in selectedGroupDetail.teams"
+          :key="team.id"
+          class="group-detail__team-card"
+          @click="selectTeam(selectedGroupDetail, team)"
+        >
+          <div class="group-detail__team-card-icon" :style="{ background: selectedGroupDetail.color + '22', color: selectedGroupDetail.color }">
+            <svg class="org-icon org-icon--md" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+          </div>
+          <div class="group-detail__team-card-info">
+            <span class="group-detail__team-card-name">{{ team.name }}</span>
+            <p class="group-detail__team-card-desc">{{ team.description || '설명 없음' }}</p>
+          </div>
+          <div class="group-detail__team-card-stats">
+            <div class="group-detail__team-card-count">
+              <svg class="org-icon org-icon--sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+              </svg>
+              {{ team.memberIds.length }}명
+            </div>
+            <div class="group-detail__team-card-leader" v-if="leaderOf(team)">
+              팀장 :
+              <div class="group-detail__team-card-avatar">{{ leaderOf(team).employee_name[0] }}</div>
+              {{ leaderOf(team).employee_name }}
+            </div>
+            <div class="group-detail__team-card-leader group-detail__team-card-leader--empty" v-else>팀장 미지정</div>
+          </div>
+          <svg class="group-detail__team-card-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 미선택 시 -->
     <section class="team-detail team-detail--empty" v-else>
-      <p>좌측에서 팀을 선택하세요.</p>
+      <p>좌측에서 그룹 또는 팀을 선택하세요.</p>
     </section>
 
     <!-- ── 모달 ── -->
@@ -279,9 +468,18 @@ function removeMember(team, emp) {
       @close="showGroupModal = false"
       @submit="handleGroupSubmit"
     />
+    <HRMGroupAddModal
+      v-if="showGroupEditModal && selectedGroupDetail"
+      :edit-mode="true"
+      :initial-name="selectedGroupDetail.name"
+      :initial-description="selectedGroupDetail.description"
+      :initial-color="selectedGroupDetail.color"
+      @close="showGroupEditModal = false"
+      @submit="handleGroupEditSubmit"
+    />
     <HRMTeamAddModal
       v-if="showTeamModal"
-      :all-employees="employees"
+      :all-employees="availableEmployees"
       :edit-mode="isEditMode"
       :initial-name="isEditMode ? selectedTeam?.team?.name : ''"
       :initial-description="isEditMode ? selectedTeam?.team?.description : ''"
@@ -348,7 +546,20 @@ function removeMember(team, emp) {
 .group-node { display: flex; flex-direction: column; gap: 3px; }
 .group-node__row {
   display: flex; align-items: center; gap: 6px;
-  padding: 8px 4px;
+  padding: 8px 4px; border-radius: 8px; cursor: pointer;
+  transition: background .12s;
+}
+.group-node__row:hover { background: var(--color-primary-100); }
+.group-node__row--active { background: var(--color-primary-100); }
+
+.group-node__chevron {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: var(--color-primary-400);
+  padding: 0; width: 18px; text-align: center; flex-shrink: 0; line-height: 1;
+  transition: transform .2s ease; display: inline-flex; align-items: center; justify-content: center;
+}
+.group-node__chevron--open {
+  transform: rotate(90deg);
 }
 .group-node__dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
@@ -357,12 +568,14 @@ function removeMember(team, emp) {
   flex: 1; font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
 }
 .group-node__team-btn {
-  height: 22px; padding: 0 8px;
+  height: 32px; padding: 0 16px;
   background: var(--color-primary-100); color: var(--color-primary-600);
-  border: 1px solid var(--color-primary-200);
-  border-radius: 6px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
+  border: 1.5px solid var(--color-primary-300);
+  border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
+  transition: background .12s, border-color .12s;
 }
+.group-node__team-btn:hover { background: var(--color-primary-200); border-color: var(--color-primary-400); }
 .group-node__count {
   min-width: 20px; height: 20px; padding: 0 6px;
   background: var(--color-primary-100); color: var(--color-primary-600);
@@ -373,15 +586,52 @@ function removeMember(team, emp) {
 /* 팀 노드 */
 .team-node {
   display: flex; align-items: center; gap: 8px;
-  padding: 7px 8px 7px 20px;
+  padding: 7px 8px 7px 4px;
   border-radius: 8px; cursor: pointer;
   transition: background .12s;
 }
 .team-node:hover { background: var(--color-primary-100); }
 .team-node--active { background: var(--color-primary-100); }
-.team-node__icon { font-size: var(--font-size-sm); }
-.team-node__name { flex: 1; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-primary-700); }
-.team-node__count { font-size: var(--font-size-xs); color: #a89ed8; }
+
+/* 트리 연결선 */
+.team-node__connector {
+  width: 20px; flex-shrink: 0;
+  position: relative; align-self: stretch;
+}
+.team-node__connector::before {
+  content: '';
+  position: absolute;
+  left: 10px; top: 0; bottom: 0;
+  border-left: 1.5px solid var(--color-border-default);
+}
+.team-node__connector::after {
+  content: '';
+  position: absolute;
+  left: 10px; top: 50%;
+  width: 10px; height: 0;
+  border-top: 1.5px solid var(--color-border-default);
+}
+.team-node__connector--last::before { bottom: 50%; }
+
+.team-node__icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--color-primary-500); }
+.team-node__info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.team-node__name {
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-primary-700);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.team-node__leader { display: flex; align-items: center; gap: 4px; }
+.team-node__leader-label { font-size: var(--font-size-2xs); color: var(--color-text-muted); }
+.team-node__leader-label--empty { font-style: italic; }
+.team-node__leader-avatar {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--color-primary-200); color: var(--color-primary-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: var(--font-weight-bold); flex-shrink: 0;
+}
+.team-node__leader-name {
+  font-size: var(--font-size-2xs); color: var(--color-primary-600); font-weight: var(--font-weight-semibold);
+}
+.team-node__count { font-size: var(--font-size-xs); color: #a89ed8; flex-shrink: 0; }
 
 /* ── 팀 상세 ── */
 .team-detail {
@@ -399,11 +649,14 @@ function removeMember(team, emp) {
 .team-detail__header {
   display: flex; align-items: center; justify-content: space-between;
 }
+.team-detail__actions {
+  display: flex; align-items: center; gap: 10px; margin-left: auto;
+}
 .team-detail__breadcrumb {
   display: flex; align-items: center; gap: 6px;
 }
 .team-detail__dot {
-  width: 10px; height: 10px; border-radius: 50;
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
 .team-detail__group { font-size: var(--font-size-base); color: var(--color-primary-600); font-weight: var(--font-weight-semibold); }
 .team-detail__arrow { font-size: var(--font-size-sm); color: #a89ed8; }
@@ -419,6 +672,12 @@ function removeMember(team, emp) {
   border: 1.5px solid var(--color-border-default);
   border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
+}
+.team-detail__delete-btn {
+  height: 32px; padding: 0 14px;
+  background: var(--color-danger); color: var(--color-white);
+  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  cursor: pointer;
 }
 .team-detail__desc { font-size: var(--font-size-sm); color: #7a6fa8; }
 
@@ -495,6 +754,92 @@ function removeMember(team, emp) {
   border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
+
+/* ── 그룹 상세 ── */
+.group-detail__stats { display: flex; gap: 16px; }
+.group-detail__stat-card {
+  flex: 1; display: flex; align-items: center; gap: 14px;
+  padding: 18px 20px;
+  background: var(--color-bg-app);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 12px;
+}
+/* SVG 아이콘 공통 */
+.org-icon { display: block; flex-shrink: 0; }
+.org-icon--lg { width: 26px; height: 26px; }
+.org-icon--md { width: 22px; height: 22px; }
+.org-icon--sm { width: 15px; height: 15px; }
+
+.group-detail__stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.group-detail__stat-icon--team { background: var(--color-primary-100); color: var(--color-primary-600); }
+.group-detail__stat-icon--person { background: #ededf7; color: var(--color-primary-600); }
+.group-detail__stat-info { display: flex; flex-direction: column; gap: 4px; }
+.group-detail__stat-label { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.group-detail__stat-value { display: flex; align-items: baseline; gap: 3px; }
+.group-detail__stat-num {
+  font-size: 26px; font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
+}
+.group-detail__stat-unit {
+  font-size: var(--font-size-sm); color: var(--color-primary-700); font-weight: var(--font-weight-semibold);
+}
+
+.group-detail__team-list { display: flex; flex-direction: column; gap: 10px; }
+.group-detail__team-list-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* 팀 카드 */
+.group-detail__team-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-bg-app);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .12s;
+}
+.group-detail__team-card:hover { border-color: var(--color-primary-300); background: var(--color-primary-50, #f7f5ff); }
+.group-detail__team-card-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.group-detail__team-card-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.group-detail__team-card-name {
+  font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
+}
+.group-detail__team-card-desc {
+  font-size: var(--font-size-xs); color: var(--color-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.group-detail__team-card-stats {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;
+}
+.group-detail__team-card-count {
+  display: flex; align-items: center; gap: 4px;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-primary-700);
+}
+.group-detail__team-card-leader {
+  display: flex; align-items: center; gap: 5px;
+  font-size: var(--font-size-xs); color: var(--color-text-muted);
+}
+.group-detail__team-card-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--color-primary-200); color: var(--color-primary-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: var(--font-weight-bold); flex-shrink: 0;
+}
+.group-detail__team-card-leader--empty { font-style: italic; }
+.group-detail__team-card-arrow {
+  width: 18px; height: 18px; flex-shrink: 0;
+  color: var(--color-primary-300);
+  transition: color .12s;
+}
+.group-detail__team-card:hover .group-detail__team-card-arrow { color: var(--color-primary-500); }
 
 /* ── 토스트 ── */
 .org-toast {
