@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { mockOrganization, POSITION_MAP } from '@/mocks/hrmanager/organization.js'
 import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
+import BaseConfirmModal from '@/components/common/base/overlay/BaseConfirmModal.vue'
 
 const API = 'http://localhost:3001'
 
@@ -19,6 +20,18 @@ const showGroupEditModal = ref(false)
 const showTeamModal      = ref(false)
 const isEditMode         = ref(false)
 const selectedGroupDetail = ref(null)
+
+const confirmModal = ref({ show: false, title: '', message: '', onConfirm: null })
+function openConfirm(title, message, onConfirm) {
+  confirmModal.value = { show: true, title, message, onConfirm }
+}
+function closeConfirm() {
+  confirmModal.value = { show: false, title: '', message: '', onConfirm: null }
+}
+function handleConfirmOk() {
+  confirmModal.value.onConfirm?.()
+  closeConfirm()
+}
 
 const toast = ref({ show: false, message: '', type: 'success' })
 let toastTimer = null
@@ -202,26 +215,41 @@ function setLeader(team, emp) {
 }
 
 function removeMember(team, emp) {
-  if (!confirm(`${emp.employee_name}님을 팀에서 제거하시겠습니까?`)) return
-  const idx = team.memberIds.indexOf(emp.employee_id)
-  if (idx !== -1) team.memberIds.splice(idx, 1)
-  if (team.leaderId === emp.employee_id) team.leaderId = null
-  showToast(`${emp.employee_name}님을 팀에서 제거했습니다.`)
+  openConfirm(
+    '팀원 제거',
+    `${emp.employee_name}님을 팀에서 제거하시겠습니까?`,
+    () => {
+      const idx = team.memberIds.indexOf(emp.employee_id)
+      if (idx !== -1) team.memberIds.splice(idx, 1)
+      if (team.leaderId === emp.employee_id) team.leaderId = null
+      showToast(`${emp.employee_name}님을 팀에서 제거했습니다.`)
+    }
+  )
 }
 
 function deleteTeam(group, team) {
-  if (!confirm(`'${team.name}' 팀을 삭제하시겠습니까?`)) return
-  group.teams = group.teams.filter(t => t.id !== team.id)
-  if (selectedTeam.value?.team?.id === team.id) selectedTeam.value = null
-  showToast(`'${team.name}' 팀이 삭제되었습니다.`)
+  openConfirm(
+    '팀 삭제',
+    `'${team.name}' 팀을 삭제하시겠습니까?`,
+    () => {
+      group.teams = group.teams.filter(t => t.id !== team.id)
+      if (selectedTeam.value?.team?.id === team.id) selectedTeam.value = null
+      showToast(`'${team.name}' 팀이 삭제되었습니다.`)
+    }
+  )
 }
 
 function deleteGroup(group) {
-  if (!confirm(`'${group.name}' 그룹을 삭제하시겠습니까?\n소속된 모든 팀 정보도 함께 삭제됩니다.`)) return
-  groups.value = groups.value.filter(g => g.id !== group.id)
-  if (group.teams.some(t => t.id === selectedTeam.value?.team?.id)) selectedTeam.value = null
-  selectedGroupDetail.value = null
-  showToast(`'${group.name}' 그룹이 삭제되었습니다.`)
+  openConfirm(
+    '그룹 삭제',
+    `'${group.name}' 그룹을 삭제하시겠습니까?\n소속된 모든 팀 정보도 함께 삭제됩니다.`,
+    () => {
+      groups.value = groups.value.filter(g => g.id !== group.id)
+      if (group.teams.some(t => t.id === selectedTeam.value?.team?.id)) selectedTeam.value = null
+      selectedGroupDetail.value = null
+      showToast(`'${group.name}' 그룹이 삭제되었습니다.`)
+    }
+  )
 }
 </script>
 
@@ -487,6 +515,19 @@ function deleteGroup(group) {
       @close="showTeamModal = false"
       @submit="handleTeamSubmit"
     />
+
+    <BaseConfirmModal
+      v-if="confirmModal.show"
+      :title="confirmModal.title"
+      :confirm-text="'삭제'"
+      :cancel-text="'취소'"
+      :width="'400px'"
+      @close="closeConfirm"
+      @cancel="closeConfirm"
+      @confirm="handleConfirmOk"
+    >
+      <p class="org-confirm__message">{{ confirmModal.message }}</p>
+    </BaseConfirmModal>
 
     <Transition name="org-toast">
       <div v-if="toast.show" class="org-toast" :class="`org-toast--${toast.type}`">
@@ -840,6 +881,15 @@ function deleteGroup(group) {
   transition: color .12s;
 }
 .group-detail__team-card:hover .group-detail__team-card-arrow { color: var(--color-primary-500); }
+
+/* ── 삭제 확인 모달 ── */
+.org-confirm__message {
+  font-size: var(--font-size-sm); color: var(--color-text-default);
+  white-space: pre-line; padding: 8px 0;
+}
+:deep(.base-confirm-modal__primary) {
+  background: var(--color-danger);
+}
 
 /* ── 토스트 ── */
 .org-toast {
