@@ -174,6 +174,9 @@ function handleSubmit() {
   display: flex !important;
   flex-direction: column !important;
   overflow-y: hidden !important;
+  width: 820px;
+  height: 680px;
+  max-height: 90vh;
 }
 :deep(.base-modal__content) {
   flex: 1 !important;
