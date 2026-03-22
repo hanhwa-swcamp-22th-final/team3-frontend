@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { API_BASE } from '@/constants'
 import BaseStatCard        from '@/components/common/base/display/BaseStatCard.vue'
 import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
@@ -51,29 +51,28 @@ onMounted(async () => {
 })
 
 // ── 확인 모달 / 토스트 ────────────────────────────────────────────
-const confirmModal   = ref({ show: false, action: null, targetId: null, title: '', message: '', confirmText: '' })
-const confirmOpinion = ref('')
-const isConfirmDisabled = computed(() => !confirmOpinion.value.trim())
-const toast          = ref({ show: false, message: '' })
+const confirmModal = ref({ show: false, action: null, targetId: null, title: '', message: '', confirmText: '', comment: '' })
+const toast        = ref({ show: false, message: '' })
 let toastTimer = null
 
-watch(() => confirmModal.value.show, show => { if (!show) confirmOpinion.value = '' })
-
-function openConfirm(action, id) {
+function openConfirm(action, id, comment = '') {
   const candidate = candidates.value.find(c => c.id === id)
   const { name, currentTier, targetTier } = candidate
   const config = {
     hold:    { title: '보류',     message: `${name}님의 승급 심사를 보류하시겠습니까?`,  confirmText: '보류' },
     confirm: { title: '승급 확정', message: `${name}님을 ${currentTier}-Tier에서 ${targetTier}-Tier로 승급 확정하시겠습니까?`, confirmText: '확정' },
   }[action]
-  confirmModal.value = { show: true, action, targetId: id, ...config }
+  confirmModal.value = { show: true, action, targetId: id, comment, ...config }
 }
 
 function handleModalConfirm() {
-  const { action, targetId } = confirmModal.value
+  const { action, targetId, comment } = confirmModal.value
   const candidate = candidates.value.find(c => c.id === targetId)
   const name = candidate?.name
-  if (candidate) candidate.processedStatus = action
+  if (candidate) {
+    candidate.processedStatus = action
+    candidate.comment = comment
+  }
   confirmModal.value.show = false
   const msg = action === 'confirm' ? `${name}님 승급이 확정되었습니다.` : `${name}님이 보류 처리되었습니다.`
   showToast(msg)
@@ -85,8 +84,8 @@ function showToast(message) {
   toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
 }
 
-function handleHold(id)    { openConfirm('hold', id) }
-function handleConfirm(id) { openConfirm('confirm', id) }
+function handleHold({ id, comment })    { openConfirm('hold',    id, comment) }
+function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
 </script>
 
 <template>
@@ -146,23 +145,13 @@ function handleConfirm(id) { openConfirm('confirm', id) }
     v-if="confirmModal.show"
     :title="confirmModal.title"
     :confirm-text="confirmModal.confirmText"
-    :confirm-disabled="isConfirmDisabled"
     cancel-text="취소"
-    width="420px"
+    width="400px"
     @cancel="confirmModal.show = false"
     @close="confirmModal.show = false"
     @confirm="handleModalConfirm"
   >
     <p class="promo-confirm-message">{{ confirmModal.message }}</p>
-    <div class="promo-opinion-wrap">
-      <label class="promo-opinion-label">심사의견 <span class="promo-opinion-required">*</span></label>
-      <textarea
-        v-model="confirmOpinion"
-        class="promo-opinion-textarea"
-        placeholder="심사의견을 입력하세요 (필수)"
-        rows="3"
-      />
-    </div>
   </BaseConfirmModal>
 
   <Transition name="promo-toast">
@@ -209,37 +198,6 @@ function handleConfirm(id) { openConfirm('confirm', id) }
   line-height: 1.6;
   padding: 8px 0;
 }
-.promo-opinion-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
-}
-.promo-opinion-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-700);
-}
-.promo-opinion-required {
-  color: var(--color-danger);
-}
-.promo-opinion-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
-  font-size: var(--font-size-sm);
-  color: var(--color-primary-800);
-  background: var(--color-bg-app);
-  resize: none;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-}
-.promo-opinion-textarea:focus {
-  outline: none;
-  border-color: var(--color-border-default);
-}
 
 .promo-toast {
   position: fixed;
@@ -250,7 +208,7 @@ function handleConfirm(id) { openConfirm('confirm', id) }
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  background: var(--color-mint-500);
+  background: var(--color-primary-700);
   color: #fff;
   border-radius: 10px;
   font-size: var(--font-size-sm);
