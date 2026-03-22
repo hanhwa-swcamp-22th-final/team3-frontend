@@ -7,6 +7,7 @@ import {
 import HRMNoticeTeamFilter  from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'
+import BaseConfirmModal     from '@/components/common/base/overlay/BaseConfirmModal.vue'
 
 const notices    = ref([...mockNotices])
 const activeTab  = ref('')
@@ -15,6 +16,18 @@ const showOrgFilter = ref(false)
 
 const showFormModal = ref(false)
 const editTarget    = ref(null)
+
+const confirmModal = ref({ show: false, title: '', message: '', onConfirm: null })
+function openConfirm(title, message, onConfirm) {
+  confirmModal.value = { show: true, title, message, onConfirm }
+}
+function closeConfirm() {
+  confirmModal.value = { show: false, title: '', message: '', onConfirm: null }
+}
+function handleConfirmOk() {
+  confirmModal.value.onConfirm?.()
+  closeConfirm()
+}
 
 const toast = ref({ show: false, message: '', type: 'success' })
 let toastTimer = null
@@ -90,9 +103,16 @@ function handleDraft(data) {
 
 // ── 삭제 ──────────────────────────────────────────────────────────
 function deleteNotice(id) {
-  notices.value = notices.value.filter(n => n.id !== id)
-  selectedId.value = filtered.value[0]?.id ?? null
-  showToast('공지가 삭제되었습니다.')
+  const notice = notices.value.find(n => n.id === id)
+  openConfirm(
+    '공지 삭제',
+    `'${notice?.title ?? '해당 공지'}'를 삭제하시겠습니까?`,
+    () => {
+      notices.value = notices.value.filter(n => n.id !== id)
+      selectedId.value = filtered.value[0]?.id ?? null
+      showToast('공지가 삭제되었습니다.')
+    }
+  )
 }
 </script>
 
@@ -187,6 +207,19 @@ function deleteNotice(id) {
       @save="handleSave"
       @draft="handleDraft"
     />
+
+    <BaseConfirmModal
+      v-if="confirmModal.show"
+      :title="confirmModal.title"
+      :confirm-text="'삭제'"
+      :cancel-text="'취소'"
+      :width="'400px'"
+      @close="closeConfirm"
+      @cancel="closeConfirm"
+      @confirm="handleConfirmOk"
+    >
+      <p class="notice-confirm__message">{{ confirmModal.message }}</p>
+    </BaseConfirmModal>
 
     <Transition name="notice-toast">
       <div v-if="toast.show" class="notice-toast" :class="`notice-toast--${toast.type}`">
@@ -349,6 +382,14 @@ function deleteNotice(id) {
 
 @media (max-width: 1100px) {
   .notice-grid { grid-template-columns: 1fr; }
+}
+
+/* ── 삭제 확인 모달 ── */
+.notice-confirm__message {
+  font-size: var(--font-size-sm); color: var(--color-text-default); padding: 8px 0;
+}
+:deep(.base-confirm-modal__primary) {
+  background: var(--color-danger);
 }
 
 /* ── 토스트 ── */
