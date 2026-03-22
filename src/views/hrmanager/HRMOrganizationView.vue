@@ -165,6 +165,16 @@ function openEditModal() {
   showTeamModal.value = true
 }
 
+function openGroupEditFromTree(group) {
+  selectGroup(group)
+  showGroupEditModal.value = true
+}
+
+function openTeamEditFromTree(group, team) {
+  selectTeam(group, team)
+  openEditModal()
+}
+
 function handleGroupSubmit(data) {
   groups.value.push({
     id:          Date.now(),
@@ -284,6 +294,17 @@ function deleteGroup(group) {
             >&gt;</button>
             <span class="group-node__dot" :style="{ background: group.color }" />
             <span class="group-node__name">{{ group.name }}</span>
+            <div class="group-node__actions" @click.stop>
+              <button class="group-node__action-btn group-node__action-btn--edit" @click.stop="openGroupEditFromTree(group)" title="편집">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              </button>
+              <button class="group-node__action-btn group-node__action-btn--add" @click.stop="openTeamModal(group)" title="팀 추가">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M8 10H5V7H3v3H0v2h3v3h2v-3h3v-2zm10 1c1.66 0 2.99-1.34 2.99-3S19.66 5 18 5c-.32 0-.63.05-.91.14.57.81.9 1.79.9 2.86 0 1.07-.34 2.05-.9 2.86.28.09.59.14.91.14zm-5 0c1.66 0 2.99-1.34 2.99-3S14.66 5 13 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm6.62 2.16c.83.73 1.38 1.66 1.38 2.84v2h3v-2c0-1.54-2.37-2.49-4.38-3.84zM13 13c-2 0-6 1-6 3v2h12v-2c0-2-4-3-6-3z"/></svg>
+              </button>
+              <button class="group-node__action-btn group-node__action-btn--del" @click.stop="deleteGroup(group)" title="그룹 삭제">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              </button>
+            </div>
             <span class="group-node__count">{{ group.teams.length }}</span>
           </div>
 
@@ -313,6 +334,14 @@ function deleteGroup(group) {
                 <div class="team-node__leader" v-else>
                   <span class="team-node__leader-label team-node__leader-label--empty">팀장 미지정</span>
                 </div>
+              </div>
+              <div class="team-node__actions" @click.stop>
+                <button class="team-node__edit-btn" @click.stop="openTeamEditFromTree(group, team)" title="편집">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+                <button class="team-node__del-btn" @click.stop="deleteTeam(group, team)" title="팀 삭제">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                </button>
               </div>
               <span class="team-node__count">{{ team.memberIds.length }}명</span>
             </div>
@@ -623,6 +652,39 @@ function deleteGroup(group) {
   border-radius: 10px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   display: flex; align-items: center; justify-content: center;
 }
+.group-node__actions {
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s;
+}
+.group-node__row:hover .group-node__actions,
+.group-node__row--active .group-node__actions {
+  opacity: 1; pointer-events: auto;
+}
+.group-node__action-btn {
+  height: 22px; padding: 0 8px;
+  background: var(--color-primary-100); color: var(--color-primary-600);
+  border: 1.5px solid var(--color-primary-300);
+  border-radius: 6px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
+  cursor: pointer; white-space: nowrap;
+  transition: background .12s, border-color .12s;
+}
+.group-node__action-btn--edit,
+.group-node__action-btn--add {
+  background: var(--color-primary-100); color: var(--color-primary-600);
+  border-color: var(--color-primary-300);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; padding: 0;
+}
+.group-node__action-btn--edit:hover,
+.group-node__action-btn--add:hover { background: var(--color-primary-200); border-color: var(--color-primary-400); }
+.group-node__action-btn--del {
+  background: #fff0f0; color: #c53030;
+  border-color: #f5bcbc;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; padding: 0;
+}
+.group-node__action-btn--del:hover { background: #ffe0e0; border-color: #e88080; }
 
 /* 팀 노드 */
 .team-node {
@@ -673,6 +735,33 @@ function deleteGroup(group) {
   font-size: var(--font-size-2xs); color: var(--color-primary-600); font-weight: var(--font-weight-semibold);
 }
 .team-node__count { font-size: var(--font-size-xs); color: #a89ed8; flex-shrink: 0; }
+.team-node__actions {
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s;
+}
+.team-node:hover .team-node__actions,
+.team-node--active .team-node__actions {
+  opacity: 1; pointer-events: auto;
+}
+.team-node__edit-btn {
+  height: 22px; width: 22px; padding: 0;
+  background: var(--color-primary-100); color: var(--color-primary-600);
+  border: 1.5px solid var(--color-primary-300);
+  border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .12s, border-color .12s;
+}
+.team-node__edit-btn:hover { background: var(--color-primary-200); border-color: var(--color-primary-400); }
+.team-node__del-btn {
+  height: 22px; width: 22px; padding: 0;
+  background: #fff0f0; color: #c53030;
+  border: 1.5px solid #f5bcbc;
+  border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .12s, border-color .12s;
+}
+.team-node__del-btn:hover { background: #ffe0e0; border-color: #e88080; }
 
 /* ── 팀 상세 ── */
 .team-detail {
