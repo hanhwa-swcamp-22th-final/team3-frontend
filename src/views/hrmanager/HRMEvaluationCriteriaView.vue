@@ -1,6 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { EVAL_MESSAGES } from '@/constants'
+
+const toast = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
+function showToast(message, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = { show: true, message, type }
+  toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
+}
 import HRMEvalWeightPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalWeightPanel.vue'
 import HRMEvalTierPanel   from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalTierPanel.vue'
 import HRMEvalQuantPanel  from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalQuantPanel.vue'
@@ -22,18 +30,19 @@ function handleReset() {
   quantWeight.value = DEFAULT_QUANT_WEIGHT
   thresholds.value  = { ...DEFAULT_THRESHOLDS }
   quantItems.value  = DEFAULT_QUANT_ITEMS.map(item => ({ ...item }))
+  showToast('평가 기준이 초기화되었습니다.')
 }
 
 function handleTempSave() {
-  alert(EVAL_MESSAGES.DRAFT_SAVED)
+  showToast(EVAL_MESSAGES.DRAFT_SAVED)
 }
 
 function handleApply() {
   if (quantItemsTotal.value !== 100) {
-    alert(EVAL_MESSAGES.WEIGHT_SUM_ERROR)
+    showToast(EVAL_MESSAGES.WEIGHT_SUM_ERROR, 'error')
     return
   }
-  alert(EVAL_MESSAGES.CHANGES_APPLIED)
+  showToast(EVAL_MESSAGES.CHANGES_APPLIED)
 }
 </script>
 
@@ -66,6 +75,13 @@ function handleApply() {
     </div>
 
   </section>
+
+  <Transition name="eval-toast">
+    <div v-if="toast.show" class="eval-toast" :class="`eval-toast--${toast.type}`">
+      <span class="eval-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
+      {{ toast.message }}
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -121,4 +137,39 @@ function handleApply() {
   background: var(--color-primary-600);
   color: var(--color-white);
 }
+
+.eval-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(20, 15, 60, 0.2);
+  pointer-events: none;
+}
+.eval-toast--success { background: var(--color-primary-700); }
+.eval-toast--error   { background: var(--color-danger); }
+.eval-toast__icon {
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.eval-toast-enter-active,
+.eval-toast-leave-active { transition: all 0.25s ease; }
+.eval-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.eval-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

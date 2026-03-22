@@ -3,11 +3,17 @@ import { ref } from 'vue'
 import { GROUP_COLORS } from '@/mocks/hrmanager/organization.js'
 import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
+const props = defineProps({
+  editMode:           { type: Boolean, default: false },
+  initialName:        { type: String,  default: '' },
+  initialDescription: { type: String,  default: '' },
+  initialColor:       { type: String,  default: '' },
+})
 const emit = defineEmits(['close', 'submit'])
 
-const name        = ref('')
-const description = ref('')
-const color       = ref(GROUP_COLORS[0])
+const name        = ref(props.initialName)
+const description = ref(props.initialDescription)
+const color       = ref(props.initialColor || GROUP_COLORS[0])
 
 function handleSubmit() {
   if (!name.value.trim()) return
@@ -21,8 +27,8 @@ function handleSubmit() {
 
 <template>
   <BaseFormModal
-    title="그룹 추가"
-    confirmText="추가"
+    :title="editMode ? '그룹 편집' : '그룹 추가'"
+    :confirmText="editMode ? '저장' : '추가'"
     :confirmDisabled="!name.trim()"
     width="460px"
     @confirm="handleSubmit"

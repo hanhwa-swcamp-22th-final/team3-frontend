@@ -98,7 +98,7 @@ function openFilePicker() {
               @click="showTeamFilter = !showTeamFilter"
             >
               <span>{{ targets.length ? targets.join(' / ') : '선택' }}</span>
-              <span class="modal__target-caret">▾</span>
+              <span class="modal__target-caret" />
             </button>
             <div v-if="showTeamFilter" class="modal__target-popup">
               <HRMNoticeTeamFilter
@@ -252,7 +252,17 @@ function openFilePicker() {
   border-color: var(--color-primary-400);
   color: var(--color-primary-700);
 }
-.modal__target-caret { font-size: 11px; color: var(--color-primary-300); }
+.modal__target-caret {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--color-primary-300);
+  border-bottom: 2px solid var(--color-primary-300);
+  transform: rotate(45deg);
+  margin-bottom: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
 
 .modal__target-popup {
   position: absolute;

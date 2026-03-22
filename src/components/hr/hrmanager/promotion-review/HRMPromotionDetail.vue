@@ -1,13 +1,15 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   item: { type: Object, required: true },
 })
 
-defineEmits(['hold', 'confirm'])
+const emit = defineEmits(['hold', 'confirm'])
 
 const comment = ref('')
+
+watch(() => props.item.id, () => { comment.value = '' })
 </script>
 
 <template>
@@ -48,10 +50,12 @@ const comment = ref('')
     <div class="promo-detail__section">
       <p class="promo-detail__section-title">심사 의견</p>
       <textarea
+        v-if="!item.processedStatus"
         v-model="comment"
         class="promo-detail__textarea"
         placeholder="심사 의견을 입력하세요..."
       />
+      <p v-else class="promo-detail__comment-readonly">{{ item.comment || '(의견 없음)' }}</p>
     </div>
 
     <!-- 이전 심사 이력 -->
@@ -66,10 +70,21 @@ const comment = ref('')
       </div>
     </div>
 
-    <!-- 액션 버튼 -->
-    <div class="promo-detail__actions">
-      <button class="promo-detail__btn promo-detail__btn--hold"    @click="$emit('hold',    item.id)">보류</button>
-      <button class="promo-detail__btn promo-detail__btn--confirm" @click="$emit('confirm', item.id)">승급 확정</button>
+    <!-- 액션 버튼 / 처리 결과 -->
+    <div v-if="!item.processedStatus" class="promo-detail__actions">
+      <button class="promo-detail__btn promo-detail__btn--hold"    @click="emit('hold',    { id: item.id, comment: comment.trim() })">보류</button>
+      <button
+        class="promo-detail__btn promo-detail__btn--confirm"
+        :disabled="!comment.trim()"
+        @click="emit('confirm', { id: item.id, comment: comment.trim() })"
+      >승급 확정</button>
+    </div>
+    <div
+      v-else
+      class="promo-detail__processed"
+      :class="`promo-detail__processed--${item.processedStatus}`"
+    >
+      {{ item.processedStatus === 'confirm' ? '승급 확정 처리됨' : '보류 처리됨' }}
     </div>
   </article>
 </template>
@@ -192,6 +207,19 @@ const comment = ref('')
   background: var(--color-bg-app);
   resize: none;
   box-sizing: border-box;
+  outline: none;
+}
+.promo-detail__textarea:focus {
+  border-color: var(--color-primary-400);
+}
+.promo-detail__comment-readonly {
+  padding: 10px 12px;
+  background: var(--color-bg-app);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-800);
+  line-height: 1.5;
+  min-height: 56px;
 }
 
 /* 이전 이력 */
@@ -231,5 +259,28 @@ const comment = ref('')
 .promo-detail__btn--confirm {
   background: var(--color-mint-500);
   color: #fff;
+}
+.promo-detail__btn--confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.promo-detail__processed {
+  padding: 14px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-top: auto;
+}
+.promo-detail__processed--confirm {
+  background: #e3fbef;
+  color: #007a60;
+  border: 1px solid var(--color-mint-500);
+}
+.promo-detail__processed--hold {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fbbf24;
 }
 </style>

@@ -335,7 +335,8 @@ function showToast(message) {
 .hrm-toast {
   position: fixed;
   bottom: 32px;
-  right: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -363,6 +364,6 @@ function showToast(message) {
 
 .hrm-toast-enter-active,
 .hrm-toast-leave-active { transition: all 0.25s ease; }
-.hrm-toast-enter-from   { opacity: 0; transform: translateY(12px); }
-.hrm-toast-leave-to     { opacity: 0; transform: translateY(12px); }
+.hrm-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.hrm-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

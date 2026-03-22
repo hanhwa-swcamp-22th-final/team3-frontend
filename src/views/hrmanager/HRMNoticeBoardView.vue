@@ -7,6 +7,7 @@ import {
 import HRMNoticeTeamFilter  from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'
+import BaseConfirmModal     from '@/components/common/base/overlay/BaseConfirmModal.vue'
 
 const notices    = ref([...mockNotices])
 const activeTab  = ref('')
@@ -15,6 +16,26 @@ const showOrgFilter = ref(false)
 
 const showFormModal = ref(false)
 const editTarget    = ref(null)
+
+const confirmModal = ref({ show: false, title: '', message: '', onConfirm: null })
+function openConfirm(title, message, onConfirm) {
+  confirmModal.value = { show: true, title, message, onConfirm }
+}
+function closeConfirm() {
+  confirmModal.value = { show: false, title: '', message: '', onConfirm: null }
+}
+function handleConfirmOk() {
+  confirmModal.value.onConfirm?.()
+  closeConfirm()
+}
+
+const toast = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
+function showToast(message, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = { show: true, message, type }
+  toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
+}
 
 const selectedId = ref(mockNotices[0]?.id ?? null)
 
@@ -57,10 +78,12 @@ function openEdit(notice) {
 function handleSave(data) {
   if (editTarget.value) {
     Object.assign(editTarget.value, data)
+    showToast('공지가 수정되었습니다.')
   } else {
     const n = { id: nextId(), ...data }
     notices.value.unshift(n)
     selectedId.value = n.id
+    showToast('공지가 등록되었습니다.')
   }
   showFormModal.value = false
 }
@@ -75,12 +98,21 @@ function handleDraft(data) {
     selectedId.value = n.id
   }
   showFormModal.value = false
+  showToast('임시저장되었습니다.')
 }
 
 // ── 삭제 ──────────────────────────────────────────────────────────
 function deleteNotice(id) {
-  notices.value = notices.value.filter(n => n.id !== id)
-  selectedId.value = filtered.value[0]?.id ?? null
+  const notice = notices.value.find(n => n.id === id)
+  openConfirm(
+    '공지 삭제',
+    `'${notice?.title ?? '해당 공지'}'를 삭제하시겠습니까?`,
+    () => {
+      notices.value = notices.value.filter(n => n.id !== id)
+      selectedId.value = filtered.value[0]?.id ?? null
+      showToast('공지가 삭제되었습니다.')
+    }
+  )
 }
 </script>
 
@@ -92,7 +124,7 @@ function deleteNotice(id) {
       <div class="notice-card">
         <!-- 헤더 -->
         <div class="notice-header">
-          <h2 class="notice-header__title">공지 리스트</h2>
+          <h2 class="notice-header__title">공지 목록</h2>
           <span class="notice-header__count">총 {{ notices.length }}건</span>
         </div>
 
@@ -175,6 +207,26 @@ function deleteNotice(id) {
       @save="handleSave"
       @draft="handleDraft"
     />
+
+    <BaseConfirmModal
+      v-if="confirmModal.show"
+      :title="confirmModal.title"
+      :confirm-text="'삭제'"
+      :cancel-text="'취소'"
+      :width="'400px'"
+      @close="closeConfirm"
+      @cancel="closeConfirm"
+      @confirm="handleConfirmOk"
+    >
+      <p class="notice-confirm__message">{{ confirmModal.message }}</p>
+    </BaseConfirmModal>
+
+    <Transition name="notice-toast">
+      <div v-if="toast.show" class="notice-toast" :class="`notice-toast--${toast.type}`">
+        <span class="notice-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
+        {{ toast.message }}
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -248,9 +300,9 @@ function deleteNotice(id) {
 .notice-org-popup { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; }
 
 .notice-create-btn {
-  height: 38px; padding: 0 20px; flex-shrink: 0;
+  height: 30px; padding: 0 14px; flex-shrink: 0;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 10px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -331,4 +383,34 @@ function deleteNotice(id) {
 @media (max-width: 1100px) {
   .notice-grid { grid-template-columns: 1fr; }
 }
+
+/* ── 삭제 확인 모달 ── */
+.notice-confirm__message {
+  font-size: var(--font-size-sm); color: var(--color-text-default); padding: 8px 0;
+}
+:deep(.base-confirm-modal__primary) {
+  background: var(--color-danger);
+}
+
+/* ── 토스트 ── */
+.notice-toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 10px;
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
+  color: var(--color-white); z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.notice-toast--success { background: var(--color-primary-700); }
+.notice-toast--error   { background: var(--color-danger); }
+.notice-toast__icon {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold); flex-shrink: 0;
+}
+.notice-toast-enter-active,
+.notice-toast-leave-active { transition: all 0.25s ease; }
+.notice-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.notice-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>
