@@ -202,7 +202,8 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
 .promo-toast {
   position: fixed;
   bottom: 32px;
-  right: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -229,6 +230,6 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
 }
 .promo-toast-enter-active,
 .promo-toast-leave-active { transition: all 0.25s ease; }
-.promo-toast-enter-from   { opacity: 0; transform: translateY(12px); }
-.promo-toast-leave-to     { opacity: 0; transform: translateY(12px); }
+.promo-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.promo-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

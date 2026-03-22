@@ -141,7 +141,8 @@ function handleApply() {
 .eval-toast {
   position: fixed;
   bottom: 32px;
-  right: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -169,6 +170,6 @@ function handleApply() {
 }
 .eval-toast-enter-active,
 .eval-toast-leave-active { transition: all 0.25s ease; }
-.eval-toast-enter-from   { opacity: 0; transform: translateY(12px); }
-.eval-toast-leave-to     { opacity: 0; transform: translateY(12px); }
+.eval-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
+.eval-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>
