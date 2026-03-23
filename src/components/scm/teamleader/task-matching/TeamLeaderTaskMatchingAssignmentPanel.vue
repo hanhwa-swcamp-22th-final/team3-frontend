@@ -230,12 +230,14 @@ function confirmAssignment() {
 </template>
 
 <style scoped>
-.assignment-panel { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.35fr); gap: 16px; }
-.assignment-panel__column { border: 1px solid var(--color-border-default); border-radius: 20px; background: var(--color-bg-surface); padding: 16px; display: grid; gap: 14px; align-content: start; }
+.assignment-panel { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.35fr); gap: 16px; height: 100%; min-height: 0; }
+.assignment-panel__column { border: 1px solid var(--color-border-default); border-radius: 20px; background: var(--color-bg-surface); padding: 16px; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); gap: 14px; align-content: start; min-height: 0; overflow: hidden; box-sizing: border-box; }
 .assignment-panel__head h3 { margin-top: 6px; font-size: var(--font-size-lg-plus); color: var(--color-primary-800); }
 .assignment-panel__eyebrow { font-size: var(--font-size-xs-plus); font-weight: 700; color: var(--color-primary-300); }
-.assignment-panel__order-list-shell, .assignment-panel__candidate-list-shell { display: grid; grid-template-rows: minmax(360px, 1fr) 34px; gap: 12px; }
-.assignment-panel__order-list, .assignment-panel__candidate-list { display: grid; align-content: start; gap: 12px; min-height: 360px; }
+.assignment-panel__column--orders { grid-template-rows: auto minmax(0, 1fr); }
+.assignment-panel__column--candidates { grid-template-rows: auto auto auto minmax(0, 1fr); }
+.assignment-panel__order-list-shell, .assignment-panel__candidate-list-shell { display: grid; grid-template-rows: minmax(0, 1fr) 34px; gap: 12px; min-height: 0; }
+.assignment-panel__order-list, .assignment-panel__candidate-list { display: grid; align-content: start; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 4px; }
 .assignment-order, .candidate-card { border: 1px solid var(--color-border-default); border-radius: 16px; background: #fff; }
 .assignment-order { padding: 14px 16px; text-align: left; display: grid; gap: 10px; cursor: pointer; }
 .assignment-order--active, .candidate-card--active { box-shadow: inset 0 0 0 1px rgba(91, 80, 214, 0.16); background: #f8f6ff; }
@@ -251,7 +253,7 @@ function confirmAssignment() {
 .candidate-card__assign { height: 38px; padding: 0 14px; border: none; border-radius: 12px; background: var(--color-primary-700); color: #fff; font-size: var(--font-size-sm); font-weight: 800; white-space: nowrap; cursor: pointer; }
 .candidate-card--mint .candidate-card__right strong { color: #18b9a7; } .candidate-card--primary .candidate-card__right strong { color: var(--color-primary-600); } .candidate-card--green .candidate-card__right strong { color: #24966b; } .candidate-card--gold .candidate-card__right strong { color: #c78c00; } .candidate-card--danger .candidate-card__right strong { color: #ef4f74; } .candidate-card--soft .candidate-card__right strong { color: #9b93c7; }
 .assignment-panel__empty { min-height: 100%; border: 1px dashed var(--color-border-default); border-radius: 16px; display: grid; place-items: center; background: #fbfaff; }
-.assignment-panel__pagination-slot { display: grid; align-items: end; }
+.assignment-panel__pagination-slot { display: grid; align-items: end; flex-shrink: 0; }
 .assignment-panel__pagination { display: flex; justify-content: center; gap: 8px; min-height: 34px; }
 .assignment-panel__page-button { width: 34px; height: 34px; border: 1px solid var(--color-border-default); border-radius: 10px; background: #fff; color: var(--color-text-default); font-size: var(--font-size-sm); font-weight: 700; cursor: pointer; }
 .assignment-panel__page-button--active { border-color: var(--color-primary-700); background: var(--color-primary-700); color: #fff; }

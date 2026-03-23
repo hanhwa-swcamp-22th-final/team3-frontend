@@ -213,6 +213,7 @@ function confirmAssignment({ orderId, candidateId }) {
 .taskmatching-tabs { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 :deep(.teamleader-taskmatching-dashboard-panel),
 :deep(.assignment-panel) {
+  height: 100%;
   min-height: 0;
 }
 @media (max-width: 1240px) { .teamleader-taskmatching-view__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
