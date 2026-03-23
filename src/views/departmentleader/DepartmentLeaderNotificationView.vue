@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
-import DepartmentLeaderNotificationFilterBarWrapper from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationFilterBarWrapper.vue'
-import DepartmentLeaderNotificationListWrapper      from '@/components/hr/departmentleader/notification/DepartmentLeaderNotificationListWrapper.vue'
+import BaseFilterTabs        from '@/components/common/base/navigation/BaseFilterTabs.vue'
+import BaseNotificationList  from '@/components/common/base/data-display/BaseNotificationList.vue'
 import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
 const router = useRouter()
@@ -55,12 +55,19 @@ const urgentCount = computed(() => notificationItems.filter((i) => i.category ==
     </div>
 
     <!-- Filter bar + list -->
-    <DepartmentLeaderNotificationFilterBarWrapper
-      :filters="filterTabItems"
-      :active-filter="activeFilter"
-      @change-filter="activeFilter = $event"
-    />
-    <DepartmentLeaderNotificationListWrapper
+    <section class="dl-notif-filter">
+      <p class="dl-notif-filter__eyebrow">전체 알림</p>
+      <BaseFilterTabs
+        class="dl-notif-filter__tabs"
+        :items="filterTabItems"
+        :model-value="activeFilter"
+        variant="underline"
+        size="md"
+        :show-count="true"
+        @change="activeFilter = $event"
+      />
+    </section>
+    <BaseNotificationList
       :items="filteredItems"
       :page-size="6"
       @click-action="handleClickAction"
@@ -88,5 +95,23 @@ const urgentCount = computed(() => notificationItems.filter((i) => i.category ==
 
 @media (max-width: 720px) {
   .dl-notif-view__metrics { grid-template-columns: 1fr; }
+}
+
+.dl-notif-filter {
+  padding: 18px 20px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 18px 18px 0 0;
+  border-bottom: none;
+  background: var(--color-bg-surface);
+}
+
+.dl-notif-filter__eyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-300);
+}
+
+.dl-notif-filter__tabs {
+  margin-top: 14px;
 }
 </style>
