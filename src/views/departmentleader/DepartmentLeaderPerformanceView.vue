@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import DLPerformanceSummary from '@/components/hr/departmentleader/perfomance/DLPerformanceSummary.vue'
-import DLPerformanceTable   from '@/components/hr/departmentleader/perfomance/DLPerformanceTable.vue'
+import DepartmentLeaderPerformanceSummary from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceSummary.vue'
+import DepartmentLeaderPerformanceTable   from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceTable.vue'
 import {
   performanceSummary,
   performanceMembers,
@@ -55,14 +55,14 @@ function handleGoEvaluation() {
     </header>
 
     <!-- 성과 요약 (팀 선택 탭 포함) -->
-    <DLPerformanceSummary
+    <DepartmentLeaderPerformanceSummary
       :summary="activeSummary"
       :team-tabs="teamTabs"
       v-model:selectedTeam="selectedTeam"
     />
 
     <!-- 직원 상세 테이블 -->
-    <DLPerformanceTable
+    <DepartmentLeaderPerformanceTable
       :members="performanceMembers"
       :team-options="teamOptions"
       :grade-options="gradeOptions"

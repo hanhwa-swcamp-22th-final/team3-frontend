@@ -124,7 +124,7 @@ function handleSubmit(evals) {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (max-width: 900px) {

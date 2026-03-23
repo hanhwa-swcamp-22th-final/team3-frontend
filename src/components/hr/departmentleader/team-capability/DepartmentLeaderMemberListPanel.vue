@@ -28,6 +28,7 @@ function selectTeam(t) {
   dropdownOpen.value = false
 }
 
+
 </script>
 
 <template>
@@ -40,7 +41,7 @@ function selectTeam(t) {
           class="member-list-panel__team-btn"
           @click="dropdownOpen = !dropdownOpen"
         >
-          {{ teamFilter }} ∨
+          {{ teamFilter }} ▾
         </button>
         <ul v-if="dropdownOpen" class="member-list-panel__dropdown">
           <li
@@ -95,6 +96,7 @@ function selectTeam(t) {
         </div>
       </li>
     </ul>
+
   </section>
 </template>
 
