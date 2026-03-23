@@ -14,7 +14,7 @@ export const STATUS_STYLE = {
 
 export const FILTER_TABS = ['전체', '중요', '게시중', '예약', '임시']
 
-export const MOCK_TEAMS = ['전체', 'TL', 'GL', 'Worker', 'HRM']
+export const MOCK_TEAMS = ['전체', 'TL', 'DL', 'Worker', 'HRM']
 
 let _id = 14
 export const mockNotices = [
@@ -22,7 +22,7 @@ export const mockNotices = [
     id: 1,
     title: 'KPI 리포트 반영 일정 및 평가 결과 공개 기준',
     status: '게시중',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.03.18',
     author: 'HRM_평가운영팀',
     views: 128,
@@ -36,7 +36,7 @@ export const mockNotices = [
 
 ■ KPI 리포트 반영 기준
 - 1분기 정량 평가: AI 산출 E_idx 기준
-- 1분기 정성 평가: TL 1차 + GL 2차 평가 합산
+- 1분기 정성 평가: TL 1차 + DL 2차 평가 합산
 - 이의신청은 시스템 내 이의신청 메뉴에서 진행
 
 ■ 문의
@@ -47,7 +47,7 @@ export const mockNotices = [
     id: 2,
     title: '2026년 1분기 승진 심사 대상자 안내',
     status: '게시중',
-    targets: ['TL', 'GL'],
+    targets: ['TL', 'DL'],
     date: '2026.03.15',
     author: 'HRM_인사운영팀',
     views: 74,
@@ -72,7 +72,7 @@ export const mockNotices = [
     id: 3,
     title: '4월 정기 교육 일정 사전 안내',
     status: '예약',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.03.25',
     author: 'HRM_교육운영팀',
     views: 0,
@@ -82,7 +82,7 @@ export const mockNotices = [
 ■ 교육 일정
 - 안전 보건 교육: 2026.04.03 (목) 14:00 ~ 16:00
 - 품질 관리 역량 교육: 2026.04.08 (화) 10:00 ~ 12:00
-- 리더십 향상 과정 (TL/GL): 2026.04.10 (목) 13:00 ~ 17:00
+- 리더십 향상 과정 (TL/DL): 2026.04.10 (목) 13:00 ~ 17:00
 
 ■ 신청 방법
 - HRM 포털 > 교육신청 메뉴에서 신청
@@ -116,7 +116,7 @@ export const mockNotices = [
     id: 5,
     title: '2026년 상반기 연차 사용 촉진 안내',
     status: '게시중',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.03.10',
     author: 'HRM_인사운영팀',
     views: 95,
@@ -128,7 +128,7 @@ export const mockNotices = [
     id: 6,
     title: '설비 점검에 따른 시스템 일시 중단 안내',
     status: '게시중',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.03.08',
     author: 'HRM_시스템팀',
     views: 210,
@@ -140,7 +140,7 @@ export const mockNotices = [
     id: 7,
     title: '2026년 복리후생 제도 변경 안내',
     status: '게시중',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.03.05',
     author: 'HRM_인사운영팀',
     views: 183,
@@ -164,7 +164,7 @@ export const mockNotices = [
     id: 9,
     title: '5월 노사협의회 의제 사전 수렴 안내',
     status: '예약',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.04.10',
     author: 'HRM_인사운영팀',
     views: 0,
@@ -176,7 +176,7 @@ export const mockNotices = [
     id: 10,
     title: '하계 휴가 일정 사전 조율 안내',
     status: '예약',
-    targets: ['TL', 'GL', 'Worker'],
+    targets: ['TL', 'DL', 'Worker'],
     date: '2026.04.20',
     author: 'HRM_인사운영팀',
     views: 0,

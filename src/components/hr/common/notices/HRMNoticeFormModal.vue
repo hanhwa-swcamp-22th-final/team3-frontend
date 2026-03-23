@@ -2,6 +2,9 @@
 import { ref, watch } from 'vue'
 import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 import HRMNoticeTeamFilter from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import { ko } from 'date-fns/locale'
 
 const props = defineProps({
   editMode:    { type: Boolean, default: false },
@@ -9,37 +12,56 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'save', 'draft'])
 
-const title       = ref(props.initialData.title   ?? '')
-const content     = ref(props.initialData.content ?? '')
-const attachment  = ref(props.initialData.attachment ?? '')
-const isImportant = ref(props.initialData.isImportant ?? false)
-const targets     = ref(props.initialData.targets    ?? [])
+const title         = ref(props.initialData.title   ?? '')
+const content       = ref(props.initialData.content ?? '')
+const attachment    = ref(props.initialData.attachment ?? '')
+const isImportant   = ref(props.initialData.isImportant ?? false)
+const targets       = ref(props.initialData.targets    ?? [])
+const isScheduled      = ref(props.initialData.status === '예약')
+const scheduledDateTime = ref(props.initialData.status === '예약' && props.initialData.date ? new Date(props.initialData.date.replace('.', '-').replace('.', '-')) : null)
 
 const showTeamFilter = ref(false)
 const isDragging     = ref(false)
 const fileInputRef   = ref(null)
 
 watch(() => props.initialData, d => {
-  title.value       = d.title       ?? ''
-  content.value     = d.content     ?? ''
-  attachment.value  = d.attachment  ?? ''
-  isImportant.value = d.isImportant ?? false
-  targets.value     = d.targets     ?? []
+  title.value         = d.title       ?? ''
+  content.value       = d.content     ?? ''
+  attachment.value    = d.attachment  ?? ''
+  isImportant.value   = d.isImportant ?? false
+  targets.value       = d.targets     ?? []
+  isScheduled.value       = d.status === '예약'
+  scheduledDateTime.value = d.status === '예약' && d.date ? new Date(d.date.replace('.', '-').replace('.', '-')) : null
 }, { deep: true })
 
 function buildPayload(status) {
+  let resolvedStatus = status
+  let resolvedDate = null
+
+  if (status === '임시') {
+    resolvedDate = null
+  } else if (isScheduled.value && scheduledDateTime.value) {
+    resolvedStatus = '예약'
+    const d = scheduledDateTime.value
+    const pad = n => String(n).padStart(2, '0')
+    resolvedDate = `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  } else {
+    resolvedStatus = isImportant.value ? '중요' : '게시중'
+    resolvedDate = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '')
+  }
+
   return {
     title:       title.value.trim(),
     content:     content.value.trim(),
     attachment:  attachment.value.trim(),
     isImportant: isImportant.value,
     targets:     targets.value,
-    status,
-    date: status === '임시' ? null : new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', ''),
+    status:      resolvedStatus,
+    date:        resolvedDate,
   }
 }
 
-function handleSave()  { emit('save',  buildPayload(isImportant.value ? '중요' : '게시중')) }
+function handleSave()  { emit('save',  buildPayload('게시중')) }
 function handleDraft() { emit('draft', buildPayload('임시')) }
 
 function onDrop(e) {
@@ -60,7 +82,7 @@ function openFilePicker() {
 
 <template>
   <BaseFormModal
-    :title="editMode ? '공지 편집' : '새 공지 등록'"
+    :title="editMode ? '공지 수정' : '새 공지 등록'"
     :confirmText="editMode ? '수정 저장' : '등록'"
     :confirmDisabled="!title.trim()"
     :showDraftButton="true"
@@ -80,7 +102,28 @@ function openFilePicker() {
       <label class="modal__label">본문</label>
       <textarea v-model="content" class="modal__textarea" rows="7" placeholder="공지 내용을 상세히 입력해주세요" />
 
-      <!-- 중요 공지 토글 + 공개 범위 -->
+      <!-- 공개 범위 -->
+      <div class="modal__target-group modal__target-group--row">
+        <span class="modal__target-label">공개 범위 설정</span>
+        <div class="modal__target-wrap">
+          <button
+            class="modal__target-btn"
+            :class="{ 'modal__target-btn--active': targets.length > 0 }"
+            @click="showTeamFilter = !showTeamFilter"
+          >
+            <span>{{ targets.length ? targets.join(' / ') : '선택' }}</span>
+            <span class="modal__target-caret" />
+          </button>
+          <div v-if="showTeamFilter" class="modal__target-popup">
+            <HRMNoticeTeamFilter
+              v-model="targets"
+              @close="showTeamFilter = false"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 토글 옵션 -->
       <div class="modal__options-row">
         <label class="modal__toggle-label">
           <span class="modal__toggle-switch" :class="{ 'modal__toggle-switch--on': isImportant }" @click="isImportant = !isImportant">
@@ -89,25 +132,26 @@ function openFilePicker() {
           <span class="modal__toggle-text">중요 공지</span>
         </label>
 
-        <div class="modal__target-group">
-          <span class="modal__target-label">공개 범위 설정</span>
-          <div class="modal__target-wrap">
-            <button
-              class="modal__target-btn"
-              :class="{ 'modal__target-btn--active': targets.length > 0 }"
-              @click="showTeamFilter = !showTeamFilter"
-            >
-              <span>{{ targets.length ? targets.join(' / ') : '선택' }}</span>
-              <span class="modal__target-caret" />
-            </button>
-            <div v-if="showTeamFilter" class="modal__target-popup">
-              <HRMNoticeTeamFilter
-                v-model="targets"
-                @close="showTeamFilter = false"
-              />
-            </div>
-          </div>
-        </div>
+        <label class="modal__toggle-label">
+          <span class="modal__toggle-switch" :class="{ 'modal__toggle-switch--on': isScheduled }" @click="isScheduled = !isScheduled; if (!isScheduled) scheduledDate = ''">
+            <span class="modal__toggle-knob" />
+          </span>
+          <span class="modal__toggle-text">예약 게시</span>
+        </label>
+      </div>
+
+      <!-- 예약 날짜 피커 -->
+      <div v-if="isScheduled" class="modal__schedule-row">
+        <label class="modal__label">예약 게시일시</label>
+        <VueDatePicker
+          v-model="scheduledDateTime"
+          :locale="ko"
+          :enable-time-picker="true"
+          :min-date="new Date()"
+          placeholder="날짜와 시간을 선택하세요"
+          :teleport="false"
+          class="modal__datepicker"
+        />
       </div>
 
       <!-- 첨부 파일 -->
@@ -148,6 +192,23 @@ function openFilePicker() {
   color: var(--color-primary-600);
   margin-top: 4px;
 }
+.modal__schedule-row { display: flex; flex-direction: column; gap: 6px; }
+.modal__datepicker { width: 100%; }
+:deep(.dp__input) {
+  height: 42px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-800);
+  background: var(--color-bg-app);
+  font-family: inherit;
+}
+:deep(.dp__input:focus) { border-color: var(--color-primary-400); }
+
+.modal-schedule-enter-active,
+.modal-schedule-leave-active { transition: all 0.2s ease; }
+.modal-schedule-enter-from,
+.modal-schedule-leave-to { opacity: 0; transform: translateY(-6px); }
 
 .modal__input {
   width: 100%; height: 42px;
@@ -176,7 +237,13 @@ function openFilePicker() {
 .modal__options-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
+}
+
+.modal__target-group--row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* 토글 스위치 */
@@ -221,7 +288,6 @@ function openFilePicker() {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
 }
 
 .modal__target-label {
@@ -267,7 +333,7 @@ function openFilePicker() {
 .modal__target-popup {
   position: absolute;
   bottom: calc(100% + 6px);
-  right: 0;
+  left: 0;
   z-index: 10;
 }
 

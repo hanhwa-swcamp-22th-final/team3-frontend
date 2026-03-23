@@ -164,7 +164,7 @@ function setTab(tab) {
 /* 툴바 */
 .notice-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .notice-toolbar__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.notice-tabs { display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; }
+.notice-tabs { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; flex-shrink: 1; min-width: 0; }
 .notice-tab {
   height: 28px; padding: 0 10px;
   border-radius: 20px; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold);
@@ -173,6 +173,7 @@ function setTab(tab) {
   background: var(--color-bg-surface);
   color: var(--color-primary-400);
   transition: all .15s;
+  white-space: nowrap;
 }
 .notice-tab:hover { border-color: var(--color-primary-300); color: var(--color-primary-600); }
 .notice-tab--active {

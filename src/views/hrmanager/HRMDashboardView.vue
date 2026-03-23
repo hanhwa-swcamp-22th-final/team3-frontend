@@ -149,4 +149,8 @@ function metricValue(key, suffix) {
   width: 100%;
   box-sizing: border-box;
 }
+
+:deep(.base-stat-card) {
+  align-items: center;
+}
 </style>
