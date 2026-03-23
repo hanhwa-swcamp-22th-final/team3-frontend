@@ -132,13 +132,13 @@ function handleReject() {
 .teamleader-knowledge-approval-view {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 16px;
+  gap: 14px;
   flex: 1;
   width: 100%;
   min-width: 0;
   min-height: 0;
   height: calc(100vh - 80px);
-  padding: 12px 10px 18px;
+  padding: 10px 10px 16px;
   box-sizing: border-box;
   background: var(--color-bg-app);
   overflow: hidden;
@@ -153,7 +153,7 @@ function handleReject() {
 .teamleader-knowledge-approval-view__grid {
   display: grid;
   grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.25fr);
-  gap: 16px;
+  gap: 14px;
   align-items: stretch;
   height: 100%;
   min-height: 0;

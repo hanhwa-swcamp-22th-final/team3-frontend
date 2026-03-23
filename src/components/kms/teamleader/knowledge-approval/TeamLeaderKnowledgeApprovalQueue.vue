@@ -112,12 +112,12 @@ function typeClass(type) {
   min-height: 0;
   overflow: hidden;
   border: 1px solid var(--color-border-default);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--color-bg-surface);
-  padding: 18px;
+  padding: 16px;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -137,7 +137,7 @@ function typeClass(type) {
 
 .queue__head h2 {
   margin-top: 6px;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg-plus);
   color: var(--color-primary-800);
 }
 
@@ -157,7 +157,7 @@ function typeClass(type) {
 .queue__list {
   display: grid;
   align-content: start;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
@@ -167,7 +167,7 @@ function typeClass(type) {
   width: 100%;
   border: 1px solid var(--color-border-default);
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: #fff;
   text-align: left;
   cursor: pointer;
@@ -183,16 +183,16 @@ function typeClass(type) {
 .queue__item-top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .queue__item strong {
-  font-size: var(--font-size-md-plus);
+  font-size: var(--font-size-md);
   color: var(--color-primary-800);
 }
 
 .queue__item p {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
@@ -215,7 +215,7 @@ function typeClass(type) {
 }
 
 .queue__empty {
-  min-height: 180px;
+  min-height: 140px;
   display: grid;
   place-items: center;
   border: 1px dashed var(--color-border-default);
@@ -233,8 +233,8 @@ function typeClass(type) {
 }
 
 .queue__page {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   border: 1px solid var(--color-border-default);
   background: #fff;
