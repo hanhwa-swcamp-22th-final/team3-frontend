@@ -72,7 +72,7 @@ watch(filteredCards, () => {
         </div>
 
         <div class="teamleader-facility-view__pagination-slot">
-          <div v-if="pageNumbers.length > 1" class="teamleader-facility-view__pagination">
+          <div v-if="filteredCards.length > 0" class="teamleader-facility-view__pagination">
             <button
               v-for="page in pageNumbers"
               :key="page"

@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { BaseStatCard } from '@/components/common/base'
+import { BaseProgressBar, BaseStatCard } from '@/components/common/base'
 
 defineProps({
   label: {
@@ -22,6 +22,14 @@ defineProps({
     type: String,
     default: 'primary',
   },
+  progressValue: {
+    type: Number,
+    default: null,
+  },
+  progressTone: {
+    type: String,
+    default: 'success',
+  },
 })
 </script>
 
@@ -32,5 +40,22 @@ defineProps({
     :delta="delta"
     :helper="helper"
     :tone="tone"
-  />
+  >
+    <template v-if="progressValue !== null">
+      <div class="teamleader-metric-card__progress">
+        <BaseProgressBar
+          :value="progressValue"
+          :tone="progressTone"
+          :show-percent="false"
+          size="sm"
+        />
+      </div>
+    </template>
+  </BaseStatCard>
 </template>
+
+<style scoped>
+.teamleader-metric-card__progress {
+  width: min(220px, 100%);
+}
+</style>

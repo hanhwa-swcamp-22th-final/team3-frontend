@@ -158,7 +158,7 @@ function goToPage(page) {
         </article>
       </div>
 
-      <div v-if="filteredMembers.length > pageSize" class="member-list-panel__pagination">
+      <div v-if="filteredMembers.length > 0" class="member-list-panel__pagination">
         <button
           v-for="page in totalPages"
           :key="page"

@@ -130,7 +130,7 @@ function confirmAssignment() {
           </div>
         </div>
         <div class="assignment-panel__pagination-slot">
-          <div v-if="orderTotalPages > 1" class="assignment-panel__pagination">
+          <div v-if="orders.length > 0" class="assignment-panel__pagination">
             <button
               v-for="page in orderPageNumbers"
               :key="`order-${page}`"
@@ -197,7 +197,7 @@ function confirmAssignment() {
           </div>
         </div>
         <div class="assignment-panel__pagination-slot">
-          <div v-if="candidateTotalPages > 1" class="assignment-panel__pagination">
+          <div v-if="displayedCandidates.length > 0" class="assignment-panel__pagination">
             <button
               v-for="page in candidatePageNumbers"
               :key="`candidate-${page}`"

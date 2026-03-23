@@ -88,7 +88,7 @@ function handleClickAction(item) {
       {{ emptyMessage }}
     </div>
 
-    <footer v-if="totalPages > 1" class="base-notification-list__pagination">
+    <footer v-if="items.length > 0" class="base-notification-list__pagination">
       <button
         v-for="page in totalPages"
         :key="page"

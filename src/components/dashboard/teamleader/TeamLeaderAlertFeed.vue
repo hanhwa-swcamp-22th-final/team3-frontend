@@ -30,14 +30,14 @@ defineProps({
 
 <style scoped>
 .alert-feed {
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--color-border-default);
   border-radius: 24px;
   background: var(--color-bg-surface);
 }
 
 .alert-feed__header {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .alert-feed__eyebrow {
@@ -55,7 +55,7 @@ defineProps({
 .alert-feed__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 @media (max-width: 1200px) {

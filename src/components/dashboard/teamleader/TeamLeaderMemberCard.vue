@@ -66,8 +66,8 @@ defineProps({
 <style scoped>
 .member-card {
   display: grid;
-  gap: 18px;
-  padding: 22px 24px;
+  gap: 10px;
+  padding: 14px 16px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
@@ -78,24 +78,24 @@ defineProps({
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .member-card__identity {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   min-width: 0;
 }
 
 .member-card__avatar {
-  width: 56px;
-  height: 56px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-inverse);
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -114,30 +114,30 @@ defineProps({
 
 .member-card__copy {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
 }
 
 .member-card__name-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .member-card__name-row strong {
-  font-size: 17px;
+  font-size: 15px;
   color: var(--color-primary-800);
   line-height: 1.2;
 }
 
 .member-card__code {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--color-text-muted);
 }
 
 .member-card__score {
-  font-size: 52px;
+  font-size: 38px;
   line-height: 1;
   color: var(--color-primary-300);
   flex-shrink: 0;
@@ -147,11 +147,11 @@ defineProps({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 8px;
-  font-size: 13px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 7px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -167,15 +167,15 @@ defineProps({
 
 .member-card__metrics {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .member-card__metric {
   display: grid;
-  grid-template-columns: 40px 1fr 54px;
-  gap: 10px;
+  grid-template-columns: 32px 1fr 46px;
+  gap: 6px;
   align-items: center;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--color-primary-500);
 }
 
@@ -185,7 +185,7 @@ defineProps({
 }
 
 .member-card__bar-track {
-  height: 8px;
+  height: 6px;
   border-radius: 999px;
   overflow: hidden;
   background: #eeebff;
@@ -208,8 +208,8 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  font-size: 15px;
+  gap: 10px;
+  font-size: 13px;
   color: var(--color-primary-500);
 }
 
@@ -235,7 +235,7 @@ defineProps({
 
 @media (max-width: 720px) {
   .member-card {
-    padding: 18px;
+    padding: 14px;
   }
 
   .member-card__top {
@@ -243,12 +243,12 @@ defineProps({
   }
 
   .member-card__score {
-    font-size: 40px;
+    font-size: 32px;
   }
 
   .member-card__metric {
-    grid-template-columns: 36px 1fr 50px;
-    font-size: 14px;
+    grid-template-columns: 32px 1fr 46px;
+    font-size: 13px;
   }
 }
 </style>
