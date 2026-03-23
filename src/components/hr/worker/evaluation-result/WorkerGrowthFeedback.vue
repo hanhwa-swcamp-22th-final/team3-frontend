@@ -61,8 +61,8 @@ const chartPoints = computed(() => {
           stroke="var(--tier-s)"
           stroke-width="2"
           stroke-dasharray="6 3"
-          class="gf__line gf__line--team"
-          :class="{ 'gf__line--drawn': animated }"
+          class="gf__line--team"
+          :class="{ 'gf__line--team--visible': animated }"
         />
         <!-- Overall (solid) -->
         <polyline
@@ -73,17 +73,17 @@ const chartPoints = computed(() => {
           class="gf__line gf__line--overall"
           :class="{ 'gf__line--drawn': animated }"
         />
-        <!-- Current point dot -->
-        <circle
-          v-if="data.chartData.length"
-          :cx="270"
-          :cy="110 - ((data.chartData[data.chartData.length - 1].overall - 60) / 30) * 100 + 5"
-          r="4"
-          fill="var(--color-primary-800)"
-          class="gf__dot"
-          :class="{ 'gf__dot--visible': animated }"
-        />
       </svg>
+      <div class="gf__chart-legend">
+        <span class="gf__chart-legend-item">
+          <span class="gf__chart-legend-line gf__chart-legend-line--overall"></span>
+          내 종합 점수
+        </span>
+        <span class="gf__chart-legend-item">
+          <span class="gf__chart-legend-line gf__chart-legend-line--team"></span>
+          팀 평균
+        </span>
+      </div>
     </div>
 
     <!-- TL Feedback -->
@@ -154,20 +154,54 @@ const chartPoints = computed(() => {
 }
 
 .gf__line--team {
-  transition-delay: 0.15s;
+  opacity: 0;
+  transition: opacity 1s ease 0.15s;
+}
+
+.gf__line--team--visible {
+  opacity: 1;
 }
 
 .gf__line--drawn {
   stroke-dashoffset: 0;
 }
 
-.gf__dot {
-  opacity: 0;
-  transition: opacity 0.3s ease 1.5s;
+.gf__chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 8px;
 }
 
-.gf__dot--visible {
-  opacity: 1;
+.gf__chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.gf__chart-legend-line {
+  display: inline-block;
+  width: 20px;
+  height: 2.5px;
+  border-radius: 2px;
+}
+
+.gf__chart-legend-line--overall {
+  background: var(--color-primary-800);
+}
+
+.gf__chart-legend-line--team {
+  background: var(--tier-s);
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--tier-s) 0px,
+    var(--tier-s) 4px,
+    transparent 4px,
+    transparent 7px
+  );
+  background-color: transparent;
 }
 
 .gf__feedback {

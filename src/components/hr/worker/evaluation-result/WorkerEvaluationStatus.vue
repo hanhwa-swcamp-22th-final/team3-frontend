@@ -115,7 +115,7 @@ function diffText(val) {
 <style scoped>
 .es {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 32px;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
@@ -130,6 +130,7 @@ function diffText(val) {
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: center;
 }
 
 .es__ring {
@@ -177,6 +178,7 @@ function diffText(val) {
   gap: 2px;
   flex: 1;
   min-width: 0;
+  padding-top: 3.5%;
 }
 
 .es__metric-label {
@@ -219,6 +221,7 @@ function diffText(val) {
   height: 60px;
   background: var(--color-border-default);
   flex-shrink: 0;
+  align-self: center;
 }
 
 .es__rank {
@@ -227,6 +230,7 @@ function diffText(val) {
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
+  align-self: center;
   background: var(--color-primary-100);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
