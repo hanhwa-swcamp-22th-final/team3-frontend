@@ -16,7 +16,7 @@ const calcEIdx = (eq) =>
 const dotColor = (eq) => {
   const v = calcEIdx(eq)
   if (v >= 0.95) return '#00BF95'
-  if (v >= eq.e_idx_threshold) return '#FFD166'
+  if (v >= props.globalThreshold) return '#FFD166'
   return '#EF476F'
 }
 </script>
@@ -49,17 +49,18 @@ const dotColor = (eq) => {
       <div class="threshold-box">
         <div class="threshold-box__top">
           <span class="threshold-box__label">일괄 E_idx 임계값</span>
-          <input
-            class="threshold-box__input"
-            type="number"
-            step="0.01"
-            min="0"
-            max="1"
-            :value="globalThreshold"
-            @change="emit('thresholdChange', parseFloat($event.target.value))"
-          />
+          <span class="threshold-box__value">{{ globalThreshold.toFixed(2) }}</span>
         </div>
-        <span class="threshold-box__hint">이하 시 자동 경고 발송</span>
+        <input
+          class="threshold-box__slider"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          :value="globalThreshold"
+          @input="emit('thresholdChange', parseFloat($event.target.value))"
+        />
+        <span class="threshold-box__hint">이하 시 자동 경고 발송 · 설비 색상이 실시간 반영됩니다</span>
       </div>
     </template>
   </div>
@@ -171,25 +172,22 @@ const dotColor = (eq) => {
 
 .threshold-box__label {
   font-size: 11px;
-  color: var(--color-primary-300);
+  font-weight: 700;
+  color: var(--color-primary-600);
 }
 
-.threshold-box__input {
-  width: 52px;
-  height: 26px;
-  padding: 0 6px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 4px;
+.threshold-box__value {
   font-family: var(--font-family-mono);
-  font-size: 11px;
-  color: var(--color-primary-300);
-  background: var(--color-bg-surface);
-  text-align: center;
-  outline: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary-600);
 }
 
-.threshold-box__input:focus {
-  border-color: var(--color-primary-600);
+.threshold-box__slider {
+  width: 100%;
+  height: 4px;
+  accent-color: var(--color-primary-600);
+  cursor: pointer;
 }
 
 .threshold-box__hint {

@@ -132,6 +132,14 @@
   --color-text-on-dark: rgba(255, 255, 255, 0.5);
   --color-border-on-dark: rgba(255, 255, 255, 0.1);
 
+  /* 모달 전용 */
+  --color-modal-title: #32265F;
+  --color-modal-label: #938ABF;
+  --color-modal-border: #ECE8F6;
+  --color-badge-match-bg: #F8EFD8;
+  --color-badge-match: #B8841D;
+  --color-placeholder-light: #C4BADF;
+
   --font-family-base: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-num: 'Inter', var(--font-family-base);
   --font-family-mono: 'JetBrains Mono', monospace;

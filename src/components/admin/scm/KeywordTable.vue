@@ -2,10 +2,15 @@
 import { CATEGORY_STYLE } from '@/mocks/admin/keyword/keywordData.js'
 
 defineProps({
-  keywords: { type: Array, default: () => [] },
+  keywords:    { type: Array,  default: () => [] },
+  currentPage: { type: Number, default: 1 },
+  totalPages:  { type: Number, default: 1 },
+  totalCount:  { type: Number, default: 0 },
+  pageStart:   { type: Number, default: 0 },
+  pageEnd:     { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['editClick', 'deleteClick'])
+const emit = defineEmits(['editClick', 'deleteClick', 'pageChange'])
 
 const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 </script>
@@ -24,10 +29,9 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 
     <!-- 행 -->
     <div
-      v-for="(kw, i) in keywords"
+      v-for="kw in keywords"
       :key="kw.id"
       class="table-row"
-      :class="{ 'table-row--alt': i % 2 !== 0 }"
     >
       <span class="col-keyword">{{ kw.keyword }}</span>
       <span class="col-category">
@@ -51,63 +55,87 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
     <!-- 빈 상태 -->
     <div v-if="keywords.length === 0" class="empty">검색 결과가 없습니다.</div>
 
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <div class="pagination__spacer"></div>
+      <div class="pagination__pages">
+        <button class="page-btn" :disabled="currentPage === 1" @click="emit('pageChange', currentPage - 1)">&lt;</button>
+        <button
+          v-for="p in totalPages"
+          :key="p"
+          class="page-btn"
+          :class="{ 'page-btn--active': currentPage === p }"
+          @click="emit('pageChange', p)"
+        >{{ p }}</button>
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="emit('pageChange', currentPage + 1)">&gt;</button>
+      </div>
+      <div class="pagination__spacer">
+        <span class="pagination__info">
+          {{ totalCount > 0 ? `${pageStart}-${pageEnd} / ${totalCount}개` : '0개' }}
+        </span>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <style scoped>
 .keyword-table {
   flex: 1;
+  min-height: 0;
   background: var(--color-bg-surface);
-  border: 2px solid var(--color-border-default);
-  border-radius: var(--radius-xs);
-  box-shadow: var(--shadow-table);
-  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-base);
+  padding: 20px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-
 }
 
 /* 헤더 */
 .table-header {
   display: flex;
   align-items: center;
-  height: 44px;
-  padding: 0 24px;
-  background: var(--color-primary-100);
-  border-bottom: 2px solid var(--color-border-default);
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-border-default);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-surface);
+  z-index: 1;
 }
 
 .table-header span {
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--color-primary-800);
+  color: var(--color-primary-300);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* 행 */
 .table-row {
   display: flex;
   align-items: center;
-  height: 52px;
-  padding: 0 24px;
-  border-bottom: 2px solid var(--color-border-default);
+  height: 56px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border-muted);
   flex-shrink: 0;
 }
 
-.table-row--alt { background: var(--color-bg-app); }
-.table-row:hover { background: var(--color-primary-50); }
+.table-row:hover { background: var(--color-bg-app); }
 
 .table-row span {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-primary-800);
 }
 
 /* 컬럼 너비 */
-.col-keyword   { width: 216px; flex-shrink: 0; }
-.col-category  { width: 216px; flex-shrink: 0; }
-.col-desc      { flex: 1; }
-.col-weight    { width: 116px; flex-shrink: 0; text-align: center; font-weight: 700; }
-.col-action    { width: 172px; flex-shrink: 0; display: flex; justify-content: center; gap: 8px; }
+.col-keyword   { flex: 1.2; padding-left: 4px; }
+.col-category  { flex: 1.2; }
+.col-desc      { flex: 2; }
+.col-weight    { flex: 0.7; text-align: center; font-weight: 700; }
+.col-action    { flex: 1; display: flex; justify-content: center; gap: 8px; }
 
 /* 카테고리 배지 */
 .category-badge {
@@ -155,5 +183,51 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   text-align: center;
   font-size: 13px;
   color: var(--color-text-placeholder);
+}
+
+/* 페이지네이션 — ProfileListTable 동일 패턴 */
+.pagination {
+  display: flex;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.pagination__spacer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pagination__info {
+  font-size: 11px;
+  color: var(--color-primary-300);
+}
+
+.pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+
+.page-btn--active {
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border: 1px solid var(--color-primary-500);
 }
 </style>
