@@ -62,11 +62,16 @@ function handleFilterChange(filterKey) {
 <style scoped>
 .teamleader-scm-orders-view {
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px 18px;
   background: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .teamleader-scm-orders-view__summary {
@@ -80,6 +85,7 @@ function handleFilterChange(filterKey) {
   grid-template-columns: minmax(0, 2fr) minmax(300px, 0.95fr);
   gap: 16px;
   align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-scm-orders-view__footer {

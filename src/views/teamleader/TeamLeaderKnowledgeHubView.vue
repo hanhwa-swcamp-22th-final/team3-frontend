@@ -255,25 +255,32 @@ function handleDraftKnowledge(payload) {
 
 <style scoped>
 .teamleader-knowledge-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 12px 10px 18px;
   box-sizing: border-box;
   background: var(--color-bg-app);
-  display: grid;
-  gap: 16px;
+  overflow: hidden;
 }
 
 .teamleader-knowledge-view__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-knowledge-view__sidebar {
   display: grid;
   gap: 16px;
+  min-height: 0;
 }
 
 @media (max-width: 1180px) {

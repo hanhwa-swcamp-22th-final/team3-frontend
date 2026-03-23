@@ -1,11 +1,11 @@
 ﻿<script setup>
 import { computed, reactive, ref, watch } from 'vue'
-import TeamLeaderAiEvaluationTargetList from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationTargetListWrapper.vue'
+import { BaseProgressBar } from '@/components/common/base'
+import TeamLeaderAiEvaluationMemberListPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationMemberListPanel.vue'
 import TeamLeaderAiEvaluationPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationPanel.vue'
 import TeamLeaderAiEvaluationActionBar from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationActionBar.vue'
-import { aiEvaluationSearchPlaceholder, aiEvaluationTargets, aiEvaluationSelectedTarget } from '@/mocks/teamleader/aiEvaluation'
+import { aiEvaluationTargets, aiEvaluationSelectedTarget } from '@/mocks/teamleader/aiEvaluation'
 
-const searchQuery = ref('')
 const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
 const actionFeedback = ref('')
 const actionFeedbackTone = ref('muted')
@@ -32,20 +32,43 @@ const savedDrafts = reactive(
 
 const submittedEvaluations = reactive({})
 
-const filteredTargets = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
+const memberListItems = computed(() =>
+  aiEvaluationTargets.map((target) => {
+    const targetId = String(target.id)
+    const baselineText = buildConvertedText(target)
+    const draftText = evaluationDrafts[targetId] ?? baselineText
+    const hasSubmitted = Boolean(submittedEvaluations[targetId])
+    const hasEdited = draftText !== baselineText
 
-  if (!keyword) {
-    return aiEvaluationTargets
+    let status = 'not_started'
+    if (hasSubmitted) {
+      status = 'submitted'
+    } else if (hasEdited) {
+      status = 'in_progress'
+    }
+
+    return {
+      ...target,
+      status,
+      statusDate: hasSubmitted ? '제출 완료' : hasEdited ? '초안 저장' : '작성 전',
+    }
+  }),
+)
+
+const submittedCount = computed(
+  () => memberListItems.value.filter((target) => target.status === 'submitted').length,
+)
+
+const evaluationCompletionRate = computed(() => {
+  if (!memberListItems.value.length) {
+    return 0
   }
 
-  return aiEvaluationTargets.filter((target) => {
-    return target.name?.toLowerCase().includes(keyword)
-  })
+  return Math.round((submittedCount.value / memberListItems.value.length) * 100)
 })
 
 watch(
-  filteredTargets,
+  memberListItems,
   (targets) => {
     if (!targets.length) {
       selectedTargetId.value = ''
@@ -62,7 +85,7 @@ watch(
 )
 
 const selectedTarget = computed(() => {
-  const target = aiEvaluationTargets.find((item) => String(item.id) === selectedTargetId.value) ?? filteredTargets.value[0]
+  const target = aiEvaluationTargets.find((item) => String(item.id) === selectedTargetId.value) ?? aiEvaluationTargets[0]
 
   if (!target) {
     return aiEvaluationSelectedTarget
@@ -104,7 +127,6 @@ function handleCloseEditor() {
   evaluationDrafts[selectedTargetId.value] =
     submittedEvaluations[selectedTargetId.value] ?? savedDrafts[selectedTargetId.value] ?? fallbackText
 
-  searchQuery.value = ''
   updateFeedback('현재 대상자의 편집 내용을 마지막 저장 기준으로 되돌렸습니다.', 'muted')
 }
 
@@ -201,66 +223,117 @@ function handleToggleGuide() {
 
 <template>
   <section class="teamleader-ai-evaluation-view">
+    <section class="teamleader-ai-evaluation-view__progress-card">
+      <div class="teamleader-ai-evaluation-view__progress-copy">
+        <p class="teamleader-ai-evaluation-view__progress-eyebrow">제출 완료 현황</p>
+        <strong class="teamleader-ai-evaluation-view__progress-title">
+          {{ submittedCount }} / {{ memberListItems.length }}명 제출 완료
+        </strong>
+      </div>
+      <BaseProgressBar
+        :value="evaluationCompletionRate"
+        tone="success"
+        size="md"
+        label="평가 제출 진행률"
+      />
+    </section>
+
     <section class="teamleader-ai-evaluation-view__content">
-      <TeamLeaderAiEvaluationTargetList
-        :targets="filteredTargets"
+      <TeamLeaderAiEvaluationMemberListPanel
+        :members="memberListItems"
         :selected-id="selectedTargetId"
-        :search-placeholder="aiEvaluationSearchPlaceholder"
-        :search-value="searchQuery"
-        @select-target="handleSelectTarget"
-        @update:search-value="searchQuery = $event"
+        @select-member="handleSelectTarget"
       />
 
-      <div class="teamleader-ai-evaluation-view__form">
-        <TeamLeaderAiEvaluationPanel
-          :selected-target="selectedTarget"
-          :guide-open="guideOpen"
-          :recording-state="recordingState"
-          :uploaded-file-name="uploadedFileName"
-          @update:converted-text="handleUpdateConvertedText"
-          @voice-input="handleVoiceInput"
-          @file-selected="handleFileSelected"
-          @convert-text="handleConvertText"
-          @replay-audio="handleReplayAudio"
-          @toggle-guide="handleToggleGuide"
-        />
-        <TeamLeaderAiEvaluationActionBar
-          :disabled="!selectedTargetId"
-          @close="handleCloseEditor"
-          @save-draft="handleSaveDraft"
-          @submit="handleSubmitEvaluation"
-        />
-        <p
-          v-if="actionFeedback"
-          class="teamleader-ai-evaluation-view__feedback"
-          :class="`teamleader-ai-evaluation-view__feedback--${actionFeedbackTone}`"
-        >
-          {{ actionFeedback }}
-        </p>
-      </div>
+      <TeamLeaderAiEvaluationPanel
+        :selected-target="selectedTarget"
+        :guide-open="guideOpen"
+        :recording-state="recordingState"
+        :uploaded-file-name="uploadedFileName"
+        @update:converted-text="handleUpdateConvertedText"
+        @voice-input="handleVoiceInput"
+        @file-selected="handleFileSelected"
+        @convert-text="handleConvertText"
+        @replay-audio="handleReplayAudio"
+        @toggle-guide="handleToggleGuide"
+      />
+    </section>
+
+    <section class="teamleader-ai-evaluation-view__actions">
+      <TeamLeaderAiEvaluationActionBar
+        :disabled="!selectedTargetId"
+        @close="handleCloseEditor"
+        @save-draft="handleSaveDraft"
+        @submit="handleSubmitEvaluation"
+      />
+      <p
+        v-if="actionFeedback"
+        class="teamleader-ai-evaluation-view__feedback"
+        :class="`teamleader-ai-evaluation-view__feedback--${actionFeedbackTone}`"
+      >
+        {{ actionFeedback }}
+      </p>
     </section>
   </section>
 </template>
 
 <style scoped>
 .teamleader-ai-evaluation-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 12px 10px;
   background: var(--color-bg-app);
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.teamleader-ai-evaluation-view__progress-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  background: var(--color-bg-surface);
+}
+
+.teamleader-ai-evaluation-view__progress-copy {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.teamleader-ai-evaluation-view__progress-eyebrow {
+  margin: 0 0 4px;
+  color: var(--color-primary-500);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
+}
+
+.teamleader-ai-evaluation-view__progress-title {
+  color: var(--color-primary-800);
+  font-size: var(--font-size-base-plus);
+  font-weight: var(--font-weight-bold);
 }
 
 .teamleader-ai-evaluation-view__content {
   display: grid;
   grid-template-columns: minmax(270px, 0.72fr) minmax(0, 1.6fr);
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
-.teamleader-ai-evaluation-view__form {
+.teamleader-ai-evaluation-view__actions {
   display: grid;
   gap: 14px;
+  margin-top: 14px;
 }
 
 .teamleader-ai-evaluation-view__feedback {
@@ -295,6 +368,11 @@ function handleToggleGuide() {
 @media (max-width: 720px) {
   .teamleader-ai-evaluation-view {
     padding: 12px;
+  }
+
+  .teamleader-ai-evaluation-view__progress-copy {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

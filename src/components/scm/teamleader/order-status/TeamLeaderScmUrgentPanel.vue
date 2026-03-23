@@ -51,12 +51,13 @@ defineProps({
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 14px;
-  height: 100%;
+  min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
   align-content: start;
+  overflow: hidden;
 }
 
 .urgent-panel__eyebrow {
@@ -76,7 +77,7 @@ defineProps({
   grid-auto-rows: 152px;
   align-content: start;
   gap: 12px;
-  height: clamp(360px, 52vh, 520px);
+  min-height: 0;
   overflow-y: auto;
   scrollbar-gutter: stable;
   padding-right: 6px;
@@ -96,7 +97,7 @@ defineProps({
   align-items: center;
   justify-content: center;
   min-height: 152px;
-  height: clamp(360px, 52vh, 520px);
+  height: 100%;
   padding: 18px;
   border: 1px dashed var(--color-border-default);
   border-radius: 16px;
@@ -193,5 +194,6 @@ defineProps({
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  flex-shrink: 0;
 }
 </style>

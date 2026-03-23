@@ -113,11 +113,16 @@ watch(filteredCards, () => {
 <style scoped>
 .teamleader-facility-view {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px 18px;
   background: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .teamleader-facility-view__filters {
@@ -169,19 +174,22 @@ watch(filteredCards, () => {
   display: grid;
   grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.4fr);
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-facility-view__right-column {
   display: grid;
   gap: 14px;
   align-content: start;
+  min-height: 0;
 }
 
 .teamleader-facility-view__cards-shell {
   display: grid;
   grid-template-rows: minmax(0, 1fr) 34px;
   gap: 12px;
+  min-height: 0;
 }
 
 .teamleader-facility-view__grid {

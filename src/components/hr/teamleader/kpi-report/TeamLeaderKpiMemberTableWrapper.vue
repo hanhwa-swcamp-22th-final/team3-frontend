@@ -110,14 +110,20 @@ function handlePageChange(page) {
 
 <style scoped>
 .kpi-table-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
   padding: 18px;
   border: 1px solid #ddd7ff;
   border-radius: 20px;
   background: #fff;
+  overflow: hidden;
 }
 
 .kpi-table-panel__header {
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .kpi-table-panel__eyebrow {
@@ -193,12 +199,30 @@ function handlePageChange(page) {
 }
 
 .kpi-table-panel__warning {
-  margin-top: 14px;
+  margin-top: 0;
   padding: 12px 14px;
   border-radius: 12px;
   background: #fff1f4;
   color: #e05373;
   font-size: 13px;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+:deep(.base-data-table) {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:deep(.base-data-table__wrap) {
+  min-height: 0;
+  overflow: auto;
+}
+
+:deep(.base-data-table__pagination) {
+  margin-top: 12px;
+  flex-shrink: 0;
 }
 </style>

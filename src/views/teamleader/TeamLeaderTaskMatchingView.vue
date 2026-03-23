@@ -196,9 +196,25 @@ function confirmAssignment({ orderId, candidateId }) {
 </template>
 
 <style scoped>
-.teamleader-taskmatching-view { display: grid; gap: 16px; width: 100%; min-width: 0; padding: 14px 10px 18px; background: var(--color-bg-app); }
+.teamleader-taskmatching-view {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
+  padding: 14px 10px 18px;
+  background: var(--color-bg-app);
+  overflow: hidden;
+}
 .teamleader-taskmatching-view__summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .taskmatching-tabs { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+:deep(.teamleader-taskmatching-dashboard-panel),
+:deep(.assignment-panel) {
+  min-height: 0;
+}
 @media (max-width: 1240px) { .teamleader-taskmatching-view__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .teamleader-taskmatching-view { padding: 12px; } .teamleader-taskmatching-view__summary { grid-template-columns: 1fr; } }
 </style>

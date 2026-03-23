@@ -138,11 +138,12 @@ function changePage(page) {
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 14px;
-  min-height: 100%;
+  min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
+  overflow: hidden;
 }
 
 .ocsa-order-list__eyebrow {
@@ -170,6 +171,8 @@ function changePage(page) {
   align-content: start;
   gap: 10px;
   min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .ocsa-order-list__card {
@@ -253,6 +256,7 @@ function changePage(page) {
   justify-content: center;
   gap: 8px;
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .ocsa-order-list__page {

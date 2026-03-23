@@ -114,6 +114,7 @@ function tierClass(tier) {
 .dashboard-panel {
   display: grid;
   gap: 16px;
+  min-height: 0;
 }
 
 .dashboard-panel__lines,
@@ -121,6 +122,7 @@ function tierClass(tier) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  min-height: 0;
 }
 
 .line-card,

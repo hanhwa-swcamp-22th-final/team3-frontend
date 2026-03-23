@@ -61,7 +61,7 @@ function handleSelectMember(memberId) {
     <section class="teamleader-kpi-report-view__content">
       <TeamLeaderKpiMemberTable
         :rows="kpiRows"
-        :page-size="10"
+        :page-size="8"
         :selected-id="selectedMemberId"
         @select-row="handleSelectMember"
       />
@@ -73,12 +73,17 @@ function handleSelectMember(memberId) {
 <style scoped>
 .teamleader-kpi-report-view {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px;
   background: var(--color-bg-app);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .teamleader-kpi-report-view__summary {
@@ -91,7 +96,8 @@ function handleSelectMember(memberId) {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(360px, 1.05fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 @media (max-width: 1180px) {

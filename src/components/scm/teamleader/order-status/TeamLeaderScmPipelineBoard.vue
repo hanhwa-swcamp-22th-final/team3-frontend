@@ -61,13 +61,15 @@ function formatCount(count) {
 <style scoped>
 .pipeline-board {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
-  height: 100%;
+  min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
   align-content: start;
+  overflow: hidden;
 }
 
 .pipeline-board__header {
@@ -94,6 +96,7 @@ function formatCount(count) {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+  min-height: 0;
 }
 
 .pipeline-column {
@@ -140,7 +143,7 @@ function formatCount(count) {
   grid-auto-rows: 132px;
   align-content: start;
   gap: 10px;
-  height: clamp(360px, 52vh, 520px);
+  min-height: 0;
   padding-right: 6px;
   overflow-y: auto;
   scrollbar-gutter: stable;
