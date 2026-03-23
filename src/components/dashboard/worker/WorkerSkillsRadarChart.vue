@@ -9,6 +9,8 @@ const props = defineProps({
   },
 })
 
+const width = 220
+const height = 200
 const size = 200
 const cx = size / 2
 const cy = size / 2
@@ -59,13 +61,6 @@ const dataPath = computed(() => {
   return `M${points.join('L')}Z`
 })
 
-const dataPoints = computed(() => {
-  return props.skills.map((s, i) => {
-    const r = (s.value / 100) * maxR
-    return polarToXY(i * angleStep.value, r)
-  })
-})
-
 const labelPositions = computed(() => {
   return props.skills.map((s, i) => {
     const p = polarToXY(i * angleStep.value, maxR + 18)
@@ -78,7 +73,7 @@ const labelPositions = computed(() => {
   <div class="radar">
     <h3 class="radar__title">스킬 레이더</h3>
     <div class="radar__content">
-      <svg :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`" class="radar__svg">
+      <svg :width="width" :height="height" :viewBox="`0 0 ${size} ${size}`" class="radar__svg">
         <!-- Grid -->
         <path
           v-for="(d, i) in gridPaths"
@@ -104,16 +99,6 @@ const labelPositions = computed(() => {
           stroke-width="2"
           class="radar__data-area"
           :class="{ 'radar__data-area--visible': animated }"
-        />
-        <!-- Data points -->
-        <circle
-          v-for="(p, i) in dataPoints"
-          :key="'p' + i"
-          :cx="p.x" :cy="p.y"
-          r="3"
-          fill="#5B4FCF"
-          class="radar__data-point"
-          :class="{ 'radar__data-point--visible': animated }"
         />
         <!-- Labels -->
         <text
@@ -181,18 +166,6 @@ const labelPositions = computed(() => {
   opacity: 1;
 }
 
-.radar__data-point {
-  transform-origin: 100px 100px;
-  transform: scale(0);
-  opacity: 0;
-  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 0.4s ease 0.15s;
-}
-
-.radar__data-point--visible {
-  transform: scale(1);
-  opacity: 1;
-}
-
 .radar__label {
   font-size: 8px;
   fill: #7a72a0;
@@ -201,7 +174,7 @@ const labelPositions = computed(() => {
 .radar__list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 0 25px;
   flex: 1;
   display: flex;
   flex-direction: column;
