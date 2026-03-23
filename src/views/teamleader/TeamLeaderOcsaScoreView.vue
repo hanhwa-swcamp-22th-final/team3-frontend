@@ -82,6 +82,7 @@ function handleSelectOrder(orderId) {
         :value="card.value"
         :helper="card.helper"
         :tone="card.tone"
+        variant="compact"
       />
     </section>
 
@@ -152,6 +153,7 @@ function handleSelectOrder(orderId) {
   }
 }
 </style>
+
 
 
 

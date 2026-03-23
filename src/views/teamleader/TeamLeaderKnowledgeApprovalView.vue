@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
+import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import { knowledgeApprovalItems } from '@/mocks/teamleader'
@@ -14,6 +15,24 @@ const stats = computed(() => ({
   approvedThisMonth: 31,
   rejectionRate: '8.3%',
 }))
+
+const statCards = computed(() => [
+  {
+    label: '승인 대기',
+    value: `${stats.value.pending}건`,
+    tone: 'danger',
+  },
+  {
+    label: '이번달 승인',
+    value: `${stats.value.approvedThisMonth}건`,
+    tone: 'success',
+  },
+  {
+    label: '반려율',
+    value: stats.value.rejectionRate,
+    tone: 'warning',
+  },
+])
 
 const filters = computed(() => {
   const newCount = items.value.filter((item) => item.type === '신규').length
@@ -86,18 +105,13 @@ function handleReject() {
 <template>
   <section class="teamleader-knowledge-approval-view">
     <section class="teamleader-knowledge-approval-view__stats">
-      <article class="approval-stat-card">
-        <p>승인 대기</p>
-        <strong>{{ stats.pending }}건</strong>
-      </article>
-      <article class="approval-stat-card">
-        <p>이번달 승인</p>
-        <strong class="approval-stat-card__value--mint">{{ stats.approvedThisMonth }}건</strong>
-      </article>
-      <article class="approval-stat-card">
-        <p>반려율</p>
-        <strong class="approval-stat-card__value--amber">{{ stats.rejectionRate }}</strong>
-      </article>
+      <TeamLeaderScmSummaryCard
+        v-for="card in statCards"
+        :key="card.label"
+        :label="card.label"
+        :value="card.value"
+        :tone="card.tone"
+      />
     </section>
 
     <section class="teamleader-knowledge-approval-view__grid">
@@ -137,35 +151,6 @@ function handleReject() {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-}
-
-.approval-stat-card {
-  border: 1px solid var(--color-border-default);
-  border-radius: 18px;
-  background: var(--color-bg-surface);
-  padding: 18px 20px;
-  display: grid;
-  gap: 10px;
-}
-
-.approval-stat-card p {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-primary-300);
-}
-
-.approval-stat-card strong {
-  font-size: 52px;
-  line-height: 1;
-  color: #e7395f;
-}
-
-.approval-stat-card__value--mint {
-  color: #18b9a7;
-}
-
-.approval-stat-card__value--amber {
-  color: #f0b539;
 }
 
 .teamleader-knowledge-approval-view__grid {

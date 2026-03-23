@@ -40,6 +40,7 @@ function handleFilterChange(filterKey) {
         :value="card.value"
         :helper="card.helper"
         :tone="card.tone"
+        variant="compact"
       />
     </section>
 
@@ -123,6 +124,7 @@ function handleFilterChange(filterKey) {
   }
 }
 </style>
+
 
 
 
