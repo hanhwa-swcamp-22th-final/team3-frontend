@@ -4,8 +4,9 @@ import { STATUS_STYLE, FILTER_TABS } from '@/mocks/hrmanager/noticeboard.js'
 import HRMNoticeTeamFilter from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
 
 const props = defineProps({
-  notices:    { type: Array, required: true },
-  selectedId: { type: [Number, null], default: null },
+  notices:          { type: Array, required: true },
+  selectedId:       { type: [Number, null], default: null },
+  showCreateButton: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['select', 'create'])
@@ -88,7 +89,7 @@ function setTab(tab) {
             @input="currentPage = 1"
           />
         </div>
-        <button class="notice-create-btn" @click="emit('create')">+ 공지 등록</button>
+        <button v-if="showCreateButton" class="notice-create-btn" @click="emit('create')">+공지등록</button>
       </div>
     </div>
 

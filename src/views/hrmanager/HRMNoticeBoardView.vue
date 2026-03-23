@@ -93,6 +93,7 @@ function deleteNotice(id) {
       <HRMNoticeListPanel
         :notices="notices"
         :selected-id="selectedId"
+        :show-create-button="true"
         @select="selectedId = $event"
         @create="openCreate"
       />

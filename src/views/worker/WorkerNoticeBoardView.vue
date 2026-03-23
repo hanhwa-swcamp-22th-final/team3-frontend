@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import WorkerNoticeList from '@/components/hr/common/notices/WorkerNoticeList.vue'
-import WorkerNoticeDetail from '@/components/hr/common/notices/WorkerNoticeDetail.vue'
+import HRMNoticeListPanel from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
+import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import { workerNotices as mockNotices } from '@/mocks/worker/workerNoticeData'
 
 const loading = ref(true)
@@ -16,8 +16,25 @@ onMounted(() => {
   loading.value = false
 })
 
+const statusMap = { '게시중': '게시중', '게시 예정': '예약' }
+
+const hrmNotices = computed(() => {
+  return notices.value.map((n) => ({
+    id: n.id,
+    title: n.title,
+    isImportant: n.pinned || n.category === '긴급',
+    status: statusMap[n.statusLabel] || n.statusLabel,
+    targets: n.target ? [n.target] : [],
+    date: n.date,
+    author: n.author,
+    views: n.views,
+    content: n.content,
+    attachment: n.attachments?.length ? n.attachments.join(', ') : null,
+  }))
+})
+
 const selectedNotice = computed(() => {
-  return notices.value.find((n) => n.id === selectedId.value) ?? null
+  return hrmNotices.value.find((n) => n.id === selectedId.value) ?? null
 })
 
 function handleSelect(id) {
@@ -31,13 +48,13 @@ function handleSelect(id) {
 
     <template v-else>
       <div class="nb-grid">
-        <WorkerNoticeList
-          v-if="notices.length"
-          :notices="notices"
+        <HRMNoticeListPanel
+          v-if="hrmNotices.length"
+          :notices="hrmNotices"
           :selected-id="selectedId"
           @select="handleSelect"
         />
-        <WorkerNoticeDetail
+        <HRMNoticeDetailPanel
           v-if="selectedNotice"
           :notice="selectedNotice"
         />
@@ -49,19 +66,23 @@ function handleSelect(id) {
 <style scoped>
 .nb-content {
   flex: 1;
-  padding: 20px 28px 28px;
+  min-width: 0;
+  height: calc(100vh - 80px);
+  padding: 24px 28px;
+  background: var(--color-bg-app);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-width: 0;
-  background: var(--color-bg-app);
+  box-sizing: border-box;
 }
 
 .nb-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 .nb-loading {
