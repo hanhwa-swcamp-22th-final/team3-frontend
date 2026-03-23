@@ -27,52 +27,48 @@ defineProps({
 
 <style scoped>
 .stat-cards {
-  display: flex;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
   flex-shrink: 0;
 }
 
 .stat-cards :deep(.base-stat-card) {
-  flex: 1;
-  min-height: 80px;
+  min-height: 0;
   height: auto;
-  padding: 15px 17px 1px;
+  padding: 20px 24px;
   gap: 4px;
 }
 
 .stat-cards :deep(.base-stat-card__label) {
-  font-size: 10px;
-  font-weight: 400;
-  color: #A89ED8;
-  text-transform: uppercase;
-  line-height: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-300);
 }
 
 .value-block {
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 2px;
 }
 
 .stat-value {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
-  font-weight: 400;
-  line-height: 30px;
-  color: #2D1F6E;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-primary-800);
 }
 
 .stat-unit {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--color-text-sub, #7a6fa8);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary-800);
   margin-left: 3px;
 }
 
 .stat-trend {
   font-size: 11px;
-  font-weight: 400;
-  line-height: 13px;
-  color: #00BF95;
+  font-weight: 700;
+  color: var(--color-mint-500, #00BF95);
 }
 </style>

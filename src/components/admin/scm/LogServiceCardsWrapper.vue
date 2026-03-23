@@ -32,10 +32,27 @@ defineProps({
   flex-shrink: 0;
 }
 
+.service-cards :deep(.base-stat-card) {
+  flex: 1;
+  min-height: 80px;
+  height: auto;
+  padding: 15px 17px;
+  gap: 4px;
+}
+
+.service-cards :deep(.base-stat-card__label) {
+  font-size: 10px;
+  font-weight: 400;
+  color: #A89ED8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .service-value {
-  font-family: var(--font-family-mono);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 24px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #2D1F6E;
 }
 </style>
