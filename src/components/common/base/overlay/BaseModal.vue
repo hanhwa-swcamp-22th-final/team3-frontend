@@ -108,14 +108,14 @@ function handleBackdropClick() {
 }
 
 .base-modal__eyebrow {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-primary-300);
 }
 
 .base-modal__title {
   margin-top: 6px;
-  font-size: 28px;
+  font-size: var(--font-size-2xl-plus);
   color: var(--color-primary-800);
 }
 
@@ -131,7 +131,7 @@ function handleBackdropClick() {
   border-radius: 50%;
   background: #f4f2ff;
   color: var(--color-primary-700);
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   flex-shrink: 0;
 }

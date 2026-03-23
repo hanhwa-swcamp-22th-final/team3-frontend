@@ -101,7 +101,7 @@ const variantClassMap = {
 }
 
 .base-notice-banner__icon {
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .base-notice-banner__badge {
@@ -112,7 +112,7 @@ const variantClassMap = {
   height: 32px;
   padding: 0 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 700;
 }
 
@@ -123,20 +123,20 @@ const variantClassMap = {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.7);
   color: var(--color-primary-700);
-  font-size: 22px;
+  font-size: var(--font-size-lg-plus);
   line-height: 1;
   cursor: pointer;
 }
 
 .base-notice-banner__title {
   margin-top: 16px;
-  font-size: 20px;
+  font-size: var(--font-size-md-plus);
   color: var(--color-primary-800);
 }
 
 .base-notice-banner__description {
   margin-top: 12px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--color-primary-500);
 }

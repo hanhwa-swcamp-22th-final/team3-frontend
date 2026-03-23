@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 
 const emit = defineEmits(['select-order', 'change-filter'])
 
@@ -75,18 +76,13 @@ function changePage(page) {
   <section class="ocsa-order-list">
     <header class="ocsa-order-list__header">
       <p class="ocsa-order-list__eyebrow">주문별 난이도 목록</p>
-      <div class="ocsa-order-list__filters">
-        <button
-          v-for="filter in filters"
-          :key="filter.key"
-          type="button"
-          class="ocsa-order-list__filter"
-          :class="{ 'ocsa-order-list__filter--active': activeFilter === filter.key }"
-          @click="emit('change-filter', filter.key)"
-        >
-          {{ filter.label }}
-        </button>
-      </div>
+      <BaseFilterTabs
+        class="ocsa-order-list__filters"
+        :items="filters"
+        :model-value="activeFilter"
+        size="sm"
+        @change="emit('change-filter', $event)"
+      />
       <input
         v-model="searchKeyword"
         class="ocsa-order-list__search"
@@ -150,34 +146,13 @@ function changePage(page) {
 }
 
 .ocsa-order-list__eyebrow {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 800;
   color: var(--color-primary-600);
 }
 
 .ocsa-order-list__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   margin-top: 12px;
-}
-
-.ocsa-order-list__filter {
-  height: 34px;
-  padding: 0 12px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--color-primary-500);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.ocsa-order-list__filter--active {
-  background: var(--color-primary-600);
-  border-color: var(--color-primary-600);
-  color: #fff;
 }
 
 .ocsa-order-list__search {
@@ -222,7 +197,7 @@ function changePage(page) {
 }
 
 .ocsa-order-list__code {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 800;
   color: var(--color-primary-300);
 }
@@ -235,7 +210,7 @@ function changePage(page) {
 
 .ocsa-order-list__grade,
 .ocsa-order-list__deadline {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 800;
 }
 
@@ -260,7 +235,7 @@ function changePage(page) {
 }
 
 .ocsa-order-list__title {
-  font-size: 15px;
+  font-size: var(--font-size-base-plus);
   color: var(--color-primary-800);
 }
 

@@ -1,5 +1,5 @@
-<script setup>
-import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
+﻿<script setup>
+import { BaseFilterTabs } from '@/components/common/base'
 
 const emit = defineEmits(['change-filter'])
 
@@ -46,7 +46,7 @@ function handleChange(filterKey) {
 }
 
 .notification-filter__eyebrow {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-primary-300);
 }

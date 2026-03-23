@@ -1,5 +1,5 @@
 <script setup>
-import BaseConfirmModal from '@/components/common/base/overlay/BaseConfirmModal.vue'
+import { BaseConfirmModal } from '@/components/common/base'
 
 const props = defineProps({
   request: {

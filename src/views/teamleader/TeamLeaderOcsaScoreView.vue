@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import { BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderOcsaOrderList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaOrderList.vue'
 import TeamLeaderOcsaDetailPanel from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaDetailPanel.vue'
 import TeamLeaderOcsaTechnicianList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaTechnicianList.vue'
@@ -8,7 +8,6 @@ import { ocsaSummaryCards, ocsaFilterConfigs, ocsaOrders, ocsaDetailMap, ocsaTec
 
 const activeFilter = ref('all')
 const selectedOrderId = ref(2)
-
 
 const filteredOrders = computed(() => {
   if (activeFilter.value === 'all') return ocsaOrders
@@ -74,17 +73,7 @@ function handleSelectOrder(orderId) {
 
 <template>
   <section class="teamleader-ocsa-view">
-    <section class="teamleader-ocsa-view__summary">
-      <TeamLeaderScmSummaryCard
-        v-for="card in ocsaSummaryCards"
-        :key="card.label"
-        :label="card.label"
-        :value="card.value"
-        :helper="card.helper"
-        :tone="card.tone"
-        variant="compact"
-      />
-    </section>
+    <BaseStatCardGrid class="teamleader-ocsa-view__summary" :cards="ocsaSummaryCards" />
 
     <section class="teamleader-ocsa-view__content">
       <TeamLeaderOcsaOrderList
@@ -153,10 +142,3 @@ function handleSelectOrder(orderId) {
   }
 }
 </style>
-
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import { BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import { knowledgeApprovalItems } from '@/mocks/teamleader'
@@ -104,15 +104,7 @@ function handleReject() {
 
 <template>
   <section class="teamleader-knowledge-approval-view">
-    <section class="teamleader-knowledge-approval-view__stats">
-      <TeamLeaderScmSummaryCard
-        v-for="card in statCards"
-        :key="card.label"
-        :label="card.label"
-        :value="card.value"
-        :tone="card.tone"
-      />
-    </section>
+    <BaseStatCardGrid class="teamleader-knowledge-approval-view__stats" :cards="statCards" />
 
     <section class="teamleader-knowledge-approval-view__grid">
       <TeamLeaderKnowledgeApprovalQueue
@@ -149,7 +141,7 @@ function handleReject() {
 
 .teamleader-knowledge-approval-view__stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 

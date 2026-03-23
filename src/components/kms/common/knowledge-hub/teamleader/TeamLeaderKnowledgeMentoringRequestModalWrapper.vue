@@ -1,6 +1,6 @@
 <script setup>
 import { reactive } from 'vue'
-import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
+import { BaseFormModal } from '@/components/common/base'
 
 const props = defineProps({
   defaults: {

@@ -168,7 +168,7 @@ function handleClickAction(item) {
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 800;
 }
 
@@ -199,7 +199,7 @@ function handleClickAction(item) {
 .base-notification-list__title {
   display: block;
   margin-top: 10px;
-  font-size: 23px;
+  font-size: var(--font-size-lg-plus);
   color: var(--color-primary-800);
 }
 
@@ -216,7 +216,7 @@ function handleClickAction(item) {
 }
 
 .base-notification-list__time {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #b1abd9;
 }
 

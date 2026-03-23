@@ -1,5 +1,5 @@
 <script setup>
-import BaseNoticeBanner from '@/components/common/base/display/BaseNoticeBanner.vue'
+import { BaseNoticeBanner } from '@/components/common/base'
 
 defineProps({
   badge: {

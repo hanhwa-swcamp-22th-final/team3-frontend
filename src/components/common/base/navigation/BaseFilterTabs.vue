@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 const props = defineProps({
   items: {
     type: Array,
@@ -129,18 +129,19 @@ function selectItem(item) {
 }
 
 .base-filter-tabs--sm .base-filter-tabs__item {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
 }
 
 .base-filter-tabs--md .base-filter-tabs__item {
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .base-filter-tabs--lg .base-filter-tabs__item {
-  font-size: 15px;
+  font-size: var(--font-size-base-plus);
 }
 
 .base-filter-tabs__count {
   opacity: 0.9;
 }
 </style>
+

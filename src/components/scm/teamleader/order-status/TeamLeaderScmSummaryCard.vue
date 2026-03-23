@@ -1,5 +1,5 @@
 ﻿<script setup>
-import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+import { BaseStatCard } from '@/components/common/base'
 
 defineProps({
   label: {
@@ -27,6 +27,5 @@ defineProps({
     :value="value"
     :helper="helper"
     :tone="tone"
-    variant="compact"
   />
 </template>
