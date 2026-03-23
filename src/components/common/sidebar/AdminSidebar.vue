@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { getSidebarSectionsByRole } from '@/components/common/menuConfig.js'
+import { getSidebarSectionsByRole } from '@/components/common/sidebar/menuConfig.js'
 
 const route = useRoute()
 const sections = computed(() => getSidebarSectionsByRole('admin'))

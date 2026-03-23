@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { getSidebarSectionsByRole } from '@/components/common/menuConfig.js'
+import { getSidebarSectionsByRole } from '@/components/common/sidebar/menuConfig.js'
 
 
 const authStore = useAuthStore()
