@@ -16,7 +16,7 @@ export const FILTER_TABS = ['전체', '중요', '게시중', '예약', '임시']
 
 export const MOCK_TEAMS = ['전체', 'TL', 'GL', 'Worker', 'HRM']
 
-let _id = 5
+let _id = 14
 export const mockNotices = [
   {
     id: 1,
@@ -110,6 +110,78 @@ export const mockNotices = [
 
 ■ 예정 배포일
 - 미정`,
+    attachment: '',
+  },
+  {
+    id: 5,
+    title: '2026년 상반기 연차 사용 촉진 안내',
+    status: '게시중',
+    targets: ['TL', 'GL', 'Worker'],
+    date: '2026.03.10',
+    author: 'HRM_인사운영팀',
+    views: 95,
+    isImportant: false,
+    content: `근로기준법에 따라 상반기 연차 사용 촉진을 안내드립니다.\n\n■ 촉진 대상\n- 2025년 미사용 연차 보유 직원 전체\n\n■ 사용 권장 기간\n- 2026.04.01 ~ 2026.06.30\n\n■ 신청 방법\n- HRM 포털 > 근태 > 연차 신청\n\n■ 문의\n- HRM 인사운영팀 내선 2130`,
+    attachment: '',
+  },
+  {
+    id: 6,
+    title: '설비 점검에 따른 시스템 일시 중단 안내',
+    status: '게시중',
+    targets: ['TL', 'GL', 'Worker'],
+    date: '2026.03.08',
+    author: 'HRM_시스템팀',
+    views: 210,
+    isImportant: true,
+    content: `서버 정기 점검으로 인해 아래 일정에 시스템이 일시 중단됩니다.\n\n■ 중단 일시\n- 2026.03.22 (일) 02:00 ~ 06:00\n\n■ 영향 범위\n- HRM 포털 전체 서비스\n\n■ 유의사항\n- 점검 시간 내 데이터 저장 불가\n- 긴급 문의: HRM 시스템팀 내선 2170`,
+    attachment: '',
+  },
+  {
+    id: 7,
+    title: '2026년 복리후생 제도 변경 안내',
+    status: '게시중',
+    targets: ['TL', 'GL', 'Worker'],
+    date: '2026.03.05',
+    author: 'HRM_인사운영팀',
+    views: 183,
+    isImportant: false,
+    content: `2026년부터 적용되는 복리후생 제도 변경 사항을 안내드립니다.\n\n■ 주요 변경 내용\n- 자기개발비 연 30만원 → 50만원으로 상향\n- 건강검진 지원 항목 확대 (배우자 포함)\n- 사내 카페테리아 포인트 월 3만원 지급\n\n■ 적용 시점\n- 2026.04.01부터 적용`,
+    attachment: '',
+  },
+  {
+    id: 8,
+    title: '1분기 안전 교육 미이수자 재공지',
+    status: '게시중',
+    targets: ['Worker'],
+    date: '2026.03.03',
+    author: 'HRM_교육운영팀',
+    views: 47,
+    isImportant: true,
+    content: `1분기 안전 교육 미이수자를 대상으로 추가 교육 일정을 안내드립니다.\n\n■ 대상\n- 2026년 1분기 안전 교육 미이수 Worker\n\n■ 추가 교육 일정\n- 2026.03.26 (목) 15:00 ~ 17:00 / 현장 교육장 A동\n\n■ 유의사항\n- 미이수 시 인사 불이익 발생 가능`,
+    attachment: '',
+  },
+  {
+    id: 9,
+    title: '5월 노사협의회 의제 사전 수렴 안내',
+    status: '예약',
+    targets: ['TL', 'GL', 'Worker'],
+    date: '2026.04.10',
+    author: 'HRM_인사운영팀',
+    views: 0,
+    isImportant: false,
+    content: `5월 노사협의회 개최에 앞서 직원 의제를 사전 수렴합니다.\n\n■ 수렴 기간\n- 2026.04.01 ~ 2026.04.07\n\n■ 협의회 예정일\n- 2026.05.15 (금)`,
+    attachment: '',
+  },
+  {
+    id: 10,
+    title: '하계 휴가 일정 사전 조율 안내',
+    status: '예약',
+    targets: ['TL', 'GL', 'Worker'],
+    date: '2026.04.20',
+    author: 'HRM_인사운영팀',
+    views: 0,
+    isImportant: false,
+    content: `하계 휴가 일정 조율을 위해 사전 희망 일정을 취합합니다.\n\n■ 취합 기간\n- 2026.04.14 ~ 2026.04.18\n\n■ 하계 휴가 권장 기간\n- 2026.07.21 ~ 2026.08.15 중 5일`,
     attachment: '',
   },
 ]
