@@ -13,7 +13,7 @@ defineProps({
     :badge="badge"
     :title="title"
     :description="description"
-    tone="warning"
+    tone="success"
     variant="soft"
   />
 </template>

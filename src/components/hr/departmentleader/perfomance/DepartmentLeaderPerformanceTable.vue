@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   members:       { type: Array, default: () => [] },
@@ -27,6 +27,18 @@ const filtered = computed(() => {
     const matchName   = !searchName.value.trim()    || m.name.includes(searchName.value.trim())
     return matchTeam && matchGrade && matchStatus && matchName
   })
+})
+
+const PAGE_SIZE = 10
+const currentPage = ref(1)
+
+watch(filtered, () => { currentPage.value = 1 })
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)))
+
+const pagedMembers = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filtered.value.slice(start, start + PAGE_SIZE)
 })
 
 const gradeColors = {
@@ -89,7 +101,7 @@ function closeDetail()      { selectedMember.value = null }
         </thead>
         <tbody>
           <tr
-            v-for="m in filtered"
+            v-for="m in pagedMembers"
             :key="m.empId"
             class="dl-perf-table__row"
             @click="openDetail(m)"
@@ -117,6 +129,27 @@ function closeDetail()      { selectedMember.value = null }
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="dl-perf-pagination">
+      <button
+        class="dl-perf-pagination__btn"
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+      >‹</button>
+      <template v-for="p in totalPages" :key="p">
+        <button
+          class="dl-perf-pagination__page"
+          :class="{ 'dl-perf-pagination__page--active': p === currentPage }"
+          @click="currentPage = p"
+        >{{ p }}</button>
+      </template>
+      <button
+        class="dl-perf-pagination__btn"
+        :disabled="currentPage === totalPages"
+        @click="currentPage++"
+      >›</button>
     </div>
 
     <!-- Detail modal -->
@@ -282,6 +315,47 @@ function closeDetail()      { selectedMember.value = null }
   text-align: center;
   padding: 32px;
   color: var(--color-text-muted);
+}
+
+/* Pagination */
+.dl-perf-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dl-perf-pagination__btn,
+.dl-perf-pagination__page {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+
+.dl-perf-pagination__btn:hover:not(:disabled),
+.dl-perf-pagination__page:hover {
+  background: var(--color-primary-50, #f7f5ff);
+}
+
+.dl-perf-pagination__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.dl-perf-pagination__page--active {
+  background: var(--color-primary-600);
+  color: #fff;
+  border-color: var(--color-primary-600);
 }
 
 /* Detail modal */
