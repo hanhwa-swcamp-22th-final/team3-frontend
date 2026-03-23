@@ -58,6 +58,17 @@ const isSumValid = computed(() => vWeightSum.value === 1.0)
 const handleCustomSave = () => {
   emit('save', { ...customForm.value })
 }
+
+// ── 복잡도 입력 검증 ────────────────────────────────
+const validateProcess = (row) => {
+  const v = parseFloat(row.processes)
+  row._processError = isNaN(v) || v < 1 || !Number.isInteger(v)
+}
+
+const validateTolerance = (row) => {
+  const v = parseFloat(row.tolerance)
+  row._toleranceError = row.tolerance !== '' && row.tolerance !== null && (isNaN(v) || v < 0)
+}
 </script>
 
 <template>
@@ -153,14 +164,32 @@ const handleCustomSave = () => {
         <div class="table-header">
           <span class="col-stage">단계</span>
           <span class="col-process">공정수</span>
-          <span class="col-tolerance">허용공차</span>
+          <span class="col-tolerance">허용공차 (단위 : mm)</span>
           <span class="col-weight">난이도가중</span>
         </div>
         <div v-for="row in editableComplexity" :key="row.stage" class="table-row">
           <span class="col-stage stage-label">{{ row.stage }}</span>
-          <input class="col-process cell-input" v-model="row.processes" />
-          <input class="col-tolerance cell-input" v-model="row.tolerance" />
-          <input class="col-weight cell-input cell-input--num" type="number" step="0.1" v-model.number="row.weight" />
+          <input
+            class="col-process cell-input"
+            :class="{ 'cell-input--error': row._processError }"
+            type="number"
+            min="1"
+            step="1"
+            v-model="row.processes"
+            placeholder="예: 1~10"
+            @input="validateProcess(row)"
+          />
+          <input
+            class="col-tolerance cell-input"
+            :class="{ 'cell-input--error': row._toleranceError }"
+            type="number"
+            min="0"
+            step="0.001"
+            v-model="row.tolerance"
+            placeholder="예: 0.02"
+            @input="validateTolerance(row)"
+          />
+          <input class="col-weight cell-input cell-input--num" type="number" step="0.1" min="0" max="10" v-model.number="row.weight" />
         </div>
       </div>
 
@@ -280,6 +309,7 @@ const handleCustomSave = () => {
 
 .cell-input--num { text-align: right; }
 .cell-input:focus { border-color: var(--color-primary-600); }
+.cell-input--error { border-color: var(--color-danger, #EF476F); background: var(--color-danger-soft, #FFF0F3); }
 
 .col-stage     { width: 140px; flex-shrink: 0; padding-left: 12px; }
 .col-process   { flex: 1; }
