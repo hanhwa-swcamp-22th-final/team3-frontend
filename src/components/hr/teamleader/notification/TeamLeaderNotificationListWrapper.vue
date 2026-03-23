@@ -1,5 +1,5 @@
 <script setup>
-import BaseNotificationList from '@/components/common/base/data-display/BaseNotificationList.vue'
+import { BaseNotificationList } from '@/components/common/base'
 
 defineProps({
   items: {

@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { BaseFilterTabs, BaseStatCardGrid } from '@/components/common/base'
 
 const props = defineProps({
   orders: { type: Array, default: () => [] },
@@ -18,6 +19,17 @@ const orderPage = ref(1)
 const candidatePage = ref(1)
 const orderPageSize = 4
 const candidatePageSize = 4
+const strategyOptions = [
+  { key: 'optimal', label: '최적형 배정' },
+  { key: 'challenge', label: '도전형 배정' },
+]
+
+const summaryCards = computed(() => [
+  { label: '오늘 배정', value: props.assignmentStats.assignedToday ?? '-', tone: 'primary' },
+  { label: '정확도', value: props.assignmentStats.accuracy ?? '-', tone: 'success' },
+  { label: '재배정', value: props.assignmentStats.reassigned ?? '-', tone: 'warning' },
+  { label: '미배정', value: props.assignmentStats.unassigned ?? '-', tone: 'danger' },
+])
 
 function candidateToneClass(tone) {
   return `candidate-card--${tone}`
@@ -140,31 +152,14 @@ function confirmAssignment() {
         <h3>후보 리스트 및 배정</h3>
       </div>
 
-      <div class="assignment-panel__strategy">
-        <button
-          type="button"
-          class="assignment-panel__strategy-button"
-          :class="{ 'assignment-panel__strategy-button--active': strategy === 'optimal' }"
-          @click="strategy = 'optimal'"
-        >
-          최적형 배정
-        </button>
-        <button
-          type="button"
-          class="assignment-panel__strategy-button"
-          :class="{ 'assignment-panel__strategy-button--active': strategy === 'challenge' }"
-          @click="strategy = 'challenge'"
-        >
-          도전형 배정
-        </button>
-      </div>
+      <BaseFilterTabs
+        class="assignment-panel__strategy"
+        :items="strategyOptions"
+        :model-value="strategy"
+        @change="strategy = $event"
+      />
 
-      <div class="assignment-panel__stats">
-        <article class="assignment-stat-card"><span>오늘 배정</span><strong>{{ assignmentStats.assignedToday }}</strong></article>
-        <article class="assignment-stat-card"><span>정확도</span><strong>{{ assignmentStats.accuracy }}</strong></article>
-        <article class="assignment-stat-card"><span>재배정</span><strong>{{ assignmentStats.reassigned }}</strong></article>
-        <article class="assignment-stat-card"><span>미배정</span><strong>{{ assignmentStats.unassigned }}</strong></article>
-      </div>
+      <BaseStatCardGrid :cards="summaryCards" class="assignment-panel__stats" />
 
       <div class="assignment-panel__candidate-list-shell">
         <div class="assignment-panel__candidate-list">
@@ -237,41 +232,36 @@ function confirmAssignment() {
 <style scoped>
 .assignment-panel { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.35fr); gap: 16px; }
 .assignment-panel__column { border: 1px solid var(--color-border-default); border-radius: 20px; background: var(--color-bg-surface); padding: 16px; display: grid; gap: 14px; align-content: start; }
-.assignment-panel__head h3 { margin-top: 6px; font-size: 22px; color: var(--color-primary-800); }
-.assignment-panel__eyebrow { font-size: 12px; font-weight: 700; color: var(--color-primary-300); }
+.assignment-panel__head h3 { margin-top: 6px; font-size: var(--font-size-lg-plus); color: var(--color-primary-800); }
+.assignment-panel__eyebrow { font-size: var(--font-size-xs-plus); font-weight: 700; color: var(--color-primary-300); }
 .assignment-panel__order-list-shell, .assignment-panel__candidate-list-shell { display: grid; grid-template-rows: minmax(360px, 1fr) 34px; gap: 12px; }
 .assignment-panel__order-list, .assignment-panel__candidate-list { display: grid; align-content: start; gap: 12px; min-height: 360px; }
-.assignment-order, .assignment-stat-card, .candidate-card { border: 1px solid var(--color-border-default); border-radius: 16px; background: #fff; }
+.assignment-order, .candidate-card { border: 1px solid var(--color-border-default); border-radius: 16px; background: #fff; }
 .assignment-order { padding: 14px 16px; text-align: left; display: grid; gap: 10px; cursor: pointer; }
 .assignment-order--active, .candidate-card--active { box-shadow: inset 0 0 0 1px rgba(91, 80, 214, 0.16); background: #f8f6ff; }
 .assignment-order__top, .assignment-order__bottom, .candidate-card__row, .candidate-card__left, .candidate-card__right, .candidate-card__main { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .assignment-order strong, .candidate-card strong { color: var(--color-primary-800); }
-.assignment-order__top span, .assignment-order__bottom span, .candidate-card p, .candidate-card__row span, .assignment-stat-card span, .assignment-confirm-modal__copy, .assignment-panel__empty { font-size: 12px; color: var(--color-text-muted); }
-.assignment-panel__strategy { display: flex; gap: 10px; flex-wrap: wrap; }
-.assignment-panel__strategy-button { height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--color-border-default); background: #fff; color: var(--color-text-default); font-size: 13px; font-weight: 800; cursor: pointer; }
-.assignment-panel__strategy-button--active { border-color: var(--color-primary-700); background: var(--color-primary-700); color: #fff; }
-.assignment-panel__stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.assignment-stat-card { padding: 14px; display: grid; gap: 8px; text-align: center; }
-.assignment-stat-card strong { font-size: 28px; color: var(--color-primary-700); }
+.assignment-order__top span, .assignment-order__bottom span, .candidate-card p, .candidate-card__row span, .assignment-confirm-modal__copy, .assignment-panel__empty { font-size: var(--font-size-xs-plus); color: var(--color-text-muted); }
 .candidate-card { padding: 14px 16px; }
 .candidate-card__left { justify-content: flex-start; }
 .candidate-card__avatar { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; background: var(--color-primary-700); }
 .candidate-card__action { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .candidate-card__right { display: grid; justify-items: end; gap: 4px; }
-.candidate-card__right strong { font-size: 30px; }
-.candidate-card__assign { height: 38px; padding: 0 14px; border: none; border-radius: 12px; background: var(--color-primary-700); color: #fff; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.candidate-card__right strong { font-size: var(--font-size-display-sm); }
+.candidate-card__assign { height: 38px; padding: 0 14px; border: none; border-radius: 12px; background: var(--color-primary-700); color: #fff; font-size: var(--font-size-sm); font-weight: 800; white-space: nowrap; cursor: pointer; }
 .candidate-card--mint .candidate-card__right strong { color: #18b9a7; } .candidate-card--primary .candidate-card__right strong { color: var(--color-primary-600); } .candidate-card--green .candidate-card__right strong { color: #24966b; } .candidate-card--gold .candidate-card__right strong { color: #c78c00; } .candidate-card--danger .candidate-card__right strong { color: #ef4f74; } .candidate-card--soft .candidate-card__right strong { color: #9b93c7; }
 .assignment-panel__empty { min-height: 100%; border: 1px dashed var(--color-border-default); border-radius: 16px; display: grid; place-items: center; background: #fbfaff; }
 .assignment-panel__pagination-slot { display: grid; align-items: end; }
 .assignment-panel__pagination { display: flex; justify-content: center; gap: 8px; min-height: 34px; }
-.assignment-panel__page-button { width: 34px; height: 34px; border: 1px solid var(--color-border-default); border-radius: 10px; background: #fff; color: var(--color-text-default); font-size: 13px; font-weight: 700; cursor: pointer; }
+.assignment-panel__page-button { width: 34px; height: 34px; border: 1px solid var(--color-border-default); border-radius: 10px; background: #fff; color: var(--color-text-default); font-size: var(--font-size-sm); font-weight: 700; cursor: pointer; }
 .assignment-panel__page-button--active { border-color: var(--color-primary-700); background: var(--color-primary-700); color: #fff; }
 .assignment-confirm-backdrop { position: fixed; inset: 0; background: rgba(18, 20, 38, 0.48); display: grid; place-items: center; padding: 20px; z-index: 40; }
 .assignment-confirm-modal { width: min(440px, 100%); border-radius: 22px; border: 1px solid var(--color-border-default); background: #fff; padding: 22px; display: grid; gap: 14px; box-shadow: 0 22px 60px rgba(19, 22, 48, 0.18); }
-.assignment-confirm-modal h3 { font-size: 22px; color: var(--color-primary-800); }
+.assignment-confirm-modal h3 { font-size: var(--font-size-lg-plus); color: var(--color-primary-800); }
 .assignment-confirm-modal__actions { display: flex; justify-content: flex-end; gap: 10px; }
-.assignment-confirm-modal__button { height: 42px; padding: 0 16px; border: none; border-radius: 12px; background: var(--color-primary-700); color: #fff; font-size: 14px; font-weight: 800; cursor: pointer; }
+.assignment-confirm-modal__button { height: 42px; padding: 0 16px; border: none; border-radius: 12px; background: var(--color-primary-700); color: #fff; font-size: var(--font-size-base); font-weight: 800; cursor: pointer; }
 .assignment-confirm-modal__button--ghost { border: 1px solid var(--color-border-default); background: #fff; color: var(--color-text-default); }
-@media (max-width: 1280px) { .assignment-panel, .assignment-panel__stats { grid-template-columns: 1fr; } .candidate-card__main, .candidate-card__action { align-items: flex-start; } }
+@media (max-width: 1280px) { .assignment-panel { grid-template-columns: 1fr; } .assignment-panel__stats :deep(.base-stat-card-grid) { grid-template-columns: 1fr; } .candidate-card__main, .candidate-card__action { align-items: flex-start; } }
 @media (max-width: 860px) { .candidate-card__main { flex-direction: column; } .candidate-card__action { width: 100%; justify-content: space-between; margin-left: 0; } }
 </style>
+

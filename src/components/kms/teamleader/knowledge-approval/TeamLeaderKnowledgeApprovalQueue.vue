@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   items: {
@@ -61,18 +62,14 @@ function typeClass(type) {
       <span class="queue__count">{{ filters.find((item) => item.key === 'all')?.count ?? items.length }}건</span>
     </div>
 
-    <div class="queue__tabs">
-      <button
-        v-for="filter in filters"
-        :key="filter.key"
-        type="button"
-        class="queue__tab"
-        :class="{ 'queue__tab--active': activeFilter === filter.key }"
-        @click="emit('change-filter', filter.key)"
-      >
-        {{ filter.label }}({{ filter.count }})
-      </button>
-    </div>
+    <BaseFilterTabs
+      class="queue__tabs"
+      :items="filters"
+      :model-value="activeFilter"
+      variant="underline"
+      show-count
+      @change="emit('change-filter', $event)"
+    />
 
     <div class="queue__list">
       <button
@@ -127,45 +124,21 @@ function typeClass(type) {
 }
 
 .queue__eyebrow {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-primary-300);
 }
 
 .queue__head h2 {
   margin-top: 6px;
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   color: var(--color-primary-800);
 }
 
 .queue__count {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-text-muted);
-}
-
-.queue__tabs {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.queue__tab {
-  height: 34px;
-  padding: 0 2px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.queue__tab--active {
-  color: var(--color-primary-700);
-  border-bottom-color: var(--color-primary-700);
 }
 
 .queue__list {
@@ -197,20 +170,20 @@ function typeClass(type) {
 }
 
 .queue__item strong {
-  font-size: 17px;
+  font-size: var(--font-size-md-plus);
   color: var(--color-primary-800);
 }
 
 .queue__item p {
   margin-top: 8px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
 .queue__type {
   padding: 4px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 800;
 }
 
@@ -231,7 +204,7 @@ function typeClass(type) {
   border: 1px dashed var(--color-border-default);
   border-radius: 14px;
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .queue__pagination {
@@ -248,7 +221,7 @@ function typeClass(type) {
   border: 1px solid var(--color-border-default);
   background: #fff;
   color: var(--color-text-default);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   cursor: pointer;
 }
@@ -259,3 +232,4 @@ function typeClass(type) {
   color: #fff;
 }
 </style>
+

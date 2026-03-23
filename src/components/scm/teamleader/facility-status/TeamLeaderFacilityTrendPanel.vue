@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   trend: {
@@ -48,18 +49,13 @@ const lines = computed(() => {
     <div class="trend-panel__head">
       <p class="trend-panel__eyebrow">설비별 E_IDX 24시간 트렌드</p>
 
-      <div class="trend-panel__filters">
-        <button
-          v-for="filter in filters"
-          :key="filter.key"
-          type="button"
-          class="trend-panel__filter"
-          :class="{ 'trend-panel__filter--active': activeFilter === filter.key }"
-          @click="emit('change-filter', filter.key)"
-        >
-          {{ filter.label }}
-        </button>
-      </div>
+      <BaseFilterTabs
+        class="trend-panel__filters"
+        :items="filters"
+        :model-value="activeFilter"
+        size="sm"
+        @change="emit('change-filter', $event)"
+      />
     </div>
 
     <div class="trend-panel__chart-wrap">
@@ -119,34 +115,9 @@ const lines = computed(() => {
 }
 
 .trend-panel__eyebrow {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-primary-300);
-}
-
-.trend-panel__filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.trend-panel__filter {
-  height: 32px;
-  padding: 0 12px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--color-primary-500);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.trend-panel__filter--active {
-  border-color: var(--color-primary-700);
-  background: var(--color-primary-700);
-  color: #fff;
 }
 
 .trend-panel__chart-wrap {
@@ -160,7 +131,7 @@ const lines = computed(() => {
   justify-items: end;
   align-items: stretch;
   color: var(--color-primary-200);
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
 }
 
 .trend-panel__chart {
@@ -219,7 +190,7 @@ const lines = computed(() => {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   margin-top: -6px;
   color: var(--color-primary-200);
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   text-align: center;
 }
 

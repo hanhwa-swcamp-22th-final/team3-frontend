@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color-scheme: light;
 
   --color-primary-900: #23185d;
@@ -107,7 +107,7 @@
   --color-equip-stopped-bg: #fff0f3;
   --color-equip-stopped-border: #ffc3d2;
 
-  /* 상태 텍스트/배지 */
+  /* 상태 텍스트 보정 */
   --color-success-text: #028a6b;
   --color-danger-text: #c0103e;
   --color-warning-text: #a07000;
@@ -128,7 +128,7 @@
   --color-log-time: #5b8bff;
   --color-log-message: #d8e2ff;
 
-  /* 어두운 배경 위 색상 */
+  /* 어두운 배경 대응 색상 */
   --color-text-on-dark: rgba(255, 255, 255, 0.5);
   --color-border-on-dark: rgba(255, 255, 255, 0.1);
 
@@ -145,22 +145,42 @@
   --font-family-mono: 'JetBrains Mono', monospace;
 
   /* --- Font Size (B2B Dashboard) --- */
-  --font-size-2xs: 10px;      /* 극소 보조, 오버레이 레이블 */
-  --font-size-xs: 11px;       /* 뱃지, 태그, 칩 */
-  --font-size-sm: 13px;       /* 날짜, 보조 텍스트 */
-  --font-size-base: 14px;     /* 메인 본문 */
-  --font-size-md: 16px;       /* 강조 본문 */
-  --font-size-lg: 18px;       /* 서브타이틀, 이름 */
-  --font-size-xl: 24px;       /* 섹션 헤더 */
-  --font-size-2xl: 36px;      /* 대형 수치 */
-  --font-size-display: 46px;  /* 대형 수치 (티어 카드, 메트릭 카드) */
+  --font-size-2xs: 10px;        /* 극소 보조, 오버레이 레이블 */
+  --font-size-xs: 11px;         /* 배지, 태그, 칩 */
+  --font-size-xs-plus: 12px;    /* 보조 + */
+  --font-size-sm: 13px;         /* 숫자, 보조 텍스트 */
+  --font-size-base: 14px;       /* 메인 본문 */
+  --font-size-base-plus: 15px;  /* 본문 + */
+  --font-size-md: 16px;         /* 강조 본문 */
+  --font-size-md-plus: 17px;    /* 강조 + */
+  --font-size-lg: 18px;         /* 서브타이틀, 이름 */
+  --font-size-lg-plus: 22px;    /* 소제목 + */
+  --font-size-xl: 24px;         /* 섹션 헤더 */
+  --font-size-xl-plus: 25px;    /* 섹션 + */
+  --font-size-2xl-plus: 28px;   /* 메트릭 + */
+  --font-size-display-sm: 30px; /* 대표 수치 sm */
+  --font-size-display-md: 32px; /* 대표 수치 md */
+  --font-size-2xl: 36px;        /* 대표 수치 */
+  --font-size-display: 46px;    /* 대표 수치 (히어로 카드, 메트릭 카드) */
+
+  /* --- Base Stat Card --- */
+  --base-stat-card-gap-row: 10px;
+  --base-stat-card-gap-column: 14px;
+  --base-stat-card-min-height: 80px;
+  --base-stat-card-padding-y: 18px;
+  --base-stat-card-padding-x: 22px;
+  --base-stat-card-content-gap: 8px;
+  --base-stat-card-foot-gap: 2px;
+  --base-stat-card-suffix-gap: 4px;
+  --base-stat-card-radius: 18px;
+  --base-stat-card-tier-size: 52px;
 
   /* --- Font Weight --- */
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  --font-weight-extrabold: 800;  /* 타이틀 강조, 뱃지 */
+  --font-weight-extrabold: 800;  /* 타이틀 강조, 칩셋 */
 }
 
 *,
@@ -178,7 +198,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Custom Scrollbar ───────────────────────────────────────── */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderKpiSummaryCard from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiSummaryCardWrapper.vue'
+import { BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderKpiMemberTable from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiMemberTableWrapper.vue'
 import TeamLeaderKpiTrendPanel from '@/components/hr/teamleader/kpi-report/TeamLeaderKpiTrendPanel.vue'
 import { kpiSummaryCards, kpiRows, kpiTrendPanelMap } from '@/mocks/teamleader/kpiReport'
@@ -56,16 +56,7 @@ function handleSelectMember(memberId) {
 
 <template>
   <section class="teamleader-kpi-report-view">
-    <section class="teamleader-kpi-report-view__summary">
-      <TeamLeaderKpiSummaryCard
-        v-for="card in kpiSummaryCards"
-        :key="card.label"
-        :label="card.label"
-        :value="card.value"
-        :helper="card.helper"
-        :tone="card.tone"
-      />
-    </section>
+    <BaseStatCardGrid class="teamleader-kpi-report-view__summary" :cards="kpiSummaryCards" />
 
     <section class="teamleader-kpi-report-view__content">
       <TeamLeaderKpiMemberTable
@@ -92,7 +83,7 @@ function handleSelectMember(memberId) {
 
 .teamleader-kpi-report-view__summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -116,5 +107,3 @@ function handleSelectMember(memberId) {
   }
 }
 </style>
-
-

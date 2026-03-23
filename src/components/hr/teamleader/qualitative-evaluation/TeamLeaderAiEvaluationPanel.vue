@@ -1,5 +1,5 @@
 <script setup>
-import BaseModal from '@/components/common/base/overlay/BaseModal.vue'
+import { BaseModal } from '@/components/common/base'
 
 defineProps({
   selectedTarget: {

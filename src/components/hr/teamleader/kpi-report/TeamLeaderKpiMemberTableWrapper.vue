@@ -1,6 +1,6 @@
 <script setup>
+import { BaseDataTable } from '@/components/common/base'
 import { getTierColors } from '@/utils/tierColors'
-import BaseDataTable from '@/components/common/base/data-display/BaseDataTable.vue'
 
 const emit = defineEmits(['select-row'])
 
@@ -59,7 +59,7 @@ function handlePageChange(page) {
       <p class="kpi-table-panel__eyebrow">팀원별 정량 점수 산출 내역</p>
     </header>
 
-    <BaseDataTable
+  <BaseDataTable
       :columns="columns"
       :rows="rows"
       :page-size="pageSize"
@@ -100,7 +100,7 @@ function handlePageChange(page) {
           {{ row.detailLabel }}
         </button>
       </template>
-    </BaseDataTable>
+  </BaseDataTable>
 
     <div class="kpi-table-panel__warning">
       정미래 팀원의 낮은 점수는 WLD-01 FAULT(E_idx 0.71) 영향입니다. 설비 보정 적용 중.

@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, ref } from 'vue'
-import TeamLeaderScmSummaryCard from '@/components/scm/teamleader/order-status/TeamLeaderScmSummaryCard.vue'
+import { BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderScmFilterBar from '@/components/scm/teamleader/order-status/TeamLeaderScmFilterBar.vue'
 import TeamLeaderScmPipelineBoard from '@/components/scm/teamleader/order-status/TeamLeaderScmPipelineBoard.vue'
 import TeamLeaderScmUrgentPanel from '@/components/scm/teamleader/order-status/TeamLeaderScmUrgentPanel.vue'
@@ -32,16 +32,7 @@ function handleFilterChange(filterKey) {
 
 <template>
   <section class="teamleader-scm-orders-view">
-    <section class="teamleader-scm-orders-view__summary">
-      <TeamLeaderScmSummaryCard
-        v-for="card in scmSummaryCards"
-        :key="card.label"
-        :label="card.label"
-        :value="card.value"
-        :helper="card.helper"
-        :tone="card.tone"
-      />
-    </section>
+    <BaseStatCardGrid class="teamleader-scm-orders-view__summary" :cards="scmSummaryCards" />
 
     <TeamLeaderScmFilterBar
       :filters="scmFilters"
@@ -123,7 +114,3 @@ function handleFilterChange(filterKey) {
   }
 }
 </style>
-
-
-
-

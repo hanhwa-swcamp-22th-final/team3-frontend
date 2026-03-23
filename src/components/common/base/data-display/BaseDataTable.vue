@@ -141,13 +141,13 @@ function columnSlotName(key) {
   padding: 14px 10px;
   border-bottom: 1px solid #eeeaff;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   text-align: left;
 }
 
 .base-data-table__table th {
   color: #a8a0d7;
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 800;
   background: #f5f2ff;
 }

@@ -1,5 +1,5 @@
-<script setup>
-import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+﻿<script setup>
+import { BaseStatCard } from '@/components/common/base'
 
 defineProps({
   label: {
