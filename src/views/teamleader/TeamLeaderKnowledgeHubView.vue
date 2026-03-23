@@ -274,13 +274,18 @@ function handleDraftKnowledge(payload) {
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
   gap: 16px;
   align-items: stretch;
+  height: 100%;
   min-height: 0;
+  overflow: visible;
 }
 
 .teamleader-knowledge-view__sidebar {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 16px;
+  height: 100%;
   min-height: 0;
+  overflow: visible;
 }
 
 @media (max-width: 1180px) {
