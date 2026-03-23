@@ -199,14 +199,14 @@ const handleAccept = () => {
   justify-content: center;
   font-size: 10px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
 .contrib-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary-800, #2d1f6e);
+  color: var(--color-primary-800);
   flex: 1;
 }
 
@@ -268,7 +268,7 @@ const handleAccept = () => {
 .mentoring-status {
   font-size: 10px;
   font-weight: 700;
-  color: #00bf95;
+  color: var(--tier-s);
   flex-shrink: 0;
 }
 
@@ -291,8 +291,8 @@ const handleAccept = () => {
   justify-content: center;
   font-size: 9px;
   font-weight: 700;
-  color: #ffffff;
-  background: #7a6fa8;
+  color: var(--color-text-inverse);
+  background: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
@@ -305,8 +305,8 @@ const handleAccept = () => {
 .btn-match {
   height: 24px;
   padding: 0 10px;
-  background: var(--color-primary-800, #2d1f6e);
-  color: #ffffff;
+  background: var(--color-primary-800);
+  color: var(--color-text-inverse);
   border: none;
   border-radius: 4px;
   font-size: 10px;
@@ -320,14 +320,14 @@ const handleAccept = () => {
 .request-accepted {
   font-size: 10px;
   font-weight: 700;
-  color: #007A60;
+  color: var(--color-equip-active);
   flex-shrink: 0;
 }
 
 /* AI 추천 섹션 배경 */
 .panel-section--ai {
-  background: var(--color-primary-800, #2d1f6e);
-  border-color: var(--color-primary-800, #2d1f6e);
+  background: var(--color-primary-800);
+  border-color: var(--color-primary-800);
   padding: 18px 18px 0;
 }
 
@@ -347,7 +347,7 @@ const handleAccept = () => {
 }
 
 .accept-modal {
-  background: #ffffff;
+  background: var(--color-bg-surface);
   border: 3px solid rgba(93, 80, 215, 0.12);
   border-radius: 28px;
   padding: 32px 32px 28px;
@@ -365,19 +365,19 @@ const handleAccept = () => {
   flex-direction: column;
   gap: 6px;
   padding-bottom: 20px;
-  border-bottom: 3px solid #ECE8F6;
+  border-bottom: 3px solid var(--color-modal-border);
 }
 
 .am-title {
   font-size: 30px;
   font-weight: 900;
-  color: #32265F;
+  color: var(--color-modal-title);
   margin: 0;
 }
 
 .am-desc {
   font-size: 15px;
-  color: #938ABF;
+  color: var(--color-modal-label);
   margin: 0;
 }
 
@@ -387,8 +387,8 @@ const handleAccept = () => {
   align-items: center;
   gap: 16px;
   padding: 18px 20px;
-  background: #FBFAFF;
-  border: 3px solid #E6E1F4;
+  background: var(--color-bg-app);
+  border: 3px solid var(--color-modal-border);
   border-radius: 18px;
 }
 
@@ -401,7 +401,7 @@ const handleAccept = () => {
   justify-content: center;
   font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
@@ -415,21 +415,21 @@ const handleAccept = () => {
 .am-applicant-name {
   font-size: 22px;
   font-weight: 800;
-  color: #32265F;
+  color: var(--color-modal-title);
 }
 
 .am-applicant-sub {
   font-size: 14px;
-  color: #938ABF;
+  color: var(--color-modal-label);
 }
 
 .am-badge {
   padding: 5px 14px;
-  background: #F8EFD8;
+  background: var(--color-badge-match-bg);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  color: #B8841D;
+  color: var(--color-badge-match);
   flex-shrink: 0;
 }
 
@@ -445,25 +445,25 @@ const handleAccept = () => {
   flex-direction: column;
   gap: 8px;
   padding: 16px 18px;
-  background: #FFFFFF;
-  border: 3px solid #E6E1F4;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-modal-border);
   border-radius: 16px;
 }
 
 .am-info-label {
   font-size: 12px;
   font-weight: 600;
-  color: #938ABF;
+  color: var(--color-modal-label);
 }
 
 .am-info-value {
   font-size: 18px;
   font-weight: 800;
-  color: #32265F;
+  color: var(--color-modal-title);
 }
 
 .am-info-value--high {
-  color: #C0103E;
+  color: var(--color-danger-text);
 }
 
 /* 신청 사유 / 관리 메모 박스 */
@@ -472,20 +472,20 @@ const handleAccept = () => {
   flex-direction: column;
   gap: 10px;
   padding: 16px 18px;
-  background: #FBFAFF;
-  border: 3px solid #E6E1F4;
+  background: var(--color-bg-app);
+  border: 3px solid var(--color-modal-border);
   border-radius: 18px;
 }
 
 .am-box-label {
   font-size: 12px;
   font-weight: 700;
-  color: #938ABF;
+  color: var(--color-modal-label);
 }
 
 .am-box-text {
   font-size: 13px;
-  color: #32265F;
+  color: var(--color-modal-title);
   line-height: 1.6;
   margin: 0;
 }
@@ -496,14 +496,14 @@ const handleAccept = () => {
   border: none;
   background: transparent;
   font-size: 13px;
-  color: #32265F;
+  color: var(--color-modal-title);
   font-family: var(--font-family-base);
   outline: none;
   box-sizing: border-box;
 }
 
 .am-box-textarea::placeholder {
-  color: #C4BADF;
+  color: var(--color-placeholder-light);
 }
 
 /* 버튼 */
@@ -525,20 +525,20 @@ const handleAccept = () => {
 }
 
 .am-btn--cancel {
-  background: #FFFFFF;
-  border: 3px solid #DDD8F2;
-  color: #938ABF;
+  background: var(--color-bg-surface);
+  border: 3px solid var(--color-border-default);
+  color: var(--color-modal-label);
 }
 
-.am-btn--cancel:hover { background: #F5F3FF; }
+.am-btn--cancel:hover { background: var(--color-primary-50); }
 
 .am-btn--confirm {
-  background: #5D50D7;
+  background: var(--color-primary-600);
   border: none;
-  color: #ffffff;
+  color: var(--color-text-inverse);
 }
 
-.am-btn--confirm:hover { background: #4a3fb0; }
+.am-btn--confirm:hover { background: var(--color-primary-700); }
 
 /* AI 추천 */
 .ai-list {

@@ -37,4 +37,4 @@ export const DUMMY_KEYWORDS = [
   { id: 24, keyword: '지식문서화', category: '기술전파', description: '현장 노하우를 체계적으로 문서화하는 능력',          weight: 1.5 },
 ]
 
-export const PAGE_SIZE = 8
+export const PAGE_SIZE = 6

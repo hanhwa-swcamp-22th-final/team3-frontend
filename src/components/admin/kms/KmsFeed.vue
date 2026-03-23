@@ -55,7 +55,7 @@ const filteredCards = computed(() => {
         :key="t.key"
         class="tag-chip"
         :style="selectedTagFilter === t.key
-          ? { background: 'var(--color-primary-800, #2d1f6e)', color: '#ffffff' }
+          ? { background: 'var(--color-primary-800)', color: 'var(--color-text-inverse)' }
           : { background: t.bg, color: t.color }
         "
         @click="emit('tagFilterChange', selectedTagFilter === t.key ? null : t.key)"
@@ -75,7 +75,7 @@ const filteredCards = computed(() => {
               class="card-tag"
               :style="TAG_STYLE[tag]
                 ? { background: TAG_STYLE[tag].bg, color: TAG_STYLE[tag].color }
-                : { background: '#f0eeff', color: '#5b4fcf' }
+                : { background: 'var(--color-primary-100)', color: 'var(--color-primary-600)' }
               "
             >{{ tag }}</span>
           </div>
@@ -134,9 +134,9 @@ const filteredCards = computed(() => {
 }
 
 .kms-filter-tabs :deep(.base-filter-tabs__item--active) {
-  background: var(--color-primary-800, #2d1f6e);
-  color: #ffffff;
-  border-color: var(--color-primary-800, #2d1f6e);
+  background: var(--color-primary-800);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary-800);
 }
 
 /* 필터 + 태그 한 행 */
@@ -246,14 +246,14 @@ const filteredCards = computed(() => {
   justify-content: center;
   font-size: 10px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
 .author-name {
   font-size: 11px;
   font-weight: 600;
-  color: var(--color-primary-800, #2d1f6e);
+  color: var(--color-primary-800);
 }
 
 .tier-badge {

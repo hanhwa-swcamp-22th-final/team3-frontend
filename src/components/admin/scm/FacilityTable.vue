@@ -86,32 +86,44 @@ const statusStyle = (status) => {
 <style scoped>
 .table-wrap {
   flex: 1;
+  min-height: 0;
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-
+  border-radius: var(--radius-base);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 헤더 */
 .table-header {
   display: flex;
   align-items: center;
-  height: 40px;
-  background: var(--color-primary-100);
-  padding: 0 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-surface);
+  z-index: 1;
 }
 
 .table-header span {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: var(--color-primary-300);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* 행 */
 .table-row {
   display: flex;
   align-items: center;
-  height: 48px;
-  padding: 0 14px;
-  border-top: 1px solid var(--color-border-default);
+  height: 56px;
+  border-bottom: 1px solid var(--color-border-muted);
+  flex-shrink: 0;
 }
 
 .table-row:hover { background: var(--color-bg-app); }
@@ -122,11 +134,11 @@ const statusStyle = (status) => {
 }
 
 /* 컬럼 너비 */
-.col-id     { width: 300px; flex-shrink: 0; }
-.col-name   { flex: 1; }
-.col-line   { width: 210px; flex-shrink: 0; }
-.col-status { width: 210px; flex-shrink: 0; }
-.col-action { width: 130px; flex-shrink: 0; display: flex; gap: 6px; }
+.col-id     { flex: 1.8; }
+.col-name   { flex: 2; }
+.col-line   { flex: 1.4; }
+.col-status { flex: 1.4; }
+.col-action { flex: 1; display: flex; gap: 6px; }
 
 .status-badge {
   display: inline-flex;
@@ -138,33 +150,32 @@ const statusStyle = (status) => {
 }
 
 .btn-edit {
-  height: 32px;
+  height: 26px;
   padding: 0 14px;
   background: var(--color-primary-100);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
+  border: none;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   color: var(--color-primary-600);
-
   cursor: pointer;
 }
 
 .btn-edit:hover { background: var(--color-border-default); }
 
 .btn-delete {
-  height: 32px;
+  height: 26px;
   padding: 0 14px;
-  background: #fff0f3;
-  border: 1px solid #f5c2cc;
-  border-radius: var(--radius-2xs);
+  background: var(--color-equip-stopped-bg);
+  border: none;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
-  color: #c42b56;
+  color: var(--color-danger);
   cursor: pointer;
 }
 
-.btn-delete:hover { background: #ffd6de; }
+.btn-delete:hover { background: var(--color-danger-light); }
 
 .empty {
   padding: 40px 0;
@@ -173,11 +184,11 @@ const statusStyle = (status) => {
   color: var(--color-text-placeholder);
 }
 
+/* 페이지네이션 — ProfileListTable 동일 패턴 */
 .pagination {
   display: flex;
   align-items: center;
-  padding: 12px 14px 10px;
-  border-top: 1px solid #e0dcff;
+  padding-top: 16px;
 }
 
 .pagination__spacer {
@@ -188,13 +199,13 @@ const statusStyle = (status) => {
 
 .pagination__info {
   font-size: 11px;
-  color: #a89ed8;
+  color: var(--color-primary-300);
 }
 
 .pagination__pages {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .page-btn {
@@ -204,20 +215,20 @@ const statusStyle = (status) => {
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #7a6fa8;
+  color: var(--color-text-muted);
   background: none;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-family-base);
 }
 
 .page-btn:disabled { opacity: 0.4; cursor: default; }
 
 .page-btn--active {
-  background: #5b4fcf;
-  color: #ffffff;
-  border: 1px solid #4a3fb0;
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border: 1px solid var(--color-primary-500);
 }
 
 .page-ellipsis {
@@ -227,6 +238,6 @@ const statusStyle = (status) => {
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #a89ed8;
+  color: var(--color-text-muted);
 }
 </style>
