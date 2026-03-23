@@ -1,10 +1,10 @@
 <script setup>
-import { ref } from 'vue'
-import WorkerKnowledgeHubContentHeader from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubContentHeader.vue'
+import { ref, computed } from 'vue'
+import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import WorkerKnowledgeHubMonthlyRank from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubMonthlyRank.vue'
-import WorkerKnowledgeHubMentoringMatchingStatus from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubMentoringMatchingStatus.vue'
-import WorkerKnowledgeHubAIRecommendation from '@/components/kms/common/knowledge-hub/worker/WorkerKnowledgeHubAIRecommendation.vue'
+import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
+import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
+import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
 import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
 import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
@@ -19,6 +19,43 @@ import {
   mentoringRequestFormDefaults,
   aiRecommendations,
 } from '@/mocks/worker/workerKnowledgeHubData'
+
+const headerCards = computed(() => [
+  {
+    key: 'total',
+    label: '등록 지식 총',
+    value: `${knowledgeStats.totalArticles.toLocaleString()}건`,
+    helper: '',
+  },
+  {
+    key: 'new',
+    label: '이달 신규',
+    value: `${knowledgeStats.newThisMonth}건`,
+    helper: knowledgeStats.newThisMonthDiff ? `▲${knowledgeStats.newThisMonthDiff}` : '',
+  },
+  {
+    key: 'my',
+    label: '내 작성글',
+    value: `${knowledgeStats.myArticles}`,
+    helper: knowledgeStats.myArticlesDiff ? `▲${knowledgeStats.myArticlesDiff}` : '',
+  },
+])
+
+const mentoringData = computed(() => ({
+  ongoing: ongoingMentoring.map((m) => ({
+    id: m.id,
+    mentor: m.mentorInitial,
+    mentee: m.menteeInitial,
+    field: m.field,
+    status: m.status,
+  })),
+  pending: mentoringRequests.map((r) => ({
+    id: r.id,
+    name: r.field,
+    requester: r.name,
+    summary: r.message,
+  })),
+}))
 
 const showAcceptModal = ref(false)
 const showRequestModal = ref(false)
@@ -62,13 +99,7 @@ function closeModal() {
 <template>
   <div class="kh-content">
     <!-- Header Stats -->
-    <WorkerKnowledgeHubContentHeader
-      :total-articles="knowledgeStats.totalArticles"
-      :new-this-month="knowledgeStats.newThisMonth"
-      :new-this-month-diff="knowledgeStats.newThisMonthDiff"
-      :my-articles="knowledgeStats.myArticles"
-      :my-articles-diff="knowledgeStats.myArticlesDiff"
-    />
+    <TeamLeaderKnowledgeHubHeader :cards="headerCards" />
 
     <!-- Main Grid: Feed (left) + Sidebar (right) -->
     <div class="kh-grid">
@@ -79,14 +110,13 @@ function closeModal() {
       />
 
       <div class="kh-sidebar">
-        <WorkerKnowledgeHubMonthlyRank :ranking="monthlyRanking" />
-        <WorkerKnowledgeHubMentoringMatchingStatus
-          :ongoing-mentoring="ongoingMentoring"
-          :mentoring-requests="mentoringRequests"
-          @accept="handleAcceptClick"
-          @request="handleRequestClick"
+        <TeamLeaderKnowledgeHubContributors :ranking="monthlyRanking" />
+        <TeamLeaderKnowledgeHubMentoring
+          :mentoring="mentoringData"
+          @review-request="handleAcceptClick"
+          @open-request="handleRequestClick"
         />
-        <WorkerKnowledgeHubAIRecommendation :recommendations="aiRecommendations" />
+        <TeamLeaderKnowledgeHubAiPanel :recommendations="aiRecommendations" />
       </div>
     </div>
 
