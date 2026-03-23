@@ -148,7 +148,7 @@ const statusFilterLabel = computed(
   background: var(--color-bg-surface);
   height: 100%;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .eval-member-list__title {
@@ -258,7 +258,7 @@ const statusFilterLabel = computed(
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 0;
+  padding: 2px;
   margin: 0;
   flex: 1;
   overflow-y: auto;

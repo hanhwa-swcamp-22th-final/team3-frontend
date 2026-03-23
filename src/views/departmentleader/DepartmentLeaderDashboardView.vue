@@ -1,8 +1,8 @@
 <script setup>
-import DepartmentLeaderDashboardNoticeWrapper from '@/components/dashboard/common/DepartmentLeaderDashboardNoticeWrapper.vue'
-import DepartmentLeaderMetricCardWrapper     from '@/components/dashboard/departmentleader/DepartmentLeaderMetricCardWrapper.vue'
-import DepartmentLeaderGroupKpiCard          from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
-import DepartmentLeaderTeamStatusCard        from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
+import BaseNoticeBanner                       from '@/components/common/base/display/BaseNoticeBanner.vue'
+import BaseStatCard                           from '@/components/common/base/display/BaseStatCard.vue'
+import DepartmentLeaderGroupKpiCard           from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
+import DepartmentLeaderTeamStatusCard         from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
 import {
   dashboardNotice  as notice,
   dashboardMetrics as metrics,
@@ -13,21 +13,23 @@ import {
 
 <template>
   <section class="department-leader-dashboard">
-    <DepartmentLeaderDashboardNoticeWrapper
+    <BaseNoticeBanner
       :badge="notice.badge"
       :title="notice.title"
       :description="notice.description"
+      tone="success"
+      variant="soft"
     />
 
     <section class="department-leader-dashboard__metrics">
-      <DepartmentLeaderMetricCardWrapper
+      <BaseStatCard
         v-for="m in metrics"
         :key="m.label"
         :label="m.label"
         :value="m.value"
         :delta="m.delta ?? ''"
         :tone="m.tone"
-        :is-tier="m.isTier ?? false"
+        :variant="m.isTier ? 'tier' : 'default'"
       />
     </section>
 

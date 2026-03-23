@@ -2,7 +2,8 @@
 import { STATUS_STYLE } from '@/mocks/hrmanager/noticeboard.js'
 
 defineProps({
-  notice: { type: Object, default: null },
+  notice:   { type: Object,  default: null },
+  readonly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['edit', 'delete'])
@@ -35,7 +36,7 @@ const emit = defineEmits(['edit', 'delete'])
         </div>
       </div>
 
-      <div class="hrm-detail__actions">
+      <div v-if="!readonly" class="hrm-detail__actions">
         <button class="hrm-detail__edit-btn" @click="emit('edit', notice)">수정</button>
         <button class="hrm-detail__delete-btn" @click="emit('delete', notice.id)">삭제</button>
       </div>
