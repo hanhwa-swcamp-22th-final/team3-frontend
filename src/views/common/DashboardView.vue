@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import RoleSidebar from '@/components/common/RoleSidebar.vue'
-import AdminSidebar from '@/components/common/AdminSidebar.vue'
-import { roleLabels } from '@/components/common/menuConfig.js'
+import RoleSidebar from '@/components/common/sidebar/RoleSidebar.vue'
+import AdminSidebar from '@/components/common/sidebar/AdminSidebar.vue'
+import { roleLabels } from '@/components/common/sidebar/menuConfig.js'
 
 const authStore = useAuthStore()
 const router = useRouter()

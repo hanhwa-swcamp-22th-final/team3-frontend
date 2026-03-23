@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
+import BaseProgressBar from '@/components/common/base/data-display/BaseProgressBar.vue'
 
 const props = defineProps({
   skills: { type: Array, required: true },
@@ -155,9 +156,7 @@ const overallPercent = computed(() => {
 
     <!-- Overall Progress Bar -->
     <div class="sg__progress">
-      <div class="sg__progress-bar">
-        <div class="sg__progress-fill" :style="{ width: animated ? overallPercent + '%' : '0%' }"></div>
-      </div>
+      <BaseProgressBar :value="animated ? overallPercent : 0" :show-percent="true" size="md" />
       <span class="sg__progress-text">
         현재 {{ summary.currentOverall }}점 → 목표 {{ summary.targetOverall }}점
       </span>
@@ -167,8 +166,8 @@ const overallPercent = computed(() => {
     <div class="sg__table">
       <div v-for="skill in skills" :key="skill.label" class="sg__row">
         <span class="sg__row-label">{{ skill.label }}</span>
-        <div class="sg__row-bar-track">
-          <div class="sg__row-bar-fill" :style="{ width: animated ? skill.current + '%' : '0%' }"></div>
+        <div class="sg__row-bar">
+          <BaseProgressBar :value="animated ? skill.current : 0" :show-percent="false" size="sm" />
         </div>
         <span class="sg__row-current">{{ skill.current }}</span>
         <span class="sg__row-arrow">→</span>
@@ -263,21 +262,6 @@ const overallPercent = computed(() => {
   gap: 6px;
 }
 
-.sg__progress-bar {
-  width: 100%;
-  height: 8px;
-  background: var(--color-neutral-200);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.sg__progress-fill {
-  height: 100%;
-  background: var(--color-primary-700);
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 .sg__progress-text {
   font-size: 12px;
   color: var(--color-text-muted);
@@ -303,19 +287,9 @@ const overallPercent = computed(() => {
   flex-shrink: 0;
 }
 
-.sg__row-bar-track {
+.sg__row-bar {
   flex: 1;
-  height: 8px;
-  background: var(--color-neutral-200);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.sg__row-bar-fill {
-  height: 100%;
-  background: var(--color-primary-700);
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
 }
 
 .sg__row-current {
