@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 import TeamLeaderFacilityStatusCard from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityStatusCard.vue'
 import TeamLeaderFacilityTrendPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityTrendPanel.vue'
 import TeamLeaderFacilityHistoryPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityHistoryPanel.vue'
@@ -51,24 +52,14 @@ watch(filteredCards, () => {
 
 <template>
   <section class="teamleader-facility-view">
-    <section class="teamleader-facility-view__filters">
-      <button
-        v-for="filter in facilityStatusFilters"
-        :key="filter.key"
-        type="button"
-        class="teamleader-facility-view__filter"
-        :class="{
-          'teamleader-facility-view__filter--active': activeFilter === filter.key,
-          'teamleader-facility-view__filter--mint': filter.tone === 'mint' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--warning': filter.tone === 'warning' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--danger': filter.tone === 'danger' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--soft': filter.tone === 'soft' && activeFilter !== filter.key,
-        }"
-        @click="activeFilter = filter.key"
-      >
-        {{ filter.label }}
-      </button>
-    </section>
+    <BaseFilterTabs
+      class="teamleader-facility-view__filters"
+      :items="facilityStatusFilters"
+      :model-value="activeFilter"
+      variant="chip"
+      size="sm"
+      @change="activeFilter = $event"
+    />
 
     <section class="teamleader-facility-view__top">
       <section class="teamleader-facility-view__cards-shell">
@@ -130,44 +121,6 @@ watch(filteredCards, () => {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.teamleader-facility-view__filter {
-  height: 38px;
-  padding: 0 16px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--color-primary-500);
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.teamleader-facility-view__filter--active {
-  border-color: var(--color-primary-700);
-  background: var(--color-primary-700);
-  color: #fff;
-}
-
-.teamleader-facility-view__filter--mint {
-  border-color: #8fe7dc;
-  color: #10a58b;
-}
-
-.teamleader-facility-view__filter--warning {
-  border-color: #f0c558;
-  color: #c68c00;
-}
-
-.teamleader-facility-view__filter--danger {
-  border-color: #ef8ca5;
-  color: #ef4f74;
-}
-
-.teamleader-facility-view__filter--soft {
-  border-color: #d8d0ff;
-  color: #8e80df;
 }
 
 .teamleader-facility-view__top {
