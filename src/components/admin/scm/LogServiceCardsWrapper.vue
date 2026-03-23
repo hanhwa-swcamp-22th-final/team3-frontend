@@ -43,7 +43,7 @@ defineProps({
 .service-cards :deep(.base-stat-card__label) {
   font-size: 10px;
   font-weight: 400;
-  color: #A89ED8;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -53,6 +53,6 @@ defineProps({
   font-size: 30px;
   font-weight: 400;
   line-height: 30px;
-  color: #2D1F6E;
+  color: var(--color-primary-800);
 }
 </style>

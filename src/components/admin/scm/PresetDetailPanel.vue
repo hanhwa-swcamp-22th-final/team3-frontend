@@ -461,12 +461,12 @@ const validateTolerance = (row) => {
 
 .badge-editing {
   padding: 4px 10px;
-  background: #FFF8E0;
-  border: 1.5px solid #FFD166;
+  background: var(--color-warning-soft);
+  border: 1.5px solid var(--tier-b);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
-  color: #A07000;
+  color: var(--color-warning);
 }
 
 .badge-applied {

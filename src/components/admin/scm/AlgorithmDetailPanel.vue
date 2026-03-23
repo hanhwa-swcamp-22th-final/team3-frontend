@@ -261,8 +261,8 @@ const UPDATE_CYCLE_OPTIONS = ['실시간', '1시간']
 .param-row__input {
   font-family: var(--font-family-mono);
   font-size: 12px;
-  color: #7A6FA8;
-  border: 1.5px solid #E0DCFF;
+  color: var(--color-primary-300);
+  border: 1.5px solid var(--color-border-default);
   border-radius: 4px;
   background: transparent;
   outline: none;
@@ -327,7 +327,7 @@ const UPDATE_CYCLE_OPTIONS = ['실시간', '1시간']
   font-weight: 700;
 }
 
-.sim-card__score--green  { color: #00BF95; }
+.sim-card__score--green  { color: var(--tier-s, #00BF95); }
 .sim-card__score--purple { color: var(--color-primary-600); }
 .sim-card__score--red    { color: var(--color-danger); }
 
