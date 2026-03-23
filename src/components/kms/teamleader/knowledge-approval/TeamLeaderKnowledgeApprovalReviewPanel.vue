@@ -95,16 +95,24 @@ function reviewClass(value) {
 
 <style scoped>
 .review {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
   padding: 18px;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .review__content {
   display: grid;
   gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .review__head,
@@ -281,7 +289,8 @@ function reviewClass(value) {
 }
 
 .review__empty {
-  min-height: 420px;
+  height: 100%;
+  min-height: 0;
   display: grid;
   place-items: center;
   border: 1px dashed var(--color-border-default);

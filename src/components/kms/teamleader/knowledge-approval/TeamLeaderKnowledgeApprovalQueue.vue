@@ -66,7 +66,8 @@ function typeClass(type) {
       class="queue__tabs"
       :items="filters"
       :model-value="activeFilter"
-      variant="underline"
+      variant="chip"
+      size="sm"
       show-count
       @change="emit('change-filter', $event)"
     />
@@ -107,13 +108,18 @@ function typeClass(type) {
 
 <style scoped>
 .queue {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
   padding: 18px;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 16px;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .queue__head {
@@ -136,14 +142,25 @@ function typeClass(type) {
 }
 
 .queue__count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
   font-size: var(--font-size-xs-plus);
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--color-primary-700);
+  white-space: nowrap;
 }
 
 .queue__list {
   display: grid;
+  align-content: start;
   gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .queue__item {
@@ -212,6 +229,7 @@ function typeClass(type) {
   justify-content: center;
   gap: 8px;
   padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .queue__page {

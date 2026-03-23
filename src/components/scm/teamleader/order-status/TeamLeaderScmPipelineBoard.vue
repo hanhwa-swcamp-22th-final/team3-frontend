@@ -63,6 +63,7 @@ function formatCount(count) {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  height: 100%;
   min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
@@ -96,7 +97,9 @@ function formatCount(count) {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+  height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .pipeline-column {
@@ -104,6 +107,7 @@ function formatCount(count) {
   grid-template-rows: auto 1fr;
   gap: 12px;
   min-width: 0;
+  min-height: 0;
 }
 
 .pipeline-column__head {

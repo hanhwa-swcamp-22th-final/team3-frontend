@@ -155,7 +155,9 @@ function handleReject() {
   grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.25fr);
   gap: 16px;
   align-items: stretch;
+  height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1180px) {

@@ -25,7 +25,10 @@ defineProps({
         class="urgent-card"
         :class="`urgent-card--${order.tone}`"
       >
-        <span class="urgent-card__badge">{{ order.deadlineLabel }}</span>
+        <div class="urgent-card__top">
+          <span class="urgent-card__badge">{{ order.deadlineLabel }}</span>
+          <span v-if="order.helper" class="urgent-card__helper">{{ order.helper }}</span>
+        </div>
         <strong class="urgent-card__title">{{ order.title }}</strong>
         <div class="urgent-card__progress">
           <div class="urgent-card__progress-track">
@@ -33,8 +36,6 @@ defineProps({
           </div>
           <span>{{ order.progress }}</span>
         </div>
-        <p class="urgent-card__meta">담당: {{ order.assignee }}</p>
-        <p v-if="order.helper" class="urgent-card__helper">{{ order.helper }}</p>
       </article>
     </div>
 
@@ -51,6 +52,7 @@ defineProps({
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 14px;
+  height: 100%;
   min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
@@ -58,6 +60,7 @@ defineProps({
   background: var(--color-bg-surface);
   align-content: start;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .urgent-panel__eyebrow {
@@ -73,9 +76,8 @@ defineProps({
 }
 
 .urgent-panel__list {
-  display: grid;
-  grid-auto-rows: 152px;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   min-height: 0;
   overflow-y: auto;
@@ -96,7 +98,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 152px;
+  min-height: 120px;
   height: 100%;
   padding: 18px;
   border: 1px dashed var(--color-border-default);
@@ -109,12 +111,21 @@ defineProps({
 .urgent-card {
   display: grid;
   align-content: start;
-  gap: 10px;
-  min-height: 152px;
-  padding: 14px 14px 16px;
+  gap: 6px;
+  min-height: 132px;
+  padding: 16px 16px 12px;
   border: 2px solid var(--color-border-default);
   border-radius: 16px;
   overflow: hidden;
+  flex-shrink: 0;
+}
+
+.urgent-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
 }
 
 .urgent-card__badge {
@@ -146,9 +157,13 @@ defineProps({
 }
 
 .urgent-card__title {
-  font-size: 18px;
-  line-height: 1.35;
+  display: block;
+  font-size: 16px;
+  line-height: 1.4;
   color: var(--color-primary-800);
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .urgent-card__progress {
@@ -156,7 +171,7 @@ defineProps({
   grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-primary-500);
 }
@@ -176,10 +191,17 @@ defineProps({
 .urgent-card__meta,
 .urgent-card__helper {
   font-size: 12px;
+  line-height: 1.4;
   color: var(--color-text-muted);
 }
 
 .urgent-card__helper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  text-align: right;
+  white-space: nowrap;
   color: var(--color-danger);
   font-weight: 700;
 }
