@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseInput } from '@/components/common/base'
 import { FILTER_OPTIONS } from '@/mocks/admin/record/logData.js'
 
 const props = defineProps({
@@ -33,10 +34,9 @@ const onBlur    = ()  => emit('search', localSearch.value)
     </div>
 
     <!-- 검색 -->
-    <input
-      v-model="localSearch"
+    <BaseInput
       class="search-input"
-      type="text"
+      v-model="localSearch"
       placeholder="로그 검색..."
       @keydown="onKeydown"
       @blur="onBlur"
@@ -70,18 +70,10 @@ const onBlur    = ()  => emit('search', localSearch.value)
 
 .search-input {
   flex: 1;
-  height: 35px;
-  padding: 0 11.5px;
-  background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 4px;
-  font-size: 11px;
-  color: var(--color-primary-800);
-
-  outline: none;
-  box-sizing: border-box;
 }
 
-.search-input::placeholder { color: var(--color-text-placeholder); }
-.search-input:focus { border-color: var(--color-primary-600); }
+.search-input :deep(.base-input) {
+  height: 35px;
+  font-size: 11px;
+}
 </style>

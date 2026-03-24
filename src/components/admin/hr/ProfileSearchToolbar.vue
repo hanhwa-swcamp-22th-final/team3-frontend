@@ -1,40 +1,45 @@
 <script setup>
+import { BaseInput, BaseSelect, BaseButton } from '@/components/common/base'
+
 defineProps({
-  searchQuery:  { type: String,  default: '' },
-  selectedTier: { type: String,  default: '전체' },
-  selectedLine: { type: String,  default: '전체' },
-  lines:        { type: Array,   default: () => [] },
+  searchQuery:  { type: String, default: '' },
+  selectedTier: { type: String, default: '전체' },
+  selectedLine: { type: String, default: '전체' },
+  lines:        { type: Array,  default: () => [] },
 })
 
 const emit = defineEmits(['search', 'tierChange', 'lineChange', 'addClick'])
+
+const TIER_OPTIONS = [
+  { value: '전체', label: 'Tier 전체' },
+  { value: 'S',   label: 'S 티어' },
+  { value: 'A',   label: 'A 티어' },
+  { value: 'B',   label: 'B 티어' },
+  { value: 'C',   label: 'C 티어' },
+]
 </script>
 
 <template>
   <div class="toolbar">
-    <input
-      :value="searchQuery"
+    <BaseInput
       class="toolbar__search"
-      type="text"
-      placeholder="🔍 이름 또는 사번 검색..."
-      @input="emit('search', $event.target.value)"
+      :model-value="searchQuery"
+      placeholder="이름 또는 사번 검색..."
+      @update:model-value="emit('search', $event)"
     />
-    <select
-      class="toolbar__select"
-      :value="selectedTier"
-      @change="emit('tierChange', $event.target.value)"
-    >
-      <option value="전체">Tier 전체</option>
-      <option v-for="t in ['S','A','B','C']" :key="t" :value="t">{{ t }} 티어</option>
-    </select>
-    <select
-      class="toolbar__select"
-      :value="selectedLine"
-      @change="emit('lineChange', $event.target.value)"
-    >
-      <option value="전체">라인 전체</option>
-      <option v-for="l in lines.slice(1)" :key="l" :value="l">{{ l }}</option>
-    </select>
-    <button class="toolbar__btn" @click="emit('addClick')">+ 테크니션 등록</button>
+    <BaseSelect
+      :model-value="selectedTier"
+      :options="TIER_OPTIONS"
+      @update:model-value="emit('tierChange', $event)"
+    />
+    <BaseSelect
+      :model-value="selectedLine"
+      :options="[{ value: '전체', label: '라인 전체' }, ...lines.slice(1).map(l => ({ value: l, label: l }))]"
+      @update:model-value="emit('lineChange', $event)"
+    />
+    <BaseButton variant="primary" size="sm" @click="emit('addClick')">
+      + 테크니션 등록
+    </BaseButton>
   </div>
 </template>
 
@@ -43,46 +48,14 @@ const emit = defineEmits(['search', 'tierChange', 'lineChange', 'addClick'])
   display: flex;
   align-items: center;
   gap: 8px;
-
 }
 
 .toolbar__search {
   flex: 1;
-  height: 37px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  font-size: 12px;
-  color: var(--color-primary-800);
-  outline: none;
 }
 
-.toolbar__search:focus { border-color: var(--color-primary-600); }
-
-.toolbar__select {
+.toolbar :deep(.base-input),
+.toolbar :deep(.base-select) {
   height: 37px;
-  padding: 0 10px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  font-size: 12px;
-  color: var(--color-primary-800);
-  background: var(--color-bg-surface);
-  cursor: pointer;
-  outline: none;
-}
-
-.toolbar__select:focus { border-color: var(--color-primary-600); }
-
-.toolbar__btn {
-  height: 37px;
-  padding: 0 16px;
-  background: var(--color-primary-600);
-  color: var(--color-text-inverse);
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
 }
 </style>

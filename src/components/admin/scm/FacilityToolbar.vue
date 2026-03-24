@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseInput, BaseSelect, BaseButton } from '@/components/common/base'
 import { LINE_OPTIONS } from '@/mocks/admin/facility/facilityData.js'
 
 const props = defineProps({
@@ -13,93 +14,45 @@ const localSearch = ref(props.searchQuery)
 
 const onSearch  = ()  => { emit('search', localSearch.value) }
 const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
+
+const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '라인 전체' : l }))
 </script>
 
 <template>
   <div class="toolbar">
-    <input
+    <BaseInput
+      class="toolbar__search"
       v-model="localSearch"
-      class="search-input"
-      type="text"
-      placeholder="🔍 설비명, 설비ID 검색"
+      placeholder="설비명, 설비ID 검색"
       @keydown="onKeydown"
       @blur="onSearch"
     />
-
-    <select
-      class="select-line"
-      :value="selectedLine"
-      @change="emit('lineChange', $event.target.value)"
-    >
-      <option v-for="line in LINE_OPTIONS" :key="line" :value="line">
-        {{ line === '전체' ? '라인 전체' : line }}
-      </option>
-    </select>
-
-    <button class="btn-add" @click="emit('addClick')">+ 설비 등록</button>
+    <BaseSelect
+      :model-value="selectedLine"
+      :options="lineOptions"
+      @update:model-value="emit('lineChange', $event)"
+    />
+    <BaseButton variant="primary" size="sm" @click="emit('addClick')">
+      + 설비 등록
+    </BaseButton>
   </div>
 </template>
 
 <style scoped>
 .toolbar {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 36px;
   flex-shrink: 0;
-
 }
 
-.search-input {
+.toolbar__search {
   flex: 1;
+}
+
+.toolbar :deep(.base-input),
+.toolbar :deep(.base-select) {
   height: 36px;
-  padding: 0 12px;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-xs);
-  font-size: 12px;
-  color: var(--color-primary-800);
-
-  box-sizing: border-box;
-  outline: none;
 }
-
-.search-input::placeholder { color: var(--color-text-placeholder); }
-.search-input:focus { border-color: var(--color-primary-600); }
-
-.select-line {
-  height: 32px;
-  padding: 0 12px;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-
-  cursor: pointer;
-  outline: none;
-  flex-shrink: 0;
-}
-
-.select-line:focus { border-color: var(--color-primary-600); }
-
-.btn-add {
-  height: 32px;
-  padding: 0 14px;
-  background: var(--color-primary-600);
-  border: 1px solid var(--color-primary-500);
-  border-radius: var(--radius-2xs);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-bg-surface);
-
-  cursor: pointer;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.btn-add:hover { background: var(--color-primary-700); }
 </style>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { BaseInput, BaseSelect, BaseButton } from '@/components/common/base'
 
 const props = defineProps({
   preset:       { type: Object, default: null },
@@ -80,7 +81,7 @@ const validateTolerance = (row) => {
       <template v-if="!isCustom">
         <span v-if="isDirty" class="badge-editing">수정 중</span>
         <span class="badge-applied">현재 적용: {{ activePreset?.name ?? '—' }}</span>
-        <button class="btn-save" @click="emit('save', { complexity: editableComplexity }); originalComplexity.value = JSON.stringify(editableComplexity.value); isDirty.value = false">프리셋 저장</button>
+        <BaseButton variant="primary" size="sm" @click="emit('save', { complexity: editableComplexity }); originalComplexity.value = JSON.stringify(editableComplexity.value); isDirty.value = false">프리셋 저장</BaseButton>
       </template>
     </div>
 
@@ -93,13 +94,14 @@ const validateTolerance = (row) => {
         <div class="ocsa-grid">
           <div class="ocsa-field ocsa-field--full">
             <label class="ocsa-label">산업군 프리셋</label>
-            <select v-model="customForm.industry" class="ocsa-input">
-              <option v-for="opt in INDUSTRY_OPTIONS" :key="opt" :value="opt">{{ opt }}</option>
-            </select>
+            <BaseSelect
+              v-model="customForm.industry"
+              :options="INDUSTRY_OPTIONS.map(o => ({ value: o, label: o }))"
+            />
           </div>
           <div class="ocsa-field">
             <label class="ocsa-label">적용 시작일</label>
-            <input v-model="customForm.start_date" type="date" class="ocsa-input" />
+            <BaseInput v-model="customForm.start_date" type="date" />
           </div>
         </div>
       </div>
@@ -115,19 +117,19 @@ const validateTolerance = (row) => {
         <div class="ocsa-grid">
           <div class="ocsa-field">
             <label class="ocsa-label">V1 공정 복잡도</label>
-            <input v-model="customForm.v1" type="number" min="0" max="1" step="0.01" placeholder="예: 0.30" class="ocsa-input" />
+            <BaseInput v-model="customForm.v1" type="number" placeholder="예: 0.30" />
           </div>
           <div class="ocsa-field">
             <label class="ocsa-label">V2 품질 정밀도</label>
-            <input v-model="customForm.v2" type="number" min="0" max="1" step="0.01" placeholder="예: 0.40" class="ocsa-input" />
+            <BaseInput v-model="customForm.v2" type="number" placeholder="예: 0.40" />
           </div>
           <div class="ocsa-field">
             <label class="ocsa-label">V3 역량 요구도</label>
-            <input v-model="customForm.v3" type="number" min="0" max="1" step="0.01" placeholder="예: 0.20" class="ocsa-input" />
+            <BaseInput v-model="customForm.v3" type="number" placeholder="예: 0.20" />
           </div>
           <div class="ocsa-field">
             <label class="ocsa-label">V4 시공간 긴급도</label>
-            <input v-model="customForm.v4" type="number" min="0" max="1" step="0.01" placeholder="예: 0.10" class="ocsa-input" />
+            <BaseInput v-model="customForm.v4" type="number" placeholder="예: 0.10" />
           </div>
         </div>
       </div>
@@ -138,7 +140,7 @@ const validateTolerance = (row) => {
         <div class="ocsa-grid">
           <div class="ocsa-field">
             <label class="ocsa-label">α (0.0 ~ 0.5)</label>
-            <input v-model="customForm.alpha" type="number" min="0" max="0.5" step="0.01" placeholder="예: 0.10" class="ocsa-input" />
+            <BaseInput v-model="customForm.alpha" type="number" placeholder="예: 0.10" />
           </div>
           <div class="ocsa-field">
             <label class="ocsa-label">초도 주문 가산점</label>
@@ -150,7 +152,7 @@ const validateTolerance = (row) => {
       <!-- 저장 버튼 -->
       <div class="custom-footer">
         <span class="custom-footer__desc">V1+V2+V3+V4 합계가 1.0이어야 저장됩니다.</span>
-        <button class="btn-save" :disabled="!isSumValid" @click="handleCustomSave">커스텀 저장</button>
+        <BaseButton variant="primary" size="sm" :disabled="!isSumValid" @click="handleCustomSave">커스텀 저장</BaseButton>
       </div>
 
     </template>
