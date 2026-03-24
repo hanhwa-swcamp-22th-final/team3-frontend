@@ -3,8 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { mockOrganization, POSITION_MAP } from '@/mocks/hrmanager/organization.js'
 import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
-import BaseConfirmModal from '@/components/common/base/overlay/BaseConfirmModal.vue'
-import BaseToast        from '@/components/common/base/overlay/BaseToast.vue'
+import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 
 const API = 'http://localhost:3001'
 

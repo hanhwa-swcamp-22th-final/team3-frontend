@@ -12,7 +12,7 @@ function showToast(message, type = 'success') {
 import HRMEvalWeightPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalWeightPanel.vue'
 import HRMEvalTierPanel   from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalTierPanel.vue'
 import HRMEvalQuantPanel  from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalQuantPanel.vue'
-import BaseToast          from '@/components/common/base/overlay/BaseToast.vue'
+import { BaseToast } from '@/components/common/base/overlay'
 import {
   defaultQuantWeight  as DEFAULT_QUANT_WEIGHT,
   defaultThresholds   as DEFAULT_THRESHOLDS,

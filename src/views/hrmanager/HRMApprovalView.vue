@@ -4,8 +4,7 @@ import { API_BASE, AI_TAG_LIMIT, TYPE_STYLE, GRADE_STYLE, EVAL_TYPE_LABEL, score
 import HRMApprovalBanner  from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalBanner.vue'
 import HRMApprovalList    from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalList.vue'
 import HRMApprovalDetail  from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalDetail.vue'
-import BaseConfirmModal   from '@/components/common/base/overlay/BaseConfirmModal.vue'
-import BaseToast          from '@/components/common/base/overlay/BaseToast.vue'
+import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 
 // ── 유틸 함수 ─────────────────────────────────────────────────────
 function gradeStyle(grade) {

@@ -4,8 +4,7 @@ import { API_BASE } from '@/constants'
 import BaseStatCard        from '@/components/common/base/display/BaseStatCard.vue'
 import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
 import HRMPromotionDetail  from '@/components/hr/hrmanager/promotion-review/HRMPromotionDetail.vue'
-import BaseConfirmModal    from '@/components/common/base/overlay/BaseConfirmModal.vue'
-import BaseToast           from '@/components/common/base/overlay/BaseToast.vue'
+import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 
 const loading    = ref(true)
 const summary    = ref(null)

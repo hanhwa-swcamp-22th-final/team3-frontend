@@ -4,8 +4,7 @@ import { mockNotices, nextId } from '@/mocks/hrmanager/noticeboard.js'
 import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'
-import BaseConfirmModal     from '@/components/common/base/overlay/BaseConfirmModal.vue'
-import BaseToast            from '@/components/common/base/overlay/BaseToast.vue'
+import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 
 const notices    = ref([...mockNotices])
 const selectedId = ref(mockNotices[0]?.id ?? null)
