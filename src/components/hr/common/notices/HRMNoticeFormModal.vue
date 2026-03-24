@@ -132,7 +132,8 @@ function openFilePicker() {
           <span class="modal__toggle-text">중요 공지</span>
         </label>
 
-        <label class="modal__toggle-label">
+        <!-- 등록 시에만 예약 토글 노출, 수정 시 이미 예약 상태면 토글 유지 -->
+        <label v-if="!editMode || isScheduled" class="modal__toggle-label">
           <span class="modal__toggle-switch" :class="{ 'modal__toggle-switch--on': isScheduled }" @click="isScheduled = !isScheduled; if (!isScheduled) scheduledDate = ''">
             <span class="modal__toggle-knob" />
           </span>
