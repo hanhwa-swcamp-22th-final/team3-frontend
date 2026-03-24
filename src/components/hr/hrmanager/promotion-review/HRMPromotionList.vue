@@ -29,6 +29,7 @@ function resultStyle(result) {
       :items="tabs"
       :modelValue="activeTab"
       variant="chip"
+      show-count
       @change="$emit('tab-change', $event)"
     />
 
@@ -219,6 +220,31 @@ function resultStyle(result) {
 .promo-table__process--none    { background: var(--color-bg-app);  color: #a89ed8; border: 1px solid var(--color-border-default); }
 .promo-table__process--confirm { background: #e3fbef; color: #007a60; border: 1px solid var(--color-mint-500); }
 .promo-table__process--hold    { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+
+/* 필터 탭 */
+:deep(.base-filter-tabs--chip .base-filter-tabs__item) {
+  height: 30px;
+  padding: 0 12px;
+  font-size: var(--font-size-xs-plus);
+}
+:deep(.base-filter-tabs__count) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-primary-200);
+  color: var(--color-primary-700);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+:deep(.base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: var(--color-primary-600);
+  color: var(--color-white);
+}
 
 /* 하단 액션 */
 .promo-list__actions {

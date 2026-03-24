@@ -15,7 +15,11 @@ const selectedId = ref(null)
 const tabs = computed(() => {
   const sTierCount = candidates.value.filter(c => c.targetTier === 'S').length
   const aTierCount = candidates.value.filter(c => c.targetTier === 'A').length
-  return [`전체(${candidates.value.length})`, `S-Tier(${sTierCount})`, `A-Tier(${aTierCount})`]
+  return [
+    { key: '전체',   label: '전체',   count: candidates.value.length },
+    { key: 'S-Tier', label: 'S-Tier', count: sTierCount },
+    { key: 'A-Tier', label: 'A-Tier', count: aTierCount },
+  ]
 })
 
 const filteredList = computed(() => {
