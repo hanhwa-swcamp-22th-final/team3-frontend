@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
+import { BaseFormModal } from '@/components/common/base'
 import {
   STATUS_OPTIONS,
   PROCESS_TYPE_OPTIONS,
