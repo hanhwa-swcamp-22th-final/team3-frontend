@@ -5,6 +5,7 @@ import HRMApprovalBanner  from '@/components/hr/hrmanager/evaluation-approval/HR
 import HRMApprovalList    from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalList.vue'
 import HRMApprovalDetail  from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalDetail.vue'
 import BaseConfirmModal   from '@/components/common/base/overlay/BaseConfirmModal.vue'
+import BaseToast          from '@/components/common/base/overlay/BaseToast.vue'
 
 // ── 유틸 함수 ─────────────────────────────────────────────────────
 function gradeStyle(grade) {
@@ -277,12 +278,7 @@ function showToast(message) {
   </BaseConfirmModal>
 
   <!-- 토스트 -->
-  <Transition name="hrm-toast">
-    <div v-if="toast.show" class="hrm-toast">
-      <span class="hrm-toast__icon">✓</span>
-      {{ toast.message }}
-    </div>
-  </Transition>
+  <BaseToast :show="toast.show" :message="toast.message" />
 </template>
 
 <style scoped>
@@ -331,39 +327,4 @@ function showToast(message) {
   outline: none;
   border-color: var(--color-primary-600);
 }
-
-.hrm-toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 20px;
-  background: var(--color-primary-700);
-  color: #fff;
-  border-radius: 10px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  box-shadow: 0 8px 24px rgba(20, 15, 60, 0.2);
-  pointer-events: none;
-}
-.hrm-toast__icon {
-  width: 20px;
-  height: 20px;
-  background: rgba(255,255,255,0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.hrm-toast-enter-active,
-.hrm-toast-leave-active { transition: all 0.25s ease; }
-.hrm-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-.hrm-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>
