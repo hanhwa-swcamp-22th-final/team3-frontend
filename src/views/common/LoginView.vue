@@ -184,6 +184,7 @@ function handleSsoLogin() {
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: var(--font-family-base);
 }
 
 /* ── Logo ── */
@@ -210,15 +211,16 @@ function handleSsoLogin() {
 }
 
 .login-logo__title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #2D1F6E;
   margin: 0 0 4px;
   letter-spacing: 2px;
 }
 
 .login-logo__subtitle {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-regular);
   color: #9992b8;
   margin: 0;
   letter-spacing: 0.5px;
@@ -235,8 +237,8 @@ function handleSsoLogin() {
 
 .form-label {
   display: block;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: #2D1F6E;
   margin-bottom: 6px;
 }
@@ -247,7 +249,9 @@ function handleSsoLogin() {
   padding: 0 14px;
   border: 1px solid #E0DCFF;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-family-base);
   color: #2D1F6E;
   background: #ffffff;
   outline: none;
@@ -262,7 +266,8 @@ function handleSsoLogin() {
 
 /* ── Error Message ── */
 .form-error {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: #EF476F;
   margin: 0 0 8px;
 }
@@ -283,7 +288,8 @@ function handleSsoLogin() {
 }
 
 .form-checkbox label {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
   color: #5a5280;
   cursor: pointer;
 }
@@ -293,8 +299,9 @@ function handleSsoLogin() {
   width: 100%;
   height: 46px;
   border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--font-size-base-plus);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-base);
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
   border: none;

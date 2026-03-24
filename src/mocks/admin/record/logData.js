@@ -4,7 +4,7 @@ export const SERVICE_STATUS = [
   { label: 'Kafka 브로커', value: '정상 · 1,247msg/s',   color: '#00BF95' },
   { label: '배치 처리',   value: '완료 · 03.09 02:00',  color: '#00BF95' },
   { label: 'Redis 캐시',  value: '정상 · 94.2%',        color: '#00BF95' },
-  { label: 'MariaDB',     value: '정상 · avg 12ms',     color: '#00BF95' },
+  { label: 'Maria DB',     value: '정상 · avg 12ms',     color: '#00BF95' },
 ]
 
 // ── 로그 레벨 스타일 ────────────────────────────────
