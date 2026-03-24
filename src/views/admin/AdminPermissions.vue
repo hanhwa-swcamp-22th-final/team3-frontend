@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import PermissionRolePanel   from '@/components/admin/scm/PermissionRolePanel.vue'
 import PermissionMatrixPanel from '@/components/admin/scm/PermissionMatrixPanel.vue'
-import BaseFilterTabs        from '@/components/common/base/navigation/BaseFilterTabs.vue'
+import { BaseFilterTabs, BaseButton } from '@/components/common/base'
 import { ROLES, ROLE_DEFINITIONS, DUMMY_MATRIX } from '@/mocks/admin/permission/permissionData.js'
 
 const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
@@ -97,7 +97,7 @@ const onCancelSave = () => {
       <div class="actions">
         <span v-if="pendingChanges > 0" class="badge-pending">변경사항 {{ pendingChanges }}건</span>
         <div class="btn-save-wrap">
-          <button class="btn-save" @click="onSave">저장 적용</button>
+          <BaseButton variant="primary" size="sm" @click="onSave">저장 적용</BaseButton>
           <!-- 변경 로그 -->
           <div v-if="showLog" class="change-log">
             <div class="change-log__header">
@@ -115,8 +115,8 @@ const onCancelSave = () => {
               <span class="log-arrow">{{ log.from ? '✅ → ❌' : '❌ → ✅' }}</span>
             </div>
             <div class="change-log__footer">
-              <button class="btn-cancel-save" @click="onCancelSave">취소</button>
-              <button class="btn-confirm-save" @click="onConfirmSave">확인 저장</button>
+              <BaseButton variant="secondary" size="sm" @click="onCancelSave">취소</BaseButton>
+              <BaseButton variant="primary"   size="sm" @click="onConfirmSave">확인 저장</BaseButton>
             </div>
           </div>
         </div>
@@ -185,21 +185,6 @@ const onCancelSave = () => {
   font-weight: 700;
   color: var(--color-warning-text);
 }
-
-.btn-save {
-  height: 28px;
-  padding: 0 19px;
-  background: var(--color-primary-600);
-  border: 1.5px solid var(--color-primary-400);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-white);
-  cursor: pointer;
-
-}
-
-.btn-save:hover { background: var(--color-primary-700); }
 
 .btn-save-wrap {
   position: relative;
@@ -288,35 +273,6 @@ const onCancelSave = () => {
   background: var(--color-bg-app);
 }
 
-.btn-cancel-save {
-  height: 28px;
-  padding: 0 16px;
-  background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-placeholder);
-  cursor: pointer;
-
-}
-
-.btn-cancel-save:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
-
-.btn-confirm-save {
-  height: 28px;
-  padding: 0 16px;
-  background: var(--color-primary-600);
-  border: 1.5px solid var(--color-primary-400);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-white);
-  cursor: pointer;
-
-}
-
-.btn-confirm-save:hover { background: var(--color-primary-700); }
 
 .panels {
   display: flex;

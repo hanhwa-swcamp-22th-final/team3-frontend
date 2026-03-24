@@ -4,6 +4,7 @@ import LogServiceCards from '@/components/admin/scm/LogServiceCardsWrapper.vue'
 import LogToolbar      from '@/components/admin/scm/LogToolbar.vue'
 import LogViewer       from '@/components/admin/scm/LogViewer.vue'
 import LogMonitorPanel from '@/components/admin/scm/LogMonitorPanel.vue'
+import { BaseButton }  from '@/components/common/base'
 import { DUMMY_LOGS, SERVICE_STATUS } from '@/mocks/admin/record/logData.js'
 
 // ── State ──────────────────────────────────────────
@@ -35,7 +36,7 @@ const onSearch       = (v) => { searchQuery.value    = v }
         <span class="status-text">시스템 정상</span>
       </div>
       <span class="status-batch">마지막 배치: 03.09 02:00</span>
-      <button class="btn-refresh">새로고침</button>
+      <BaseButton variant="secondary" size="sm">새로고침</BaseButton>
     </div>
 
     <!-- 서비스 상태 카드 -->
@@ -116,20 +117,6 @@ const onSearch       = (v) => { searchQuery.value    = v }
   color: var(--color-text-placeholder);
 }
 
-.btn-refresh {
-  height: 35px;
-  padding: 0 14px;
-  background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-
-  cursor: pointer;
-}
-
-.btn-refresh:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
 
 /* 메인 컨텐츠 */
 .content {
