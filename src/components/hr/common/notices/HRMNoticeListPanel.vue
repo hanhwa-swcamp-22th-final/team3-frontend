@@ -184,7 +184,7 @@ function setTab(tab) {
   background: var(--color-bg-surface-muted);
   border-color: var(--color-border-strong);
   color: var(--color-text-secondary);
-  height: auto; min-height: 30px; max-width: 110px;
+  height: auto; min-height: 29px; max-width: 110px; text-wrap: wrap;
 }
 .notice-tab--org.notice-tab--active {
   background: var(--color-primary-100); color: var(--color-primary-700);
