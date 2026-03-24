@@ -3,7 +3,7 @@ defineProps({
   count: { type: Number, required: true },
   daysLeft: { type: Number, default: 3 },
 })
-defineEmits(['bulk-review'])
+
 </script>
 
 <template>
@@ -11,7 +11,6 @@ defineEmits(['bulk-review'])
     <p class="hrm-banner__text">
       ⏰ 검토 대기 중인 이의신청이 {{ count }}건 있습니다 — 월말 고과 확정까지 D-{{ daysLeft }}
     </p>
-    <button class="hrm-banner__btn" @click="$emit('bulk-review')">일괄 검토</button>
   </div>
 </template>
 
@@ -24,12 +23,4 @@ defineEmits(['bulk-review'])
   border-radius: 8px; flex-shrink: 0;
 }
 .hrm-banner__text { font-size: var(--font-size-sm); color: #a07000; }
-.hrm-banner__btn {
-  height: 34px; padding: 0 14px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
-  color: #7a6fa8;
-  background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 4px; cursor: pointer;
-}
-.hrm-banner__btn:hover { background: var(--color-primary-100); }
 </style>
