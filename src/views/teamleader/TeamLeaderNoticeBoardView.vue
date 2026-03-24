@@ -32,11 +32,6 @@ function handleSelectNotice(noticeId) {
 
 <template>
   <section class="teamleader-noticeboard-view">
-    <header class="teamleader-noticeboard-view__header">
-      <h1>공지 목록</h1>
-      <span>총 {{ noticeBoardItems.length }}건</span>
-    </header>
-
     <section class="teamleader-noticeboard-view__content">
       <div class="teamleader-noticeboard-view__main">
         <HRMNoticeListPanel
@@ -53,43 +48,32 @@ function handleSelectNotice(noticeId) {
 
 <style scoped>
 .teamleader-noticeboard-view {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px;
   box-sizing: border-box;
   background: var(--color-bg-app);
-}
-
-.teamleader-noticeboard-view__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  padding: 8px 4px;
-}
-
-.teamleader-noticeboard-view__header h1 {
-  font-size: var(--font-size-display-md);
-  color: var(--color-primary-800);
-}
-
-.teamleader-noticeboard-view__header span {
-  color: var(--color-primary-300);
-  font-size: var(--font-size-base-plus);
-  font-weight: 700;
+  overflow: hidden;
 }
 
 .teamleader-noticeboard-view__content {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(360px, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-noticeboard-view__main {
   display: grid;
   gap: 16px;
   align-content: start;
+  min-height: 0;
 }
 
 @media (max-width: 1180px) {
@@ -101,10 +85,6 @@ function handleSelectNotice(noticeId) {
 @media (max-width: 720px) {
   .teamleader-noticeboard-view {
     padding: 12px;
-  }
-
-  .teamleader-noticeboard-view__header h1 {
-    font-size: var(--font-size-xl);
   }
 }
 </style>

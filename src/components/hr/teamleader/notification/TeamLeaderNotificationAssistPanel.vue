@@ -90,7 +90,7 @@ function handleQuickAssign() {
         <p class="assist-panel__eyebrow">{{ currentPanel.title }}</p>
         <h2 class="assist-panel__title">{{ currentPanel.subtitle }}</h2>
       </div>
-      <span v-if="totalPages > 1" class="assist-panel__page-indicator">{{ currentPage }} / {{ totalPages }}</span>
+      <span v-if="panels.length > 0" class="assist-panel__page-indicator">{{ currentPage }} / {{ totalPages }}</span>
     </header>
 
     <section class="assist-panel__equipment">
@@ -122,7 +122,7 @@ function handleQuickAssign() {
       </article>
     </section>
 
-    <footer v-if="totalPages > 1" class="assist-panel__pagination">
+    <footer v-if="panels.length > 0" class="assist-panel__pagination">
       <button
         v-for="page in totalPages"
         :key="page"

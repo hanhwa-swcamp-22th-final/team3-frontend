@@ -13,7 +13,6 @@ const emit = defineEmits(['review-request', 'open-request'])
   <section class="mentoring">
     <div class="mentoring__head">
       <p class="mentoring__eyebrow">협업 현황</p>
-      <h3>멘토링 매칭 현황</h3>
     </div>
 
     <div class="mentoring__section">
@@ -50,12 +49,17 @@ const emit = defineEmits(['review-request', 'open-request'])
 
 <style scoped>
 .mentoring {
+  height: 100%;
+  min-height: 0;
   border: 1px solid var(--color-border-default);
   border-radius: 18px;
   background: var(--color-bg-surface);
   padding: 20px;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .mentoring__eyebrow {
@@ -73,6 +77,7 @@ const emit = defineEmits(['review-request', 'open-request'])
 .mentoring__section {
   display: grid;
   gap: 10px;
+  min-height: 0;
 }
 
 .mentoring__caption {
@@ -85,6 +90,20 @@ const emit = defineEmits(['review-request', 'open-request'])
 .mentoring__pending-list {
   display: grid;
   gap: 10px;
+  align-content: start;
+}
+
+.mentoring__pending-list {
+  min-height: 0;
+  max-height: 78px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.mentoring__ongoing-list {
+  max-height: 78px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .mentoring__ongoing-row,

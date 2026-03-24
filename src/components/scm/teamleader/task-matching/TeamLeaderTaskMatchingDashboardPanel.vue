@@ -113,7 +113,10 @@ function tierClass(tier) {
 <style scoped>
 .dashboard-panel {
   display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
+  height: 100%;
+  min-height: 0;
 }
 
 .dashboard-panel__lines,
@@ -121,17 +124,34 @@ function tierClass(tier) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  height: 100%;
+  min-height: 0;
 }
 
 .line-card,
 .timeline-card,
 .alerts-card {
   display: grid;
+  min-height: 0;
   gap: 14px;
   padding: 16px;
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.line-card {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.timeline-card {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.alerts-card {
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .line-card__head,
@@ -202,6 +222,9 @@ function tierClass(tier) {
 .line-card__list {
   display: grid;
   gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .line-card__row,
@@ -345,7 +368,10 @@ function tierClass(tier) {
   position: relative;
   display: grid;
   gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
   padding: 8px 0;
+  padding-right: 4px;
 }
 
 .timeline-card__grid {
@@ -446,6 +472,9 @@ function tierClass(tier) {
 .alerts-card__list {
   display: grid;
   gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .alerts-card__item {

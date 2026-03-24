@@ -5,6 +5,10 @@ export const aiEvaluationTargets = [
   { id: 2, name: '김신우', code: 'TEAM3-2603-002', tier: 'A', scoreHint: '84', avatar: '김', avatarTone: 'purple' },
   { id: 3, name: '황자현', code: 'TEAM3-2603-003', tier: 'A', scoreHint: '81', avatar: '황', avatarTone: 'green' },
   { id: 4, name: '임원석', code: 'TEAM3-2603-004', tier: 'B', scoreHint: '74', avatar: '임', avatarTone: 'gold' },
+  { id: 5, name: '박지훈', code: 'TEAM3-2603-005', tier: 'A', scoreHint: '86', avatar: '박', avatarTone: 'purple' },
+  { id: 6, name: '정미래', code: 'TEAM3-2603-006', tier: 'B', scoreHint: '79', avatar: '정', avatarTone: 'green' },
+  { id: 7, name: '오세훈', code: 'TEAM3-2603-007', tier: 'B', scoreHint: '76', avatar: '오', avatarTone: 'gold' },
+  { id: 8, name: '류민재', code: 'TEAM3-2603-008', tier: 'A', scoreHint: '88', avatar: '류', avatarTone: 'purple' },
 ]
 
 export const aiEvaluationSelectedTarget = {

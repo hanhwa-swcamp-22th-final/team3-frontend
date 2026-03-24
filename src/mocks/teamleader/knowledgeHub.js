@@ -1,5 +1,5 @@
 ﻿export const knowledgeHubSummaryCards = [
-  { key: 'totalArticles', label: '등록 지식 총', value: '1,284건', helper: '전월 대비 +26건' },
+  { key: 'totalArticles', label: '총 등록 지식', value: '1,284건', helper: '전월 대비 +26건' },
   { key: 'newThisMonth', label: '이달 신규', value: '42건', helper: '이번 주 11건 추가' },
   { key: 'pendingApproval', label: '승인 대기 문서', value: '7건', helper: '오늘 확인 필요 3건' },
 ]

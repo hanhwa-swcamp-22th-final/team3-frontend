@@ -140,11 +140,18 @@ function handleQuickAssign({ panel, candidate }) {
 
 <style scoped>
 .teamleader-notification-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 12px 10px;
   box-sizing: border-box;
   background: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .teamleader-notification-view__headline {
@@ -152,7 +159,6 @@ function handleQuickAssign({ panel, candidate }) {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 16px;
   padding: 18px 22px;
   border: 2px solid #ff5072;
   border-radius: 18px;
@@ -197,12 +203,14 @@ function handleQuickAssign({ panel, candidate }) {
   display: grid;
   grid-template-columns: minmax(0, 1.95fr) minmax(300px, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-notification-view__main {
   display: grid;
   gap: 0px;
+  min-height: 0;
 }
 
 @media (max-width: 1180px) {

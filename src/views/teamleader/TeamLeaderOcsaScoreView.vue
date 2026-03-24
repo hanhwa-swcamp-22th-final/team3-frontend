@@ -97,11 +97,16 @@ function handleSelectOrder(orderId) {
 <style scoped>
 .teamleader-ocsa-view {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px 18px;
   background: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .teamleader-ocsa-view__summary {
@@ -114,12 +119,14 @@ function handleSelectOrder(orderId) {
   display: grid;
   grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.45fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-ocsa-view__right {
   display: grid;
   gap: 16px;
+  min-height: 0;
 }
 
 @media (max-width: 1240px) {

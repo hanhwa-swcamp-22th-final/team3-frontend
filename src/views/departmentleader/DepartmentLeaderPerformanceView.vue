@@ -1,8 +1,8 @@
-<script setup>
+﻿<script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import DepartmentLeaderPerformanceSummary from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceSummary.vue'
-import DepartmentLeaderPerformanceTable   from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceTable.vue'
+import DepartmentLeaderPerformanceTable from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceTable.vue'
 import {
   performanceSummary,
   performanceMembers,
@@ -14,15 +14,15 @@ import {
 const router = useRouter()
 
 const selectedTeam = ref('전체')
-const teamTabs = teamOptions // ['전체', '정밀가공 1팀', ...]
+const teamTabs = teamOptions
 
 const activeSummary = computed(() => {
   if (selectedTeam.value === '전체') return performanceSummary
 
-  const members = performanceMembers.filter(m => m.team === selectedTeam.value)
-  const completed = members.filter(m => m.status === '완료').length
+  const members = performanceMembers.filter((member) => member.team === selectedTeam.value)
+  const completed = members.filter((member) => member.status === '완료').length
   const avg = members.length
-    ? +(members.reduce((s, m) => s + m.total, 0) / members.length).toFixed(1)
+    ? +(members.reduce((sum, member) => sum + member.total, 0) / members.length).toFixed(1)
     : 0
   const delta = +(avg - performanceSummary.deptAvg).toFixed(1)
 
@@ -54,14 +54,12 @@ function handleGoEvaluation() {
       <span class="dl-performance__period">{{ performanceSummary.period }}</span>
     </header>
 
-    <!-- 성과 요약 (팀 선택 탭 포함) -->
     <DepartmentLeaderPerformanceSummary
       :summary="activeSummary"
       :team-tabs="teamTabs"
       v-model:selectedTeam="selectedTeam"
     />
 
-    <!-- 직원 상세 테이블 -->
     <DepartmentLeaderPerformanceTable
       :members="performanceMembers"
       :team-options="teamOptions"

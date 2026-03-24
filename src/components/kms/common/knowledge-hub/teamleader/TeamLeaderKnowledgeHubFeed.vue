@@ -94,7 +94,6 @@ function categoryClass(category) {
     <div class="feed__top">
       <div>
         <p class="feed__eyebrow">지식 허브</p>
-        <h2 class="feed__title">지식 피드</h2>
       </div>
       <button v-if="isWorker" type="button" class="feed__write-button" @click="emit('open-write')">지식 작성</button>
     </div>
@@ -164,9 +163,7 @@ function categoryClass(category) {
           <span class="feed__date">{{ article.date }}</span>
         </div>
 
-        <div class="feed__code">{{ article.code }}</div>
         <h3 class="feed__card-title">{{ article.title }}</h3>
-        <p class="feed__preview">{{ article.preview }}</p>
 
         <div class="feed__card-bottom">
           <div class="feed__author">
@@ -198,12 +195,17 @@ function categoryClass(category) {
 
 <style scoped>
 .feed {
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
   padding: 22px;
   display: grid;
   gap: 16px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .feed__top {
@@ -310,15 +312,19 @@ function categoryClass(category) {
 
 .feed__list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .feed__card {
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
-  padding: 18px 20px;
+  padding: 12px 14px;
   display: grid;
-  gap: 10px;
+  gap: 6px;
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -336,7 +342,7 @@ function categoryClass(category) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
 }
 
 .feed__badges,
@@ -344,14 +350,14 @@ function categoryClass(category) {
 .feed__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .feed__badge {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -364,21 +370,21 @@ function categoryClass(category) {
 .feed__badge--equip { background: #f4f4fb; color: var(--color-text-muted); }
 
 .feed__date,
-.feed__code,
-.feed__preview,
 .feed__meta {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-text-muted);
 }
 
 .feed__card-title {
-  font-size: 18px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
   color: var(--color-primary-800);
 }
 
 .feed__avatar {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -386,18 +392,19 @@ function categoryClass(category) {
   background: var(--color-primary-700);
   color: #fff;
   font-weight: 700;
+  font-size: 12px;
 }
 
 .feed__author-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-text-default);
 }
 
 .feed__tier {
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -420,6 +427,7 @@ function categoryClass(category) {
   justify-content: center;
   gap: 8px;
   padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .feed__page {

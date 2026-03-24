@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
+import { BaseFilterTabs } from '@/components/common/base'
 import TeamLeaderFacilityStatusCard from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityStatusCard.vue'
 import TeamLeaderFacilityTrendPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityTrendPanel.vue'
 import TeamLeaderFacilityHistoryPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityHistoryPanel.vue'
@@ -51,24 +52,14 @@ watch(filteredCards, () => {
 
 <template>
   <section class="teamleader-facility-view">
-    <section class="teamleader-facility-view__filters">
-      <button
-        v-for="filter in facilityStatusFilters"
-        :key="filter.key"
-        type="button"
-        class="teamleader-facility-view__filter"
-        :class="{
-          'teamleader-facility-view__filter--active': activeFilter === filter.key,
-          'teamleader-facility-view__filter--mint': filter.tone === 'mint' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--warning': filter.tone === 'warning' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--danger': filter.tone === 'danger' && activeFilter !== filter.key,
-          'teamleader-facility-view__filter--soft': filter.tone === 'soft' && activeFilter !== filter.key,
-        }"
-        @click="activeFilter = filter.key"
-      >
-        {{ filter.label }}
-      </button>
-    </section>
+    <BaseFilterTabs
+      class="teamleader-facility-view__filters"
+      :items="facilityStatusFilters"
+      :model-value="activeFilter"
+      variant="chip"
+      size="sm"
+      @change="activeFilter = $event"
+    />
 
     <section class="teamleader-facility-view__top">
       <section class="teamleader-facility-view__cards-shell">
@@ -81,7 +72,7 @@ watch(filteredCards, () => {
         </div>
 
         <div class="teamleader-facility-view__pagination-slot">
-          <div v-if="pageNumbers.length > 1" class="teamleader-facility-view__pagination">
+          <div v-if="filteredCards.length > 0" class="teamleader-facility-view__pagination">
             <button
               v-for="page in pageNumbers"
               :key="page"
@@ -113,11 +104,16 @@ watch(filteredCards, () => {
 <style scoped>
 .teamleader-facility-view {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 14px 10px 18px;
   background: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .teamleader-facility-view__filters {
@@ -127,61 +123,26 @@ watch(filteredCards, () => {
   flex-wrap: wrap;
 }
 
-.teamleader-facility-view__filter {
-  height: 38px;
-  padding: 0 16px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--color-primary-500);
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.teamleader-facility-view__filter--active {
-  border-color: var(--color-primary-700);
-  background: var(--color-primary-700);
-  color: #fff;
-}
-
-.teamleader-facility-view__filter--mint {
-  border-color: #8fe7dc;
-  color: #10a58b;
-}
-
-.teamleader-facility-view__filter--warning {
-  border-color: #f0c558;
-  color: #c68c00;
-}
-
-.teamleader-facility-view__filter--danger {
-  border-color: #ef8ca5;
-  color: #ef4f74;
-}
-
-.teamleader-facility-view__filter--soft {
-  border-color: #d8d0ff;
-  color: #8e80df;
-}
-
 .teamleader-facility-view__top {
   display: grid;
   grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.4fr);
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .teamleader-facility-view__right-column {
   display: grid;
   gap: 14px;
   align-content: start;
+  min-height: 0;
 }
 
 .teamleader-facility-view__cards-shell {
   display: grid;
   grid-template-rows: minmax(0, 1fr) 34px;
   gap: 12px;
+  min-height: 0;
 }
 
 .teamleader-facility-view__grid {

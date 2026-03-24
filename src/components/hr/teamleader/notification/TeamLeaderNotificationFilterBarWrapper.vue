@@ -29,8 +29,9 @@ function handleChange(filterKey) {
       class="notification-filter__tabs"
       :items="filters"
       :model-value="activeFilter"
-      variant="underline"
-      size="md"
+      variant="chip"
+      size="sm"
+      :show-count="false"
       @change="handleChange"
     />
   </section>
@@ -38,7 +39,9 @@ function handleChange(filterKey) {
 
 <style scoped>
 .notification-filter {
-  padding: 18px 20px 14px;
+  display: grid;
+  gap: 14px;
+  padding: 20px 20px 12px;
   border: 1px solid var(--color-border-default);
   border-radius: 18px 18px 0 0;
   border-bottom: none;
@@ -46,12 +49,13 @@ function handleChange(filterKey) {
 }
 
 .notification-filter__eyebrow {
+  margin: 0;
   font-size: var(--font-size-xs-plus);
   font-weight: 700;
   color: var(--color-primary-300);
 }
 
 .notification-filter__tabs {
-  margin-top: 14px;
+  min-width: 0;
 }
 </style>

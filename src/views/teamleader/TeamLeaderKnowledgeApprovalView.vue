@@ -130,13 +130,18 @@ function handleReject() {
 
 <style scoped>
 .teamleader-knowledge-approval-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  flex: 1;
   width: 100%;
   min-width: 0;
-  padding: 12px 10px 18px;
+  min-height: 0;
+  height: calc(100vh - 80px);
+  padding: 10px 10px 16px;
   box-sizing: border-box;
   background: var(--color-bg-app);
-  display: grid;
-  gap: 16px;
+  overflow: hidden;
 }
 
 .teamleader-knowledge-approval-view__stats {
@@ -148,8 +153,11 @@ function handleReject() {
 .teamleader-knowledge-approval-view__grid {
   display: grid;
   grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.25fr);
-  gap: 16px;
-  align-items: start;
+  gap: 14px;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1180px) {

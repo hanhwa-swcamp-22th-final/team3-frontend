@@ -264,6 +264,16 @@ function handleSubmitComment() {
   border-color: var(--color-primary-300);
 }
 
+.detail-modal__comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.detail-modal__actions {
+  justify-content: flex-end;
+}
+
 .detail-modal__comment-submit {
   height: 40px;
   padding: 0 16px;

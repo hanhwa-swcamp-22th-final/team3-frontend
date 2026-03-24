@@ -1,4 +1,6 @@
 ﻿<script setup>
+import { BaseButton } from '@/components/common/base'
+
 const props = defineProps({
   item: {
     type: Object,
@@ -83,9 +85,9 @@ function reviewClass(value) {
       </label>
 
       <div class="review__actions">
-        <button type="button" class="review__button review__button--reject" @click="emit('reject', item)">반려</button>
-        <button type="button" class="review__button review__button--hold" @click="emit('hold', item)">보류</button>
-        <button type="button" class="review__button review__button--approve" @click="emit('approve', item)">승인</button>
+        <BaseButton variant="secondary" @click="emit('reject', item)">반려</BaseButton>
+        <BaseButton variant="secondary" @click="emit('hold', item)">보류</BaseButton>
+        <BaseButton @click="emit('approve', item)">승인</BaseButton>
       </div>
     </div>
 
@@ -95,16 +97,24 @@ function reviewClass(value) {
 
 <style scoped>
 .review {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid var(--color-border-default);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--color-bg-surface);
-  padding: 18px;
+  padding: 16px;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .review__content {
   display: grid;
-  gap: 16px;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .review__head,
@@ -128,7 +138,7 @@ function reviewClass(value) {
 
 .review__head h2 {
   margin-top: 6px;
-  font-size: 28px;
+  font-size: 24px;
   color: var(--color-primary-800);
 }
 
@@ -143,13 +153,13 @@ function reviewClass(value) {
 
 .review__author {
   justify-content: flex-start;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #ece7ff;
 }
 
 .review__avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -161,7 +171,7 @@ function reviewClass(value) {
 
 .review__author strong,
 .review__article-card h3 {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--color-primary-800);
 }
 
@@ -193,29 +203,29 @@ function reviewClass(value) {
 .review__comment {
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
-  padding: 16px;
+  padding: 14px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .review__article-card p {
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.6;
   color: var(--color-text-default);
 }
 
 .review__metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .review__metric-card {
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
   text-align: center;
 }
 
@@ -226,7 +236,7 @@ function reviewClass(value) {
 }
 
 .review__metric-value {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
 }
 
@@ -245,7 +255,7 @@ function reviewClass(value) {
 .review__comment textarea {
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   font: inherit;
   color: var(--color-text-default);
   resize: vertical;
@@ -253,35 +263,12 @@ function reviewClass(value) {
 
 .review__actions {
   justify-content: flex-end;
-}
-
-.review__button {
-  min-width: 78px;
-  height: 42px;
-  padding: 0 18px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.review__button--reject {
-  background: #e7395f;
-  color: #fff;
-}
-
-.review__button--hold {
-  background: #ffd166;
-  color: #6b4f00;
-}
-
-.review__button--approve {
-  background: #18b9a7;
-  color: #fff;
+  gap: 10px;
 }
 
 .review__empty {
-  min-height: 420px;
+  height: 100%;
+  min-height: 0;
   display: grid;
   place-items: center;
   border: 1px dashed var(--color-border-default);

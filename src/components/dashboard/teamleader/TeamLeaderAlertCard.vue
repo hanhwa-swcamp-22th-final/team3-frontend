@@ -19,9 +19,9 @@ defineProps({
 <style scoped>
 .alert-card {
   display: grid;
-  gap: 10px;
-  min-height: 130px;
-  padding: 18px 18px 16px;
+  gap: 8px;
+  min-height: 112px;
+  padding: 14px 14px 12px;
   border: 1px solid var(--color-border-soft);
   border-left-width: 4px;
   border-radius: 16px;
@@ -37,25 +37,26 @@ defineProps({
 }
 
 .alert-card__category {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--color-primary-500);
 }
 
 .alert-card__title {
-  font-size: 17px;
+  font-size: 15px;
+  line-height: 1.35;
   color: var(--color-primary-800);
 }
 
 .alert-card__description {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--color-text-default);
 }
 
 .alert-card__time {
   margin-top: auto;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
 }

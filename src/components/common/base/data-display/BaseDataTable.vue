@@ -138,7 +138,7 @@ function columnSlotName(key) {
 
 .base-data-table__table th,
 .base-data-table__table td {
-  padding: 14px 10px;
+  padding: 12px 10px;
   border-bottom: 1px solid #eeeaff;
   white-space: nowrap;
   font-size: var(--font-size-base);
@@ -150,6 +150,8 @@ function columnSlotName(key) {
   font-size: var(--font-size-xs-plus);
   font-weight: 800;
   background: #f5f2ff;
+  padding-top: 11px;
+  padding-bottom: 11px;
 }
 
 .base-data-table__row {
