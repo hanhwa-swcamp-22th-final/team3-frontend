@@ -12,6 +12,7 @@ function showToast(message, type = 'success') {
 import HRMEvalWeightPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalWeightPanel.vue'
 import HRMEvalTierPanel   from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalTierPanel.vue'
 import HRMEvalQuantPanel  from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalQuantPanel.vue'
+import BaseToast          from '@/components/common/base/overlay/BaseToast.vue'
 import {
   defaultQuantWeight  as DEFAULT_QUANT_WEIGHT,
   defaultThresholds   as DEFAULT_THRESHOLDS,
@@ -76,12 +77,7 @@ function handleApply() {
 
   </section>
 
-  <Transition name="eval-toast">
-    <div v-if="toast.show" class="eval-toast" :class="`eval-toast--${toast.type}`">
-      <span class="eval-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
-      {{ toast.message }}
-    </div>
-  </Transition>
+  <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
 </template>
 
 <style scoped>
@@ -137,39 +133,4 @@ function handleApply() {
   background: var(--color-primary-600);
   color: var(--color-white);
 }
-
-.eval-toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 20px;
-  border-radius: 10px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(20, 15, 60, 0.2);
-  pointer-events: none;
-}
-.eval-toast--success { background: var(--color-primary-700); }
-.eval-toast--error   { background: var(--color-danger); }
-.eval-toast__icon {
-  width: 20px;
-  height: 20px;
-  background: rgba(255,255,255,0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-.eval-toast-enter-active,
-.eval-toast-leave-active { transition: all 0.25s ease; }
-.eval-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-.eval-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

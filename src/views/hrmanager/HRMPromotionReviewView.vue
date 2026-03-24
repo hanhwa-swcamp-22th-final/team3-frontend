@@ -5,6 +5,7 @@ import BaseStatCard        from '@/components/common/base/display/BaseStatCard.v
 import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
 import HRMPromotionDetail  from '@/components/hr/hrmanager/promotion-review/HRMPromotionDetail.vue'
 import BaseConfirmModal    from '@/components/common/base/overlay/BaseConfirmModal.vue'
+import BaseToast           from '@/components/common/base/overlay/BaseToast.vue'
 
 const loading    = ref(true)
 const summary    = ref(null)
@@ -154,12 +155,7 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
     <p class="promo-confirm-message">{{ confirmModal.message }}</p>
   </BaseConfirmModal>
 
-  <Transition name="promo-toast">
-    <div v-if="toast.show" class="promo-toast">
-      <span class="promo-toast__icon">✓</span>
-      {{ toast.message }}
-    </div>
-  </Transition>
+  <BaseToast :show="toast.show" :message="toast.message" />
 </template>
 
 <style scoped>
@@ -198,38 +194,4 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
   line-height: 1.6;
   padding: 8px 0;
 }
-
-.promo-toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 20px;
-  background: var(--color-primary-700);
-  color: #fff;
-  border-radius: 10px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  box-shadow: 0 8px 24px rgba(20, 15, 60, 0.2);
-  pointer-events: none;
-}
-.promo-toast__icon {
-  width: 20px;
-  height: 20px;
-  background: rgba(255,255,255,0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-.promo-toast-enter-active,
-.promo-toast-leave-active { transition: all 0.25s ease; }
-.promo-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-.promo-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

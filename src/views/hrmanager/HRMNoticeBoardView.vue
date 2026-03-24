@@ -5,6 +5,7 @@ import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPan
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'
 import BaseConfirmModal     from '@/components/common/base/overlay/BaseConfirmModal.vue'
+import BaseToast            from '@/components/common/base/overlay/BaseToast.vue'
 
 const notices    = ref([...mockNotices])
 const selectedId = ref(mockNotices[0]?.id ?? null)
@@ -128,12 +129,7 @@ function deleteNotice(id) {
       <p class="notice-confirm__message">{{ confirmModal.message }}</p>
     </BaseConfirmModal>
 
-    <Transition name="notice-toast">
-      <div v-if="toast.show" class="notice-toast" :class="`notice-toast--${toast.type}`">
-        <span class="notice-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
-        {{ toast.message }}
-      </div>
-    </Transition>
+    <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
   </div>
 </template>
 
@@ -167,25 +163,4 @@ function deleteNotice(id) {
 .notice-confirm__message { font-size: var(--font-size-sm); color: var(--color-text-default); padding: 8px 0; }
 :deep(.base-confirm-modal__primary) { background: var(--color-danger); }
 
-/* 토스트 */
-.notice-toast {
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 20px; border-radius: 10px;
-  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
-  color: var(--color-white); z-index: 9999;
-  box-shadow: 0 4px 16px rgba(0,0,0,.15);
-}
-.notice-toast--success { background: var(--color-primary-700); }
-.notice-toast--error   { background: var(--color-danger); }
-.notice-toast__icon {
-  width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(255,255,255,.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold); flex-shrink: 0;
-}
-.notice-toast-enter-active,
-.notice-toast-leave-active { transition: all 0.25s ease; }
-.notice-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-.notice-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>

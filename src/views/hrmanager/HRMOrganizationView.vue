@@ -4,6 +4,7 @@ import { mockOrganization, POSITION_MAP } from '@/mocks/hrmanager/organization.j
 import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
 import BaseConfirmModal from '@/components/common/base/overlay/BaseConfirmModal.vue'
+import BaseToast        from '@/components/common/base/overlay/BaseToast.vue'
 
 const API = 'http://localhost:3001'
 
@@ -558,12 +559,7 @@ function deleteGroup(group) {
       <p class="org-confirm__message">{{ confirmModal.message }}</p>
     </BaseConfirmModal>
 
-    <Transition name="org-toast">
-      <div v-if="toast.show" class="org-toast" :class="`org-toast--${toast.type}`">
-        <span class="org-toast__icon">{{ toast.type === 'error' ? '!' : '✓' }}</span>
-        {{ toast.message }}
-      </div>
-    </Transition>
+    <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
 
   </div>
 </template>
@@ -980,25 +976,4 @@ function deleteGroup(group) {
   background: var(--color-danger);
 }
 
-/* ── 토스트 ── */
-.org-toast {
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 20px; border-radius: 10px;
-  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
-  color: var(--color-white); z-index: 9999;
-  box-shadow: 0 4px 16px rgba(0,0,0,.15);
-}
-.org-toast--success { background: var(--color-primary-700); }
-.org-toast--error   { background: var(--color-danger); }
-.org-toast__icon {
-  width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(255,255,255,.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold); flex-shrink: 0;
-}
-.org-toast-enter-active,
-.org-toast-leave-active { transition: all 0.25s ease; }
-.org-toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(12px); }
-.org-toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(12px); }
 </style>
