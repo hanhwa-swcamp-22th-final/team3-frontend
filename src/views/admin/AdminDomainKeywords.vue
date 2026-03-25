@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
 import KeywordTable   from '@/components/admin/scm/KeywordTable.vue'
 import KeywordModal   from '@/components/admin/scm/KeywordModalWrapper.vue'
+import { BaseButton } from '@/components/common/base'
 import { DUMMY_KEYWORDS, PAGE_SIZE } from '@/mocks/admin/keyword/keywordData.js'
 
 const keywords         = ref(DUMMY_KEYWORDS.map(k => ({ ...k })))
@@ -69,7 +70,7 @@ const onDeleteClick = (id) => {
         <h1 class="page-title">도메인 키워드 관리</h1>
         <p class="page-desc">NLP 정성평가에 사용되는 제조 도메인 키워드 사전</p>
       </div>
-      <button class="btn-add" @click="openAddModal">+ 키워드 등록</button>
+      <BaseButton variant="primary" size="sm" @click="openAddModal">+ 키워드 등록</BaseButton>
     </div>
 
     <!-- 툴바 -->
@@ -146,20 +147,5 @@ const onDeleteClick = (id) => {
   margin: 0;
 }
 
-.btn-add {
-  height: 36px;
-  padding: 0 20px;
-  background: var(--color-primary-600);
-  border: 1px solid var(--color-primary-500);
-  border-radius: var(--radius-2xs);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-bg-surface);
-
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.btn-add:hover { background: var(--color-primary-700); }
 
 </style>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseButton, BaseTextarea } from '@/components/common/base'
 import {
   TOP_CONTRIBUTORS,
   MENTORING_ACTIVE,
@@ -126,13 +127,13 @@ const handleAccept = () => {
         <!-- 관리 메모 -->
         <div class="am-box">
           <span class="am-box-label">관리 메모</span>
-          <textarea class="am-box-textarea" placeholder="메모를 입력하세요..." rows="3"></textarea>
+          <BaseTextarea placeholder="메모를 입력하세요..." :rows="3" />
         </div>
 
         <!-- 버튼 -->
         <div class="am-actions">
-          <button class="am-btn am-btn--cancel" @click="showAcceptModal = false">취소</button>
-          <button class="am-btn am-btn--confirm" @click="handleAccept">수락</button>
+          <BaseButton variant="secondary" size="lg" @click="showAcceptModal = false">취소</BaseButton>
+          <BaseButton variant="primary"   size="lg" @click="handleAccept">수락</BaseButton>
         </div>
 
       </div>

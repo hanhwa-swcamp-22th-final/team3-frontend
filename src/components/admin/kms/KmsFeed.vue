@@ -7,7 +7,7 @@ import {
   TAG_STYLE,
   TIER_BADGE,
 } from '@/mocks/admin/kms/kmsData.js'
-import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
+import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   selectedFilter:    { type: String, default: '전체' },

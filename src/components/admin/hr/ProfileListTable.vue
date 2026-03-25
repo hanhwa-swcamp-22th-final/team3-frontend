@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { BaseButton } from '@/components/common/base'
 import { tierColor as tierBgColor, tierTextColor } from '@/constants'
 
 const props = defineProps({
@@ -87,8 +88,8 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
         <span class="col col--equip">{{ emp.employee_equipment || '—' }}</span>
         <span class="col col--date">{{ formatDate(emp.created_at) }}</span>
         <div class="col col--action">
-          <button class="btn-edit"   @click="emit('editClick',   emp)">수정</button>
-          <button class="btn-delete" @click="emit('deleteClick', emp.id)">삭제</button>
+          <BaseButton variant="ghost"  size="sm" @click="emit('editClick',   emp)">수정</BaseButton>
+          <BaseButton variant="danger" size="sm" @click="emit('deleteClick', emp.id)">삭제</BaseButton>
         </div>
       </div>
     </template>
@@ -226,28 +227,6 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   font-weight: 900;
 }
 
-/* 수정/삭제 버튼 */
-.btn-edit {
-  width: 52px;
-  height: 26px;
-  font-size: 12px;
-  color: var(--color-primary-600);
-  background: var(--color-primary-100);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-delete {
-  width: 52px;
-  height: 26px;
-  font-size: 12px;
-  color: var(--color-danger);
-  background: var(--color-danger-soft);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
 /* 페이지네이션 */
 .pagination {

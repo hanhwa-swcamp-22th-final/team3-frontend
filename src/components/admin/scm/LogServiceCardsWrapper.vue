@@ -1,5 +1,5 @@
 <script setup>
-import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+import { BaseStatCard } from '@/components/common/base'
 
 defineProps({
   items: {
@@ -36,23 +36,26 @@ defineProps({
   flex: 1;
   min-height: 80px;
   height: auto;
-  padding: 15px 17px;
-  gap: 4px;
+  padding: 14px 16px;
+  align-items: end;
 }
 
 .service-cards :deep(.base-stat-card__label) {
-  font-size: 10px;
-  font-weight: 400;
+  align-self: start;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .service-value {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
-  font-weight: 400;
-  line-height: 30px;
+  font-family: var(--font-family-base);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
   color: var(--color-primary-800);
 }
 </style>

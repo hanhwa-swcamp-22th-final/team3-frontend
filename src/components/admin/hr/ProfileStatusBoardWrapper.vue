@@ -1,5 +1,5 @@
 <script setup>
-import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+import { BaseStatCard } from '@/components/common/base'
 
 defineProps({
   totalCount:     { type: Number, default: 0 },
@@ -41,31 +41,28 @@ defineProps({
 
 .stat-cards :deep(.base-stat-card) {
   flex: 1;
-  min-height: 80px;
+  min-height: 0;
   height: auto;
-  padding: 15px 17px;
+  padding: 20px 24px;
   gap: 4px;
 }
 
 .stat-cards :deep(.base-stat-card__label) {
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-300);
 }
 
 .stat-cards :deep(.base-stat-card__value) {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
-  font-weight: 400;
-  line-height: 30px;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
   color: var(--color-primary-800);
 }
 
 .stat-cards :deep(.base-stat-card__helper) {
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--color-primary-300);
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
+import { BaseFormModal } from '@/components/common/base'
 
 // Kiosk KeypadModal 패턴: isOpen=열림여부 / employee=null→등록, object→수정
 const props = defineProps(['isOpen', 'employee'])

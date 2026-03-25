@@ -1,4 +1,6 @@
 <script setup>
+import { BaseButton } from '@/components/common/base'
+
 defineProps({
   facilities:   { type: Array,  default: () => [] },
   totalCount:   { type: Number, default: 0 },
@@ -49,8 +51,8 @@ const statusStyle = (status) => {
         >{{ facility.equipment_status }}</span>
       </span>
       <span class="col-action">
-        <button class="btn-edit" @click="emit('editClick', facility)">수정</button>
-        <button class="btn-delete" @click="emit('deleteClick', facility)">삭제</button>
+        <BaseButton variant="ghost"  size="sm" @click="emit('editClick',   facility)">수정</BaseButton>
+        <BaseButton variant="danger" size="sm" @click="emit('deleteClick', facility)">삭제</BaseButton>
       </span>
     </div>
 
@@ -149,33 +151,6 @@ const statusStyle = (status) => {
   font-weight: 700;
 }
 
-.btn-edit {
-  height: 26px;
-  padding: 0 14px;
-  background: var(--color-primary-100);
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-primary-600);
-  cursor: pointer;
-}
-
-.btn-edit:hover { background: var(--color-border-default); }
-
-.btn-delete {
-  height: 26px;
-  padding: 0 14px;
-  background: var(--color-equip-stopped-bg);
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-danger);
-  cursor: pointer;
-}
-
-.btn-delete:hover { background: var(--color-danger-light); }
 
 .empty {
   padding: 40px 0;

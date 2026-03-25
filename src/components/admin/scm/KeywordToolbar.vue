@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { BaseInput, BaseSelect } from '@/components/common/base'
 import { CATEGORY_OPTIONS } from '@/mocks/admin/keyword/keywordData.js'
 
 const props = defineProps({
@@ -13,25 +14,25 @@ const localSearch = ref(props.searchQuery)
 
 const onKeydown = (e) => { if (e.key === 'Enter') emit('search', localSearch.value) }
 const onBlur    = ()  => emit('search', localSearch.value)
+
+const categoryOptions = CATEGORY_OPTIONS.map(c => ({ value: c, label: c }))
 </script>
 
 <template>
   <div class="keyword-toolbar">
-    <input
+    <BaseInput
+      class="toolbar__search"
       v-model="localSearch"
-      class="search-input"
-      type="text"
-      placeholder="🔍 키워드 검색..."
+      placeholder="키워드 검색..."
       @keydown="onKeydown"
       @blur="onBlur"
     />
-    <select
-      class="category-select"
-      :value="selectedCategory"
-      @change="emit('categoryChange', $event.target.value)"
-    >
-      <option v-for="c in CATEGORY_OPTIONS" :key="c" :value="c">{{ c }}</option>
-    </select>
+    <BaseSelect
+      class="toolbar__category"
+      :model-value="selectedCategory"
+      :options="categoryOptions"
+      @update:model-value="emit('categoryChange', $event)"
+    />
   </div>
 </template>
 
@@ -40,41 +41,20 @@ const onBlur    = ()  => emit('search', localSearch.value)
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-
 }
 
-.search-input {
+.toolbar__search {
   width: 280px;
-  height: 36px;
-  padding: 0 12px;
-  background: var(--color-bg-surface);
-  border: 2px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  font-size: 13px;
-  color: var(--color-primary-800);
-
-  outline: none;
-  box-sizing: border-box;
   flex-shrink: 0;
 }
 
-.search-input::placeholder { color: var(--color-text-placeholder); }
-.search-input:focus { border-color: var(--color-primary-600); }
-
-.category-select {
+.toolbar__category {
   width: 160px;
-  height: 36px;
-  padding: 0 12px;
-  background: var(--color-bg-surface);
-  border: 2px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  font-size: 13px;
-  color: var(--color-primary-800);
-
-  outline: none;
-  cursor: pointer;
   flex-shrink: 0;
 }
 
-.category-select:focus { border-color: var(--color-primary-600); }
+.keyword-toolbar :deep(.base-input),
+.keyword-toolbar :deep(.base-select) {
+  height: 36px;
+}
 </style>

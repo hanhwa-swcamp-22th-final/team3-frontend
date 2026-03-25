@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import AlgorithmEquipmentList from '@/components/admin/scm/AlgorithmEquipmentList.vue'
 import AlgorithmDetailPanel   from '@/components/admin/scm/AlgorithmDetailPanel.vue'
+import { BaseButton }         from '@/components/common/base'
 import { DUMMY_EQUIPMENTS }   from '@/mocks/admin/algorithm/algorithmData.js'
 
 // ── State ──────────────────────────────────────────
@@ -34,8 +35,8 @@ const onSave            = ()    => {
       </div>
       <div class="tab-bar__actions">
         <span v-if="isDirty" class="badge-editing">수정 중</span>
-        <button class="btn-outline">시뮬레이션</button>
-        <button class="btn-primary" @click="onSave">저장 적용</button>
+        <BaseButton variant="secondary" size="sm">시뮬레이션</BaseButton>
+        <BaseButton variant="primary"   size="sm" @click="onSave">저장 적용</BaseButton>
       </div>
     </div>
 
@@ -117,29 +118,6 @@ const onSave            = ()    => {
   color: var(--color-warning);
 }
 
-.btn-outline {
-  height: 34px;
-  padding: 0 19px;
-  background: var(--color-bg-surface);
-  border: 1.5px solid var(--color-primary-600);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-primary-600);
-  cursor: pointer;
-}
-
-.btn-primary {
-  height: 34px;
-  padding: 0 19px;
-  background: var(--color-primary-600);
-  border: 1.5px solid var(--color-primary-500);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-white);
-  cursor: pointer;
-}
 
 /* 메인 컨텐츠 */
 .content {
