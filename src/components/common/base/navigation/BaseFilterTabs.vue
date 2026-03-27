@@ -69,7 +69,7 @@ function selectItem(item) {
         v-if="showCount && itemCount(item) !== null && itemCount(item) !== undefined"
         class="base-filter-tabs__count"
       >
-        ({{ itemCount(item) }})
+        {{ itemCount(item) }}
       </span>
     </button>
   </div>

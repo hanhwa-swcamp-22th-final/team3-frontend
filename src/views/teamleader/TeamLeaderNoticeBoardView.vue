@@ -72,7 +72,6 @@ function handleSelectNotice(noticeId) {
 .teamleader-noticeboard-view__main {
   display: grid;
   gap: 16px;
-  align-content: start;
   min-height: 0;
 }
 
