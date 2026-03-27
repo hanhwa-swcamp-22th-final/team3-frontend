@@ -33,7 +33,7 @@ const routes = [
             {
                 path: 'facility',
                 name: 'AdminFacility',
-                component: () => import('@/views/admin/AdminFacility.vue'),
+                component: () => import('@/views/admin/AdminEquipmentManage.vue'),
             },
             {
                 path: 'logs',
@@ -43,27 +43,27 @@ const routes = [
             {
                 path: 'permissions',
                 name: 'AdminPermissions',
-                component: () => import('@/views/admin/AdminPermissions.vue'),
+                component: () => import('@/views/admin/AdminSystemAccessManage.vue'),
             },
             {
                 path: 'algorithm',
                 name: 'AdminAlgorithm',
-                component: () => import('@/views/admin/AdminAlgorithm.vue'),
+                component: () => import('@/views/admin/AdminAlgorithmConfig.vue'),
             },
             {
                 path: 'preset',
                 name: 'AdminPreset',
-                component: () => import('@/views/admin/AdminPreset.vue'),
+                component: () => import('@/views/admin/AdminIndustryPreset.vue'),
             },
             {
                 path: 'domain-keywords',
                 name: 'AdminDomainKeywords',
-                component: () => import('@/views/admin/AdminDomainKeywords.vue'),
+                component: () => import('@/views/admin/AdminDomainKeywordManage.vue'),
             },
             {
                 path: 'profiles',
                 name: 'AdminProfiles',
-                component: () => import('@/views/admin/AdminProfiles.vue'),
+                component: () => import('@/views/admin/AdminProfilesManage.vue'),
             },
             {
                 path: 'knowledge-hub',
