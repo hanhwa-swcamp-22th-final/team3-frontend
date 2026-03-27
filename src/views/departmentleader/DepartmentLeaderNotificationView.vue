@@ -1,9 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
-import BaseFilterTabs        from '@/components/common/base/navigation/BaseFilterTabs.vue'
-import BaseNotificationList  from '@/components/common/base/data-display/BaseNotificationList.vue'
+import { BaseStatCard, BaseFilterTabs, BaseNotificationList } from '@/components/common/base'
 import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
 const router = useRouter()

@@ -1,6 +1,5 @@
 <script setup>
-import BaseNoticeBanner                       from '@/components/common/base/display/BaseNoticeBanner.vue'
-import BaseStatCard                           from '@/components/common/base/display/BaseStatCard.vue'
+import { BaseNoticeBanner, BaseStatCard } from '@/components/common/base'
 import DepartmentLeaderGroupKpiCard           from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
 import DepartmentLeaderTeamStatusCard         from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
 import {
