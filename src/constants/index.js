@@ -1,4 +1,4 @@
-export { API_BASE } from './api'
+export { API_BASE, ADMIN_API_BASE } from './api'
 
 export {
   TIERS,
@@ -35,4 +35,4 @@ export {
   scoreToGrade,
 } from './evaluation'
 
-export { LOGIN_MESSAGES, EVAL_MESSAGES } from './messages'
+export { LOGIN_MESSAGES, AUTH_ERROR_CODE_MAP, EVAL_MESSAGES } from './messages'

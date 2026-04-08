@@ -298,11 +298,30 @@ const router = createRouter({
     },
 })
 
-router.beforeEach((to) => {
+let authInitialized = false
+
+router.beforeEach(async (to) => {
     const auth = useAuthStore()
+
+    // Try to restore session from refresh token on first navigation
+    if (!authInitialized) {
+        authInitialized = true
+        if (!auth.isAuthenticated) {
+            await auth.initAuth()
+        }
+    }
 
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
         return { name: 'Login' }
+    }
+
+    // Role enforcement
+    if (to.meta.allowedRoles && auth.isAuthenticated) {
+        const userRole = auth.role()
+        if (!to.meta.allowedRoles.includes(userRole)) {
+            const dest = ROLE_ROUTE_MAP[userRole] ?? 'Login'
+            return { name: dest }
+        }
     }
 
     if (to.name === 'Login' && auth.isAuthenticated) {

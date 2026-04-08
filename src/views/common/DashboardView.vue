@@ -26,10 +26,10 @@ const profileInitials = computed(() => {
   const role = authStore.role()
   return role ? role.slice(0, 2).toUpperCase() : 'U'
 })
-const isAdmin = computed(() => authStore.role() === 'admin')
+const isAdmin = computed(() => authStore.role() === 'admin' || authStore.role() === 'ADMIN')
 
-function handleLogout() {
-  authStore.logout()
+async function handleLogout() {
+  await authStore.logout()
   router.push({ name: 'Login' })
 }
 </script>
