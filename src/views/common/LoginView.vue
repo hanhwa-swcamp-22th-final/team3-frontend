@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { API_BASE, ROLE_ROUTE_MAP, LOGIN_MESSAGES } from '@/constants'
+import { ROLE_ROUTE_MAP, LOGIN_MESSAGES, AUTH_ERROR_CODE_MAP } from '@/constants'
+import authApi from '@/services/authApi'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -24,34 +25,30 @@ async function handleLogin() {
   isLoading.value = true
 
   try {
-    const res = await fetch(
-      `${API_BASE}/employees?employee_email=${encodeURIComponent(email.value)}`
-    )
-    const employees = await res.json()
+    const res = await authApi.post('/api/v1/auth/login', {
+      employeeEmail: email.value,
+      password: password.value,
+    })
 
-    if (employees.length === 0) {
-      errorMessage.value = LOGIN_MESSAGES.EMAIL_NOT_FOUND
-      return
+    const { success, data } = res.data
+
+    if (success && data?.accessToken) {
+      authStore.login(data.accessToken)
+
+      const dest = ROLE_ROUTE_MAP[authStore.role()] ?? 'Login'
+      router.push({ name: dest })
     }
+  } catch (error) {
+    const errorCode = error.response?.data?.errorCode
+    const messageKey = AUTH_ERROR_CODE_MAP[errorCode]
 
-    const employee = employees[0]
-
-    if (employee.employee_password !== password.value) {
-      errorMessage.value = LOGIN_MESSAGES.WRONG_PASSWORD
-      return
+    if (messageKey && LOGIN_MESSAGES[messageKey]) {
+      errorMessage.value = LOGIN_MESSAGES[messageKey]
+    } else if (error.response?.data?.message) {
+      errorMessage.value = error.response.data.message
+    } else {
+      errorMessage.value = LOGIN_MESSAGES.SERVER_ERROR
     }
-
-    if (employee.is_locked) {
-      errorMessage.value = LOGIN_MESSAGES.ACCOUNT_LOCKED
-      return
-    }
-
-    authStore.login(employee)
-
-    const dest = ROLE_ROUTE_MAP[employee.employee_role] ?? 'Login'
-    router.push({ name: dest })
-  } catch {
-    errorMessage.value = LOGIN_MESSAGES.SERVER_ERROR
   } finally {
     isLoading.value = false
   }
