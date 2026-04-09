@@ -61,9 +61,9 @@ const routes = [
                 component: () => import('@/views/admin/AdminDomainKeywordManage.vue'),
             },
             {
-                path: 'profiles',
-                name: 'AdminProfiles',
-                component: () => import('@/views/admin/AdminProfilesManage.vue'),
+                path: 'org-management',
+                name: 'AdminOrgManagement',
+                component: () => import('@/views/admin/AdminOrganizationManage.vue'),
             },
             {
                 path: 'knowledge-hub',

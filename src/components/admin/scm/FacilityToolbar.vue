@@ -21,13 +21,14 @@ const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '
 <template>
   <div class="toolbar">
     <BaseInput
-      class="toolbar__search"
+      class="toolbar__input"
       v-model="localSearch"
       placeholder="설비명, 설비ID 검색"
       @keydown="onKeydown"
       @blur="onSearch"
     />
     <BaseSelect
+      class="toolbar__select"
       :model-value="selectedLine"
       :options="lineOptions"
       @update:model-value="emit('lineChange', $event)"
@@ -47,8 +48,12 @@ const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '
   flex-shrink: 0;
 }
 
-.toolbar__search {
-  flex: 1;
+.toolbar__input {
+  flex: 8;
+}
+
+.toolbar__select {
+  flex: 2;
 }
 
 .toolbar :deep(.base-input),

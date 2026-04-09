@@ -22,17 +22,19 @@ const TIER_OPTIONS = [
 <template>
   <div class="toolbar">
     <BaseInput
-      class="toolbar__search"
+      class="toolbar__input"
       :model-value="searchQuery"
       placeholder="이름 또는 사번 검색..."
       @update:model-value="emit('search', $event)"
     />
     <BaseSelect
+      class="toolbar__select"
       :model-value="selectedTier"
       :options="TIER_OPTIONS"
       @update:model-value="emit('tierChange', $event)"
     />
     <BaseSelect
+      class="toolbar__select"
       :model-value="selectedLine"
       :options="[{ value: '전체', label: '라인 전체' }, ...lines.slice(1).map(l => ({ value: l, label: l }))]"
       @update:model-value="emit('lineChange', $event)"
@@ -50,7 +52,11 @@ const TIER_OPTIONS = [
   gap: 8px;
 }
 
-.toolbar__search {
+.toolbar__input {
+  flex: 2;
+}
+
+.toolbar__select {
   flex: 1;
 }
 
