@@ -1,13 +1,45 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { ADMIN_API_BASE } from '@/constants'
+import { useAuthStore } from '@/stores/auth'
 import ProfileStatusBoard  from '@/components/admin/hr/ProfileStatusBoardWrapper.vue'
 import ProfileSearchToolbar from '@/components/admin/hr/ProfileSearchToolbar.vue'
 import ProfileListTable    from '@/components/admin/hr/ProfileListTable.vue'
-import ProfileCreateUpdate from '@/components/admin/hr/ProfileCreateUpdate.vue'
-import { DUMMY_EMPLOYEES } from '@/mocks/admin/profile/profileData.js'
+import EmployeeCreateUpdate from '@/components/admin/hr/EmployeeCreateUpdate.vue'
+
+const authStore = useAuthStore()
 
 // ── State ──────────────────────────────────────────
-const employees    = ref(DUMMY_EMPLOYEES.map(e => ({ ...e })))
+const employees    = ref([])
+const isLoading    = ref(false)
+
+// ── API 호출 ──────────────────────────────────────
+const fetchEmployees = async () => {
+  isLoading.value = true
+  try {
+    const res = await axios.get(
+      `${ADMIN_API_BASE}/api/v1/organization/employees/summary`,
+      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
+    )
+    const list = res.data?.success ? res.data.data : res.data
+    employees.value = (Array.isArray(list) ? list : []).map((e, i) => ({
+      id:                       i + 1,
+      employee_code:            e.employeeCode,
+      employee_name:            e.employeeName,
+      employee_current_tier:    e.employeeTier,
+      employee_line:            e.factoryLineName,
+      employee_equipment:       e.equipmentName,
+      created_at:               e.hireDate,
+    }))
+  } catch (err) {
+    console.error('직원 목록 조회 실패:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(fetchEmployees)
 const searchQuery  = ref('')
 const selectedTier = ref('전체')
 const selectedLine = ref('전체')
@@ -89,13 +121,40 @@ const openAddModal  = ()    => { editingEmployee.value = null;       isModalOpen
 const openEditModal = (emp) => { editingEmployee.value = { ...emp }; isModalOpen.value = true }
 const closeModal    = ()    => { isModalOpen.value = false; editingEmployee.value = null }
 
-const onSaved = (emp) => {
-  if (emp.id) {
-    const idx = employees.value.findIndex(e => e.id === emp.id)
-    if (idx !== -1) employees.value[idx] = { ...emp }
-  } else {
-    const newId = Math.max(...employees.value.map(e => e.id)) + 1
-    employees.value.push({ ...emp, id: newId })
+const onSaved = async (formData) => {
+  const authHeader = { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
+
+  const skillKeys = [
+    'equipmentResponse', 'technicalTransfer', 'innovationProposal',
+    'safetyCompliance', 'qualityManagement', 'productivity',
+  ]
+
+  try {
+    if (formData.employee_code) {
+      // ── 수정 모드: 역량 점수 업데이트 ──
+      const skillData = {}
+      skillKeys.forEach(k => { skillData[k] = formData[k] ?? 0 })
+      const hasNonZeroSkill = Object.values(skillData).some(v => Number(v) > 0)
+      if (hasNonZeroSkill) {
+        await axios.put(
+          `${ADMIN_API_BASE}/api/v1/organization/employee/skill`,
+          { employeeCode: formData.employee_code, ...skillData },
+          authHeader,
+        )
+      }
+    } else {
+      // ── 등록 모드: 사원 + 역량 점수를 한 번에 전송 ──
+      await axios.post(
+        `${ADMIN_API_BASE}/api/v1/organization/employee`,
+        formData,
+        authHeader,
+      )
+    }
+
+    await fetchEmployees()
+  } catch (err) {
+    console.error('사원 저장 실패:', err)
+    alert('사원 저장에 실패했습니다.')
   }
   closeModal()
 }
@@ -139,7 +198,7 @@ const removeEmployee = (id) => {
       :currentPage="currentPage"
       :totalPages="totalPages"
       :selectedTier="selectedTier"
-      :isLoading="false"
+      :isLoading="isLoading"
       :pageStart="pageStart"
       :pageEnd="pageEnd"
       @tierSelect="onTierChange"
@@ -148,7 +207,7 @@ const removeEmployee = (id) => {
       @deleteClick="removeEmployee"
     />
 
-    <ProfileCreateUpdate
+    <EmployeeCreateUpdate
       :isOpen="isModalOpen"
       :employee="editingEmployee"
       @close="closeModal"
