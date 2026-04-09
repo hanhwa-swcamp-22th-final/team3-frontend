@@ -20,12 +20,10 @@ export const adminSidebarSections = [
     label: 'ADMIN',
     items: [
       { label: '설비 관리', icon: '⚙', to: { name: 'AdminFacility' } },
-      { label: '시스템 로그', icon: '🖥', to: { name: 'AdminLogs' } },
-      { label: '권한 관리', icon: '🔐', to: { name: 'AdminPermissions' } },
       { label: '알고리즘 설정', icon: '🔢', to: { name: 'AdminAlgorithm' } },
       { label: '산업군 프리셋', icon: '🏭', to: { name: 'AdminPreset' } },
       { label: '도메인 키워드 관리', icon: '🪪', to: { name: 'AdminDomainKeywords' } },
-      { label: '프로필 조회/등록/수정', icon: '✏', to: { name: 'AdminProfiles' } },
+      { label: '조직도 관리', icon: '✏', to: { name: 'AdminOrgManagement' } },
       { label: 'KMS 지식허브', icon: '📚', to: { name: 'AdminKnowledgeHub' } },
     ],
   },
