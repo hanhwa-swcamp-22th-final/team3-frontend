@@ -28,15 +28,34 @@ const EMPTY_FORM = {
 
 const form = ref({ ...EMPTY_FORM })
 
+// ── 수정 모드 초기값: 모든 필드 빈 상태 (사용자가 입력한 항목만 전송) ──
+const EDIT_FORM = {
+  employeeName:             '',
+  employeeEmail:            '',
+  employeePhone:            '',
+  employeeAddress:          '',
+  employeeEmergencyContact: '',
+  employeePassword:         '',
+  employeeRole:             '',
+  employeeStatus:           '',
+  employeeTier:             '',
+  hireDate:                 '',
+  equipmentResponse:        0,
+  technicalTransfer:        0,
+  innovationProposal:       0,
+  safetyCompliance:         0,
+  qualityManagement:        0,
+  productivity:             0,
+}
+
 // ── watch: isOpen이 true가 될 때마다 폼 초기화 ──
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     if (props.employee) {
-      form.value = {
-        ...EMPTY_FORM,
-        ...props.employee,
-      }
+      // 수정 모드: 빈 폼 + employeeId만 전달
+      form.value = { ...EDIT_FORM, ...props.employee }
     } else {
+      // 등록 모드: 기본값 세팅
       form.value = { ...EMPTY_FORM }
     }
   }
@@ -82,13 +101,17 @@ const barWidth = (val) => `${Math.min(Math.max(Number(val) || 0, 0), 100)}%`
 
 // ── 유효성 검사 + 저장 ──
 const handleSave = () => {
-  if (!form.value.employeeName.trim())    return alert('이름을 입력해주세요.')
-  if (!form.value.employeeEmail.trim())   return alert('이메일을 입력해주세요.')
-  if (!form.value.employeePhone.trim())   return alert('전화번호를 입력해주세요.')
-  if (!form.value.employeeAddress.trim()) return alert('주소를 입력해주세요.')
-  if (!form.value.employeeEmergencyContact.trim()) return alert('비상연락처를 입력해주세요.')
-  if (!props.employee && !form.value.employeePassword.trim()) return alert('비밀번호를 입력해주세요.')
-  if (!form.value.hireDate)               return alert('입사일을 입력해주세요.')
+  // 등록 모드: 필수 필드 검증
+  if (!props.employee) {
+    if (!form.value.employeeName.trim())    return alert('이름을 입력해주세요.')
+    if (!form.value.employeeEmail.trim())   return alert('이메일을 입력해주세요.')
+    if (!form.value.employeePhone.trim())   return alert('전화번호를 입력해주세요.')
+    if (!form.value.employeeAddress.trim()) return alert('주소를 입력해주세요.')
+    if (!form.value.employeeEmergencyContact.trim()) return alert('비상연락처를 입력해주세요.')
+    if (!form.value.employeePassword.trim()) return alert('비밀번호를 입력해주세요.')
+    if (!form.value.hireDate)               return alert('입사일을 입력해주세요.')
+  }
+  // 수정 모드: 모든 필드 선택 (빈 문자열은 null로 변환하여 백엔드에서 무시)
 
   emit('save', { ...form.value })
   emit('close')
@@ -109,9 +132,9 @@ const handleSave = () => {
 
         <div class="form-grid">
 
-          <!-- 이름* -->
+          <!-- 이름 -->
           <div class="field">
-            <label class="field-label">이름 <span class="required">*</span></label>
+            <label class="field-label">이름 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.employeeName"
               class="field-input"
@@ -120,9 +143,9 @@ const handleSave = () => {
             />
           </div>
 
-          <!-- 이메일* -->
+          <!-- 이메일 -->
           <div class="field">
-            <label class="field-label">이메일 <span class="required">*</span></label>
+            <label class="field-label">이메일 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.employeeEmail"
               class="field-input"
@@ -131,9 +154,9 @@ const handleSave = () => {
             />
           </div>
 
-          <!-- 전화번호* -->
+          <!-- 전화번호 -->
           <div class="field">
-            <label class="field-label">전화번호 <span class="required">*</span></label>
+            <label class="field-label">전화번호 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.employeePhone"
               class="field-input"
@@ -142,9 +165,9 @@ const handleSave = () => {
             />
           </div>
 
-          <!-- 비상연락처* -->
+          <!-- 비상연락처 -->
           <div class="field">
-            <label class="field-label">비상연락처 <span class="required">*</span></label>
+            <label class="field-label">비상연락처 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.employeeEmergencyContact"
               class="field-input"
@@ -153,9 +176,9 @@ const handleSave = () => {
             />
           </div>
 
-          <!-- 주소* -->
+          <!-- 주소 -->
           <div class="field full-width">
-            <label class="field-label">주소 <span class="required">*</span></label>
+            <label class="field-label">주소 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.employeeAddress"
               class="field-input"
@@ -164,7 +187,7 @@ const handleSave = () => {
             />
           </div>
 
-          <!-- 비밀번호* (등록 시 필수, 수정 시 선택) -->
+          <!-- 비밀번호 (등록 시 필수, 수정 시 선택) -->
           <div class="field full-width">
             <label class="field-label">
               비밀번호
@@ -186,10 +209,11 @@ const handleSave = () => {
 
         <div class="form-grid">
 
-          <!-- 직급* -->
+          <!-- 직급 -->
           <div class="field">
-            <label class="field-label">직급 <span class="required">*</span></label>
+            <label class="field-label">직급 <span v-if="!employee" class="required">*</span></label>
             <select v-model="form.employeeRole" class="field-input">
+              <option value="">선택 안함</option>
               <option
                 v-for="opt in roleOptions"
                 :key="opt.value"
@@ -198,10 +222,11 @@ const handleSave = () => {
             </select>
           </div>
 
-          <!-- 상태* -->
+          <!-- 상태 -->
           <div class="field">
-            <label class="field-label">상태 <span class="required">*</span></label>
+            <label class="field-label">상태 <span v-if="!employee" class="required">*</span></label>
             <select v-model="form.employeeStatus" class="field-input">
+              <option value="">선택 안함</option>
               <option
                 v-for="opt in statusOptions"
                 :key="opt.value"
@@ -210,10 +235,11 @@ const handleSave = () => {
             </select>
           </div>
 
-          <!-- 등급* -->
+          <!-- 등급 -->
           <div class="field">
-            <label class="field-label">등급 <span class="required">*</span></label>
+            <label class="field-label">등급 <span v-if="!employee" class="required">*</span></label>
             <select v-model="form.employeeTier" class="field-input">
+              <option value="">선택 안함</option>
               <option
                 v-for="opt in tierOptions"
                 :key="opt.value"
@@ -222,9 +248,9 @@ const handleSave = () => {
             </select>
           </div>
 
-          <!-- 입사일* -->
+          <!-- 입사일 -->
           <div class="field">
-            <label class="field-label">입사일 <span class="required">*</span></label>
+            <label class="field-label">입사일 <span v-if="!employee" class="required">*</span></label>
             <input
               v-model="form.hireDate"
               class="field-input"
