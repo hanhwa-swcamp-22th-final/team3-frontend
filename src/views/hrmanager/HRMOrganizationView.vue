@@ -5,7 +5,8 @@ import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 
-const API = 'http://localhost:3001'
+import { API_BASE } from '@/constants'
+const API = API_BASE
 
 // ── 상태 ─────────────────────────────────────────────────────────
 const employees    = ref([])
