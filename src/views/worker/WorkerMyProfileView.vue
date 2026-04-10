@@ -23,7 +23,7 @@ async function fetchJson(url) {
 }
 
 onMounted(async () => {
-  const employeeId = authStore.employee?.employee_id
+  const employeeId = authStore.userInfo?.employeeId
 
   try {
     const [profiles, skills, milestones, chartData, missions, notifications] =

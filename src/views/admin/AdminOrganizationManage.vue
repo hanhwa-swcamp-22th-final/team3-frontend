@@ -117,12 +117,30 @@ const onTierChange = (v) => { selectedTier.value = v; currentPage.value = 1 }
 const onLineChange = (v) => { selectedLine.value = v; currentPage.value = 1 }
 
 // ── 모달 핸들러 ─────────────────────────────────────
-const openAddModal  = ()    => { editingEmployee.value = null;       isModalOpen.value = true }
-const openEditModal = (emp) => { editingEmployee.value = { ...emp }; isModalOpen.value = true }
-const closeModal    = ()    => { isModalOpen.value = false; editingEmployee.value = null }
+const openAddModal  = () => { editingEmployee.value = null; isModalOpen.value = true }
+const openEditModal = async (emp) => {
+  try {
+    const res = await axios.get(
+      `${ADMIN_API_BASE}/api/v1/organization/employee/${emp.employee_code}`,
+      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
+    )
+    const data = res.data?.success ? res.data.data : res.data
+    // employeeId만 전달, 나머지 필드는 빈 상태로 모달 열기
+    // 사용자가 입력한 항목만 업데이트됨
+    editingEmployee.value = { employeeId: data.employeeId }
+    isModalOpen.value = true
+  } catch (err) {
+    console.error('사원 상세 조회 실패:', err)
+    alert('사원 정보를 불러올 수 없습니다.')
+  }
+}
+const closeModal = () => { isModalOpen.value = false; editingEmployee.value = null }
 
 const onSaved = async (formData) => {
   const authHeader = { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
+
+  // 빈 문자열을 null로 변환 (백엔드 partial update에서 null은 변경 없음)
+  const toNull = (v) => (v === '' || v === undefined) ? null : v
 
   const skillKeys = [
     'equipmentResponse', 'technicalTransfer', 'innovationProposal',
@@ -130,20 +148,34 @@ const onSaved = async (formData) => {
   ]
 
   try {
-    if (formData.employee_code) {
-      // ── 수정 모드: 역량 점수 업데이트 ──
-      const skillData = {}
-      skillKeys.forEach(k => { skillData[k] = formData[k] ?? 0 })
-      const hasNonZeroSkill = Object.values(skillData).some(v => Number(v) > 0)
-      if (hasNonZeroSkill) {
-        await axios.put(
-          `${ADMIN_API_BASE}/api/v1/organization/employee/skill`,
-          { employeeCode: formData.employee_code, ...skillData },
-          authHeader,
-        )
+    if (formData.employeeId) {
+      // ── 수정 모드: PUT /api/v1/organization/employee ──
+      const updatePayload = {
+        employeeId:             formData.employeeId,
+        employeeName:           toNull(formData.employeeName),
+        employeeEmail:          toNull(formData.employeeEmail),
+        employeePhone:          toNull(formData.employeePhone),
+        employeeAddress:        toNull(formData.employeeAddress),
+        employeeEmergencyContact: toNull(formData.employeeEmergencyContact),
+        employeePassword:       toNull(formData.employeePassword),
+        employeeRole:           toNull(formData.employeeRole),
+        employeeStatus:         toNull(formData.employeeStatus),
+        employeeTier:           toNull(formData.employeeTier),
+        hireDate:               toNull(formData.hireDate),
       }
+      // 역량 점수 포함 (non-zero만)
+      skillKeys.forEach(k => {
+        const v = Number(formData[k]) || 0
+        if (v > 0) updatePayload[k] = v
+      })
+
+      await axios.put(
+        `${ADMIN_API_BASE}/api/v1/organization/employee`,
+        updatePayload,
+        authHeader,
+      )
     } else {
-      // ── 등록 모드: 사원 + 역량 점수를 한 번에 전송 ──
+      // ── 등록 모드: POST /api/v1/organization/employee ──
       await axios.post(
         `${ADMIN_API_BASE}/api/v1/organization/employee`,
         formData,
