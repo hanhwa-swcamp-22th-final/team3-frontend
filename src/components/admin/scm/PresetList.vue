@@ -1,59 +1,34 @@
 <script setup>
-import { COMPARE_DATA } from '@/mocks/admin/preset/presetData.js'
-
 defineProps({
-  presets:      { type: Array,  default: () => [] },
-  selectedId:   { type: String, default: '' },
-  activePreset: { type: Object, default: null },
+  presets:    { type: Array,            default: () => [] },
+  selectedId: { type: [Number, String], default: null },
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'create'])
 </script>
 
 <template>
   <div class="preset-list">
 
     <!-- 섹션 타이틀 -->
-    <span class="section-title">🏭 산업군 선택</span>
+    <span class="section-title">산업군 프리셋 목록</span>
 
     <!-- 산업군 목록 -->
     <div
       v-for="p in presets"
-      :key="p.id"
+      :key="p.configId"
       class="preset-item"
-      :class="{ 'preset-item--active': p.id === selectedId }"
-      @click="emit('select', p.id)"
+      :class="{ 'preset-item--active': p.configId === selectedId }"
+      @click="emit('select', p.configId)"
     >
-      <div class="item-icon" :class="{ 'item-icon--active': p.id === selectedId }">
-        {{ p.icon }}
-      </div>
       <div class="item-info">
-        <span class="item-name">{{ p.name }}<template v-if="p.nameEn"> ({{ p.nameEn }})</template></span>
-        <span class="item-desc">{{ p.desc }}</span>
+        <span class="item-name">{{ p.industryPresetName }}</span>
+        <span class="item-desc">적용일: {{ p.effectiveDate ?? '—' }}</span>
       </div>
-      <span v-if="p.active" class="badge-active">적용중</span>
     </div>
 
-    <!-- 비교 박스 -->
-    <div class="compare-box">
-      <span class="compare-title">적용 전/후 비교</span>
-      <div class="compare-grid">
-        <div class="compare-col">
-          <span class="compare-col-label">현재</span>
-          <span v-for="row in COMPARE_DATA.current" :key="row.label" class="compare-row">
-            {{ row.label }} {{ row.value }}
-          </span>
-        </div>
-        <div class="compare-col">
-          <span class="compare-col-label" style="color: var(--color-primary-600);">
-            {{ activePreset?.name ?? '—' }}
-          </span>
-          <span v-for="row in COMPARE_DATA.preset" :key="row.value" class="compare-row">
-            {{ row.value }}
-          </span>
-        </div>
-      </div>
-    </div>
+    <!-- 새 프리셋 추가 버튼 -->
+    <button class="btn-add" @click="emit('create')">+ 새 프리셋 추가</button>
 
   </div>
 </template>
@@ -107,23 +82,6 @@ const emit = defineEmits(['select'])
   background: var(--color-primary-50);
 }
 
-/* 아이콘 박스 */
-.item-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--color-bg-app);
-  border-radius: var(--radius-2xs);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.item-icon--active {
-  background: var(--color-primary-100);
-}
-
 /* 텍스트 */
 .item-info {
   display: flex;
@@ -147,58 +105,23 @@ const emit = defineEmits(['select'])
   color: var(--color-text-placeholder);
 }
 
-/* 적용중 배지 */
-.badge-active {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-equip-active);
-  background: var(--color-equip-active-bg);
-  border-radius: 4px;
-  padding: 3px 8px;
-  flex-shrink: 0;
-}
-
-/* 비교 박스 */
-.compare-box {
-  margin-top: 4px;
+/* 추가 버튼 */
+.btn-add {
+  margin-top: auto;
+  height: 42px;
   background: var(--color-bg-app);
-  border: 1.5px solid var(--color-border-default);
+  border: 1.5px dashed var(--color-border-default);
   border-radius: var(--radius-xs);
-  padding: 13px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
   flex-shrink: 0;
 }
 
-.compare-title {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-text-placeholder);
-}
-
-.compare-grid {
-  display: flex;
-  flex-direction: row;
-  gap: 0;
-}
-
-.compare-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.compare-col-label {
-  font-size: 10px;
-  color: var(--color-text-placeholder);
-  margin-bottom: 2px;
-}
-
-.compare-row {
-  font-size: 10px;
-  color: var(--color-text-secondary);
-  line-height: 17px;
+.btn-add:hover {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-600);
+  color: var(--color-primary-600);
 }
 </style>
