@@ -1,6 +1,23 @@
 <script setup>
 import { BaseButton } from '@/components/common/base'
-import { CATEGORY_STYLE } from '@/mocks/admin/keyword/keywordData.js'
+
+const CATEGORY_LABEL = {
+  TECHNICAL_COMPETENCE: '기술역량',
+  LEADERSHIP:          '리더십',
+  SAFETY:              '안전',
+  INNOVATION:          '혁신',
+  COLLABORATION:       '협업',
+  OTHERS:              '기타',
+}
+
+const CATEGORY_STYLE = {
+  TECHNICAL_COMPETENCE: { bg: '#E8F4FF', border: '#93C5FD', color: '#1A6DB5' },
+  LEADERSHIP:          { bg: '#FFF7ED', border: '#FDB07A', color: '#9A3412' },
+  SAFETY:              { bg: '#F5F3FF', border: '#C4B5FD', color: '#5B21B6' },
+  INNOVATION:          { bg: '#FFF0FB', border: '#F0ABFC', color: '#86198F' },
+  COLLABORATION:       { bg: '#F0FFF4', border: '#86EFAC', color: '#166534' },
+  OTHERS:              { bg: '#F0F0F0', border: '#D1D5DB', color: '#374151' },
+}
 
 defineProps({
   keywords:    { type: Array,  default: () => [] },
@@ -13,7 +30,8 @@ defineProps({
 
 const emit = defineEmits(['editClick', 'deleteClick', 'pageChange'])
 
-const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
+const categoryLabel = (cat) => CATEGORY_LABEL[cat] ?? cat
+const weightColor   = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 </script>
 
 <template>
@@ -24,6 +42,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
       <span class="col-keyword">키워드</span>
       <span class="col-category">역량 카테고리</span>
       <span class="col-desc">설명</span>
+      <span class="col-score">기본점수</span>
       <span class="col-weight">가중치</span>
       <span class="col-action">작업</span>
     </div>
@@ -31,25 +50,26 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
     <!-- 행 -->
     <div
       v-for="kw in keywords"
-      :key="kw.id"
+      :key="kw.domainKeywordId"
       class="table-row"
     >
-      <span class="col-keyword">{{ kw.keyword }}</span>
+      <span class="col-keyword">{{ kw.domainKeyword }}</span>
       <span class="col-category">
         <span
           class="category-badge"
           :style="{
-            background:   CATEGORY_STYLE[kw.category]?.bg,
-            border:      `2px solid ${CATEGORY_STYLE[kw.category]?.border}`,
-            color:        CATEGORY_STYLE[kw.category]?.color,
+            background:   CATEGORY_STYLE[kw.domainCompetencyCategory]?.bg,
+            border:      `2px solid ${CATEGORY_STYLE[kw.domainCompetencyCategory]?.border}`,
+            color:        CATEGORY_STYLE[kw.domainCompetencyCategory]?.color,
           }"
-        >{{ kw.category }}</span>
+        >{{ categoryLabel(kw.domainCompetencyCategory) }}</span>
       </span>
-      <span class="col-desc">{{ kw.description }}</span>
-      <span class="col-weight" :style="{ color: weightColor(kw.weight) }">{{ kw.weight }}</span>
+      <span class="col-desc">{{ kw.domainKeywordDescription }}</span>
+      <span class="col-score">{{ kw.domainBaseScore }}</span>
+      <span class="col-weight" :style="{ color: weightColor(kw.domainWeight) }">{{ kw.domainWeight }}</span>
       <span class="col-action">
         <BaseButton variant="ghost"  size="sm" @click="emit('editClick',   kw)">수정</BaseButton>
-        <BaseButton variant="danger" size="sm" @click="emit('deleteClick', kw.id)">삭제</BaseButton>
+        <BaseButton variant="danger" size="sm" @click="emit('deleteClick', kw.domainKeywordId)">삭제</BaseButton>
       </span>
     </div>
 
@@ -135,6 +155,7 @@ const weightColor = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
 .col-keyword   { flex: 1.2; padding-left: 4px; }
 .col-category  { flex: 1.2; }
 .col-desc      { flex: 2; }
+.col-score     { flex: 0.7; text-align: center; font-weight: 700; }
 .col-weight    { flex: 0.7; text-align: center; font-weight: 700; }
 .col-action    { flex: 1; display: flex; justify-content: center; gap: 8px; }
 
