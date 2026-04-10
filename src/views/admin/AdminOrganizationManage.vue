@@ -27,6 +27,7 @@ const fetchEmployees = async () => {
       id:                       i + 1,
       employee_code:            e.employeeCode,
       employee_name:            e.employeeName,
+      employee_role:            e.employeeRole, // 역할 정보 추가
       employee_current_tier:    e.employeeTier,
       employee_line:            e.factoryLineName,
       employee_equipment:       e.equipmentName,
@@ -53,21 +54,21 @@ const editingEmployee = ref(null)
 // ── 통계 ────────────────────────────────────────────
 const totalCount = computed(() => employees.value.length)
 
-const topTierCount = computed(() =>
-  employees.value.filter(e =>
-    e.employee_current_tier === 'S' || e.employee_current_tier === 'A'
-  ).length
+const totalWorkerCount = computed(() =>
+  employees.value.filter(e => e.employee_role === 'WORKER').length
 )
 
-const topTierPercent = computed(() =>
-  totalCount.value ? ((topTierCount.value / totalCount.value) * 100).toFixed(1) : 0
+const totalDLCount = computed(() =>
+  employees.value.filter(e => e.employee_role === 'DL').length
 )
 
-const avgScore = computed(() => {
-  if (!employees.value.length) return 0
-  const sum = employees.value.reduce((acc, e) => acc + (e.employee_capability_index || 0), 0)
-  return (sum / employees.value.length).toFixed(1)
-})
+const totalTLCount = computed(() =>
+  employees.value.filter(e => e.employee_role === 'TL').length
+)
+
+const totalHRMCount = computed(() =>
+  employees.value.filter(e => e.employee_role === 'HRM').length
+)
 
 // ── 라인 목록 ────────────────────────────────────────
 const lines = computed(() => {
@@ -216,9 +217,10 @@ const removeEmployee = (id) => {
 
     <ProfileStatusBoard
       :totalCount="totalCount"
-      :topTierCount="topTierCount"
-      :topTierPercent="topTierPercent"
-      :avgScore="avgScore"
+      :totalWorkerCount="totalWorkerCount"
+      :totalDLCount="totalDLCount"
+      :totalTLCount="totalTLCount"
+      :totalHRMCount="totalHRMCount"
     />
 
 

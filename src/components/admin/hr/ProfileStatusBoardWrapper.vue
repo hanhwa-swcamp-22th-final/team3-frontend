@@ -2,10 +2,11 @@
 import { BaseStatCard } from '@/components/common/base'
 
 defineProps({
-  totalCount:     { type: Number, default: 0 },
-  topTierCount:   { type: Number, default: 0 },
-  topTierPercent: { type: [Number, String], default: 0 },
-  avgScore:       { type: [Number, String], default: 0 },
+  totalCount:       { type: Number, default: 0 },
+  totalWorkerCount: { type: Number, default: 0 },
+  totalDLCount:     { type: Number, default: 0 },
+  totalTLCount:     { type: Number, default: 0 },
+  totalHRMCount:    { type: Number, default: 0 },
 })
 </script>
 
@@ -18,16 +19,27 @@ defineProps({
       variant="compact"
     />
     <BaseStatCard
-      label="S+A Tier"
-      :value="`${topTierCount}`"
+      label="작업자(Worker)"
+      :value="`${totalWorkerCount}`"
       value-suffix="명"
-      :helper="`(${topTierPercent}%)`"
-      tone="success"
       variant="compact"
     />
     <BaseStatCard
-      label="평균 종합점수"
-      :value="`${avgScore}`"
+      label="부서장(DL)"
+      :value="`${totalDLCount}`"
+      value-suffix="명"
+      variant="compact"
+    />
+    <BaseStatCard
+      label="팀장(TL)"
+      :value="`${totalTLCount}`"
+      value-suffix="명"
+      variant="compact"
+    />
+    <BaseStatCard
+      label="인사관리(HRM)"
+      :value="`${totalHRMCount}`"
+      value-suffix="명"
       variant="compact"
     />
   </div>
