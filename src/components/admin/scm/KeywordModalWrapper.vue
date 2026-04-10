@@ -1,9 +1,15 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
-import { CATEGORY_STYLE } from '@/mocks/admin/keyword/keywordData.js'
 
-const CATEGORY_OPTIONS = Object.keys(CATEGORY_STYLE)
+const CATEGORY_OPTIONS = [
+  { value: 'TECHNICAL_COMPETENCE', label: '기술역량' },
+  { value: 'LEADERSHIP',          label: '리더십' },
+  { value: 'SAFETY',              label: '안전' },
+  { value: 'INNOVATION',          label: '혁신' },
+  { value: 'COLLABORATION',       label: '협업' },
+  { value: 'OTHERS',              label: '기타' },
+]
 
 const props = defineProps({
   isOpen:  { type: Boolean, default: false },
@@ -13,10 +19,12 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save'])
 
 const EMPTY_FORM = () => ({
-  keyword:     '',
-  category:    '',
-  description: '',
-  weight:      null,
+  domainKeyword:             '',
+  domainKeywordDescription:  '',
+  domainCompetencyCategory:  '',
+  domainBaseScore:           null,
+  domainWeight:              null,
+  domainIsActive:            true,
 })
 
 const form = ref(EMPTY_FORM())
@@ -28,7 +36,16 @@ watch(() => props.isOpen, (val) => {
 
 const isEditMode = computed(() => !!props.keyword)
 
+const canSave = computed(() => {
+  const f = form.value
+  return f.domainKeyword.trim().length >= 2
+    && f.domainCompetencyCategory
+    && f.domainBaseScore != null && f.domainBaseScore >= 0.1 && f.domainBaseScore <= 10.0
+    && f.domainWeight != null && f.domainWeight >= 1.0 && f.domainWeight <= 5.0
+})
+
 const handleSave = () => {
+  if (!canSave.value) return
   emit('save', { ...form.value })
   emit('close')
 }
@@ -48,25 +65,38 @@ const handleSave = () => {
     >
       <div class="field">
         <label>키워드명</label>
-        <input v-model="form.keyword" placeholder="예: 티칭, 오버홀..." />
+        <input v-model="form.domainKeyword" placeholder="예: 티칭, 오버홀..." />
       </div>
 
       <div class="field">
         <label>역량 카테고리</label>
-        <select v-model="form.category" :class="{ 'select-placeholder': !form.category }">
+        <select v-model="form.domainCompetencyCategory" :class="{ 'select-placeholder': !form.domainCompetencyCategory }">
           <option value="" disabled>카테고리 선택</option>
-          <option v-for="c in CATEGORY_OPTIONS" :key="c" :value="c">{{ c }}</option>
+          <option v-for="c in CATEGORY_OPTIONS" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>
       </div>
 
       <div class="field">
         <label>설명</label>
-        <textarea v-model="form.description" placeholder="키워드에 대한 간략한 설명 입력" />
+        <textarea v-model="form.domainKeywordDescription" placeholder="키워드에 대한 간략한 설명 입력" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>기본 점수 (0.1 ~ 10.0)</label>
+          <input v-model.number="form.domainBaseScore" type="number" min="0.1" max="10.0" step="0.1" placeholder="예: 5.0" />
+        </div>
+        <div class="field">
+          <label>가중치 (1.0 ~ 5.0)</label>
+          <input v-model.number="form.domainWeight" type="number" min="1.0" max="5.0" step="0.1" placeholder="예: 1.5" />
+        </div>
       </div>
 
       <div class="field">
-        <label>가중치 (1.0 ~ 2.0)</label>
-        <input v-model.number="form.weight" type="number" min="1.0" max="2.0" step="0.1" placeholder="예: 1.5" style="width: 200px;" />
+        <label class="checkbox-label">
+          <input type="checkbox" v-model="form.domainIsActive" />
+          <span>활성 상태</span>
+        </label>
       </div>
     </BaseFormModal>
   </Teleport>
@@ -118,4 +148,31 @@ textarea {
 
 textarea::placeholder { color: var(--color-text-placeholder); }
 textarea:focus { border-color: var(--color-primary-600); }
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.field-row .field { flex: 1; }
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary-600);
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-800);
+}
 </style>

@@ -1,21 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import KeywordToolbar from '@/components/admin/scm/KeywordToolbar.vue'
 import KeywordTable   from '@/components/admin/scm/KeywordTable.vue'
 import KeywordModal   from '@/components/admin/scm/KeywordModalWrapper.vue'
 import { BaseButton } from '@/components/common/base'
-import { DUMMY_KEYWORDS, PAGE_SIZE } from '@/mocks/admin/keyword/keywordData.js'
+import { ADMIN_API_BASE } from '@/constants'
+import { useAuthStore }   from '@/stores/auth'
 
-const keywords         = ref(DUMMY_KEYWORDS.map(k => ({ ...k })))
+const PAGE_SIZE = 6
+
+const authStore        = useAuthStore()
+const keywords         = ref([])
 const searchQuery      = ref('')
-const selectedCategory = ref('전체 카테고리')
+const selectedCategory = ref('ALL')
 const currentPage      = ref(1)
+
+// ── API 호출 ─────────────────────────────────────────
+async function fetchKeywords() {
+  try {
+    const res = await fetch(`${ADMIN_API_BASE}/api/v1/domain-keyword`, {
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    })
+    const json = await res.json()
+    if (json.success && json.data) {
+      keywords.value = json.data
+    }
+  } catch (e) {
+    console.error('Failed to fetch domain keywords:', e)
+  }
+}
 
 // ── 필터링 ──────────────────────────────────────────
 const filteredKeywords = computed(() =>
   keywords.value.filter(k => {
-    const matchCat    = selectedCategory.value === '전체 카테고리' || k.category === selectedCategory.value
-    const matchSearch = k.keyword.includes(searchQuery.value) || k.description.includes(searchQuery.value)
+    const matchCat    = selectedCategory.value === 'ALL' || k.domainCompetencyCategory === selectedCategory.value
+    const matchSearch = k.domainKeyword.includes(searchQuery.value) || k.domainKeywordDescription.includes(searchQuery.value)
     return matchCat && matchSearch
   })
 )
@@ -42,23 +61,56 @@ const openAddModal  = ()   => { editingKeyword.value = null;      isModalOpen.va
 const openEditModal = (kw) => { editingKeyword.value = { ...kw }; isModalOpen.value = true }
 const closeModal    = ()   => { isModalOpen.value = false; editingKeyword.value = null }
 
-const onSave = (kw) => {
-  if (kw.id) {
-    const idx = keywords.value.findIndex(k => k.id === kw.id)
-    if (idx !== -1) keywords.value[idx] = { ...kw }
-  } else {
-    const newId = Math.max(...keywords.value.map(k => k.id)) + 1
-    keywords.value.push({ ...kw, id: newId })
+const onSave = async (kw) => {
+  const isEdit = !!kw.domainKeywordId
+  const { domainKeywordId, ...body } = kw
+
+  try {
+    const url = isEdit
+      ? `${ADMIN_API_BASE}/api/v1/domain-keyword/${domainKeywordId}`
+      : `${ADMIN_API_BASE}/api/v1/domain-keyword`
+    const res = await fetch(url, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: JSON.stringify(body),
+    })
+    const json = await res.json()
+    if (json.success) {
+      closeModal()
+      await fetchKeywords()
+    } else {
+      alert(json.message ?? (isEdit ? '키워드 수정에 실패했습니다.' : '키워드 등록에 실패했습니다.'))
+    }
+  } catch (e) {
+    console.error(`Failed to ${isEdit ? 'update' : 'create'} domain keyword:`, e)
+    alert(isEdit ? '키워드 수정 중 오류가 발생했습니다.' : '키워드 등록 중 오류가 발생했습니다.')
   }
-  closeModal()
 }
 
 const onEditClick   = (kw) => { openEditModal(kw) }
-const onDeleteClick = (id) => {
+const onDeleteClick = async (id) => {
   if (!confirm('삭제하시겠습니까?')) return
-  const idx = keywords.value.findIndex(k => k.id === id)
-  if (idx !== -1) keywords.value.splice(idx, 1)
+  try {
+    const res = await fetch(`${ADMIN_API_BASE}/api/v1/domain-keyword/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    })
+    const json = await res.json()
+    if (json.success) {
+      await fetchKeywords()
+    } else {
+      alert(json.message ?? '키워드 삭제에 실패했습니다.')
+    }
+  } catch (e) {
+    console.error('Failed to delete domain keyword:', e)
+    alert('키워드 삭제 중 오류가 발생했습니다.')
+  }
 }
+
+onMounted(fetchKeywords)
 </script>
 
 <template>

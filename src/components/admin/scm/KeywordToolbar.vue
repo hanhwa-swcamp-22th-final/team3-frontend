@@ -1,11 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { BaseInput, BaseSelect } from '@/components/common/base'
-import { CATEGORY_OPTIONS } from '@/mocks/admin/keyword/keywordData.js'
 
 const props = defineProps({
   searchQuery:      { type: String, default: '' },
-  selectedCategory: { type: String, default: '전체 카테고리' },
+  selectedCategory: { type: String, default: 'ALL' },
 })
 
 const emit = defineEmits(['search', 'categoryChange'])
@@ -15,7 +14,15 @@ const localSearch = ref(props.searchQuery)
 const onKeydown = (e) => { if (e.key === 'Enter') emit('search', localSearch.value) }
 const onBlur    = ()  => emit('search', localSearch.value)
 
-const categoryOptions = CATEGORY_OPTIONS.map(c => ({ value: c, label: c }))
+const categoryOptions = [
+  { value: 'ALL',                  label: '전체 카테고리' },
+  { value: 'TECHNICAL_COMPETENCE', label: '기술역량' },
+  { value: 'LEADERSHIP',          label: '리더십' },
+  { value: 'SAFETY',              label: '안전' },
+  { value: 'INNOVATION',          label: '혁신' },
+  { value: 'COLLABORATION',       label: '협업' },
+  { value: 'OTHERS',               label: '기타' },
+]
 </script>
 
 <template>
