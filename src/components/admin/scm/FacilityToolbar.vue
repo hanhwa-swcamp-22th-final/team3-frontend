@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { BaseInput, BaseSelect, BaseButton } from '@/components/common/base'
-import { LINE_OPTIONS } from '@/mocks/admin/facility/facilityData.js'
 
 const props = defineProps({
   searchQuery:  { type: String, default: '' },
-  selectedLine: { type: String, default: '전체' },
+  selectedLine: { type: String, default: 'ALL' },
+  lineOptions:  { type: Array,  default: () => ['ALL'] },
 })
 
 const emit = defineEmits(['search', 'lineChange', 'addClick'])
@@ -15,7 +15,9 @@ const localSearch = ref(props.searchQuery)
 const onSearch  = ()  => { emit('search', localSearch.value) }
 const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
 
-const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '라인 전체' : l }))
+const selectOptions = computed(() =>
+  props.lineOptions.map(l => ({ value: l, label: l === 'ALL' ? '라인 전체' : l }))
+)
 </script>
 
 <template>
@@ -30,7 +32,7 @@ const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '
     <BaseSelect
       class="toolbar__select"
       :model-value="selectedLine"
-      :options="lineOptions"
+      :options="selectOptions"
       @update:model-value="emit('lineChange', $event)"
     />
     <BaseButton variant="primary" size="sm" @click="emit('addClick')">
