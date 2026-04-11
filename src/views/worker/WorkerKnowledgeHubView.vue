@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
@@ -12,13 +12,29 @@ import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-manage
 import {
   knowledgeStats,
   knowledgeCategories,
-  knowledgeArticles,
+  // knowledgeArticles,
   monthlyRanking,
   ongoingMentoring,
   mentoringRequests,
   mentoringRequestFormDefaults,
   aiRecommendations,
 } from '@/mocks/worker/workerKnowledgeHubData'
+
+
+import knowledgeArticleApi from '@/services/knowledgeArticleApi';
+
+const knowledgeArticles = ref([]);
+const page = ref(0);
+const size = ref(10);
+
+onMounted(async () => {
+  try {
+    const response = await knowledgeArticleApi.getArticles(page.value, size.value);
+    knowledgeArticles.value = response.data.data;
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+  }
+});
 
 const headerCards = computed(() => [
   {
