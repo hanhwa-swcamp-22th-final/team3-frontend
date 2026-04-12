@@ -2,12 +2,15 @@
 import { ref } from 'vue'
 import { BaseButton, BaseTextarea } from '@/components/common/base'
 import {
-  TOP_CONTRIBUTORS,
   MENTORING_ACTIVE,
   MENTORING_REQUEST,
-  AI_RECOMMENDATIONS,
   TIER_BADGE,
 } from '@/mocks/admin/kms/kmsData.js'
+
+const props = defineProps({
+  contributors:    { type: Array, default: () => [] },
+  recommendations: { type: Array, default: () => [] },
+})
 
 const showAcceptModal = ref(false)
 const accepted = ref(false)
@@ -25,22 +28,17 @@ const handleAccept = () => {
     <div class="panel-section">
       <span class="section-title">🏆 이달의 지식 기여자</span>
       <div class="contributor-list">
-        <div v-for="c in TOP_CONTRIBUTORS" :key="c.name" class="contributor-row">
+        <div v-for="c in contributors" :key="c.name" class="contributor-row">
           <span class="contrib-rank">{{ c.rank }}</span>
           <div class="contrib-avatar" :style="{ background: c.color }">{{ c.initial }}</div>
           <span class="contrib-name">{{ c.name }}</span>
-          <span
-            class="contrib-tier"
-            :style="TIER_BADGE[c.tier]
-              ? { background: TIER_BADGE[c.tier].bg, color: TIER_BADGE[c.tier].color }
-              : {}"
-          >{{ c.tier }}</span>
           <span class="contrib-count">{{ c.count }}건</span>
         </div>
+        <div v-if="contributors.length === 0" class="contrib-empty">기여자 데이터가 없습니다.</div>
       </div>
     </div>
 
-    <!-- 멘토링 매칭 현황 -->
+    <!-- 멘토링 매칭 현황 (백엔드 미구현 → mock 유지) -->
     <div class="panel-section">
       <span class="section-title">🤝 멘토링 매칭 현황</span>
 
@@ -70,9 +68,12 @@ const handleAccept = () => {
     <div class="panel-section panel-section--ai">
       <span class="section-title">🤖 AI 추천 학습</span>
       <div class="ai-list">
-        <div v-for="(item, i) in AI_RECOMMENDATIONS" :key="i" class="ai-item">
+        <div v-for="(item, i) in recommendations" :key="i" class="ai-item">
           <span class="ai-text">{{ item }}</span>
           <span class="ai-arrow">→</span>
+        </div>
+        <div v-if="recommendations.length === 0" class="ai-item">
+          <span class="ai-text">추천 데이터가 없습니다.</span>
         </div>
       </div>
     </div>
@@ -211,18 +212,18 @@ const handleAccept = () => {
   flex: 1;
 }
 
-.contrib-tier {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
 .contrib-count {
   font-size: 11px;
   font-weight: 700;
   color: var(--color-primary-600, #5b4fcf);
   flex-shrink: 0;
+}
+
+.contrib-empty {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 8px 0;
 }
 
 /* 멘토링 */
@@ -317,7 +318,6 @@ const handleAccept = () => {
   flex-shrink: 0;
 }
 
-/* 수락됨 텍스트 */
 .request-accepted {
   font-size: 10px;
   font-weight: 700;
@@ -491,22 +491,6 @@ const handleAccept = () => {
   margin: 0;
 }
 
-.am-box-textarea {
-  width: 100%;
-  resize: none;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  color: var(--color-modal-title);
-  font-family: var(--font-family-base);
-  outline: none;
-  box-sizing: border-box;
-}
-
-.am-box-textarea::placeholder {
-  color: var(--color-placeholder-light);
-}
-
 /* 버튼 */
 .am-actions {
   display: flex;
@@ -514,32 +498,6 @@ const handleAccept = () => {
   gap: 10px;
   margin-top: 4px;
 }
-
-.am-btn {
-  height: 48px;
-  padding: 0 28px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: var(--font-family-base);
-}
-
-.am-btn--cancel {
-  background: var(--color-bg-surface);
-  border: 3px solid var(--color-border-default);
-  color: var(--color-modal-label);
-}
-
-.am-btn--cancel:hover { background: var(--color-primary-50); }
-
-.am-btn--confirm {
-  background: var(--color-primary-600);
-  border: none;
-  color: var(--color-text-inverse);
-}
-
-.am-btn--confirm:hover { background: var(--color-primary-700); }
 
 /* AI 추천 */
 .ai-list {
