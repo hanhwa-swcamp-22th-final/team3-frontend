@@ -1,14 +1,16 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import FacilityToolbar from '@/components/admin/scm/FacilityToolbar.vue'
 import FacilityTable   from '@/components/admin/scm/FacilityTable.vue'
 import FacilityModal   from '@/components/admin/scm/FacilityModalWrapper.vue'
-import { DUMMY_FACILITIES } from '@/mocks/admin/facility/facilityData.js'
+import { ADMIN_API_BASE } from '@/constants'
+import { useAuthStore }   from '@/stores/auth'
 
 // ── State ──────────────────────────────────────────
-const facilities      = ref(DUMMY_FACILITIES.map(f => ({ ...f })))
+const authStore       = useAuthStore()
+const facilities      = ref([])
 const searchQuery     = ref('')
-const selectedLine    = ref('전체')
+const selectedLine    = ref('ALL')
 const isModalOpen     = ref(false)
 const editingFacility = ref(null)
 
@@ -16,12 +18,33 @@ const editingFacility = ref(null)
 const PAGE_SIZE   = 8
 const currentPage = ref(1)
 
+// ── API 호출 ─────────────────────────────────────────
+async function fetchEquipments() {
+  try {
+    const res = await fetch(`${ADMIN_API_BASE}/api/v1/equipment-management/equipments`, {
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    })
+    const json = await res.json()
+    if (json.success && json.data) {
+      facilities.value = json.data
+    }
+  } catch (e) {
+    console.error('Failed to fetch equipments:', e)
+  }
+}
+
+// ── 라인 필터 옵션 (데이터 기반) ─────────────────────
+const lineOptions = computed(() => {
+  const lines = [...new Set(facilities.value.map(f => f.factoryLineName).filter(Boolean))]
+  return ['ALL', ...lines.sort()]
+})
+
 // ── 필터링 ──────────────────────────────────────────
 const filteredFacilities = computed(() =>
   facilities.value.filter(f => {
-    const matchLine   = selectedLine.value === '전체' || f.equipment_line === selectedLine.value
-    const matchSearch = f.equipment_name.includes(searchQuery.value) ||
-                        f.equipment_code.includes(searchQuery.value)
+    const matchLine   = selectedLine.value === 'ALL' || f.factoryLineName === selectedLine.value
+    const matchSearch = f.equipmentName.includes(searchQuery.value) ||
+                        f.equipmentCode.includes(searchQuery.value)
     return matchLine && matchSearch
   })
 )
@@ -61,20 +84,21 @@ const openEditModal = (fac) => { editingFacility.value = { ...fac }; isModalOpen
 const closeModal    = ()    => { isModalOpen.value = false; editingFacility.value = null }
 
 const onDelete = (fac) => {
-  if (!confirm(`"${fac.equipment_name}" 설비를 삭제하시겠습니까?`)) return
-  facilities.value = facilities.value.filter(f => f.id !== fac.id)
+  if (!confirm(`"${fac.equipmentName}" 설비를 삭제하시겠습니까?`)) return
+  facilities.value = facilities.value.filter(f => f.equipmentId !== fac.equipmentId)
 }
 
 const onSave = (fac) => {
-  if (fac.id) {
-    const idx = facilities.value.findIndex(f => f.id === fac.id)
+  if (fac.equipmentId) {
+    const idx = facilities.value.findIndex(f => f.equipmentId === fac.equipmentId)
     if (idx !== -1) facilities.value[idx] = { ...fac }
   } else {
-    const newId = Math.max(...facilities.value.map(f => f.id)) + 1
-    facilities.value.push({ ...fac, id: newId })
+    facilities.value.push({ ...fac })
   }
   closeModal()
 }
+
+onMounted(fetchEquipments)
 </script>
 
 <template>
@@ -84,6 +108,7 @@ const onSave = (fac) => {
     <FacilityToolbar
       :searchQuery="searchQuery"
       :selectedLine="selectedLine"
+      :lineOptions="lineOptions"
       @search="onSearch"
       @lineChange="onLineChange"
       @addClick="openAddModal"
