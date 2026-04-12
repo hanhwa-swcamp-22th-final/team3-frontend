@@ -12,13 +12,21 @@ const equipmentId = ref(null)
 const content     = ref('')
 
 const equipmentList = ref([])
+const errorMessage = ref('')
+const equipmentLoadFailed = ref(false)
 
 onMounted(async () => {
   try {
     const res = await knowledgeArticleApi.getEquipments()
     equipmentList.value = res.data.data ?? []
+    equipmentLoadFailed.value = equipmentList.value.length === 0
+    if (equipmentLoadFailed.value) {
+      errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+    }
   } catch (e) {
     console.error('[KMS] 설비 목록 로드 실패:', e)
+    equipmentLoadFailed.value = true
+    errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
   }
 })
 
@@ -32,10 +40,16 @@ function getData() {
 }
 
 function handleSubmit() {
+  if (!equipmentId.value) {
+    errorMessage.value = '설비를 선택해야 등록할 수 있습니다.'
+    return
+  }
+  errorMessage.value = ''
   emit('submit', getData())
 }
 
 function handleSaveDraft() {
+  errorMessage.value = ''
   emit('saveDraft', getData())
 }
 </script>
@@ -81,7 +95,7 @@ function handleSaveDraft() {
       <div class="ka__row">
         <div class="ka__field">
           <label class="ka__label">설비</label>
-          <select v-model="equipmentId" class="ka__select">
+          <select v-model="equipmentId" class="ka__select" :disabled="equipmentLoadFailed">
             <option :value="null" disabled hidden></option>
             <option
               v-for="eq in equipmentList"
@@ -111,6 +125,7 @@ function handleSaveDraft() {
         </div>
       </div>
     </div>
+    <p v-if="errorMessage" class="ka__error">{{ errorMessage }}</p>
   </BaseFormModal>
 </template>
 
@@ -207,5 +222,11 @@ function handleSaveDraft() {
   font-size: 12px;
   color: var(--color-text-muted);
   margin: 0;
+}
+
+.ka__error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-danger);
 }
 </style>

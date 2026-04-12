@@ -10,6 +10,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
+  isSubmitting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
@@ -82,12 +90,16 @@ function reviewClass(value) {
           rows="3"
           @input="emit('update:review-note', $event.target.value)"
         ></textarea>
+        <p v-if="errorMessage" class="review__comment-error">{{ errorMessage }}</p>
+        <p v-else class="review__comment-help">
+          `반려`는 10자 이상, `보류`는 비어 있지 않은 코멘트가 필요합니다.
+        </p>
       </label>
 
       <div class="review__actions">
-        <BaseButton variant="secondary" @click="emit('reject', item)">반려</BaseButton>
-        <BaseButton variant="secondary" @click="emit('hold', item)">보류</BaseButton>
-        <BaseButton @click="emit('approve', item)">승인</BaseButton>
+        <BaseButton variant="danger" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('reject', item)">반려</BaseButton>
+        <BaseButton variant="secondary" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('hold', item)">보류</BaseButton>
+        <BaseButton :disabled="isSubmitting" :loading="isSubmitting" @click="emit('approve', item)">승인</BaseButton>
       </div>
     </div>
 
@@ -259,6 +271,21 @@ function reviewClass(value) {
   font: inherit;
   color: var(--color-text-default);
   resize: vertical;
+}
+
+.review__comment-help,
+.review__comment-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.review__comment-help {
+  color: var(--color-text-muted);
+}
+
+.review__comment-error {
+  color: var(--color-danger);
 }
 
 .review__actions {

@@ -1,6 +1,6 @@
 <script setup>
 import { BaseModal } from '@/components/common/base'
-import { CATEGORY_CLASS_MAP } from '@/constants'
+import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
 defineProps({
   article: { type: Object, required: true },
@@ -9,9 +9,9 @@ defineProps({
 const emit = defineEmits(['close'])
 
 function statusClass(status) {
-  if (status === '승인 완료') return 'st--approved'
-  if (status === '승인 대기') return 'st--pending'
-  if (status === '반려') return 'st--rejected'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
   return 'st--draft'
 }
 

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
@@ -20,6 +21,9 @@ import {
 } from '@/mocks/teamleader'
 
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+
+const authStore = useAuthStore()
+const authorId = computed(() => Number(authStore.userInfo?.employeeId))
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -44,7 +48,7 @@ function mapToFeedItem(dto) {
     views:        dto.viewCount ?? 0,
     comments:     dto.commentCount ?? 0,
     isPopular:    (dto.viewCount ?? 0) > 50,
-    isSubscribed: false,
+    isBookmarked: false,
     status:       dto.articleStatus,
     commentList:  [],
   }
@@ -72,7 +76,7 @@ const knowledgeCategories = [
   { key: 'all',    label: '전체' },
   { key: 'popular', label: '인기' },
   { key: 'latest',  label: '최신' },
-  { key: 'subscribed', label: '내 구독' },
+  { key: 'bookmarked', label: '내 북마크' },
   { key: '장애조치', label: '장애조치' },
   { key: '공정개선', label: '공정개선' },
   { key: '설비운영', label: '설비운영' },
@@ -134,6 +138,38 @@ async function loadRecommendations() {
     aiRecommendations.value = (res.data.data ?? []).map(mapToRecommendation)
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+async function handleAddArticle(data) {
+  try {
+    await knowledgeArticleApi.createArticle({
+      authorId: authorId.value,
+      title: data.title,
+      category: data.category,
+      equipmentId: data.equipmentId,
+      content: data.content,
+    })
+    showWriteModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] TL 문서 등록 실패:', e)
+  }
+}
+
+async function handleSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveDraft({
+      authorId: authorId.value,
+      title: data.title,
+      category: data.category,
+      equipmentId: data.equipmentId,
+      content: data.content,
+    })
+    showWriteModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] TL 임시저장 실패:', e)
   }
 }
 
@@ -203,8 +239,8 @@ function submitMentoringRequest(payload) {
       v-if="showWriteModal"
       :options="knowledgeWriteModalOptions"
       @close="showWriteModal = false"
-      @draft="showWriteModal = false"
-      @submit="showWriteModal = false"
+      @draft="handleSaveDraft"
+      @submit="handleAddArticle"
     />
 
     <TeamLeaderKnowledgeDetailModal

@@ -33,7 +33,7 @@ function mapToFeedCard(dto) {
     views:      dto.viewCount ?? 0,
     comments:   dto.commentCount ?? 0,
     isPopular:  (dto.viewCount ?? 0) > 50,
-    subscribed: false,
+    bookmarked: false,
   }
 }
 

@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
@@ -61,6 +62,10 @@ const activeFilter   = ref('all')
 const selectedId     = ref(null)
 const reviewNote     = ref('')
 const selectedDetail = ref(null)
+const reviewError    = ref('')
+const isSubmitting   = ref(false)
+const toast          = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
 
 // ── 필터 / 목록 ───────────────────────────────────────────────
 const filters = computed(() => {
@@ -115,6 +120,7 @@ async function loadList() {
 async function selectItem(id) {
   selectedId.value = id
   selectedDetail.value = null
+  reviewError.value = ''
   try {
     const res = await knowledgeArticleApi.getApprovalDetail(id)
     selectedDetail.value = mapToReviewItem(res.data.data ?? {})
@@ -134,43 +140,83 @@ function changeFilter(filterKey) {
   }
 }
 
+function showToast(message, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = { show: true, message, type }
+  toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
+}
+
+function normalizeErrorMessage(error, fallback) {
+  return error.response?.data?.message ?? fallback
+}
+
+function validateReviewNote(action) {
+  const note = reviewNote.value.trim()
+  if (action === 'REJECT' && note.length < 10) {
+    reviewError.value = '반려 처리에는 10자 이상의 심사 코멘트가 필요합니다.'
+    return false
+  }
+  if (action === 'PENDING' && note.length === 0) {
+    reviewError.value = '보류 처리에는 심사 코멘트를 입력해야 합니다.'
+    return false
+  }
+  reviewError.value = ''
+  return true
+}
+
 // ── 승인 처리 ─────────────────────────────────────────────────
 async function handleApprove() {
-  if (!selectedDetail.value) return
+  if (!selectedDetail.value || isSubmitting.value) return
+  reviewError.value = ''
+  isSubmitting.value = true
   try {
     await knowledgeArticleApi.processApproval('DL', selectedDetail.value.id, {
       status: 'APPROVE',
       reviewComment: reviewNote.value,
     })
     await Promise.allSettled([loadStats(), loadList()])
+    showToast('승인 처리되었습니다.')
   } catch (e) {
     console.error('[KMS] 승인 처리 실패:', e)
+    showToast(normalizeErrorMessage(e, '승인 처리에 실패했습니다.'), 'error')
+  } finally {
+    isSubmitting.value = false
   }
 }
 
 async function handleHold() {
-  if (!selectedDetail.value) return
+  if (!selectedDetail.value || isSubmitting.value || !validateReviewNote('PENDING')) return
+  isSubmitting.value = true
   try {
     await knowledgeArticleApi.processApproval('DL', selectedDetail.value.id, {
       status: 'PENDING',
       reviewComment: reviewNote.value,
     })
     await Promise.allSettled([loadStats(), loadList()])
+    showToast('보류 처리되었습니다.')
   } catch (e) {
     console.error('[KMS] 보류 처리 실패:', e)
+    showToast(normalizeErrorMessage(e, '보류 처리에 실패했습니다.'), 'error')
+  } finally {
+    isSubmitting.value = false
   }
 }
 
 async function handleReject() {
-  if (!selectedDetail.value) return
+  if (!selectedDetail.value || isSubmitting.value || !validateReviewNote('REJECT')) return
+  isSubmitting.value = true
   try {
     await knowledgeArticleApi.processApproval('DL', selectedDetail.value.id, {
       status: 'REJECT',
       reviewComment: reviewNote.value,
     })
     await Promise.allSettled([loadStats(), loadList()])
+    showToast('반려 처리되었습니다.')
   } catch (e) {
     console.error('[KMS] 반려 처리 실패:', e)
+    showToast(normalizeErrorMessage(e, '반려 처리에 실패했습니다.'), 'error')
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -205,12 +251,16 @@ async function handleReject() {
       <TeamLeaderKnowledgeApprovalReviewPanel
         :item="selectedDetail"
         :review-note="reviewNote"
+        :error-message="reviewError"
+        :is-submitting="isSubmitting"
         @update:review-note="reviewNote = $event"
         @approve="handleApprove"
         @hold="handleHold"
         @reject="handleReject"
       />
     </section>
+
+    <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
   </section>
 </template>
 

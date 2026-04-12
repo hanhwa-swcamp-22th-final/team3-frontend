@@ -1,41 +1,34 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
-
-const props = defineProps({
-  options: {
-    type: Object,
-    default: () => ({ categories: [], equipments: [] }),
-  },
-})
+import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const emit = defineEmits(['close', 'submit', 'draft'])
 
 const form = reactive({
-  title: '',
-  category: '정밀가공',
-  equipment: 'MCH-01',
-  summary: '',
-  content: '',
+  title:       '',
+  category:    '',
+  equipmentId: null,
+  content:     '',
 })
 
-const isRecording = ref(false)
-const speechMessage = ref('음성 인식으로 본문을 빠르게 작성할 수 있습니다.')
+const equipmentList   = ref([])
+const isRecording     = ref(false)
+const speechMessage   = ref('음성 인식으로 본문을 빠르게 작성할 수 있습니다.')
 
-const supportsSpeechRecognition = computed(() => {
-  if (typeof window === 'undefined') {
-    return false
+onMounted(async () => {
+  try {
+    const res = await knowledgeArticleApi.getEquipments()
+    equipmentList.value = res.data.data ?? []
+  } catch (e) {
+    console.error('[KMS] 설비 목록 로드 실패:', e)
   }
-
-  return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
 })
 
 function createRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-  if (!SpeechRecognition) {
-    return null
-  }
-
+  if (!SpeechRecognition) return null
   const recognition = new SpeechRecognition()
   recognition.lang = 'ko-KR'
   recognition.continuous = true
@@ -44,74 +37,68 @@ function createRecognition() {
 }
 
 function toggleVoiceInput() {
-  if (!supportsSpeechRecognition.value) {
+  const supported = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
+  if (!supported) {
     speechMessage.value = '현재 브라우저에서는 음성 인식을 지원하지 않습니다.'
     return
   }
-
   if (isRecording.value) {
-    window.__teamLeaderKnowledgeRecognition?.stop()
+    window.__tlKnowledgeRecognition?.stop()
     return
   }
-
   const recognition = createRecognition()
   if (!recognition) {
     speechMessage.value = '음성 인식 준비에 실패했습니다.'
     return
   }
-
   let finalTranscript = ''
   speechMessage.value = '음성을 듣고 있습니다. 말씀하신 내용이 본문에 반영됩니다.'
   isRecording.value = true
-  window.__teamLeaderKnowledgeRecognition = recognition
-
+  window.__tlKnowledgeRecognition = recognition
   recognition.onresult = (event) => {
     let interimTranscript = ''
-
-    for (let index = event.resultIndex; index < event.results.length; index += 1) {
-      const transcript = event.results[index][0].transcript
-
-      if (event.results[index].isFinal) {
-        finalTranscript += `${transcript.trim()}\n`
-      } else {
-        interimTranscript += transcript
-      }
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript
+      if (event.results[i].isFinal) finalTranscript += `${t.trim()}\n`
+      else interimTranscript += t
     }
-
     form.content = `${finalTranscript}${interimTranscript}`.trim()
   }
-
   recognition.onerror = () => {
     speechMessage.value = '음성 인식 중 오류가 발생했습니다. 다시 시도해 주세요.'
     isRecording.value = false
   }
-
   recognition.onend = () => {
-    if (isRecording.value) {
-      speechMessage.value = '음성 입력이 종료되었습니다. 필요하면 다시 시작해 주세요.'
-    }
+    if (isRecording.value) speechMessage.value = '음성 입력이 종료되었습니다.'
     isRecording.value = false
   }
-
   recognition.start()
 }
 
 function resetForm() {
-  form.title = ''
-  form.category = props.options.categories[0] ?? ''
-  form.equipment = props.options.equipments[0] ?? ''
-  form.summary = ''
-  form.content = ''
+  form.title       = ''
+  form.category    = ''
+  form.equipmentId = null
+  form.content     = ''
   speechMessage.value = '음성 인식으로 본문을 빠르게 작성할 수 있습니다.'
 }
 
+function getData() {
+  return {
+    title:       form.title,
+    category:    form.category,
+    equipmentId: form.equipmentId || null,
+    content:     form.content,
+  }
+}
+
 function submitForm() {
-  emit('submit', { ...form })
+  emit('submit', getData())
   resetForm()
 }
 
 function saveDraft() {
-  emit('draft', { ...form })
+  emit('draft', getData())
   resetForm()
 }
 </script>
@@ -137,21 +124,26 @@ function saveDraft() {
       <label>
         카테고리
         <select v-model="form.category">
-          <option v-for="category in options.categories" :key="category" :value="category">{{ category }}</option>
+          <option value="" disabled hidden></option>
+          <option v-for="opt in ARTICLE_CATEGORY_OPTIONS" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
         </select>
       </label>
       <label>
         설비
-        <select v-model="form.equipment">
-          <option v-for="equipment in options.equipments" :key="equipment" :value="equipment">{{ equipment }}</option>
+        <select v-model="form.equipmentId">
+          <option :value="null" disabled hidden></option>
+          <option
+            v-for="eq in equipmentList"
+            :key="eq.equipmentId ?? eq.id"
+            :value="eq.equipmentId ?? eq.id"
+          >
+            {{ eq.equipmentName ?? eq.name }}
+          </option>
         </select>
       </label>
     </div>
-
-    <label class="write-modal__full">
-      요약
-      <textarea v-model="form.summary" rows="3" placeholder="핵심 요약을 입력하세요"></textarea>
-    </label>
 
     <label class="write-modal__full">
       <div class="write-modal__field-head">
@@ -236,7 +228,6 @@ textarea {
   .write-modal__grid {
     grid-template-columns: 1fr;
   }
-
   .write-modal__field-head {
     align-items: stretch;
     flex-direction: column;

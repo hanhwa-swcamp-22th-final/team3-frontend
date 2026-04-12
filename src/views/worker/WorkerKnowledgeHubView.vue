@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
@@ -20,6 +21,9 @@ import {
 } from '@/mocks/worker/workerKnowledgeHubData'
 
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+
+const authStore = useAuthStore()
+const authorId  = computed(() => Number(authStore.userInfo?.employeeId))
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -44,7 +48,7 @@ function mapToFeedItem(dto) {
     views: dto.viewCount ?? 0,
     comments: dto.commentCount ?? 0,
     isPopular: (dto.viewCount ?? 0) > 50,
-    isSubscribed: false,
+    isBookmarked: false,
     status: dto.articleStatus,
   }
 }
@@ -74,7 +78,7 @@ const knowledgeCategories = [
   { key: 'all',    label: '전체' },
   { key: 'popular', label: '인기' },
   { key: 'latest',  label: '최신' },
-  { key: 'subscribed', label: '내 구독' },
+  { key: 'bookmarked', label: '내 북마크' },
   { key: '장애조치',   label: '장애조치' },
   { key: '공정개선',   label: '공정개선' },
   { key: '설비운영',   label: '설비운영' },
@@ -186,14 +190,36 @@ function submitRequest() {
   showRequestModal.value = false
 }
 
-async function handleAddArticle() {
-  showAddModal.value = false
-  await loadArticles()
+async function handleAddArticle(data) {
+  try {
+    await knowledgeArticleApi.createArticle({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] 문서 등록 실패:', e)
+  }
 }
 
-async function handleSaveDraft() {
-  showAddModal.value = false
-  await loadArticles()
+async function handleSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveDraft({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] 임시저장 실패:', e)
+  }
 }
 
 function closeModal() {

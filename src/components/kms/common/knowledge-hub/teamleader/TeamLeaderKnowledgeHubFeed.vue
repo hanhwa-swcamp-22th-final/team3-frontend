@@ -29,8 +29,8 @@ const filteredArticles = computed(() => {
     result = result.filter((item) => item.isPopular)
   } else if (activeCategory.value === 'latest') {
     result = [...result].sort((a, b) => b.id - a.id)
-  } else if (activeCategory.value === 'subscribed') {
-    result = result.filter((item) => item.isSubscribed)
+  } else if (activeCategory.value === 'bookmarked') {
+    result = result.filter((item) => item.isBookmarked)
   } else if (activeCategory.value !== 'all') {
     result = result.filter((item) => item.category === activeCategory.value)
   }

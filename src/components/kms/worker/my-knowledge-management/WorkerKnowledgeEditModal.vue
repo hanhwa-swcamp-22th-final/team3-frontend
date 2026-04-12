@@ -17,13 +17,21 @@ const equipmentId = ref(props.article.equipmentId ?? null)
 const content     = ref(props.article.content ?? '')
 
 const equipmentList = ref([])
+const errorMessage = ref('')
+const equipmentLoadFailed = ref(false)
 
 onMounted(async () => {
   try {
     const res = await knowledgeArticleApi.getEquipments()
     equipmentList.value = res.data.data ?? []
+    equipmentLoadFailed.value = equipmentList.value.length === 0
+    if (equipmentLoadFailed.value) {
+      errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+    }
   } catch (e) {
     console.error('[KMS] 설비 목록 로드 실패:', e)
+    equipmentLoadFailed.value = true
+    errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
   }
 })
 
@@ -38,10 +46,16 @@ function getData() {
 }
 
 function handleSubmit() {
+  if (!equipmentId.value) {
+    errorMessage.value = '설비를 선택해야 수정 완료할 수 있습니다.'
+    return
+  }
+  errorMessage.value = ''
   emit('submit', getData())
 }
 
 function handleSaveDraft() {
+  errorMessage.value = ''
   emit('saveDraft', getData())
 }
 </script>
@@ -87,7 +101,7 @@ function handleSaveDraft() {
       <div class="ke__row">
         <div class="ke__field">
           <label class="ke__label">설비</label>
-          <select v-model="equipmentId" class="ke__select">
+          <select v-model="equipmentId" class="ke__select" :disabled="equipmentLoadFailed">
             <option :value="null" disabled hidden></option>
             <option
               v-for="eq in equipmentList"
@@ -113,6 +127,7 @@ function handleSaveDraft() {
         </div>
       </div>
     </div>
+    <p v-if="errorMessage" class="ke__error">{{ errorMessage }}</p>
   </BaseFormModal>
 </template>
 
@@ -181,5 +196,11 @@ function handleSaveDraft() {
 
 .ke__textarea--lg {
   min-height: 140px;
+}
+
+.ke__error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-danger);
 }
 </style>

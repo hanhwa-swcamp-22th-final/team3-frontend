@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { BaseFilterTabs } from '@/components/common/base'
-import { CATEGORY_CLASS_MAP } from '@/constants'
+import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
 const props = defineProps({
   articles: { type: Array, required: true },
@@ -18,7 +18,7 @@ const filteredArticles = computed(() => {
 
   if (activeCategory.value !== '전체') {
     if (activeCategory.value === '승인대기') {
-      result = result.filter((a) => a.status === '승인 대기')
+      result = result.filter((a) => a.status === '승인대기')
     } else if (activeCategory.value === '반려') {
       result = result.filter((a) => a.status === '반려')
     } else {
@@ -40,9 +40,9 @@ const filteredArticles = computed(() => {
 })
 
 function statusClass(status) {
-  if (status === '승인 완료') return 'st--approved'
-  if (status === '승인 대기') return 'st--pending'
-  if (status === '반려') return 'st--rejected'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
   return 'st--draft'
 }
 
@@ -51,9 +51,9 @@ function categoryClass(cat) {
 }
 
 function actionLabel(status) {
-  if (status === '승인 완료') return '수정'
-  if (status === '승인 대기') return '승인 요청'
-  if (status === '반려') return '수정'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return '수정'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return '승인 요청'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return '수정'
   return '수정'
 }
 </script>

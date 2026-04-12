@@ -15,7 +15,7 @@ const KMS_FILTERS = [
   { key: '전체' },
   { key: '인기' },
   { key: '최신' },
-  { key: '내 구독' },
+  { key: '내 북마크' },
 ]
 
 // 태그 필터 (백엔드 카테고리 기준)
@@ -34,8 +34,8 @@ const filteredCards = computed(() => {
     list = list.filter((card) => card.isPopular)
   } else if (props.selectedFilter === '최신') {
     list = [...list].sort((a, b) => b.rawDate?.localeCompare(a.rawDate ?? '') ?? 0)
-  } else if (props.selectedFilter === '내 구독') {
-    list = list.filter((card) => card.subscribed)
+  } else if (props.selectedFilter === '내 북마크') {
+    list = list.filter((card) => card.bookmarked)
   }
 
   if (props.selectedTagFilter) {
