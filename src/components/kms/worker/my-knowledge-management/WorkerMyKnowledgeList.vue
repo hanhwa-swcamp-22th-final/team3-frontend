@@ -9,7 +9,7 @@ const props = defineProps({
 
 const emit = defineEmits(['detail', 'edit'])
 
-const categories = ['전체', '정밀가공', '설비점검', '품질관리', '승인대기', '반려']
+const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
 

@@ -9,33 +9,121 @@ import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/wo
 import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 
+import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+
+// 백엔드 미구현 항목만 mock 유지
 import {
   knowledgeStats,
-  knowledgeCategories,
-  // knowledgeArticles,
-  monthlyRanking,
   ongoingMentoring,
   mentoringRequests,
   mentoringRequestFormDefaults,
-  aiRecommendations,
 } from '@/mocks/worker/workerKnowledgeHubData'
 
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
-import knowledgeArticleApi from '@/services/knowledgeArticleApi';
+// ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
+function formatDate(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${mm}.${dd}`
+}
 
-const knowledgeArticles = ref([]);
-const page = ref(0);
-const size = ref(10);
-
-onMounted(async () => {
-  try {
-    const response = await knowledgeArticleApi.getArticles(page.value, size.value);
-    knowledgeArticles.value = response.data.data;
-  } catch (error) {
-    console.error('데이터 로드 실패:', error);
+// ── 백엔드 DTO → 피드 카드 shape 변환 ──────────────────────────
+function mapToFeedItem(dto) {
+  return {
+    id: dto.articleId,
+    title: dto.articleTitle,
+    category: ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory,
+    equipment: dto.equipmentName ?? '',
+    date: formatDate(dto.createdAt),
+    author: dto.authorName ?? '',
+    authorInitial: dto.authorName?.[0] ?? '?',
+    authorTier: '-',
+    views: dto.viewCount ?? 0,
+    comments: dto.commentCount ?? 0,
+    isPopular: (dto.viewCount ?? 0) > 50,
+    isSubscribed: false,
+    status: dto.articleStatus,
   }
-});
+}
 
+// ── 백엔드 DTO → 기여자 shape 변환 ─────────────────────────────
+function mapToContributor(dto, index) {
+  return {
+    rank: dto.rank ?? index + 1,
+    name: dto.authorName ?? '',
+    initial: dto.authorName?.[0] ?? '?',
+    tier: '-',
+    articles: dto.articleCount ?? 0,
+    avatarColor: '#5B4FCF',
+  }
+}
+
+// ── 백엔드 DTO → AI 추천 shape 변환 ────────────────────────────
+function mapToRecommendation(dto) {
+  return {
+    id: dto.articleId,
+    title: dto.articleTitle,
+  }
+}
+
+// ── 카테고리 탭 (백엔드 enum 기준) ─────────────────────────────
+const knowledgeCategories = [
+  { key: 'all',    label: '전체' },
+  { key: 'popular', label: '인기' },
+  { key: 'latest',  label: '최신' },
+  { key: 'subscribed', label: '내 구독' },
+  { key: '장애조치',   label: '장애조치' },
+  { key: '공정개선',   label: '공정개선' },
+  { key: '설비운영',   label: '설비운영' },
+  { key: '안전',       label: '안전' },
+  { key: '기타',       label: '기타' },
+]
+
+// ── API 상태 ────────────────────────────────────────────────────
+const knowledgeArticles = ref([])
+const monthlyRanking    = ref([])
+const aiRecommendations = ref([])
+
+// ── 데이터 로드 ────────────────────────────────────────────────
+onMounted(async () => {
+  await Promise.allSettled([
+    loadArticles(),
+    loadContributors(),
+    loadRecommendations(),
+  ])
+})
+
+async function loadArticles() {
+  try {
+    const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20 })
+    knowledgeArticles.value = (res.data.data ?? []).map(mapToFeedItem)
+  } catch (e) {
+    console.error('[KMS] 문서 목록 로드 실패:', e)
+  }
+}
+
+async function loadContributors() {
+  try {
+    const res = await knowledgeArticleApi.getContributors(5)
+    monthlyRanking.value = (res.data.data ?? []).map(mapToContributor)
+  } catch (e) {
+    console.error('[KMS] 기여자 랭킹 로드 실패:', e)
+  }
+}
+
+async function loadRecommendations() {
+  try {
+    const res = await knowledgeArticleApi.getRecommendations()
+    aiRecommendations.value = (res.data.data ?? []).map(mapToRecommendation)
+  } catch (e) {
+    console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+// ── 헤더 카드 (통계 — 백엔드 미구현, mock 유지) ────────────────
 const headerCards = computed(() => [
   {
     key: 'total',
@@ -57,6 +145,7 @@ const headerCards = computed(() => [
   },
 ])
 
+// ── 멘토링 데이터 (백엔드 미구현, mock 유지) ───────────────────
 const mentoringData = computed(() => ({
   ongoing: ongoingMentoring.map((m) => ({
     id: m.id,
@@ -73,10 +162,11 @@ const mentoringData = computed(() => ({
   })),
 }))
 
-const showAcceptModal = ref(false)
+// ── 모달 상태 ──────────────────────────────────────────────────
+const showAcceptModal  = ref(false)
 const showRequestModal = ref(false)
-const showAddModal = ref(false)
-const selectedRequest = ref(null)
+const showAddModal     = ref(false)
+const selectedRequest  = ref(null)
 
 function handleAcceptClick(request) {
   selectedRequest.value = request
@@ -96,19 +186,21 @@ function submitRequest() {
   showRequestModal.value = false
 }
 
-function handleAddArticle() {
+async function handleAddArticle() {
   showAddModal.value = false
+  await loadArticles()
 }
 
-function handleSaveDraft() {
+async function handleSaveDraft() {
   showAddModal.value = false
+  await loadArticles()
 }
 
 function closeModal() {
-  showAcceptModal.value = false
+  showAcceptModal.value  = false
   showRequestModal.value = false
-  showAddModal.value = false
-  selectedRequest.value = null
+  showAddModal.value     = false
+  selectedRequest.value  = null
 }
 </script>
 

@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
-import { KMS_CATEGORY_OPTIONS as categoryOptions, KMS_EQUIPMENT_OPTIONS as equipmentOptions } from '@/constants'
+import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const props = defineProps({
   article: { type: Object, required: true },
@@ -9,20 +10,30 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit', 'saveDraft'])
 
-const title = ref(props.article.title)
-const category = ref(props.article.category)
-const equipment = ref(props.article.equipment)
-const summary = ref(props.article.summary)
-const content = ref(props.article.content || '')
+// 백엔드 enum 값으로 초기화 (categoryEnum, equipmentId는 뷰에서 매핑 시 추가)
+const title       = ref(props.article.title ?? '')
+const category    = ref(props.article.categoryEnum ?? '')
+const equipmentId = ref(props.article.equipmentId ?? null)
+const content     = ref(props.article.content ?? '')
+
+const equipmentList = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await knowledgeArticleApi.getEquipments()
+    equipmentList.value = res.data.data ?? []
+  } catch (e) {
+    console.error('[KMS] 설비 목록 로드 실패:', e)
+  }
+})
 
 function getData() {
   return {
-    id: props.article.id,
-    title: title.value,
-    category: category.value,
-    equipment: equipment.value,
-    summary: summary.value,
-    content: content.value,
+    id:          props.article.id,
+    title:       title.value,
+    category:    category.value,
+    equipmentId: equipmentId.value || null,
+    content:     content.value,
   }
 }
 
@@ -65,7 +76,9 @@ function handleSaveDraft() {
           <label class="ke__label">카테고리</label>
           <select v-model="category" class="ke__select">
             <option value="" disabled hidden></option>
-            <option v-for="opt in categoryOptions" :key="opt" :value="opt">{{ opt }}</option>
+            <option v-for="opt in ARTICLE_CATEGORY_OPTIONS" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
       </div>
@@ -74,23 +87,16 @@ function handleSaveDraft() {
       <div class="ke__row">
         <div class="ke__field">
           <label class="ke__label">설비</label>
-          <select v-model="equipment" class="ke__select">
-            <option value="" disabled hidden></option>
-            <option v-for="opt in equipmentOptions" :key="opt" :value="opt">{{ opt }}</option>
+          <select v-model="equipmentId" class="ke__select">
+            <option :value="null" disabled hidden></option>
+            <option
+              v-for="eq in equipmentList"
+              :key="eq.equipmentId ?? eq.id"
+              :value="eq.equipmentId ?? eq.id"
+            >
+              {{ eq.equipmentName ?? eq.name }}
+            </option>
           </select>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="ke__row">
-        <div class="ke__field">
-          <label class="ke__label">요약</label>
-          <textarea
-            v-model="summary"
-            class="ke__textarea ke__textarea--sm"
-            placeholder="핵심 요약을 입력하세요"
-            rows="2"
-          ></textarea>
         </div>
       </div>
 
@@ -171,10 +177,6 @@ function handleSaveDraft() {
 
 .ke__textarea::placeholder {
   color: var(--color-text-muted);
-}
-
-.ke__textarea--sm {
-  min-height: 48px;
 }
 
 .ke__textarea--lg {
