@@ -9,7 +9,6 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
-import { buildKmsTagFilters } from '@/utils/kmsTagStyle'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
@@ -192,9 +191,10 @@ async function loadRecommendations() {
 async function loadTags() {
   try {
     const res = await knowledgeArticleApi.getTags()
-    tagFilters.value = buildKmsTagFilters(
-      (res.data.data ?? []).map((tag) => tag.tagName).filter(Boolean),
-    )
+    tagFilters.value = (res.data.data ?? [])
+      .map((tag) => tag.tagName)
+      .filter(Boolean)
+      .map((tagName) => ({ key: tagName }))
   } catch (e) {
     console.error('[KMS] 태그 목록 로드 실패:', e)
     tagFilters.value = []
