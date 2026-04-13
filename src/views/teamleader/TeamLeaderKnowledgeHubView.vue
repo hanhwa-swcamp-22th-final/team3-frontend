@@ -21,6 +21,7 @@ import {
 } from '@/mocks/teamleader'
 
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
@@ -117,9 +118,12 @@ onMounted(async () => {
 async function loadArticles() {
   try {
     const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20, status: 'APPROVED' })
-    articles.value = (res.data.data ?? [])
+    articles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
       .filter((dto) => dto.articleStatus === 'APPROVED')
-      .map(mapToFeedItem)
+      .map(mapToFeedItem),
+      (item) => item.author,
+    )
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
   }
@@ -128,7 +132,10 @@ async function loadArticles() {
 async function loadContributors() {
   try {
     const res = await knowledgeArticleApi.getContributors(5)
-    contributors.value = (res.data.data ?? []).map(mapToContributor)
+    contributors.value = filterVisibleKmsAuthors(
+      (res.data.data ?? []).map(mapToContributor),
+      (item) => item.name,
+    )
   } catch (e) {
     console.error('[KMS] 기여자 랭킹 로드 실패:', e)
   }
@@ -179,8 +186,42 @@ async function handleSaveDraft(data) {
 const showWriteModal = ref(false)
 const selectedArticle = ref(null)
 
-function openDetailModal(article) { selectedArticle.value = article }
-function closeDetailModal()       { selectedArticle.value = null }
+async function openDetailModal(article) {
+  selectedArticle.value = {
+    id: article.id,
+    title: article.title,
+    category: article.category,
+    equipment: article.equipment,
+    date: article.date,
+    author: article.author,
+    authorInitial: article.authorInitial,
+    content: '',
+    views: article.views,
+    comments: article.comments,
+    commentList: article.commentList ?? [],
+  }
+  try {
+    const res = await knowledgeArticleApi.getArticleDetail(article.id)
+    const dto = res.data.data ?? {}
+    selectedArticle.value = {
+      id: dto.articleId,
+      title: dto.articleTitle ?? article.title,
+      category: ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+      equipment: dto.equipmentName ?? article.equipment,
+      date: article.date,
+      author: dto.authorName ?? article.author,
+      authorInitial: dto.authorName?.[0] ?? article.authorInitial,
+      content: dto.articleContent ?? '',
+      views: dto.viewCount ?? article.views,
+      comments: dto.commentCount ?? article.comments,
+      commentList: article.commentList ?? [],
+    }
+  } catch (e) {
+    console.error('[KMS] 문서 상세 로드 실패:', e)
+  }
+}
+
+function closeDetailModal() { selectedArticle.value = null }
 
 function submitDetailComment(body) {
   if (!selectedArticle.value) return

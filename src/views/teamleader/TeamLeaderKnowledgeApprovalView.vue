@@ -7,6 +7,7 @@ import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 
@@ -109,7 +110,10 @@ async function loadStats() {
 async function loadList() {
   try {
     const res = await knowledgeArticleApi.getApprovalList({ page: 0, size: 50 })
-    items.value = (res.data.data ?? []).map(mapToQueueItem)
+    items.value = filterVisibleKmsAuthors(
+      (res.data.data ?? []).map(mapToQueueItem),
+      (item) => item.author,
+    )
     if (items.value.length > 0) {
       const keepId = selectedId.value && items.value.some((i) => i.id === selectedId.value)
         ? selectedId.value
