@@ -25,6 +25,7 @@ import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId  = computed(() => Number(authStore.userInfo?.employeeId))
+const requesterRole = computed(() => 'WORKER')
 
 function formatTrend(value, digits = 0) {
   const numeric = Number(value ?? 0)
@@ -60,7 +61,7 @@ function mapToFeedItem(dto) {
     authorTier: '-',
     views: dto.viewCount ?? 0,
     isPopular: (dto.viewCount ?? 0) > 50,
-    isBookmarked: false,
+    isBookmarked: Boolean(dto.bookmarked),
     status: dto.articleStatus,
   }
 }
@@ -100,6 +101,7 @@ const knowledgeCategories = [
 
 // ── API 상태 ────────────────────────────────────────────────────
 const knowledgeArticles = ref([])
+const bookmarkArticles  = ref([])
 const monthlyRanking    = ref([])
 const aiRecommendations = ref([])
 const hubStats          = ref({
@@ -115,9 +117,22 @@ onMounted(async () => {
   await Promise.allSettled([
     loadHubStats(),
     loadArticles(),
+    loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
   ])
+})
+
+const visibleArticles = computed(() => {
+  const merged = new Map()
+  for (const article of knowledgeArticles.value) {
+    merged.set(article.id, article)
+  }
+  for (const article of bookmarkArticles.value) {
+    const existing = merged.get(article.id)
+    merged.set(article.id, existing ? { ...existing, ...article, isBookmarked: true } : article)
+  }
+  return [...merged.values()]
 })
 
 async function loadHubStats() {
@@ -137,7 +152,13 @@ async function loadHubStats() {
 
 async function loadArticles() {
   try {
-    const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20, status: 'APPROVED' })
+    const res = await knowledgeArticleApi.getArticles({
+      page: 0,
+      size: 20,
+      status: 'APPROVED',
+      requesterId: authorId.value,
+      requesterRole: requesterRole.value,
+    })
     knowledgeArticles.value = filterVisibleKmsAuthors(
       (res.data.data ?? [])
       .filter((dto) => dto.articleStatus === 'APPROVED')
@@ -146,6 +167,20 @@ async function loadArticles() {
     )
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
+  }
+}
+
+async function loadBookmarks() {
+  try {
+    const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
+    bookmarkArticles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
+        .filter((dto) => dto.articleStatus === 'APPROVED')
+        .map(mapToFeedItem),
+      (item) => item.author,
+    ).map((item) => ({ ...item, isBookmarked: true }))
+  } catch (e) {
+    console.error('[KMS] 북마크 목록 로드 실패:', e)
   }
 }
 
@@ -282,9 +317,10 @@ async function openDetailModal(article) {
     authorInitial: article.authorInitial,
     content:       '',
     views:         article.views,
+    isBookmarked:  Boolean(article.isBookmarked),
   }
   try {
-    const res = await knowledgeArticleApi.getArticleDetail(article.id)
+    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
     const dto = res.data.data ?? {}
     selectedArticle.value = {
       id:            dto.articleId,
@@ -296,6 +332,7 @@ async function openDetailModal(article) {
       authorInitial: dto.authorName?.[0] ?? article.authorInitial,
       content:       dto.articleContent ?? '',
       views:         dto.viewCount ?? article.views,
+      isBookmarked:  Boolean(dto.bookmarked ?? article.isBookmarked),
     }
   } catch (e) {
     console.error('[KMS] 문서 상세 로드 실패:', e)
@@ -316,7 +353,27 @@ function openRecommendedArticle(item) {
     author: '',
     authorInitial: '?',
     views: 0,
+    isBookmarked: false,
   })
+}
+
+async function toggleBookmark(article) {
+  try {
+    if (article.isBookmarked) {
+      await knowledgeArticleApi.removeBookmark(article.id, authorId.value)
+    } else {
+      await knowledgeArticleApi.addBookmark(article.id, authorId.value)
+    }
+
+    await Promise.allSettled([loadArticles(), loadBookmarks()])
+
+    if (selectedArticle.value?.id === article.id) {
+      selectedArticle.value = { ...selectedArticle.value, isBookmarked: !article.isBookmarked }
+    }
+  } catch (e) {
+    console.error('[KMS] 북마크 처리 실패:', e)
+    window.alert('북마크 처리에 실패했습니다.')
+  }
 }
 
 function closeModal() {
@@ -336,9 +393,10 @@ function closeModal() {
     <div class="kh-grid">
       <TeamLeaderKnowledgeHubFeed
         :categories="knowledgeCategories"
-        :articles="knowledgeArticles"
+        :articles="visibleArticles"
         @open-write="showAddModal = true"
         @open-detail="openDetailModal"
+        @toggle-bookmark="toggleBookmark"
       />
 
       <div class="kh-sidebar">
@@ -380,6 +438,7 @@ function closeModal() {
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
+      @toggle-bookmark="toggleBookmark"
     />
   </div>
 </template>

@@ -8,7 +8,7 @@ const props = defineProps({
   selectedFilter:    { type: String, default: '전체' },
   selectedTagFilter: { type: String, default: null },
 })
-const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'open-detail'])
+const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'open-detail', 'toggle-bookmark'])
 
 // 카테고리 탭 (백엔드 기준)
 const KMS_FILTERS = [
@@ -97,6 +97,15 @@ function tagStyle(tag) {
           </div>
           <div class="card-header-right">
             <span class="card-date">{{ card.date }}</span>
+            <button
+              class="btn-bookmark"
+              :class="{ 'btn-bookmark--active': card.bookmarked }"
+              :aria-pressed="card.bookmarked"
+              title="북마크"
+              @click.stop="emit('toggle-bookmark', card)"
+            >
+              {{ card.bookmarked ? '★' : '☆' }}
+            </button>
             <button class="btn-delete" title="삭제" @click.stop="emit('delete', card.id)">✕</button>
           </div>
         </div>
@@ -242,6 +251,26 @@ function tagStyle(tag) {
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+}
+
+.btn-bookmark {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-bookmark--active {
+  border-color: #f2c94c;
+  background: #fff8dc;
+  color: #e0a800;
 }
 
 .btn-delete:hover {

@@ -7,7 +7,7 @@ const props = defineProps({
   articles: { type: Array, default: () => [] },
 })
 
-const emit = defineEmits(['open-write', 'open-detail'])
+const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark'])
 const authStore = useAuthStore()
 
 const activeCategory = ref('all')
@@ -160,7 +160,18 @@ function categoryClass(category) {
             <span class="feed__badge" :class="categoryClass(article.category)">{{ article.category }}</span>
             <span class="feed__badge feed__badge--equip">{{ article.equipment }}</span>
           </div>
-          <span class="feed__date">{{ article.date }}</span>
+          <div class="feed__card-actions">
+            <button
+              type="button"
+              class="feed__bookmark"
+              :class="{ 'feed__bookmark--active': article.isBookmarked }"
+              :aria-pressed="article.isBookmarked"
+              @click.stop="emit('toggle-bookmark', article)"
+            >
+              {{ article.isBookmarked ? '★' : '☆' }}
+            </button>
+            <span class="feed__date">{{ article.date }}</span>
+          </div>
         </div>
 
         <h3 class="feed__card-title">{{ article.title }}</h3>
@@ -345,6 +356,13 @@ function categoryClass(category) {
   gap: 10px;
 }
 
+.feed__card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .feed__badges,
 .feed__author,
 .feed__meta {
@@ -373,6 +391,28 @@ function categoryClass(category) {
 .feed__meta {
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+.feed__bookmark {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background: #fff;
+  color: #b8b0dc;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.feed__bookmark--active {
+  border-color: #f2c94c;
+  background: #fff8dc;
+  color: #e0a800;
 }
 
 .feed__card-title {

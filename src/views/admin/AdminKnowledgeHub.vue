@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
@@ -8,6 +9,9 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
+
+const authStore = useAuthStore()
+const authorId = computed(() => Number(authStore.userInfo?.employeeId))
 
 function formatTrend(value, digits = 0) {
   const numeric = Number(value ?? 0)
@@ -48,7 +52,7 @@ function mapToFeedCard(dto) {
     views:      dto.viewCount ?? 0,
     comments:   dto.commentCount ?? 0,
     isPopular:  (dto.viewCount ?? 0) > 50,
-    bookmarked: false,
+    bookmarked: Boolean(dto.bookmarked),
   }
 }
 
@@ -66,8 +70,9 @@ function mapToContributor(dto, idx) {
 }
 
 // ── 상태 ──────────────────────────────────────────────────────
-const articles       = ref([])
-const contributors   = ref([])
+const articles        = ref([])
+const bookmarkArticles = ref([])
+const contributors    = ref([])
 const recommendations = ref([])
 const hubStats       = ref({
   totalArticles: 0,
@@ -93,9 +98,22 @@ onMounted(async () => {
   await Promise.allSettled([
     loadHubStats(),
     loadArticles(),
+    loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
   ])
+})
+
+const visibleArticles = computed(() => {
+  const merged = new Map()
+  for (const article of articles.value) {
+    merged.set(article.id, article)
+  }
+  for (const article of bookmarkArticles.value) {
+    const existing = merged.get(article.id)
+    merged.set(article.id, existing ? { ...existing, ...article, bookmarked: true } : article)
+  }
+  return [...merged.values()]
 })
 
 async function loadHubStats() {
@@ -115,13 +133,30 @@ async function loadHubStats() {
 
 async function loadArticles() {
   try {
-    const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20, status: 'APPROVED' })
+    const res = await knowledgeArticleApi.getArticles({
+      page: 0,
+      size: 20,
+      status: 'APPROVED',
+      requesterId: authorId.value,
+    })
     articles.value = filterVisibleKmsAuthors(
       (res.data.data ?? []).map(mapToFeedCard),
       (item) => item.author.name,
     )
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
+  }
+}
+
+async function loadBookmarks() {
+  try {
+    const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
+    bookmarkArticles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? []).map(mapToFeedCard),
+      (item) => item.author.name,
+    ).map((item) => ({ ...item, bookmarked: true }))
+  } catch (e) {
+    console.error('[KMS] 북마크 목록 로드 실패:', e)
   }
 }
 
@@ -161,10 +196,11 @@ async function openDetailModal(article) {
     content: article.summary ?? '',
     preview: article.summary ?? '',
     views: article.views ?? 0,
+    isBookmarked: Boolean(article.bookmarked),
   }
 
   try {
-    const res = await knowledgeArticleApi.getArticleDetail(article.id)
+    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
     const dto = res.data.data ?? {}
     selectedArticle.value = {
       id: dto.articleId ?? article.id,
@@ -177,6 +213,7 @@ async function openDetailModal(article) {
       content: dto.articleContent ?? article.summary ?? '',
       preview: article.summary ?? '',
       views: dto.viewCount ?? article.views ?? 0,
+      isBookmarked: Boolean(dto.bookmarked ?? article.bookmarked),
     }
   } catch (e) {
     console.error('[KMS] 관리자 문서 상세 로드 실패:', e)
@@ -198,7 +235,28 @@ function openRecommendedArticle(item) {
     authorInitial: '?',
     summary: '',
     views: 0,
+    bookmarked: false,
   })
+}
+
+async function toggleBookmark(article) {
+  try {
+    if (article.bookmarked || article.isBookmarked) {
+      await knowledgeArticleApi.removeBookmark(article.id, authorId.value)
+    } else {
+      await knowledgeArticleApi.addBookmark(article.id, authorId.value)
+    }
+
+    await Promise.allSettled([loadArticles(), loadBookmarks()])
+
+    if (selectedArticle.value?.id === article.id) {
+      const next = !(article.bookmarked || article.isBookmarked)
+      selectedArticle.value = { ...selectedArticle.value, isBookmarked: next }
+    }
+  } catch (e) {
+    console.error('[KMS] 북마크 처리 실패:', e)
+    window.alert('북마크 처리에 실패했습니다.')
+  }
 }
 
 // ── Admin 삭제 ─────────────────────────────────────────────────
@@ -220,6 +278,7 @@ async function handleDelete(articleId) {
     await Promise.allSettled([
       loadHubStats(),
       loadArticles(),
+      loadBookmarks(),
       loadContributors(),
       loadRecommendations(),
     ])
@@ -239,13 +298,14 @@ async function handleDelete(articleId) {
       <!-- 좌: 피드 -->
       <div class="kms-feed-col">
         <KmsFeed
-          :articles="articles"
+          :articles="visibleArticles"
           :selectedFilter="selectedFilter"
           :selectedTagFilter="selectedTagFilter"
           @filterChange="selectedFilter = $event"
           @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"
           @open-detail="openDetailModal"
+          @toggle-bookmark="toggleBookmark"
         />
       </div>
 
@@ -265,6 +325,7 @@ async function handleDelete(articleId) {
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
+      @toggle-bookmark="toggleBookmark"
     />
   </div>
 </template>

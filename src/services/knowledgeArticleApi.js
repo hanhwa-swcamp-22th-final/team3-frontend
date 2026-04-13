@@ -91,8 +91,8 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles', { params })
   },
 
-  getArticleDetail(articleId) {
-    return kmsApi.get(`/api/kms/articles/${articleId}`)
+  getArticleDetail(articleId, params = {}) {
+    return kmsApi.get(`/api/kms/articles/${articleId}`, { params })
   },
 
   getHubStats() {
@@ -128,6 +128,10 @@ const knowledgeArticleApi = {
 
   getMyArticleHistory(authorId) {
     return kmsApi.get('/api/kms/my/articles/history', { params: { authorId } })
+  },
+
+  getMyBookmarks(employeeId) {
+    return kmsApi.get('/api/kms/my/bookmarks', { params: { employeeId } })
   },
 
   // ── 승인 조회 ───────────────────────────────────────────────────
@@ -185,6 +189,14 @@ const knowledgeArticleApi = {
   // tagIds: Long[]
   updateTags(articleId, tagIds) {
     return kmsApi.put(`/api/kms/articles/${articleId}/tags`, { tagIds })
+  },
+
+  addBookmark(articleId, employeeId) {
+    return kmsApi.post('/api/kms/bookmarks', { articleId, employeeId })
+  },
+
+  removeBookmark(articleId, employeeId) {
+    return kmsApi.delete('/api/kms/bookmarks', { params: { articleId, employeeId } })
   },
 
   // ── 승인 처리 (TL / DL) ─────────────────────────────────────────

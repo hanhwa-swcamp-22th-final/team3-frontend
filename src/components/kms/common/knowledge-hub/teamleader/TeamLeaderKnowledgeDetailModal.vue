@@ -6,7 +6,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'toggle-bookmark'])
 </script>
 
 <template>
@@ -18,7 +18,18 @@ const emit = defineEmits(['close'])
           <p class="detail-modal__eyebrow">Knowledge Detail</p>
           <h2>{{ article.title }}</h2>
         </div>
-        <button type="button" class="detail-modal__close" @click="emit('close')">×</button>
+        <div class="detail-modal__head-actions">
+          <button
+            type="button"
+            class="detail-modal__bookmark"
+            :class="{ 'detail-modal__bookmark--active': article.isBookmarked }"
+            :aria-pressed="article.isBookmarked"
+            @click="emit('toggle-bookmark', article)"
+          >
+            {{ article.isBookmarked ? '★' : '☆' }}
+          </button>
+          <button type="button" class="detail-modal__close" @click="emit('close')">×</button>
+        </div>
       </div>
 
       <div class="detail-modal__meta">
@@ -84,6 +95,12 @@ const emit = defineEmits(['close'])
   gap: 16px;
 }
 
+.detail-modal__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .detail-modal__eyebrow {
   font-size: 12px;
   font-weight: 700;
@@ -105,6 +122,24 @@ const emit = defineEmits(['close'])
   color: var(--color-primary-700);
   font-size: 24px;
   cursor: pointer;
+}
+
+.detail-modal__bookmark {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 50%;
+  background: #fff;
+  color: #b8b0dc;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.detail-modal__bookmark--active {
+  border-color: #f2c94c;
+  background: #fff8dc;
+  color: #e0a800;
 }
 
 .detail-modal__meta {
