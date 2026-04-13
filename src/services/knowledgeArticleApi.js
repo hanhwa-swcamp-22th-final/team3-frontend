@@ -151,8 +151,21 @@ const knowledgeArticleApi = {
   },
 
   // data: { authorId, title, category, equipmentId, content }
+  // DRAFT / PENDING / REJECTED 상태 문서만 허용 (임시저장용)
   updateArticle(articleId, data) {
     return kmsApi.put(`/api/kms/articles/${articleId}`, data)
+  },
+
+  // APPROVED 문서 수정 시작: 복사본(DRAFT) 생성 또는 기존 복사본 반환
+  // requesterId: Long
+  startRevision(articleId, requesterId) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/revision`, { requesterId })
+  },
+
+  // DRAFT / REJECTED → PENDING 제출
+  // data: { authorId, title, category, equipmentId, content }
+  submitDraft(articleId, data) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/submit`, data)
   },
 
   // data: { requesterId }

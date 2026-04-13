@@ -50,6 +50,10 @@ function handleSubmit() {
     errorMessage.value = '설비를 선택해야 수정 완료할 수 있습니다.'
     return
   }
+  if (!content.value || content.value.trim().length < 50) {
+    errorMessage.value = '본문은 50자 이상 입력해야 합니다.'
+    return
+  }
   errorMessage.value = ''
   emit('submit', getData())
 }
@@ -83,7 +87,7 @@ function handleSaveDraft() {
             v-model="title"
             class="ke__input"
             type="text"
-            placeholder="문서 제목을 입력하세요"
+            placeholder="문서 제목을 입력하세요 (1~50자)"
           />
         </div>
         <div class="ke__field">
@@ -121,7 +125,7 @@ function handleSaveDraft() {
           <textarea
             v-model="content"
             class="ke__textarea ke__textarea--lg"
-            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요"
+            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요 (최소 50자)"
             rows="6"
           ></textarea>
         </div>

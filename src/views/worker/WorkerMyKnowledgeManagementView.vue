@@ -38,9 +38,10 @@ function mapToMyArticle(dto) {
     date:         formatDate(dto.updatedAt ?? dto.createdAt),
     summary:      dto.articleContent ? dto.articleContent.slice(0, 120) : '',
     content:      dto.articleContent ?? '',
-    views:        dto.viewCount ?? 0,
-    comments:     dto.commentCount ?? 0,
-    reuses:       dto.reuseCount ?? 0,
+    views:           dto.viewCount ?? 0,
+    comments:        dto.commentCount ?? 0,
+    reuses:          dto.reuseCount ?? 0,
+    rejectionReason: dto.articleRejectionReason ?? '',
   }
 }
 
@@ -138,9 +139,37 @@ function openDetailModal(article) {
   showDetailModal.value = true
 }
 
-function openEditModal(article) {
-  selectedArticle.value = article
-  showEditModal.value = true
+// APPROVED 문서: startRevision 으로 복사본 ID를 먼저 받은 뒤,
+// 복사본의 상세 내용을 직접 조회해서 모달에 넘김 (목록 API content 누락 방지)
+// DRAFT / REJECTED: 바로 모달 열기
+async function openEditModal(article) {
+  if (article.status === '승인완료') {
+    try {
+      const revRes = await knowledgeArticleApi.startRevision(article.id, authorId.value)
+      const revisionId = revRes.data.data   // Long revisionArticleId
+
+      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId)
+      const dto = detailRes.data.data ?? {}
+
+      selectedArticle.value = {
+        id:           revisionId,
+        title:        dto.articleTitle ?? article.title,
+        category:     ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+        categoryEnum: dto.articleCategory ?? article.categoryEnum,
+        equipment:    dto.equipmentName ?? article.equipment,
+        equipmentId:  dto.equipmentId ?? article.equipmentId,
+        status:       ARTICLE_STATUS_LABEL[dto.articleStatus] ?? article.status,
+        content:      dto.articleContent ?? '',
+        isRevision:   true,
+      }
+      showEditModal.value = true
+    } catch (e) {
+      console.error('[KMS] 수정본 생성 실패:', e)
+    }
+  } else {
+    selectedArticle.value = article
+    showEditModal.value = true
+  }
 }
 
 async function handleAddArticle(data) {
@@ -175,9 +204,10 @@ async function handleSaveDraft(data) {
   }
 }
 
+// "수정 완료" → DRAFT / REJECTED / APPROVED복사본 모두 submitDraft (→ PENDING)
 async function handleEditSubmit(data) {
   try {
-    await knowledgeArticleApi.updateArticle(data.id, {
+    await knowledgeArticleApi.submitDraft(data.id, {
       authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
@@ -187,10 +217,11 @@ async function handleEditSubmit(data) {
     showEditModal.value = false
     await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
   } catch (e) {
-    console.error('[KMS] 문서 수정 실패:', e)
+    console.error('[KMS] 문서 제출 실패:', e)
   }
 }
 
+// "임시 저장" → updateDraft (DRAFT / REJECTED 상태 유지)
 async function handleEditSaveDraft(data) {
   try {
     await knowledgeArticleApi.updateArticle(data.id, {

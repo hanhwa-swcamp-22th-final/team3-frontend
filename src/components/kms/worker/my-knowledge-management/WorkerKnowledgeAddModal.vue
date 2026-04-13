@@ -77,7 +77,7 @@ function handleSaveDraft() {
             v-model="title"
             class="ka__input"
             type="text"
-            placeholder="문서 제목을 입력하세요"
+            placeholder="문서 제목을 입력하세요 (1~50자)"
           />
         </div>
         <div class="ka__field">
@@ -119,7 +119,7 @@ function handleSaveDraft() {
           <textarea
             v-model="content"
             class="ka__textarea ka__textarea--lg"
-            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요"
+            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요 (최소 50자)"
             rows="6"
           ></textarea>
         </div>

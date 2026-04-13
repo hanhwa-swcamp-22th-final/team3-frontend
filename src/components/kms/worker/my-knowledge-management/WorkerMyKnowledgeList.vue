@@ -9,7 +9,7 @@ const props = defineProps({
 
 const emit = defineEmits(['detail', 'edit'])
 
-const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려']
+const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
 
@@ -21,6 +21,8 @@ const filteredArticles = computed(() => {
       result = result.filter((a) => a.status === '승인대기')
     } else if (activeCategory.value === '반려') {
       result = result.filter((a) => a.status === '반려')
+    } else if (activeCategory.value === '임시저장') {
+      result = result.filter((a) => a.status === '임시저장')
     } else {
       result = result.filter((a) => a.category === activeCategory.value)
     }

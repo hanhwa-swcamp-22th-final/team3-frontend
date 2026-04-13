@@ -49,6 +49,12 @@ function categoryClass(cat) {
       <span>재사용 {{ article.reuses }}회</span>
     </div>
 
+    <!-- 반려 사유 (반려 상태일 때만 표시) -->
+    <div v-if="article.status === '반려' && article.rejectionReason" class="kd__section kd__section--rejected">
+      <h4 class="kd__section-title kd__section-title--rejected">반려 사유</h4>
+      <p class="kd__text kd__text--rejected">{{ article.rejectionReason }}</p>
+    </div>
+
     <!-- Summary -->
     <div class="kd__section">
       <h4 class="kd__section-title">요약</h4>
@@ -186,5 +192,21 @@ function categoryClass(cat) {
   background: var(--color-bg-app);
   border-radius: var(--radius-sm);
   padding: 16px;
+}
+
+.kd__section--rejected {
+  border: 1px solid var(--color-status-rejected-border, #f5b8c6);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  background: var(--color-status-rejected-bg, #fff0f4);
+}
+
+.kd__section-title--rejected {
+  color: var(--color-status-rejected, #c0103e);
+}
+
+.kd__text--rejected {
+  white-space: pre-line;
+  color: var(--color-status-rejected, #c0103e);
 }
 </style>
