@@ -7,9 +7,9 @@ const props = defineProps({
   articles: { type: Array, required: true },
 })
 
-const emit = defineEmits(['detail', 'edit'])
+const emit = defineEmits(['detail', 'edit', 'delete', 'restore'])
 
-const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장']
+const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장', '삭제대기']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
 const currentPage = ref(1)
@@ -25,6 +25,8 @@ const filteredArticles = computed(() => {
       result = result.filter((a) => a.status === '반려')
     } else if (activeCategory.value === '임시저장') {
       result = result.filter((a) => a.status === '임시저장')
+    } else if (activeCategory.value === '삭제대기') {
+      result = result.filter((a) => a.status === '삭제대기')
     } else {
       result = result.filter((a) => a.category === activeCategory.value)
     }
@@ -64,6 +66,7 @@ watch(filteredArticles, (articles) => {
 })
 
 function statusClass(status) {
+  if (status === '삭제대기') return 'st--deleted'
   if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
   if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
   if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
@@ -115,7 +118,7 @@ function setPage(page) {
 
     <!-- Article Cards -->
     <div class="mkl__list">
-      <div v-for="article in pagedArticles" :key="article.id" class="mkl__card">
+      <div v-for="article in pagedArticles" :key="article.id" class="mkl__card" :class="{ 'mkl__card--deleted': article.isDeleted }">
         <div class="mkl__card-top">
           <div class="mkl__card-badges">
             <span class="mkl__badge" :class="categoryClass(article.category)">
@@ -139,7 +142,27 @@ function setPage(page) {
           </div>
           <div class="mkl__card-actions">
             <button class="mkl__action-btn" @click="emit('detail', article)">상세</button>
-            <button class="mkl__action-btn" @click="emit('edit', article)">{{ actionLabel(article.status) }}</button>
+            <button
+              v-if="!article.isDeleted"
+              class="mkl__action-btn"
+              @click="emit('edit', article)"
+            >
+              {{ actionLabel(article.status) }}
+            </button>
+            <button
+              v-if="!article.isDeleted && article.rawStatus !== 'APPROVED'"
+              class="mkl__action-btn mkl__action-btn--delete"
+              @click="emit('delete', article)"
+            >
+              삭제
+            </button>
+            <button
+              v-if="article.isDeleted"
+              class="mkl__action-btn mkl__action-btn--restore"
+              @click="emit('restore', article)"
+            >
+              복원
+            </button>
           </div>
         </div>
       </div>
@@ -275,6 +298,11 @@ function setPage(page) {
   border-color: var(--color-primary-300);
 }
 
+.mkl__card--deleted {
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 .mkl__card-top {
   display: flex;
   justify-content: space-between;
@@ -357,6 +385,12 @@ function setPage(page) {
   background: var(--color-neutral-100);
 }
 
+.st--deleted {
+  color: var(--color-status-rejected);
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 .mkl__card-date {
   font-size: 13px;
   color: var(--color-primary-600);
@@ -411,6 +445,28 @@ function setPage(page) {
 .mkl__action-btn:hover {
   border-color: var(--color-primary-300);
   color: var(--color-primary-700);
+}
+
+.mkl__action-btn--delete {
+  border-color: var(--color-status-rejected-border);
+  color: var(--color-status-rejected);
+  background: var(--color-status-rejected-bg);
+}
+
+.mkl__action-btn--delete:hover {
+  border-color: var(--color-status-rejected);
+  color: var(--color-status-rejected);
+}
+
+.mkl__action-btn--restore {
+  border-color: var(--color-status-approved-border);
+  color: var(--color-status-approved);
+  background: var(--color-status-approved-bg);
+}
+
+.mkl__action-btn--restore:hover {
+  border-color: var(--color-status-approved);
+  color: var(--color-status-approved);
 }
 
 .mkl__pagination {

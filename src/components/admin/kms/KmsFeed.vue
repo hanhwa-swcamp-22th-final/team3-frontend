@@ -8,7 +8,7 @@ const props = defineProps({
   selectedFilter:    { type: String, default: '전체' },
   selectedTagFilter: { type: String, default: null },
 })
-const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
 
 // 카테고리 탭 (백엔드 기준)
 const KMS_FILTERS = [
@@ -82,12 +82,14 @@ function tagStyle(tag) {
         v-for="card in filteredCards"
         :key="card.id"
         class="knowledge-card"
+        :class="{ 'knowledge-card--deleted': card.isDeleted }"
         @click="emit('open-detail', card)"
       >
 
         <!-- 카드 헤더 -->
         <div class="card-header">
           <div class="card-tags">
+            <span v-if="card.isDeleted" class="card-tag card-tag--deleted">삭제대기</span>
             <span
               v-for="tag in card.tags"
               :key="tag"
@@ -106,7 +108,6 @@ function tagStyle(tag) {
             >
               {{ card.bookmarked ? '★' : '☆' }}
             </button>
-            <button class="btn-delete" title="삭제" @click.stop="emit('delete', card.id)">✕</button>
           </div>
         </div>
 
@@ -123,9 +124,28 @@ function tagStyle(tag) {
               {{ card.author.initial }}
             </div>
             <span class="author-name">{{ card.author.name }}</span>
+            <span class="author-tier" :class="`author-tier--${String(card.author.tier ?? 'C').toLowerCase()}`">{{ card.author.tier }}</span>
           </div>
           <div class="card-meta">
             <span class="meta-item">👁 {{ card.views }}</span>
+          </div>
+          <div class="card-actions">
+            <button
+              v-if="card.isDeleted"
+              type="button"
+              class="card-action-btn card-action-btn--restore"
+              @click.stop="emit('restore', card.id)"
+            >
+              복원
+            </button>
+            <button
+              v-else
+              type="button"
+              class="card-action-btn card-action-btn--delete"
+              @click.stop="emit('delete', card.id)"
+            >
+              삭제
+            </button>
           </div>
         </div>
 
@@ -207,6 +227,11 @@ function tagStyle(tag) {
   box-shadow: 0 2px 12px rgba(45, 31, 110, 0.08);
 }
 
+.knowledge-card--deleted {
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -233,24 +258,15 @@ function tagStyle(tag) {
   border-radius: 4px;
 }
 
+.card-tag--deleted {
+  background: var(--color-status-rejected-bg);
+  color: var(--color-status-rejected);
+  border: 1px solid var(--color-status-rejected-border);
+}
+
 .card-date {
   font-size: 10px;
   color: var(--color-text-muted, #a89ed8);
-}
-
-.btn-delete {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-default);
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
 }
 
 .btn-bookmark {
@@ -271,12 +287,6 @@ function tagStyle(tag) {
   border-color: #f2c94c;
   background: #fff8dc;
   color: #e0a800;
-}
-
-.btn-delete:hover {
-  background: #ffecf1;
-  border-color: #e7395f;
-  color: #e7395f;
 }
 
 .card-body {
@@ -301,6 +311,7 @@ function tagStyle(tag) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .author-info {
@@ -328,9 +339,48 @@ function tagStyle(tag) {
   color: var(--color-primary-800);
 }
 
+.author-tier {
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.author-tier--s { background: #00bf95; color: #fff; }
+.author-tier--a { background: var(--color-primary-600); color: #fff; }
+.author-tier--b { background: #ffd166; color: #2d237c; }
+.author-tier--c { background: #ef476f; color: #fff; }
+
 .card-meta {
   display: flex;
   gap: 10px;
+}
+
+.card-actions {
+  margin-left: auto;
+}
+
+.card-action-btn {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.card-action-btn--delete {
+  border-color: var(--color-status-rejected-border);
+  color: var(--color-status-rejected);
+  background: var(--color-status-rejected-bg);
+}
+
+.card-action-btn--restore {
+  border-color: var(--color-status-approved-border);
+  color: var(--color-status-approved);
+  background: var(--color-status-approved-bg);
 }
 
 .meta-item {

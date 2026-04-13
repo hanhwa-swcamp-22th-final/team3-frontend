@@ -6,9 +6,10 @@ defineProps({
   article: { type: Object, required: true },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'delete', 'restore'])
 
 function statusClass(status) {
+  if (status === '삭제대기') return 'st--deleted'
   if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
   if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
   if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
@@ -53,6 +54,11 @@ function categoryClass(cat) {
       <p class="kd__text kd__text--rejected">{{ article.rejectionReason }}</p>
     </div>
 
+    <div v-if="article.isDeleted && article.deletionReason" class="kd__section kd__section--rejected">
+      <h4 class="kd__section-title kd__section-title--rejected">삭제 사유</h4>
+      <p class="kd__text kd__text--rejected">{{ article.deletionReason }}</p>
+    </div>
+
     <!-- Summary -->
     <div class="kd__section">
       <h4 class="kd__section-title">요약</h4>
@@ -63,6 +69,14 @@ function categoryClass(cat) {
     <div class="kd__section">
       <h4 class="kd__section-title">본문</h4>
       <p class="kd__text kd__text--content">{{ article.content }}</p>
+    </div>
+
+    <div v-if="article.isDeleted" class="kd__actions">
+      <button type="button" class="kd__restore-btn" @click="emit('restore', article)">복원</button>
+    </div>
+
+    <div v-else-if="article.rawStatus !== 'APPROVED'" class="kd__actions">
+      <button type="button" class="kd__delete-btn" @click="emit('delete', article)">삭제</button>
     </div>
   </BaseModal>
 </template>
@@ -146,6 +160,12 @@ function categoryClass(cat) {
   background: var(--color-neutral-100);
 }
 
+.st--deleted {
+  color: var(--color-status-rejected);
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 /* ── Meta ─────────────────────────────────────────────── */
 .kd__meta {
   display: flex;
@@ -206,5 +226,34 @@ function categoryClass(cat) {
 .kd__text--rejected {
   white-space: pre-line;
   color: var(--color-status-rejected, #c0103e);
+}
+
+.kd__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kd__delete-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-status-rejected-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-status-rejected-bg);
+  color: var(--color-status-rejected);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kd__restore-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-status-approved-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-status-approved-bg);
+  color: var(--color-status-approved);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

@@ -42,10 +42,18 @@ const emit = defineEmits(['close', 'toggle-bookmark'])
       <div class="detail-modal__author">
         <span class="detail-modal__avatar">{{ article.authorInitial }}</span>
         <div>
-          <strong>{{ article.author }}</strong>
+          <div class="detail-modal__author-top">
+            <strong>{{ article.author }}</strong>
+            <span class="detail-modal__tier" :class="`detail-modal__tier--${String(article.authorTier ?? 'C').toLowerCase()}`">{{ article.authorTier }}</span>
+          </div>
           <p>조회수 {{ article.views }}</p>
         </div>
       </div>
+
+      <article v-if="article.isDeleted && article.deletionReason" class="detail-modal__section detail-modal__section--deleted">
+        <h3>삭제 사유</h3>
+        <p class="detail-modal__content">{{ article.deletionReason }}</p>
+      </article>
 
       <article class="detail-modal__section">
         <h3>내용</h3>
@@ -196,6 +204,24 @@ const emit = defineEmits(['close', 'toggle-bookmark'])
   color: var(--color-primary-800);
 }
 
+.detail-modal__author-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-modal__tier {
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.detail-modal__tier--s { background: #00bf95; color: #fff; }
+.detail-modal__tier--a { background: var(--color-primary-600); color: #fff; }
+.detail-modal__tier--b { background: #ffd166; color: #2d237c; }
+.detail-modal__tier--c { background: #ef476f; color: #fff; }
+
 .detail-modal__author p {
   margin-top: 4px;
   font-size: 13px;
@@ -207,6 +233,11 @@ const emit = defineEmits(['close', 'toggle-bookmark'])
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   background: #fff;
+}
+
+.detail-modal__section--deleted {
+  border-color: var(--color-status-rejected-border, #f5b8c6);
+  background: var(--color-status-rejected-bg, #fff0f4);
 }
 
 .detail-modal__content {

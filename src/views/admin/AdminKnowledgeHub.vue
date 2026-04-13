@@ -48,22 +48,24 @@ function mapToFeedCard(dto) {
       name:    dto.authorName ?? '',
       initial: dto.authorName?.[0] ?? '?',
       color:   '#5B4FCF',
+      tier:    dto.authorTier ?? 'C',
     },
     views:      dto.viewCount ?? 0,
     comments:   dto.commentCount ?? 0,
     isPopular:  (dto.viewCount ?? 0) > 50,
     bookmarked: Boolean(dto.bookmarked),
+    isDeleted:  Boolean(dto.deleted),
   }
 }
 
 // ── 백엔드 DTO → 기여자 shape ────────────────────────────────────
-const RANK_ICONS = ['👑', '🥈', '🥉']
 function mapToContributor(dto, idx) {
   return {
-    rank:    RANK_ICONS[idx] ?? String(idx + 1),
+    rank:    dto.rank ?? idx + 1,
     name:    dto.employeeName ?? '',
     initial: dto.employeeName?.[0] ?? '?',
-    color:   '#5B4FCF',
+    avatarColor: '#5B4FCF',
+    tier: dto.employeeTier ?? 'C',
     articles: dto.articleCount ?? 0,
     views:   dto.totalViewCount ?? 0,
   }
@@ -138,6 +140,7 @@ async function loadArticles() {
       size: 20,
       status: 'APPROVED',
       requesterId: authorId.value,
+      requesterRole: 'ADMIN',
     })
     articles.value = filterVisibleKmsAuthors(
       (res.data.data ?? []).map(mapToFeedCard),
@@ -193,10 +196,13 @@ async function openDetailModal(article) {
     date: article.date,
     author: article.author?.name ?? article.author ?? '',
     authorInitial: article.author?.initial ?? article.authorInitial ?? '?',
+    authorTier: article.author?.tier ?? article.authorTier ?? 'C',
     content: article.summary ?? '',
     preview: article.summary ?? '',
     views: article.views ?? 0,
     isBookmarked: Boolean(article.bookmarked),
+    isDeleted: Boolean(article.isDeleted),
+    deletionReason: article.deletionReason ?? '',
   }
 
   try {
@@ -210,10 +216,13 @@ async function openDetailModal(article) {
       date: article.date ?? formatDate(dto.createdAt),
       author: dto.authorName ?? article.author?.name ?? article.author ?? '',
       authorInitial: dto.authorName?.[0] ?? article.author?.initial ?? article.authorInitial ?? '?',
+      authorTier: dto.authorTier ?? article.author?.tier ?? article.authorTier ?? 'C',
       content: dto.articleContent ?? article.summary ?? '',
       preview: article.summary ?? '',
       views: dto.viewCount ?? article.views ?? 0,
       isBookmarked: Boolean(dto.bookmarked ?? article.bookmarked),
+      isDeleted: Boolean(dto.deleted ?? article.isDeleted),
+      deletionReason: dto.articleDeletionReason ?? article.deletionReason ?? '',
     }
   } catch (e) {
     console.error('[KMS] 관리자 문서 상세 로드 실패:', e)
@@ -287,6 +296,28 @@ async function handleDelete(articleId) {
     window.alert('문서 삭제에 실패했습니다.')
   }
 }
+
+async function handleRestore(articleId) {
+  const confirmed = window.confirm('이 문서를 복원하시겠습니까?')
+  if (!confirmed) return
+
+  try {
+    await knowledgeArticleApi.restoreArticleByAdmin(articleId)
+    if (selectedArticle.value?.id === articleId) {
+      closeDetailModal()
+    }
+    await Promise.allSettled([
+      loadHubStats(),
+      loadArticles(),
+      loadBookmarks(),
+      loadContributors(),
+      loadRecommendations(),
+    ])
+  } catch (e) {
+    console.error('[KMS] 문서 복원 실패:', e)
+    window.alert('문서 복원에 실패했습니다.')
+  }
+}
 </script>
 
 <template>
@@ -304,6 +335,7 @@ async function handleDelete(articleId) {
           @filterChange="selectedFilter = $event"
           @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"
+          @restore="handleRestore"
           @open-detail="openDetailModal"
           @toggle-bookmark="toggleBookmark"
         />

@@ -26,6 +26,7 @@ function formatDate(isoString) {
 
 // ── 백엔드 DTO → 내 문서 카드 shape ────────────────────────────
 function mapToMyArticle(dto) {
+  const isDeleted = Boolean(dto.deleted)
   return {
     id:           dto.articleId,
     title:        dto.articleTitle,
@@ -33,13 +34,16 @@ function mapToMyArticle(dto) {
     categoryEnum: dto.articleCategory,   // 수정 모달 초기화용
     equipment:    dto.equipmentName ?? '',
     equipmentId:  dto.equipmentId ?? null, // 수정 모달 초기화용
-    status:       ARTICLE_STATUS_LABEL[dto.articleStatus] ?? dto.articleStatus,
+    status:       isDeleted ? '삭제대기' : (ARTICLE_STATUS_LABEL[dto.articleStatus] ?? dto.articleStatus),
+    rawStatus:    dto.articleStatus,
     date:         formatDate(dto.updatedAt ?? dto.createdAt),
     summary:      dto.articleContent ? dto.articleContent.slice(0, 120) : '',
     content:      dto.articleContent ?? '',
     views:           dto.viewCount ?? 0,
     reuses:          dto.reuseCount ?? 0,
     rejectionReason: dto.articleRejectionReason ?? '',
+    deletionReason:  dto.articleDeletionReason ?? '',
+    isDeleted,
   }
 }
 
@@ -165,8 +169,10 @@ async function openEditModal(article) {
         equipment:    dto.equipmentName ?? article.equipment,
         equipmentId:  dto.equipmentId ?? article.equipmentId,
         status:       ARTICLE_STATUS_LABEL[dto.articleStatus] ?? article.status,
+        rawStatus:    dto.articleStatus,
         content:      dto.articleContent ?? '',
         isRevision:   true,
+        isDeleted:    Boolean(dto.deleted),
       }
       showEditModal.value = true
     } catch (e) {
@@ -250,6 +256,40 @@ async function handleEditSaveDraft(data) {
     console.error('[KMS] 임시저장(수정) 실패:', e)
   }
 }
+
+async function handleDeleteArticle(article) {
+  const confirmed = window.confirm(`'${article.title}' 문서를 삭제하시겠습니까?`)
+  if (!confirmed) return
+
+  try {
+    await knowledgeArticleApi.deleteArticle(article.id, { requesterId: authorId.value })
+    if (selectedArticle.value?.id === article.id) {
+      showDetailModal.value = false
+      selectedArticle.value = null
+    }
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 삭제 실패:', e)
+    window.alert('문서 삭제에 실패했습니다.')
+  }
+}
+
+async function handleRestoreArticle(article) {
+  const confirmed = window.confirm(`'${article.title}' 문서를 복원하시겠습니까?`)
+  if (!confirmed) return
+
+  try {
+    await knowledgeArticleApi.restoreArticle(article.id, { requesterId: authorId.value })
+    if (selectedArticle.value?.id === article.id) {
+      showDetailModal.value = false
+      selectedArticle.value = null
+    }
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 복원 실패:', e)
+    window.alert('문서 복원에 실패했습니다.')
+  }
+}
 </script>
 
 <template>
@@ -265,6 +305,8 @@ async function handleEditSaveDraft(data) {
         :articles="myArticles"
         @detail="openDetailModal"
         @edit="openEditModal"
+        @delete="handleDeleteArticle"
+        @restore="handleRestoreArticle"
       />
 
       <WorkerKnowledgeEditHistory
@@ -286,6 +328,8 @@ async function handleEditSaveDraft(data) {
       v-if="showDetailModal && selectedArticle"
       :article="selectedArticle"
       @close="showDetailModal = false"
+      @delete="handleDeleteArticle"
+      @restore="handleRestoreArticle"
     />
 
     <!-- Edit Modal -->

@@ -186,6 +186,10 @@ const knowledgeArticleApi = {
     return kmsApi.delete(`/api/kms/articles/${articleId}`, { data })
   },
 
+  restoreArticle(articleId, data) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/restore`, data)
+  },
+
   // tagIds: Long[]
   updateTags(articleId, tagIds) {
     return kmsApi.put(`/api/kms/articles/${articleId}/tags`, { tagIds })
@@ -213,6 +217,10 @@ const knowledgeArticleApi = {
   // ── Admin Command ─────────────────────────────────────────────
   deleteArticleByAdmin(articleId, data) {
     return kmsApi.delete(`/api/kms/admin/articles/${articleId}`, { data })
+  },
+
+  restoreArticleByAdmin(articleId) {
+    return kmsApi.put(`/api/kms/admin/articles/${articleId}/restore`)
   },
 }
 

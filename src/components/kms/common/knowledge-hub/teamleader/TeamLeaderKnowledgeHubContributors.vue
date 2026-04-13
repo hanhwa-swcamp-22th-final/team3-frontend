@@ -17,7 +17,10 @@ defineProps({
           <span class="contributors__rank">{{ person.rank }}</span>
           <span class="contributors__avatar" :style="{ background: person.avatarColor }">{{ person.initial }}</span>
           <div>
-            <strong>{{ person.name }}</strong>
+            <div class="contributors__name-row">
+              <strong>{{ person.name }}</strong>
+              <span class="contributors__tier" :class="`contributors__tier--${String(person.tier ?? 'C').toLowerCase()}`">{{ person.tier }}</span>
+            </div>
           </div>
         </div>
         <div class="contributors__right">
@@ -114,6 +117,26 @@ defineProps({
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.contributors__name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.contributors__tier {
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.contributors__tier--s { background: #00bf95; color: #fff; }
+.contributors__tier--a { background: var(--color-primary-600); color: #fff; }
+.contributors__tier--b { background: #ffd166; color: #2d237c; }
+.contributors__tier--c { background: #ef476f; color: #fff; }
 
 .contributors__right {
   flex-direction: column;
