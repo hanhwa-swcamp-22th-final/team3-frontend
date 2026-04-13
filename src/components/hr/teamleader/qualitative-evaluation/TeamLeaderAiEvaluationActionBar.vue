@@ -45,9 +45,11 @@ const emit = defineEmits(['close', 'save-draft', 'submit'])
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 0;
-  border: none;
-  background: transparent;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .evaluation-action-bar__actions {
@@ -84,6 +86,7 @@ const emit = defineEmits(['close', 'save-draft', 'submit'])
 @media (max-width: 720px) {
   .evaluation-action-bar {
     justify-content: stretch;
+    padding: 12px;
   }
 
   .evaluation-action-bar__actions {

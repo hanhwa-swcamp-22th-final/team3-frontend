@@ -1,8 +1,6 @@
 import axios from 'axios'
-import { ADMIN_API_BASE } from '@/constants'
+import { HR_API_BASE, ADMIN_API_BASE } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
-
-const HR_API_BASE = import.meta.env.VITE_HR_API_BASE ?? 'http://localhost:8081'
 
 const hrApi = axios.create({
   baseURL: HR_API_BASE,
@@ -54,9 +52,11 @@ hrApi.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const res = await axios.post(`${ADMIN_API_BASE}/api/v1/auth/refresh`, null, {
-        withCredentials: true,
-      })
+      const res = await axios.post(
+        `${ADMIN_API_BASE}/api/v1/auth/refresh`,
+        null,
+        { withCredentials: true }
+      )
 
       if (res.data?.success && res.data.data?.accessToken) {
         const newToken = res.data.data.accessToken

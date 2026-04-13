@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
 import { BaseEmptyState, BaseFilterTabs } from '@/components/common/base'
-import { TIER_BADGE_STYLES as tierColors } from '@/constants'
+import EvaluationMemberCard from '@/components/hr/common/evaluation/EvaluationMemberCard.vue'
 
 const props = defineProps({
   members: {
@@ -25,9 +25,9 @@ const statusFilter = ref('all')
 const currentPage = ref(1)
 
 const statusConfig = {
-  submitted: { label: '제출 완료', toneClass: 'member-card--submitted', metaClass: 'member-card__status--submitted' },
-  in_progress: { label: '작성 중', toneClass: 'member-card--in-progress', metaClass: 'member-card__status--in-progress' },
-  not_started: { label: '미작성', toneClass: 'member-card--not-started', metaClass: 'member-card__status--not-started' },
+  submitted: { label: '제출 완료' },
+  in_progress: { label: '작성 중' },
+  not_started: { label: '미작성' },
 }
 
 const statusTabs = computed(() => {
@@ -121,41 +121,21 @@ function goToPage(page) {
 
     <template v-if="filteredMembers.length">
       <div class="member-list-panel__list">
-        <article
+        <EvaluationMemberCard
           v-for="member in pagedMembers"
           :key="member.id"
-          class="member-card"
-          :class="[
-            statusConfig[member.status]?.toneClass,
-            { 'member-card--selected': String(member.id) === selectedId },
-          ]"
-          tabindex="0"
-          @click="selectMember(member.id)"
-          @keydown.enter="selectMember(member.id)"
-          @keydown.space.prevent="selectMember(member.id)"
-        >
-          <div class="member-card__left">
-            <div class="member-card__avatar" :class="`member-card__avatar--${member.avatarTone}`">
-              {{ member.avatar }}
-            </div>
-            <div class="member-card__copy">
-              <div class="member-card__name-row">
-                <strong class="member-card__name">{{ member.name }}</strong>
-                <span
-                  class="member-card__tier"
-                  :style="{ background: tierColors[member.tier]?.bg, color: tierColors[member.tier]?.text }"
-                >
-                  {{ member.tier }}
-                </span>
-              </div>
-              <p class="member-card__meta">{{ member.code }} | {{ member.scoreHint }}</p>
-              <span class="member-card__status" :class="statusConfig[member.status]?.metaClass">
-                {{ statusConfig[member.status]?.label }}
-              </span>
-            </div>
-          </div>
-          <span v-if="member.statusDate" class="member-card__date">{{ member.statusDate }}</span>
-        </article>
+          :member-id="member.id"
+          :name="member.name"
+          :avatar="member.avatar"
+          :avatar-tone="member.avatarTone"
+          :tier="member.tier"
+          :meta="`${member.code} | ${member.periodHint} | ${member.scoreHint}`"
+          :status="member.status"
+          :status-label="statusConfig[member.status]?.label"
+          :status-date="member.statusDate"
+          :selected="String(member.id) === selectedId"
+          @select="selectMember"
+        />
       </div>
 
       <div v-if="filteredMembers.length > 0" class="member-list-panel__pagination">
@@ -297,146 +277,6 @@ function goToPage(page) {
   color: var(--color-text-inverse);
 }
 
-.member-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid transparent;
-  background: #fcfbff;
-  cursor: pointer;
-  transition:
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    transform 0.16s ease;
-}
-
-.member-card:hover {
-  transform: translateY(-1px);
-}
-
-.member-card--selected {
-  border-color: var(--color-primary-300);
-  box-shadow: 0 0 0 3px rgba(107, 86, 246, 0.12);
-}
-
-.member-card--submitted {
-  background: #eefbf6;
-  border-color: #b8ead5;
-}
-
-.member-card--in-progress {
-  background: #f6f3ff;
-  border-color: #ddd5ff;
-}
-
-.member-card--not-started {
-  background: #f8f8fb;
-  border-color: var(--color-border-soft);
-}
-
-.member-card__left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-
-.member-card__avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-inverse);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  flex-shrink: 0;
-}
-
-.member-card__avatar--purple {
-  background: #5f50d6;
-}
-
-.member-card__avatar--green {
-  background: #269063;
-}
-
-.member-card__avatar--gold {
-  background: #c08b00;
-}
-
-.member-card__copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.member-card__name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.member-card__name {
-  color: var(--color-primary-800);
-  font-size: var(--font-size-base-plus);
-  white-space: nowrap;
-}
-
-.member-card__tier {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-extrabold);
-  flex-shrink: 0;
-}
-
-.member-card__meta {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs-plus);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.member-card__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.member-card__status--submitted {
-  color: #168765;
-}
-
-.member-card__status--in-progress {
-  color: var(--color-primary-700);
-}
-
-.member-card__status--not-started {
-  color: var(--color-text-muted);
-}
-
-.member-card__date {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
 @media (max-width: 720px) {
   .member-list-panel {
     padding: 16px;
@@ -445,15 +285,6 @@ function goToPage(page) {
   .member-list-panel__header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .member-card {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .member-card__date {
-    padding-left: 54px;
   }
 
   .member-list-panel__pagination {
