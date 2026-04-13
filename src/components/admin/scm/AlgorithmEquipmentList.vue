@@ -1,69 +1,57 @@
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
-  equipments:        { type: Array,  default: () => [] },
-  selectedId:        { type: Number, default: null },
-  globalThreshold:   { type: Number, default: 0.80 },
-  isLoading:         { type: Boolean, default: false },
+defineProps({
+  algorithms: { type: Array, default: () => [] },
+  selectedId: { type: [Number, String], default: null },
+  searchQuery: { type: String, default: '' },
+  isLoading: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['select', 'thresholdChange'])
-
-const calcEIdx = (eq) =>
-  (eq.availability / 100) * (eq.quality_rate / 100) * (eq.performance_rate / 100)
-
-const dotColor = (eq) => {
-  const v = calcEIdx(eq)
-  if (v >= 0.95) return '#00BF95'
-  if (v >= props.globalThreshold) return '#FFD166'
-  return '#EF476F'
-}
+const emit = defineEmits(['select', 'search'])
 </script>
 
 <template>
-  <div class="section">
-    <div class="section-title">🏭 설비별 E_idx 현황</div>
+  <aside class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">알고리즘 버전</h2>
+        <p class="section-sub">수정할 정책 버전을 선택하세요.</p>
+      </div>
+      <span class="section-count">{{ algorithms.length }}</span>
+    </div>
+
+    <input
+      class="search-input"
+      type="search"
+      :value="searchQuery"
+      placeholder="버전, 정책 키, 설명 검색"
+      @input="emit('search', $event.target.value)"
+    />
 
     <div v-if="isLoading" class="empty">불러오는 중...</div>
+    <div v-else-if="algorithms.length === 0" class="empty">등록된 알고리즘 버전이 없습니다.</div>
 
     <template v-else>
-      <div
-        v-for="eq in equipments"
-        :key="eq.id"
-        class="equip-row"
-        :class="{ 'equip-row--active': eq.id === selectedId }"
-        @click="emit('select', eq)"
+      <button
+        v-for="algorithm in algorithms"
+        :key="algorithm.algorithmVersionId"
+        type="button"
+        class="algorithm-row"
+        :class="{ 'algorithm-row--active': algorithm.algorithmVersionId === selectedId }"
+        @click="emit('select', algorithm)"
       >
-        <div class="equip-row__info">
-          <span class="equip-row__code">{{ eq.code }}</span>
-          <span class="equip-row__name">{{ eq.name }}</span>
+        <div class="algorithm-row__main">
+          <span class="algorithm-row__version">{{ algorithm.versionNo }}</span>
+          <span class="algorithm-row__key">{{ algorithm.implementationKey }}</span>
         </div>
-        <div class="equip-row__right">
-          <span class="equip-row__eidx">{{ calcEIdx(eq).toFixed(2) }}</span>
-          <span class="equip-row__dot" :style="{ backgroundColor: dotColor(eq) }"></span>
+        <div class="algorithm-row__meta">
+          <span class="algorithm-row__desc">{{ algorithm.description || '설명 없음' }}</span>
+          <span class="algorithm-row__status" :class="{ 'algorithm-row__status--active': algorithm.isActive }">
+            {{ algorithm.isActive ? '활성' : '비활성' }}
+          </span>
         </div>
-      </div>
-
-      <!-- 일괄 임계값 -->
-      <div class="threshold-box">
-        <div class="threshold-box__top">
-          <span class="threshold-box__label">일괄 E_idx 임계값</span>
-          <span class="threshold-box__value">{{ globalThreshold.toFixed(2) }}</span>
-        </div>
-        <input
-          class="threshold-box__slider"
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          :value="globalThreshold"
-          @input="emit('thresholdChange', parseFloat($event.target.value))"
-        />
-        <span class="threshold-box__hint">이하 시 자동 경고 발송 · 설비 색상이 실시간 반영됩니다</span>
-      </div>
+      </button>
     </template>
-  </div>
+  </aside>
 </template>
 
 <style scoped>
@@ -74,17 +62,57 @@ const dotColor = (eq) => {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 380px;
   flex-shrink: 0;
   overflow-y: auto;
 }
 
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .section-title {
-  font-size: 12px;
+  margin: 0;
+  font-size: 13px;
   font-weight: 900;
+  color: var(--color-primary-700);
+}
+
+.section-sub {
+  margin: 4px 0 0;
+  font-size: 11px;
   color: var(--color-primary-300);
-  margin-bottom: 4px;
+}
+
+.section-count {
+  min-width: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.search-input {
+  height: 38px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-2xs);
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--color-primary-800);
+  background: var(--color-bg-app);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--color-primary-600);
 }
 
 .empty {
@@ -94,105 +122,65 @@ const dotColor = (eq) => {
   color: var(--color-primary-300);
 }
 
-/* 설비 행 */
-.equip-row {
+.algorithm-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 14px;
-  height: 60px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-2xs);
   background: var(--color-bg-app);
+  text-align: left;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
-.equip-row--active {
+.algorithm-row--active {
   background: var(--color-primary-100);
   border-color: var(--color-primary-600);
 }
 
-.equip-row__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.equip-row__code {
-  font-family: var(--font-family-mono);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-primary-600);
-}
-
-.equip-row__name {
-  font-size: 11px;
-  color: var(--color-primary-300);
-}
-
-.equip-row__right {
+.algorithm-row__main,
+.algorithm-row__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.equip-row__eidx {
-  font-family: var(--font-family-mono);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-primary-800);
-}
-
-.equip-row__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* 임계값 박스 */
-.threshold-box {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-2xs);
-  background: var(--color-bg-app);
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-
-.threshold-box__top {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
+  gap: 10px;
 }
 
-.threshold-box__label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-primary-600);
-}
-
-.threshold-box__value {
+.algorithm-row__version {
   font-family: var(--font-family-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-primary-600);
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-primary-700);
 }
 
-.threshold-box__slider {
-  width: 100%;
-  height: 4px;
-  accent-color: var(--color-primary-600);
-  cursor: pointer;
-}
-
-.threshold-box__hint {
-  font-size: 10px;
+.algorithm-row__key {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
   color: var(--color-primary-300);
-  opacity: 0.7;
+}
+
+.algorithm-row__desc {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--color-primary-300);
+}
+
+.algorithm-row__status {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--color-border-muted);
+  color: var(--color-primary-300);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.algorithm-row__status--active {
+  background: rgba(0, 191, 149, 0.12);
+  color: var(--tier-s, #00bf95);
 }
 </style>
