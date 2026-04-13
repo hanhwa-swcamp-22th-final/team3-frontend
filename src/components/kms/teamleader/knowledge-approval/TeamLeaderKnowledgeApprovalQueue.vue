@@ -1,27 +1,17 @@
 ﻿<script setup>
 import { computed, ref, watch } from 'vue'
-import { BaseFilterTabs } from '@/components/common/base'
-
 const props = defineProps({
   items: {
     type: Array,
     default: () => [],
   },
-  activeFilter: {
-    type: String,
-    default: 'all',
-  },
   selectedId: {
     type: Number,
     default: null,
   },
-  filters: {
-    type: Array,
-    default: () => [],
-  },
 })
 
-const emit = defineEmits(['change-filter', 'select-item'])
+const emit = defineEmits(['select-item'])
 const currentPage = ref(1)
 const pageSize = 5
 
@@ -31,10 +21,6 @@ const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, 
 const pagedItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return props.items.slice(start, start + pageSize)
-})
-
-watch(() => props.activeFilter, () => {
-  currentPage.value = 1
 })
 
 watch(() => props.items.length, () => {
@@ -47,9 +33,6 @@ function setPage(page) {
   currentPage.value = page
 }
 
-function typeClass(type) {
-  return type === '수정' ? 'queue__type--edit' : 'queue__type--new'
-}
 </script>
 
 <template>
@@ -59,18 +42,8 @@ function typeClass(type) {
         <p class="queue__eyebrow">문서 승인 대기 목록</p>
         <h2>승인 대기 목록</h2>
       </div>
-      <span class="queue__count">{{ filters.find((item) => item.key === 'all')?.count ?? items.length }}건</span>
+      <span class="queue__count">{{ items.length }}건</span>
     </div>
-
-    <BaseFilterTabs
-      class="queue__tabs"
-      :items="filters"
-      :model-value="activeFilter"
-      variant="chip"
-      size="sm"
-      show-count
-      @change="emit('change-filter', $event)"
-    />
 
     <div class="queue__list">
       <button
@@ -82,7 +55,6 @@ function typeClass(type) {
         @click="emit('select-item', item.id)"
       >
         <div class="queue__item-top">
-          <span class="queue__type" :class="typeClass(item.type)">{{ item.type }}</span>
           <strong>{{ item.title }}</strong>
         </div>
         <p>{{ item.author }} · {{ item.date }}</p>
@@ -116,7 +88,7 @@ function typeClass(type) {
   background: var(--color-bg-surface);
   padding: 16px;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 12px;
   min-width: 0;
   box-sizing: border-box;
@@ -195,23 +167,6 @@ function typeClass(type) {
   margin-top: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-}
-
-.queue__type {
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: var(--font-size-xs);
-  font-weight: 800;
-}
-
-.queue__type--new {
-  background: #e8fbf7;
-  color: #10a58b;
-}
-
-.queue__type--edit {
-  background: #efeaff;
-  color: var(--color-primary-700);
 }
 
 .queue__empty {

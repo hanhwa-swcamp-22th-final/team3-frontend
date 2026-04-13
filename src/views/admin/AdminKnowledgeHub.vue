@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+import { TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
@@ -12,6 +13,7 @@ import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
+const tagFilters = ref([])
 
 function formatTrend(value, digits = 0) {
   const numeric = Number(value ?? 0)
@@ -36,10 +38,9 @@ function formatDate(isoString) {
 
 // ── 백엔드 DTO → 피드 카드 shape ────────────────────────────────
 function mapToFeedCard(dto) {
-  const categoryLabel = ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory ?? ''
   return {
     id:        dto.articleId,
-    tags:      categoryLabel ? [categoryLabel] : [],
+    tags:      (dto.tags ?? []).map((tag) => tag.tagName).filter(Boolean),
     date:      formatDate(dto.createdAt),
     rawDate:   dto.createdAt ?? '',
     title:     dto.articleTitle,
@@ -103,6 +104,7 @@ onMounted(async () => {
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
+    loadTags(),
   ])
 })
 
@@ -184,6 +186,19 @@ async function loadRecommendations() {
     }))
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+async function loadTags() {
+  try {
+    const res = await knowledgeArticleApi.getTags()
+    tagFilters.value = (res.data.data ?? []).map((tag) => ({
+      key: tag.tagName,
+      ...TAG_STYLE[tag.tagName],
+    }))
+  } catch (e) {
+    console.error('[KMS] 태그 목록 로드 실패:', e)
+    tagFilters.value = []
   }
 }
 
@@ -332,6 +347,7 @@ async function handleRestore(articleId) {
           :articles="visibleArticles"
           :selectedFilter="selectedFilter"
           :selectedTagFilter="selectedTagFilter"
+          :tagFilters="tagFilters"
           @filterChange="selectedFilter = $event"
           @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"

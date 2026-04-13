@@ -1,12 +1,13 @@
 <script setup>
 import { computed } from 'vue'
-import { KMS_TAG_FILTERS, TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
+import { TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
 import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: '전체' },
   selectedTagFilter: { type: String, default: null },
+  tagFilters:        { type: Array,  default: () => [] },
 })
 const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
 
@@ -15,15 +16,6 @@ const KMS_FILTERS = [
   { key: '전체' },
   { key: '인기' },
   { key: '내 북마크' },
-]
-
-// 태그 필터 (백엔드 카테고리 기준)
-const tagFilters = [
-  { key: '장애조치', bg: '#E3FBEF', color: '#007A60' },
-  { key: '공정개선', bg: '#F0EEFF', color: '#5B4FCF' },
-  { key: '설비운영', bg: '#FFF8E0', color: '#A07000' },
-  { key: '안전',     bg: '#FFECF1', color: '#C0103E' },
-  { key: '기타',     bg: '#F4F4FB', color: '#7A6FA8' },
 ]
 
 const filteredCards = computed(() => {
@@ -45,7 +37,7 @@ const filteredCards = computed(() => {
 })
 
 function tagStyle(tag) {
-  const found = tagFilters.find((t) => t.key === tag)
+  const found = props.tagFilters.find((t) => t.key === tag)
   if (found) return { background: found.bg, color: found.color }
   if (TAG_STYLE[tag]) return { background: TAG_STYLE[tag].bg, color: TAG_STYLE[tag].color }
   return { background: 'var(--color-primary-100)', color: 'var(--color-primary-600)' }
@@ -65,7 +57,7 @@ function tagStyle(tag) {
         @change="emit('filterChange', $event)"
       />
       <span
-        v-for="t in tagFilters"
+        v-for="t in props.tagFilters"
         :key="t.key"
         class="tag-chip"
         :style="selectedTagFilter === t.key
