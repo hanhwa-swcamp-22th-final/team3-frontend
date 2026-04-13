@@ -5,6 +5,7 @@ import { BaseToast } from '@/components/common/base/overlay'
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
 import { fetchDlTargets, fetchDlEvaluationDetail, updateDlEvaluation } from '@/services/departmentleader/evaluationApi'
+import { mapStatus, statusToLabel } from '@/utils/evaluationStatus'
 
 const members = ref([])
 const selectedMember = ref(null)
@@ -37,13 +38,8 @@ function avatarColor(name) {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
-function mapStatus(apiStatus) {
-  if (apiStatus === 'SUBMITTED' || apiStatus === 'CONFIRMED') return 'submitted'
-  if (apiStatus === 'DRAFT') return 'in_progress'
-  return 'not_started'
-}
-
 function mapTarget(t) {
+  const status = mapStatus(t.status)
   return {
     id: t.evaluateeId,
     evaluationPeriodId: t.evaluationPeriodId,
@@ -51,13 +47,14 @@ function mapTarget(t) {
     avatar: (t.employeeName ?? '?')[0],
     avatarColor: avatarColor(t.employeeName),
     tier: t.employeeTier ?? '—',
-    code: '',
-    team: '',
+    code: t.employeeCode ?? '',
+    team: t.teamName ?? '',
     experience: '',
-    status: mapStatus(t.status),
-    statusDate: '—',
+    status,
+    statusDate: statusToLabel(status, t.status),
     secondEvaluationDraft: t.evalComment ?? '',
     firstEvaluationSummary: null,
+    expectedScore: t.secondStageScore ?? null,
   }
 }
 
@@ -106,6 +103,7 @@ async function handleSelect(member) {
         compositeScore: null,
         qualitativeComment: detail.evalComment ?? '',
       },
+      expectedScore: members.value[idx].expectedScore ?? null,
     }
     members.value[idx] = updated
     if (selectedMember.value?.id === member.id) {
@@ -116,17 +114,19 @@ async function handleSelect(member) {
   }
 }
 
-async function handleSave(draftText) {
+async function handleSave(payload) {
   if (!selectedMember.value) return
+  const draftText = payload?.draftText ?? ''
+  const inputMethod = payload?.inputMethod ?? 'TEXT'
   try {
     await updateDlEvaluation(selectedMember.value.id, {
       status: 'DRAFT',
       evaluationPeriodId: selectedMember.value.evaluationPeriodId,
       evalComment: draftText,
-      inputMethod: 'TEXT',
+      inputMethod,
     })
     const idx = members.value.findIndex((m) => m.id === selectedMember.value.id)
-    const updated = { ...members.value[idx], secondEvaluationDraft: draftText, status: 'in_progress' }
+    const updated = { ...members.value[idx], secondEvaluationDraft: draftText, status: 'in_progress', statusDate: statusToLabel('in_progress', 'DRAFT') }
     members.value[idx] = updated
     selectedMember.value = updated
     showToast('임시저장 되었습니다.')
@@ -135,18 +135,20 @@ async function handleSave(draftText) {
   }
 }
 
-async function handleSubmit(draftText) {
+async function handleSubmit(payload) {
   if (!selectedMember.value) return
   if (isSubmitted.value) return
+  const draftText = payload?.draftText ?? ''
+  const inputMethod = payload?.inputMethod ?? 'TEXT'
   try {
     await updateDlEvaluation(selectedMember.value.id, {
       status: 'SUBMITTED',
       evaluationPeriodId: selectedMember.value.evaluationPeriodId,
       evalComment: draftText,
-      inputMethod: 'TEXT',
+      inputMethod,
     })
     const idx = members.value.findIndex((m) => m.id === selectedMember.value.id)
-    const updated = { ...members.value[idx], secondEvaluationDraft: draftText, status: 'submitted' }
+    const updated = { ...members.value[idx], secondEvaluationDraft: draftText, status: 'submitted', statusDate: statusToLabel('submitted', 'SUBMITTED') }
     members.value[idx] = updated
     selectedMember.value = updated
     showToast('최종 제출 완료되었습니다.')

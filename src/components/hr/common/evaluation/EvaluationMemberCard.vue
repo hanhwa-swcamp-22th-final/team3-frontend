@@ -61,7 +61,7 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
 <style scoped>
 .evaluation-member-card {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;

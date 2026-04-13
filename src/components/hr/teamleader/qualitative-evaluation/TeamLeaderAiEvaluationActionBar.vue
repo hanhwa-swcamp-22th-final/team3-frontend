@@ -10,91 +10,54 @@ const emit = defineEmits(['close', 'save-draft', 'submit'])
 </script>
 
 <template>
-  <section class="evaluation-action-bar">
-    <div class="evaluation-action-bar__actions">
-      <button
-        type="button"
-        class="evaluation-action-bar__button evaluation-action-bar__button--secondary"
-        :disabled="disabled"
-        @click="emit('close')"
-      >
-        닫기
-      </button>
-      <button
-        type="button"
-        class="evaluation-action-bar__button evaluation-action-bar__button--secondary"
-        :disabled="disabled"
-        @click="emit('save-draft')"
-      >
-        임시 저장
-      </button>
-      <button
-        type="button"
-        class="evaluation-action-bar__button evaluation-action-bar__button--primary"
-        :disabled="disabled"
-        @click="emit('submit')"
-      >
-        제출
-      </button>
-    </div>
-  </section>
+  <div class="eval-form__actions">
+    <template v-if="!disabled">
+      <button class="eval-form__btn eval-form__btn--close" @click="emit('close')">닫기</button>
+      <button class="eval-form__btn eval-form__btn--save" @click="emit('save-draft')">임시저장</button>
+      <button class="eval-form__btn eval-form__btn--submit" @click="emit('submit')">제출</button>
+    </template>
+  </div>
 </template>
 
 <style scoped>
-.evaluation-action-bar {
+.eval-form__actions {
   display: flex;
+  align-items: center;
+  gap: 12px;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  padding-top: 4px;
+  flex-wrap: wrap;
 }
 
-.evaluation-action-bar__actions {
-  display: flex;
-  gap: 10px;
-}
-
-.evaluation-action-bar__button {
+.eval-form__btn {
   height: 42px;
-  min-width: 74px;
-  padding: 0 20px;
+  padding: 0 24px;
   border-radius: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
-}
-
-.evaluation-action-bar__button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.evaluation-action-bar__button--secondary {
-  border: 1px solid var(--color-border-default);
-  background: var(--color-bg-surface);
-  color: var(--color-primary-700);
-}
-
-.evaluation-action-bar__button--primary {
   border: none;
-  background: var(--color-primary-600);
-  color: var(--color-text-inverse);
+  transition: opacity 0.15s;
 }
 
-@media (max-width: 720px) {
-  .evaluation-action-bar {
-    justify-content: stretch;
-    padding: 12px;
-  }
+.eval-form__btn:hover {
+  opacity: 0.85;
+}
 
-  .evaluation-action-bar__actions {
-    width: 100%;
-  }
+.eval-form__btn--close {
+  background: var(--color-bg-surface-muted);
+  color: var(--color-text-default);
+  border: 1px solid var(--color-border-default);
+}
 
-  .evaluation-action-bar__button {
-    flex: 1;
-  }
+.eval-form__btn--save {
+  background: var(--color-bg-surface-muted);
+  color: var(--color-text-default);
+  border: 1px solid var(--color-border-default);
+}
+
+.eval-form__btn--submit {
+  background: var(--color-primary-600);
+  color: #fff;
 }
 </style>
