@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { API_BASE } from '@/constants'
+import { API_BASE, HR_API_BASE } from '@/constants'
 import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
 import WorkerOverallStatusCard from '@/components/dashboard/worker/WorkerOverallStatusCard.vue'
 import WorkerSkillsRadarChart from '@/components/dashboard/worker/WorkerSkillsRadarChart.vue'
@@ -22,25 +22,77 @@ async function fetchJson(url) {
   return res.json()
 }
 
+async function fetchHrApi(path) {
+  const res = await fetch(`${HR_API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${authStore.accessToken}` },
+  })
+  const json = await res.json()
+  return json.data
+}
+
+const SKILL_LABEL = {
+  EQUIPMENT_RESPONSE: '설비대응',
+  TECHNICAL_TRANSFER: '기술전수',
+  INNOVATION_PROPOSAL: '혁신제안',
+  SAFETY_COMPLIANCE: '안전준수',
+  QUALITY_MANAGEMENT: '품질관리',
+  PRODUCTIVITY: '생산성',
+}
+
 onMounted(async () => {
   const employeeId = authStore.userInfo?.employeeId
 
   try {
-    const [profiles, skills, milestones, chartData, missions, notifications] =
-      await Promise.all([
-        fetchJson(`${API_BASE}/workerProfiles?employee_id=${employeeId}`),
-        fetchJson(`${API_BASE}/workerSkills?employee_id=${employeeId}`),
-        fetchJson(`${API_BASE}/tierMilestones?employee_id=${employeeId}`),
-        fetchJson(`${API_BASE}/tierChartData?employee_id=${employeeId}`),
-        fetchJson(`${API_BASE}/missions?employee_id=${employeeId}`),
-        fetchJson(`${API_BASE}/notifications?active=true`),
-      ])
+    // Profile + Skills + Tier Chart + Missions from backend HR API
+    const [profile, skills, tierChart, missions] = await Promise.all([
+      fetchHrApi('/api/v1/hr/workers/me/profile'),
+      fetchHrApi('/api/v1/hr/workers/me/skills'),
+      fetchHrApi('/api/v1/hr/workers/me/tier-chart'),
+      fetchHrApi('/api/v1/hr/workers/me/missions'),
+    ])
 
-    workerData.value = profiles[0] ?? null
-    workerSkills.value = skills
-    workerTierMilestones.value = milestones
-    workerTierChartData.value = chartData
-    workerMissions.value = missions
+    workerData.value = {
+      score: profile.totalScore != null ? Math.round(Number(profile.totalScore)) : null,
+      type: null,
+      tier: profile.currentTier,
+      name: profile.employeeName,
+      nameEn: null,
+      skillGrid: skills.map(s => ({
+        value: Math.round(Number(s.skillScore)),
+        label: SKILL_LABEL[s.skillName] ?? s.skillName,
+      })),
+      historyPeriod: null,
+      worksDone: null,
+      finishRate: null,
+      aiEval: null,
+    }
+
+    // Radar chart uses same skills data from HR API
+    workerSkills.value = skills.map(s => ({
+      label: SKILL_LABEL[s.skillName] ?? s.skillName,
+      value: Math.round(Number(s.skillScore)),
+    }))
+
+    // Tier chart data from HR API
+    workerTierChartData.value = (tierChart ?? []).map(d => ({
+      period: d.year != null ? `${d.year}-Q${d.evalSequence}` : null,
+      value: d.totalScore != null ? Math.round(Number(d.totalScore)) : null,
+      tier: d.tier,
+    }))
+    // Milestones — no backend endpoint yet, set empty
+    workerTierMilestones.value = []
+
+    // Missions from HR API
+    workerMissions.value = (missions ?? []).map(m => ({
+      title: m.missionName ?? null,
+      points: m.rewardPoint ?? null,
+      current: m.currentValue != null ? Math.round(Number(m.currentValue)) : null,
+      target: m.conditionValue != null ? Math.round(Number(m.conditionValue)) : null,
+      icon: null,
+    }))
+
+    // Remaining data from mock API (to be migrated later)
+    const notifications = await fetchJson(`${API_BASE}/notifications?active=true`)
     workerNotification.value = notifications[0] ?? null
   } catch (e) {
     console.error('Failed to load worker dashboard data:', e)
@@ -70,13 +122,12 @@ onMounted(async () => {
         </div>
         <div class="worker-grid__tier">
           <WorkerTierGrowthHistory
-            v-if="workerTierMilestones.length"
             :milestones="workerTierMilestones"
             :chart-data="workerTierChartData"
           />
         </div>
         <div class="worker-grid__missions">
-          <WorkerMissionBoard v-if="workerMissions.length" :missions="workerMissions" />
+          <WorkerMissionBoard :missions="workerMissions" />
         </div>
       </div>
     </template>

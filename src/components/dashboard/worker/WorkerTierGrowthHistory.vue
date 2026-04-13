@@ -12,12 +12,12 @@ onMounted(() => {
 defineProps({
   milestones: {
     type: Array,
-    required: true,
+    default: () => [],
     // [{ tier, label, date, score }]
   },
   chartData: {
     type: Array,
-    required: true,
+    default: () => [],
     // [{ period, value, tier }]
   },
 })
