@@ -38,6 +38,7 @@ export const roleSidebarSections = {
         { label: '대시보드', icon: '👥', to: { name: 'HRDashboard' } },
         { label: '평가 승인', icon: '✅', to: { name: 'ApprovalReview' } },
         { label: 'KPI 리포트', icon: '📊', to: { name: 'HRMKpiReport' } },
+        { label: '평가기간 관리', icon: '📅', to: { name: 'EvaluationPeriod' } },
         { label: '평가 기준 설정', icon: '🎯', to: { name: 'EvaluationCriteria' } },
         { label: '승급 심사', icon: '🏆', to: { name: 'PromotionReview' } },
         { label: '조직도 관리', icon: '📘', to: { name: 'OrganizationManagement' } },

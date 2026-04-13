@@ -1,51 +1,76 @@
 ﻿<script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { BaseProgressBar } from '@/components/common/base'
+import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderAiEvaluationMemberListPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationMemberListPanel.vue'
 import TeamLeaderAiEvaluationPanel from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationPanel.vue'
-import TeamLeaderAiEvaluationActionBar from '@/components/hr/teamleader/qualitative-evaluation/TeamLeaderAiEvaluationActionBar.vue'
-import { aiEvaluationTargets, aiEvaluationSelectedTarget } from '@/mocks/teamleader/aiEvaluation'
+import { fetchTlTargets, updateTlEvaluation } from '@/services/teamleader/evaluationApi'
 
-const selectedTargetId = ref(String(aiEvaluationTargets[0]?.id ?? ''))
-const actionFeedback = ref('')
-const actionFeedbackTone = ref('muted')
+const AVATAR_TONES = ['purple', 'green', 'gold']
+const STATUS_MAP = { NO_INPUT: 'not_started', DRAFT: 'in_progress', SUBMITTED: 'submitted' }
+
+const rawTargets = ref([])
+const evalPeriodId = ref(null)
+
+const selectedTargetId = ref('')
 const guideOpen = ref(false)
 const recordingState = ref('idle')
 const uploadedFileName = ref('')
 const uploadedText = ref('')
+const toast = ref({ show: false, message: '', type: 'success' })
+let toastTimer = null
 
-function buildConvertedText(target) {
-  return aiEvaluationSelectedTarget.convertedText.replaceAll('김신우', target.name)
-}
-
-const evaluationDrafts = reactive(
-  Object.fromEntries(
-    aiEvaluationTargets.map((target) => [String(target.id), buildConvertedText(target)]),
-  ),
-)
-
-const savedDrafts = reactive(
-  Object.fromEntries(
-    aiEvaluationTargets.map((target) => [String(target.id), buildConvertedText(target)]),
-  ),
-)
-
+const evaluationDrafts = reactive({})
+const savedDrafts = reactive({})
 const submittedEvaluations = reactive({})
 
+function mapTarget(target, index) {
+  const evaluationPeriodId = target.evaluationPeriodId ?? null
+  return {
+    id: `${target.evaluateeId}:${evaluationPeriodId ?? 'none'}`,
+    evaluateeId: String(target.evaluateeId),
+    evaluationPeriodId,
+    name: target.employeeName,
+    code: target.employeeCode,
+    tier: target.employeeTier,
+    scoreHint: target.totalScore != null ? `Overall ${target.totalScore}` : target.employeeTier,
+    periodHint: evaluationPeriodId ? '진행중 기간' : '기간 미지정',
+    avatar: target.employeeName?.[0] ?? '?',
+    avatarTone: AVATAR_TONES[index % AVATAR_TONES.length],
+  }
+}
+
+onMounted(async () => {
+  try {
+    const res = await fetchTlTargets()
+    const data = res.data.data
+    evalPeriodId.value = data.evalPeriodId
+    rawTargets.value = data.targets.map(mapTarget)
+    data.targets.forEach((t) => {
+      const targetKey = `${t.evaluateeId}:${t.evaluationPeriodId ?? 'none'}`
+      evaluationDrafts[targetKey] = t.evalComment ?? ''
+      savedDrafts[targetKey] = t.evalComment ?? ''
+      if (t.status === 'SUBMITTED') {
+        submittedEvaluations[targetKey] = true
+      }
+    })
+    if (rawTargets.value.length) {
+      selectedTargetId.value = rawTargets.value[0].id
+    }
+  } catch (e) {
+    updateFeedback('평가 대상 목록을 불러오지 못했습니다.', 'muted')
+  }
+})
+
 const memberListItems = computed(() =>
-  aiEvaluationTargets.map((target) => {
+  rawTargets.value.map((target) => {
     const targetId = String(target.id)
-    const baselineText = buildConvertedText(target)
-    const draftText = evaluationDrafts[targetId] ?? baselineText
     const hasSubmitted = Boolean(submittedEvaluations[targetId])
-    const hasEdited = draftText !== baselineText
+    const hasEdited = Boolean(evaluationDrafts[targetId])
 
     let status = 'not_started'
-    if (hasSubmitted) {
-      status = 'submitted'
-    } else if (hasEdited) {
-      status = 'in_progress'
-    }
+    if (hasSubmitted) status = 'submitted'
+    else if (hasEdited) status = 'in_progress'
 
     return {
       ...target,
@@ -60,10 +85,7 @@ const submittedCount = computed(
 )
 
 const evaluationCompletionRate = computed(() => {
-  if (!memberListItems.value.length) {
-    return 0
-  }
-
+  if (!memberListItems.value.length) return 0
   return Math.round((submittedCount.value / memberListItems.value.length) * 100)
 })
 
@@ -74,9 +96,7 @@ watch(
       selectedTargetId.value = ''
       return
     }
-
     const hasSelectedTarget = targets.some((target) => String(target.id) === selectedTargetId.value)
-
     if (!hasSelectedTarget) {
       selectedTargetId.value = String(targets[0].id)
     }
@@ -85,17 +105,13 @@ watch(
 )
 
 const selectedTarget = computed(() => {
-  const target = aiEvaluationTargets.find((item) => String(item.id) === selectedTargetId.value) ?? aiEvaluationTargets[0]
-
-  if (!target) {
-    return aiEvaluationSelectedTarget
-  }
+  const target = rawTargets.value.find((item) => String(item.id) === selectedTargetId.value)
+  if (!target) return { voiceLabel: '', voiceDescription: '', convertedText: '' }
 
   return {
-    ...aiEvaluationSelectedTarget,
     voiceLabel: `${target.name} 음성 초안 작성`,
     voiceDescription: `${target.name} (${target.code}) 평가 내용을 음성으로 작성하고 텍스트로 변환할 수 있습니다.`,
-    convertedText: evaluationDrafts[String(target.id)] ?? buildConvertedText(target),
+    convertedText: evaluationDrafts[String(target.id)] ?? '',
   }
 })
 
@@ -104,73 +120,91 @@ function handleSelectTarget(targetId) {
 }
 
 function handleUpdateConvertedText(value) {
-  if (!selectedTargetId.value) {
-    return
-  }
-
+  if (!selectedTargetId.value) return
   evaluationDrafts[selectedTargetId.value] = value
 }
 
 function updateFeedback(message, tone = 'muted') {
-  actionFeedback.value = message
-  actionFeedbackTone.value = tone
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.value = {
+    show: true,
+    message,
+    type: tone === 'muted' ? 'error' : 'success',
+  }
+  toastTimer = setTimeout(() => {
+    toast.value.show = false
+  }, 2500)
 }
 
 function handleCloseEditor() {
-  if (!selectedTargetId.value) {
-    return
-  }
-
-  const fallbackTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
-  const fallbackText = fallbackTarget ? buildConvertedText(fallbackTarget) : ''
-
-  evaluationDrafts[selectedTargetId.value] =
-    submittedEvaluations[selectedTargetId.value] ?? savedDrafts[selectedTargetId.value] ?? fallbackText
-
+  if (!selectedTargetId.value) return
+  evaluationDrafts[selectedTargetId.value] = savedDrafts[selectedTargetId.value] ?? ''
   updateFeedback('현재 대상자의 편집 내용을 마지막 저장 기준으로 되돌렸습니다.', 'muted')
 }
 
-function handleSaveDraft() {
-  if (!selectedTargetId.value) {
+async function handleSaveDraft() {
+  if (!selectedTargetId.value) return
+
+  const currentTarget = rawTargets.value.find((t) => t.id === selectedTargetId.value)
+  if (!currentTarget?.evaluationPeriodId) return
+  try {
+    await updateTlEvaluation(currentTarget.evaluateeId, {
+      status: 'DRAFT',
+      evaluationPeriodId: currentTarget.evaluationPeriodId,
+      evalComment: evaluationDrafts[selectedTargetId.value] || null,
+      inputMethod: 'TEXT',
+    })
+    savedDrafts[selectedTargetId.value] = evaluationDrafts[selectedTargetId.value]
+    updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 초안을 임시 저장했습니다.`, 'draft')
+  } catch (e) {
+    updateFeedback('임시 저장에 실패했습니다.', 'muted')
+  }
+}
+
+async function handleSubmitEvaluation() {
+  if (!selectedTargetId.value) return
+
+  if (submittedEvaluations[selectedTargetId.value]) {
+    updateFeedback('이미 제출된 평가입니다.', 'muted')
     return
   }
 
-  savedDrafts[selectedTargetId.value] = evaluationDrafts[selectedTargetId.value]
-
-  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
-  updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 초안을 임시 저장했습니다.`, 'draft')
-}
-
-function handleSubmitEvaluation() {
-  if (!selectedTargetId.value) {
+  const evalComment = evaluationDrafts[selectedTargetId.value]
+  if (!evalComment || evalComment.trim().length < 20) {
+    updateFeedback('평가 코멘트는 20자 이상 입력해야 합니다.', 'muted')
     return
   }
 
-  submittedEvaluations[selectedTargetId.value] = evaluationDrafts[selectedTargetId.value]
-
-  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
-  updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 내용을 제출했습니다.`, 'submitted')
-}
-
-function buildVoiceMockText(target) {
-  return `[음성 입력 mock 초안] ${target.name} 사원은 최근 설비 이상 상황에서 원인을 빠르게 확인했고, 관련 담당자와 즉시 협업해 생산 차질을 최소화했습니다. 이후 재발 방지를 위해 점검 포인트를 정리해 팀에 공유했습니다.`
+  const currentTarget = rawTargets.value.find((t) => t.id === selectedTargetId.value)
+  if (!currentTarget?.evaluationPeriodId) return
+  try {
+    await updateTlEvaluation(currentTarget.evaluateeId, {
+      status: 'SUBMITTED',
+      evaluationPeriodId: currentTarget.evaluationPeriodId,
+      evalComment,
+      inputMethod: 'TEXT',
+    })
+    submittedEvaluations[selectedTargetId.value] = true
+    updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가 내용을 제출했습니다.`, 'submitted')
+  } catch (e) {
+    if (e.response?.data?.errorCode === 'CONFLICT_008') {
+      submittedEvaluations[selectedTargetId.value] = true
+      updateFeedback(`${currentTarget?.name ?? '선택한 대상'} 평가는 이미 제출되었습니다.`, 'submitted')
+      return
+    }
+    const msg = e.response?.data?.message ?? '제출에 실패했습니다.'
+    updateFeedback(msg, 'muted')
+  }
 }
 
 function handleVoiceInput() {
-  if (!selectedTargetId.value) {
-    return
-  }
-
+  if (!selectedTargetId.value) return
   recordingState.value = recordingState.value === 'recording' ? 'ready' : 'recording'
-
   if (recordingState.value === 'recording') {
-    updateFeedback('음성 입력 mock 상태로 전환했습니다. 다시 누르면 초안 준비 상태로 바뀝니다.', 'muted')
-    return
+    updateFeedback('음성 인식 중입니다. 다시 누르면 중지합니다.', 'muted')
+  } else {
+    updateFeedback('음성 초안이 준비되었습니다. 텍스트 변환 버튼으로 편집 영역에 반영할 수 있습니다.', 'draft')
   }
-
-  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
-  uploadedText.value = currentTarget ? buildVoiceMockText(currentTarget) : ''
-  updateFeedback('음성 초안이 준비되었습니다. 텍스트 변환 버튼으로 편집 영역에 반영할 수 있습니다.', 'draft')
 }
 
 async function handleFileSelected(file) {
@@ -191,34 +225,29 @@ async function handleFileSelected(file) {
 }
 
 function handleConvertText() {
-  if (!selectedTargetId.value) {
+  if (!selectedTargetId.value) return
+
+  if (!uploadedText.value) {
+    updateFeedback('변환할 음성 또는 업로드 텍스트가 없습니다.', 'muted')
     return
   }
 
-  const currentTarget = aiEvaluationTargets.find((target) => String(target.id) === selectedTargetId.value)
-  const sourceText = uploadedText.value || (currentTarget ? buildVoiceMockText(currentTarget) : '')
-
-  if (!sourceText) {
-    updateFeedback('변환할 mock 음성 또는 업로드 텍스트가 없습니다.', 'muted')
-    return
-  }
-
-  evaluationDrafts[selectedTargetId.value] = sourceText
+  evaluationDrafts[selectedTargetId.value] = uploadedText.value
   updateFeedback('텍스트 변환 결과를 편집 영역에 반영했습니다.', 'draft')
 }
 
 function handleReplayAudio() {
-  if (!selectedTargetId.value) {
-    return
-  }
-
-  updateFeedback('현재는 mock 단계이므로 다시 듣기 대신 준비된 초안 상태만 확인할 수 있습니다.', 'muted')
+  updateFeedback('다시 듣기는 준비 중입니다.', 'muted')
 }
 
 function handleToggleGuide() {
   guideOpen.value = !guideOpen.value
   updateFeedback(guideOpen.value ? '작성 가이드를 열었습니다.' : '작성 가이드를 닫았습니다.', 'muted')
 }
+
+onBeforeUnmount(() => {
+  if (toastTimer) clearTimeout(toastTimer)
+})
 </script>
 
 <template>
@@ -247,40 +276,30 @@ function handleToggleGuide() {
 
       <TeamLeaderAiEvaluationPanel
         :selected-target="selectedTarget"
+        :readonly="!!submittedEvaluations[selectedTargetId]"
         :guide-open="guideOpen"
         :recording-state="recordingState"
         :uploaded-file-name="uploadedFileName"
+        :action-disabled="!selectedTargetId"
         @update:converted-text="handleUpdateConvertedText"
         @voice-input="handleVoiceInput"
         @file-selected="handleFileSelected"
         @convert-text="handleConvertText"
         @replay-audio="handleReplayAudio"
         @toggle-guide="handleToggleGuide"
-      />
-    </section>
-
-    <section class="teamleader-ai-evaluation-view__actions">
-      <TeamLeaderAiEvaluationActionBar
-        :disabled="!selectedTargetId"
         @close="handleCloseEditor"
         @save-draft="handleSaveDraft"
         @submit="handleSubmitEvaluation"
       />
-      <p
-        v-if="actionFeedback"
-        class="teamleader-ai-evaluation-view__feedback"
-        :class="`teamleader-ai-evaluation-view__feedback--${actionFeedbackTone}`"
-      >
-        {{ actionFeedback }}
-      </p>
     </section>
+    <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
   </section>
 </template>
 
 <style scoped>
 .teamleader-ai-evaluation-view {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   flex: 1;
   width: 100%;
   min-width: 0;
@@ -289,7 +308,8 @@ function handleToggleGuide() {
   padding: 12px 10px;
   background: var(--color-bg-app);
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .teamleader-ai-evaluation-view__progress-card {
@@ -330,35 +350,6 @@ function handleToggleGuide() {
   min-height: 0;
 }
 
-.teamleader-ai-evaluation-view__actions {
-  display: grid;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.teamleader-ai-evaluation-view__feedback {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.teamleader-ai-evaluation-view__feedback--muted {
-  background: #f6f7fb;
-  color: var(--color-text-muted);
-}
-
-.teamleader-ai-evaluation-view__feedback--draft {
-  background: #f6f3ff;
-  color: var(--color-primary-700);
-}
-
-.teamleader-ai-evaluation-view__feedback--submitted {
-  background: #eefbf6;
-  color: #1d7f5f;
-}
-
 @media (max-width: 1120px) {
   .teamleader-ai-evaluation-view__content {
     grid-template-columns: 1fr;
@@ -368,6 +359,9 @@ function handleToggleGuide() {
 @media (max-width: 720px) {
   .teamleader-ai-evaluation-view {
     padding: 12px;
+    height: auto;
+    min-height: calc(100vh - 80px);
+    overflow: auto;
   }
 
   .teamleader-ai-evaluation-view__progress-copy {

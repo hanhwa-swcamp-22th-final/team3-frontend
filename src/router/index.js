@@ -114,6 +114,11 @@ const routes = [
         name: 'HRMNoticeBoard',
         component: () => import('@/views/hrmanager/HRMNoticeBoardView.vue'),
       },
+      {
+        path: 'evaluation-period',
+        name: 'EvaluationPeriod',
+        component: () => import('@/views/hrmanager/HRMEvaluationPeriodView.vue'),
+      },
     ],
   },
 
