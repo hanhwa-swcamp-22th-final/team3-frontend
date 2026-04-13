@@ -1,10 +1,12 @@
-﻿<script setup>
+<script setup>
 defineProps({
   columns: {
     type: Array,
     default: () => [],
   },
 })
+
+const emit = defineEmits(['item-action'])
 
 function formatCount(count) {
   return `${count}건`
@@ -46,6 +48,15 @@ function formatCount(count) {
               <strong class="pipeline-card__title">{{ item.title }}</strong>
               <p class="pipeline-card__meta">{{ item.line }}</p>
               <p class="pipeline-card__meta">{{ item.daysLabel }}</p>
+              <button
+                v-if="item.actionLabel"
+                type="button"
+                class="pipeline-card__action"
+                :disabled="item.actionDisabled"
+                @click="emit('item-action', item)"
+              >
+                {{ item.actionLabel }}
+              </button>
             </article>
           </template>
 
@@ -91,7 +102,6 @@ function formatCount(count) {
   font-size: 18px;
   color: var(--color-primary-800);
 }
-
 
 .pipeline-board__columns {
   display: grid;
@@ -144,7 +154,7 @@ function formatCount(count) {
 
 .pipeline-column__body {
   display: grid;
-  grid-auto-rows: 132px;
+  grid-auto-rows: 156px;
   align-content: start;
   gap: 10px;
   min-height: 0;
@@ -153,14 +163,8 @@ function formatCount(count) {
   scrollbar-gutter: stable;
 }
 
-.pipeline-column__body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.pipeline-column__body::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: var(--color-primary-200);
-}
+.pipeline-column__body::-webkit-scrollbar { width: 8px; }
+.pipeline-column__body::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--color-primary-200); }
 
 .pipeline-column__empty {
   display: flex;
@@ -180,7 +184,7 @@ function formatCount(count) {
   display: grid;
   align-content: start;
   gap: 6px;
-  min-height: 132px;
+  min-height: 156px;
   padding: 14px 12px;
   border: 2px solid var(--color-border-default);
   border-radius: 16px;
@@ -205,32 +209,34 @@ function formatCount(count) {
   color: var(--color-text-muted);
 }
 
-.pipeline-card--primary {
-  border-color: var(--color-primary-200);
+.pipeline-card__action {
+  margin-top: auto;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.pipeline-card--warning {
-  border-color: #ffd166;
+.pipeline-card__action:disabled {
+  background: var(--color-border-default);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
 }
 
-.pipeline-card--danger {
-  border-color: #ff8aa4;
-}
-
-.pipeline-card--success {
-  border-color: var(--color-mint-200);
-}
+.pipeline-card--primary { border-color: var(--color-primary-200); }
+.pipeline-card--warning { border-color: #ffd166; }
+.pipeline-card--danger { border-color: #ff8aa4; }
+.pipeline-card--success { border-color: var(--color-mint-200); }
 
 @media (max-width: 1280px) {
-  .pipeline-board__columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .pipeline-board__columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 720px) {
-  .pipeline-board__columns {
-    grid-template-columns: 1fr;
-  }
+  .pipeline-board__columns { grid-template-columns: 1fr; }
 }
 </style>
-

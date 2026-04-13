@@ -28,7 +28,7 @@ const segments = computed(() => {
   const sum = dist.reduce((a, d) => a + d.value, 0)
   let offset = 0
   return dist.map((d) => {
-    const pct = (d.value / sum) * 100
+    const pct = sum > 0 ? (d.value / sum) * 100 : 100 / dist.length
     const seg = { ...d, pct, offset }
     offset += pct
     return seg

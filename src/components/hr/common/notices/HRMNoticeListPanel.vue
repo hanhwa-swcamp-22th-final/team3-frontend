@@ -1,22 +1,22 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { STATUS_STYLE, FILTER_TABS } from '@/mocks/hrmanager/noticeboard.js'
-import HRMNoticeTeamFilter from '@/components/hr/common/notices/HRMNoticeTeamFilter.vue'
 
 const props = defineProps({
   notices:          { type: Array, required: true },
   selectedId:       { type: [Number, null], default: null },
   showCreateButton: { type: Boolean, default: false },
+  filterTabs:       { type: Array, default: () => FILTER_TABS },
+  allowHideImportant: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['select', 'create'])
 
-const activeTab     = ref('')
-const orgFilter     = ref([])
-const showOrgFilter = ref(false)
-const searchQuery   = ref('')
-const PAGE_SIZE     = 8
-const currentPage   = ref(1)
+const activeTab        = ref('')
+const searchQuery      = ref('')
+const hideImportant    = ref(false)
+const PAGE_SIZE        = 8
+const currentPage      = ref(1)
 
 const filtered = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
@@ -24,7 +24,7 @@ const filtered = computed(() => {
     .filter(n => {
       if (activeTab.value === '중요' && !n.isImportant) return false
       if (activeTab.value && activeTab.value !== '중요' && n.status !== activeTab.value) return false
-      if (orgFilter.value.length && !n.targets.some(t => orgFilter.value.includes(t))) return false
+      if (hideImportant.value && activeTab.value !== '중요' && n.isImportant) return false
       if (q && !n.title.toLowerCase().includes(q)) return false
       return true
     })
@@ -36,9 +36,6 @@ const paginated  = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
   return filtered.value.slice(start, start + PAGE_SIZE)
 })
-const orgLabel = computed(() =>
-  orgFilter.value.length ? orgFilter.value.join(' / ') : '전체'
-)
 
 function setTab(tab) {
   activeTab.value = tab === '전체' ? '' : (activeTab.value === tab ? '' : tab)
@@ -58,29 +55,21 @@ function setTab(tab) {
     <div class="notice-toolbar">
       <div class="notice-tabs">
         <button
-          v-for="tab in FILTER_TABS"
+          v-for="tab in filterTabs"
           :key="tab"
           class="notice-tab"
           :class="{ 'notice-tab--active': tab === '전체' ? activeTab === '' : activeTab === tab }"
           @click="setTab(tab)"
         >{{ tab }}</button>
-
-        <div class="notice-org-wrap">
-          <button
-            class="notice-tab notice-tab--org"
-            :class="{ 'notice-tab--active': orgFilter.length > 0 }"
-            @click="showOrgFilter = !showOrgFilter"
-          >대상: {{ orgLabel }}</button>
-          <div v-if="showOrgFilter" class="notice-org-popup">
-            <HRMNoticeTeamFilter
-              v-model="orgFilter"
-              @close="showOrgFilter = false"
-            />
-          </div>
-        </div>
       </div>
 
       <div class="notice-toolbar__actions">
+        <button
+          v-if="allowHideImportant && activeTab !== '중요'"
+          class="notice-tab"
+          :class="{ 'notice-tab--active': hideImportant }"
+          @click="hideImportant = !hideImportant; currentPage = 1"
+        >중요 숨기기</button>
         <div class="notice-search">
           <input
             v-model="searchQuery"

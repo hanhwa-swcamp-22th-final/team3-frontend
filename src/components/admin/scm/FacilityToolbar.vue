@@ -1,29 +1,42 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { BaseInput, BaseSelect, BaseButton } from '@/components/common/base'
-import { LINE_OPTIONS } from '@/mocks/admin/facility/facilityData.js'
 
 const props = defineProps({
-  searchQuery:  { type: String, default: '' },
-  selectedLine: { type: String, default: '전체' },
+  searchQuery: { type: String, default: '' },
+  selectedLine: { type: String, default: 'ALL' },
+  lineOptions: {
+    type: Array,
+    default: () => [{ value: 'ALL', label: '라인 전체' }],
+  },
 })
 
-const emit = defineEmits(['search', 'lineChange', 'addClick'])
+const emit = defineEmits(['search', 'lineChange', 'addClick', 'manageLineProcessClick'])
 
 const localSearch = ref(props.searchQuery)
 
-const onSearch  = ()  => { emit('search', localSearch.value) }
-const onKeydown = (e) => { if (e.key === 'Enter') onSearch() }
+watch(
+  () => props.searchQuery,
+  (value) => {
+    localSearch.value = value
+  }
+)
 
-const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '라인 전체' : l }))
+function onSearch() {
+  emit('search', localSearch.value)
+}
+
+function onKeydown(event) {
+  if (event.key === 'Enter') onSearch()
+}
 </script>
 
 <template>
   <div class="toolbar">
     <BaseInput
-      class="toolbar__input"
       v-model="localSearch"
-      placeholder="설비명, 설비ID 검색"
+      class="toolbar__input"
+      placeholder="설비명, 설비 Code 검색"
       @keydown="onKeydown"
       @blur="onSearch"
     />
@@ -35,6 +48,9 @@ const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '
     />
     <BaseButton variant="primary" size="sm" @click="emit('addClick')">
       + 설비 등록
+    </BaseButton>
+    <BaseButton variant="ghost" size="sm" @click="emit('manageLineProcessClick')">
+      라인/공정/환경 설정
     </BaseButton>
   </div>
 </template>
@@ -54,6 +70,10 @@ const lineOptions = LINE_OPTIONS.map(l => ({ value: l, label: l === '전체' ? '
 
 .toolbar__select {
   flex: 2;
+}
+
+.toolbar :deep(.base-button) {
+  flex-shrink: 0;
 }
 
 .toolbar :deep(.base-input),
