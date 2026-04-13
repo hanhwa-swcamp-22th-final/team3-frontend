@@ -4,6 +4,14 @@ defineProps({
     type: Object,
     default: () => ({ ongoing: [], pending: [] }),
   },
+  ongoingCaption: {
+    type: String,
+    default: '진행 중인 매칭',
+  },
+  ongoingActionLabel: {
+    type: String,
+    default: '',
+  },
   pendingCaption: {
     type: String,
     default: '검토 요청',
@@ -22,7 +30,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['review-request', 'open-request'])
+const emit = defineEmits(['review-request', 'open-request', 'action-ongoing'])
 </script>
 
 <template>
@@ -32,14 +40,24 @@ const emit = defineEmits(['review-request', 'open-request'])
     </div>
 
     <div class="mentoring__section">
-      <span class="mentoring__caption">진행 중인 매칭</span>
+      <span class="mentoring__caption">{{ ongoingCaption }}</span>
       <div class="mentoring__ongoing-list">
         <article v-for="item in mentoring.ongoing" :key="item.id" class="mentoring__ongoing-row">
           <div>
             <strong>{{ item.mentor }}</strong>
             <p>{{ item.mentee }} · {{ item.field }}</p>
           </div>
-          <span class="mentoring__status">{{ item.status }}</span>
+          <div class="mentoring__ongoing-actions">
+            <span class="mentoring__status">{{ item.status }}</span>
+            <button
+              v-if="item.actionLabel || ongoingActionLabel"
+              type="button"
+              class="mentoring__action-button mentoring__action-button--secondary"
+              @click="emit('action-ongoing', item)"
+            >
+              {{ item.actionLabel ?? ongoingActionLabel }}
+            </button>
+          </div>
         </article>
       </div>
     </div>
@@ -52,7 +70,9 @@ const emit = defineEmits(['review-request', 'open-request'])
             <strong>{{ item.name }}</strong>
             <p>{{ item.requester }} · {{ item.summary }}</p>
           </div>
-          <button type="button" @click="emit('review-request', item)">{{ pendingActionLabel }}</button>
+          <button type="button" class="mentoring__action-button" @click="emit('review-request', item)">
+            {{ item.actionLabel ?? pendingActionLabel }}
+          </button>
         </article>
       </div>
     </div>
@@ -160,7 +180,13 @@ const emit = defineEmits(['review-request', 'open-request'])
   font-weight: 800;
 }
 
-.mentoring__pending-row button,
+.mentoring__ongoing-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mentoring__action-button,
 .mentoring__request-button {
   border: none;
   background: var(--color-primary-700);
@@ -168,12 +194,18 @@ const emit = defineEmits(['review-request', 'open-request'])
   cursor: pointer;
 }
 
-.mentoring__pending-row button {
+.mentoring__action-button {
   height: 34px;
   padding: 0 14px;
   border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.mentoring__action-button--secondary {
+  background: #ffffff;
+  color: var(--color-primary-700);
+  border: 1px solid var(--color-primary-200);
 }
 
 .mentoring__request-button {

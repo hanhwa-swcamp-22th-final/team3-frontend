@@ -61,16 +61,25 @@ function mapPriority(priority) {
 }
 
 function mapMyMentoringRequest(dto) {
+  const status = String(dto.requestStatus ?? '').toUpperCase()
   return {
     id: dto.requestId,
+    requestId: dto.requestId,
+    status,
     name: dto.requestTitle ?? dto.mentoringField ?? '멘토링 요청',
-    requester: dto.requestStatus ?? 'PENDING',
+    requester: status === 'ACCEPTED' ? '수락됨' : status === 'REJECTED' ? '종료됨' : '신청 대기',
     summary: dto.mentoringField ?? '-',
     requestedBy: dto.menteeName ?? authStore.userInfo?.employeeName ?? '-',
     requestedAt: formatDateTime(dto.requestedAt),
     priority: mapPriority(dto.requestPriority),
     reason: dto.requestContent ?? '',
     details: `희망 기간 ${dto.mentoringDurationWeeks ?? '-'}주 / 희망 빈도 ${dto.mentoringFrequency ?? '-'}`,
+    purpose: dto.requestContent ?? '',
+    field: dto.mentoringField ?? '',
+    period: dto.mentoringDurationWeeks ? `${dto.mentoringDurationWeeks}주` : '',
+    frequency: dto.mentoringFrequency ?? '',
+    requestPriority: dto.requestPriority ?? 'MEDIUM',
+    actionLabel: status === 'PENDING' ? '수정' : '상세',
   }
 }
 
@@ -275,10 +284,13 @@ const headerCards = computed(() => [
 const mentoringState = ref({ ongoing: [], pending: [] })
 
 const mentoringRequestDefaults = computed(() => ({
+  requestId: null,
   myName: authStore.userInfo?.employeeName ?? '작업자',
   myInitial: authStore.userInfo?.employeeName?.[0] ?? '작',
   myAvatarColor: '#5B4FCF',
   myTitle: '멘토링 요청 신청자',
+  modalTitle: '매칭 신청',
+  modalDesc: '선택한 멘토에게 학습 목적과 희망 운영 조건을 전달합니다. 신청 후 수락되면 진행중 멘토링으로 전환되고 TL / GL에게 공유됩니다.',
   field: '정밀가공',
   period: '2주',
   frequency: '주 1회',
@@ -320,13 +332,31 @@ const showAcceptModal  = ref(false)
 const showRequestModal = ref(false)
 const showAddModal     = ref(false)
 const selectedRequest  = ref(null)
+const requestModalDefaults = ref(null)
 
 function handleAcceptClick(request) {
   selectedRequest.value = request
+  if (request.status === 'PENDING') {
+    requestModalDefaults.value = {
+      ...mentoringRequestDefaults.value,
+      requestId: request.requestId,
+      modalTitle: '멘토링 요청 수정',
+      modalDesc: '이미 등록한 멘토링 요청 내용을 수정합니다. 수정 후에도 신청 상태는 유지됩니다.',
+      field: request.field || mentoringRequestDefaults.value.field,
+      period: request.period || mentoringRequestDefaults.value.period,
+      frequency: request.frequency || mentoringRequestDefaults.value.frequency,
+      purpose: request.purpose || '',
+      requestDetails: request.reason || '',
+      operatingMemo: request.details || '',
+    }
+    showRequestModal.value = true
+    return
+  }
   showAcceptModal.value = true
 }
 
 function handleRequestClick() {
+  requestModalDefaults.value = { ...mentoringRequestDefaults.value }
   showRequestModal.value = true
 }
 
@@ -337,7 +367,7 @@ function confirmAccept() {
 
 async function submitRequest(payload) {
   try {
-    await knowledgeArticleApi.createMentoringRequest({
+    const body = {
       menteeId: authorId.value,
       articleId: null,
       mentoringField: payload.field,
@@ -346,12 +376,20 @@ async function submitRequest(payload) {
       mentoringDurationWeeks: parseDurationWeeks(payload.period),
       mentoringFrequency: payload.frequency,
       requestPriority: 'MEDIUM',
-    })
+    }
+
+    if (payload.requestId) {
+      await knowledgeArticleApi.updateMentoringRequest(payload.requestId, body)
+    } else {
+      await knowledgeArticleApi.createMentoringRequest(body)
+    }
+
     showRequestModal.value = false
+    requestModalDefaults.value = null
     await Promise.allSettled([loadMyMentoringRequests(), loadMyMentorings()])
   } catch (e) {
-    console.error('[KMS] 멘토링 요청 등록 실패:', e)
-    window.alert(e.response?.data?.message ?? '멘토링 요청 등록에 실패했습니다.')
+    console.error('[KMS] 멘토링 요청 저장 실패:', e)
+    window.alert(e.response?.data?.message ?? '멘토링 요청 저장에 실패했습니다.')
   }
 }
 
@@ -469,6 +507,7 @@ function closeModal() {
   showRequestModal.value = false
   showAddModal.value     = false
   selectedRequest.value  = null
+  requestModalDefaults.value = null
 }
 </script>
 
@@ -512,7 +551,8 @@ function closeModal() {
     />
     <WorkerMentoringRequestModal
       v-if="showRequestModal"
-      :defaults="mentoringRequestDefaults"
+      :defaults="requestModalDefaults ?? mentoringRequestDefaults"
+      :submit-label="requestModalDefaults?.requestId ? '수정 완료' : '신청 보내기'"
       @close="closeModal"
       @submit="submitRequest"
     />

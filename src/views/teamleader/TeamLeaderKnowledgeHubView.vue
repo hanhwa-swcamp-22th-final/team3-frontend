@@ -73,6 +73,7 @@ function mapPendingMentoringRequest(dto) {
     priority: mapPriority(dto.requestPriority),
     reason: dto.requestContent ?? '',
     details: `희망 기간 ${dto.mentoringDurationWeeks ?? '-'}주 / 희망 빈도 ${dto.mentoringFrequency ?? '-'}`,
+    actionLabel: '검토',
   }
 }
 
@@ -83,6 +84,7 @@ function mapMentoringSession(dto) {
     mentee: dto.menteeName ?? '-',
     field: dto.mentoringField ?? '-',
     status: dto.mentoringStatus === 'COMPLETED' ? '완료' : '진행중',
+    actionLabel: dto.mentoringStatus === 'IN_PROGRESS' ? '완료' : '',
   }
 }
 
@@ -413,6 +415,31 @@ async function confirmMentoringReview(request) {
     window.alert('멘토링 요청 수락에 실패했습니다.')
   }
 }
+
+async function rejectMentoringReview(request) {
+  try {
+    await knowledgeArticleApi.rejectMentoringRequest(request.id, {
+      mentorId: authorId.value,
+    })
+    closeMentoringReview()
+    await loadMentoringPending()
+  } catch (e) {
+    console.error('[KMS] TL 멘토링 거절 실패:', e)
+    window.alert(e.response?.data?.message ?? '멘토링 요청 거절에 실패했습니다.')
+  }
+}
+
+async function completeMentoring(item) {
+  try {
+    await knowledgeArticleApi.completeMentoring(item.id, {
+      mentorId: authorId.value,
+    })
+    await Promise.allSettled([loadMentoringPending(), loadMentoringOngoing()])
+  } catch (e) {
+    console.error('[KMS] TL 멘토링 완료 실패:', e)
+    window.alert(e.response?.data?.message ?? '멘토링 완료 처리에 실패했습니다.')
+  }
+}
 </script>
 
 <template>
@@ -432,9 +459,11 @@ async function confirmMentoringReview(request) {
         <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
         <TeamLeaderKnowledgeHubMentoring
           :mentoring="mentoringState"
+          ongoing-action-label="완료"
           pending-caption="검토 요청"
           :request-button-visible="false"
           @review-request="openMentoringReview"
+          @action-ongoing="completeMentoring"
         />
         <TeamLeaderKnowledgeHubAiPanel
           :recommendations="aiRecommendations"
@@ -461,8 +490,12 @@ async function confirmMentoringReview(request) {
     <TeamLeaderKnowledgeMentoringReviewModal
       v-if="selectedMentoringRequest"
       :request="selectedMentoringRequest"
+      confirm-text="수락"
+      :show-reject-button="true"
+      reject-text="거절"
       @close="closeMentoringReview"
       @confirm="confirmMentoringReview"
+      @reject="rejectMentoringReview"
     />
   </section>
 </template>

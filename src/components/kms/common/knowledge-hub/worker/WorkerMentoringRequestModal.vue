@@ -1,21 +1,43 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   defaults: { type: Object, required: true },
+  submitLabel: {
+    type: String,
+    default: '신청 보내기',
+  },
 })
 
 const emit = defineEmits(['close', 'submit'])
 
-const field = ref(props.defaults.field)
-const period = ref(props.defaults.period)
-const frequency = ref(props.defaults.frequency)
-const purpose = ref(props.defaults.purpose)
-const requestDetails = ref(props.defaults.requestDetails)
-const operatingMemo = ref(props.defaults.operatingMemo)
+const field = ref('')
+const period = ref('')
+const frequency = ref('')
+const purpose = ref('')
+const requestDetails = ref('')
+const operatingMemo = ref('')
+
+const modalTitle = computed(() => props.defaults.modalTitle ?? '매칭 신청')
+const modalDesc = computed(() =>
+  props.defaults.modalDesc ??
+  '선택한 멘토에게 학습 목적과 희망 운영 조건을 전달합니다. 신청 후 수락되면 진행중 멘토링으로 전환되고 TL / GL에게 공유됩니다.',
+)
+
+function syncDefaults() {
+  field.value = props.defaults.field ?? ''
+  period.value = props.defaults.period ?? ''
+  frequency.value = props.defaults.frequency ?? ''
+  purpose.value = props.defaults.purpose ?? ''
+  requestDetails.value = props.defaults.requestDetails ?? ''
+  operatingMemo.value = props.defaults.operatingMemo ?? ''
+}
+
+watch(() => props.defaults, syncDefaults, { immediate: true, deep: true })
 
 function handleSubmit() {
   emit('submit', {
+    requestId: props.defaults.requestId ?? null,
     field: field.value,
     period: period.value,
     frequency: frequency.value,
@@ -31,11 +53,8 @@ function handleSubmit() {
     <div class="mq">
       <!-- Header -->
       <div class="mq__header">
-        <h2 class="mq__title">매칭 신청</h2>
-        <p class="mq__desc">
-          선택한 멘토에게 학습 목적과 희망 운영 조건을 전달합니다. 신청 후 수락되면 진행중 멘토링으로
-          전환되고 TL / GL에게 공유됩니다.
-        </p>
+        <h2 class="mq__title">{{ modalTitle }}</h2>
+        <p class="mq__desc">{{ modalDesc }}</p>
       </div>
 
       <!-- My Profile -->
@@ -88,7 +107,7 @@ function handleSubmit() {
       <!-- Actions -->
       <div class="mq__actions">
         <button class="mq__btn mq__btn--cancel" @click="emit('close')">취소</button>
-        <button class="mq__btn mq__btn--submit" @click="handleSubmit">신청 보내기</button>
+        <button class="mq__btn mq__btn--submit" @click="handleSubmit">{{ submitLabel }}</button>
       </div>
     </div>
   </div>
