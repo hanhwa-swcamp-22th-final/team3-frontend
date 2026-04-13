@@ -10,12 +10,8 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModalWrapper.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModalWrapper.vue'
-import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModalWrapper.vue'
 
-// 백엔드 미구현 항목만 mock 유지
 import {
-  knowledgeHubMentoring,
-  knowledgeHubMentoringRequestDefaults,
   knowledgeWriteModalOptions,
 } from '@/mocks/teamleader'
 
@@ -45,6 +41,49 @@ function formatDate(isoString) {
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   const dd = String(d.getDate()).padStart(2, '0')
   return `${mm}.${dd}`
+}
+
+function formatDateTime(isoString) {
+  if (!isoString) return '-'
+  const d = new Date(isoString)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mi = String(d.getMinutes()).padStart(2, '0')
+  return `${mm}.${dd} ${hh}:${mi}`
+}
+
+function mapPriority(priority) {
+  const labelMap = {
+    HIGH: '높음',
+    MEDIUM: '중간',
+    LOW: '낮음',
+  }
+  return labelMap[String(priority ?? '').toUpperCase()] ?? '중간'
+}
+
+function mapPendingMentoringRequest(dto) {
+  return {
+    id: dto.requestId,
+    name: dto.requestTitle ?? dto.mentoringField ?? '멘토링 요청',
+    requester: dto.mentoringField ?? '-',
+    summary: dto.requestContent ?? '',
+    requestedBy: dto.menteeName ?? '-',
+    requestedAt: formatDateTime(dto.requestedAt),
+    priority: mapPriority(dto.requestPriority),
+    reason: dto.requestContent ?? '',
+    details: `희망 기간 ${dto.mentoringDurationWeeks ?? '-'}주 / 희망 빈도 ${dto.mentoringFrequency ?? '-'}`,
+  }
+}
+
+function mapMentoringSession(dto) {
+  return {
+    id: dto.mentoringId,
+    mentor: dto.mentorName ?? '-',
+    mentee: dto.menteeName ?? '-',
+    field: dto.mentoringField ?? '-',
+    status: dto.mentoringStatus === 'COMPLETED' ? '완료' : '진행중',
+  }
 }
 
 // ── 백엔드 DTO → 피드 카드 shape ────────────────────────────────
@@ -108,10 +147,10 @@ const hubStats         = ref({
   averageViewCountChange: 0,
 })
 
-// ── 통계 / 멘토링 (백엔드 미구현 → mock 유지) ─────────────────────
+// ── 통계 / 멘토링 ───────────────────────────────────────────────
 const mentoringState = reactive({
-  ongoing: [...knowledgeHubMentoring.ongoing],
-  pending: [...knowledgeHubMentoring.pending],
+  ongoing: [],
+  pending: [],
 })
 
 const summaryCards = computed(() => [
@@ -140,6 +179,8 @@ onMounted(async () => {
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
+    loadMentoringPending(),
+    loadMentoringOngoing(),
   ])
 })
 
@@ -222,6 +263,28 @@ async function loadRecommendations() {
     aiRecommendations.value = (res.data.data ?? []).map(mapToRecommendation)
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+async function loadMentoringPending() {
+  try {
+    const res = await knowledgeArticleApi.getPendingMentoringRequests(authorId.value)
+    mentoringState.pending = (res.data.data ?? []).map(mapPendingMentoringRequest)
+  } catch (e) {
+    console.error('[KMS] TL 멘토링 요청 로드 실패:', e)
+    mentoringState.pending = []
+  }
+}
+
+async function loadMentoringOngoing() {
+  try {
+    const res = await knowledgeArticleApi.getMentorMentorings(authorId.value)
+    mentoringState.ongoing = (res.data.data ?? [])
+      .filter((dto) => dto.mentoringStatus === 'IN_PROGRESS')
+      .map(mapMentoringSession)
+  } catch (e) {
+    console.error('[KMS] TL 진행 멘토링 로드 실패:', e)
+    mentoringState.ongoing = []
   }
 }
 
@@ -332,22 +395,23 @@ async function toggleBookmark(article) {
   }
 }
 
-// ── 멘토링 모달 (백엔드 미구현 → mock 유지) ───────────────────────
+// ── 멘토링 모달 ────────────────────────────────────────────────
 const selectedMentoringRequest = ref(null)
-const showMentoringRequestModal = ref(false)
 
 function openMentoringReview(request)  { selectedMentoringRequest.value = request }
 function closeMentoringReview()        { selectedMentoringRequest.value = null }
-function confirmMentoringReview(request) {
-  mentoringState.pending = mentoringState.pending.filter((i) => i.id !== request.id)
-  closeMentoringReview()
-}
-function openMentoringRequestModal()   { showMentoringRequestModal.value = true }
-function closeMentoringRequestModal()  { showMentoringRequestModal.value = false }
-function submitMentoringRequest(payload) {
-  const nextId = Math.max(...mentoringState.pending.map((i) => i.id), 0) + 1
-  mentoringState.pending.unshift({ id: nextId, name: payload.field, requester: 'TL-REQ', summary: payload.purpose, requestedBy: '최민정', requestedAt: formatDate(new Date().toISOString()), priority: '중간', reason: payload.purpose, details: payload.requestDetails })
-  showMentoringRequestModal.value = false
+
+async function confirmMentoringReview(request) {
+  try {
+    await knowledgeArticleApi.acceptMentoringRequest(request.id, {
+      mentorId: authorId.value,
+    })
+    closeMentoringReview()
+    await Promise.allSettled([loadMentoringPending(), loadMentoringOngoing()])
+  } catch (e) {
+    console.error('[KMS] TL 멘토링 수락 실패:', e)
+    window.alert('멘토링 요청 수락에 실패했습니다.')
+  }
 }
 </script>
 
@@ -368,8 +432,9 @@ function submitMentoringRequest(payload) {
         <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
         <TeamLeaderKnowledgeHubMentoring
           :mentoring="mentoringState"
+          pending-caption="검토 요청"
+          :request-button-visible="false"
           @review-request="openMentoringReview"
-          @open-request="openMentoringRequestModal"
         />
         <TeamLeaderKnowledgeHubAiPanel
           :recommendations="aiRecommendations"
@@ -398,13 +463,6 @@ function submitMentoringRequest(payload) {
       :request="selectedMentoringRequest"
       @close="closeMentoringReview"
       @confirm="confirmMentoringReview"
-    />
-
-    <TeamLeaderKnowledgeMentoringRequestModal
-      v-if="showMentoringRequestModal"
-      :defaults="knowledgeHubMentoringRequestDefaults"
-      @close="closeMentoringRequestModal"
-      @submit="submitMentoringRequest"
     />
   </section>
 </template>

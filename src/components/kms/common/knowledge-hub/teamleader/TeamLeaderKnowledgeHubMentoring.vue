@@ -4,6 +4,22 @@ defineProps({
     type: Object,
     default: () => ({ ongoing: [], pending: [] }),
   },
+  pendingCaption: {
+    type: String,
+    default: '검토 요청',
+  },
+  pendingActionLabel: {
+    type: String,
+    default: '확인',
+  },
+  requestButtonVisible: {
+    type: Boolean,
+    default: true,
+  },
+  requestButtonLabel: {
+    type: String,
+    default: '멘토링 요청 등록 +',
+  },
 })
 
 const emit = defineEmits(['review-request', 'open-request'])
@@ -29,20 +45,20 @@ const emit = defineEmits(['review-request', 'open-request'])
     </div>
 
     <div class="mentoring__section">
-      <span class="mentoring__caption">검토 요청</span>
+      <span class="mentoring__caption">{{ pendingCaption }}</span>
       <div class="mentoring__pending-list">
         <article v-for="item in mentoring.pending" :key="item.id" class="mentoring__pending-row">
           <div>
             <strong>{{ item.name }}</strong>
             <p>{{ item.requester }} · {{ item.summary }}</p>
           </div>
-          <button type="button" @click="emit('review-request', item)">확인</button>
+          <button type="button" @click="emit('review-request', item)">{{ pendingActionLabel }}</button>
         </article>
       </div>
     </div>
 
-    <button type="button" class="mentoring__request-button" @click="emit('open-request')">
-      멘토링 요청 등록 +
+    <button v-if="requestButtonVisible" type="button" class="mentoring__request-button" @click="emit('open-request')">
+      {{ requestButtonLabel }}
     </button>
   </section>
 </template>

@@ -6,19 +6,12 @@ import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/te
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
 import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
 import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
+import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModalWrapper.vue'
 import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-
-// 백엔드 미구현 항목만 mock 유지
-import {
-  ongoingMentoring,
-  mentoringRequests,
-  mentoringRequestFormDefaults,
-} from '@/mocks/worker/workerKnowledgeHubData'
 
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
@@ -46,6 +39,54 @@ function formatDate(isoString) {
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   const dd = String(d.getDate()).padStart(2, '0')
   return `${mm}.${dd}`
+}
+
+function formatDateTime(isoString) {
+  if (!isoString) return '-'
+  const d = new Date(isoString)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mi = String(d.getMinutes()).padStart(2, '0')
+  return `${mm}.${dd} ${hh}:${mi}`
+}
+
+function mapPriority(priority) {
+  const labelMap = {
+    HIGH: '높음',
+    MEDIUM: '중간',
+    LOW: '낮음',
+  }
+  return labelMap[String(priority ?? '').toUpperCase()] ?? '중간'
+}
+
+function mapMyMentoringRequest(dto) {
+  return {
+    id: dto.requestId,
+    name: dto.requestTitle ?? dto.mentoringField ?? '멘토링 요청',
+    requester: dto.requestStatus ?? 'PENDING',
+    summary: dto.mentoringField ?? '-',
+    requestedBy: dto.menteeName ?? authStore.userInfo?.employeeName ?? '-',
+    requestedAt: formatDateTime(dto.requestedAt),
+    priority: mapPriority(dto.requestPriority),
+    reason: dto.requestContent ?? '',
+    details: `희망 기간 ${dto.mentoringDurationWeeks ?? '-'}주 / 희망 빈도 ${dto.mentoringFrequency ?? '-'}`,
+  }
+}
+
+function mapMentoringSession(dto) {
+  return {
+    id: dto.mentoringId,
+    mentor: dto.mentorName ?? '-',
+    mentee: dto.menteeName ?? '-',
+    field: dto.mentoringField ?? '-',
+    status: dto.mentoringStatus === 'COMPLETED' ? '완료' : '진행중',
+  }
+}
+
+function parseDurationWeeks(periodText) {
+  const match = String(periodText ?? '').match(/(\d+)/)
+  return match ? Number(match[1]) : null
 }
 
 // ── 백엔드 DTO → 피드 카드 shape 변환 ──────────────────────────
@@ -120,6 +161,8 @@ onMounted(async () => {
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
+    loadMyMentoringRequests(),
+    loadMyMentorings(),
   ])
 })
 
@@ -229,22 +272,48 @@ const headerCards = computed(() => [
   },
 ])
 
-// ── 멘토링 데이터 (백엔드 미구현, mock 유지) ───────────────────
-const mentoringData = computed(() => ({
-  ongoing: ongoingMentoring.map((m) => ({
-    id: m.id,
-    mentor: m.mentorInitial,
-    mentee: m.menteeInitial,
-    field: m.field,
-    status: m.status,
-  })),
-  pending: mentoringRequests.map((r) => ({
-    id: r.id,
-    name: r.field,
-    requester: r.name,
-    summary: r.message,
-  })),
+const mentoringState = ref({ ongoing: [], pending: [] })
+
+const mentoringRequestDefaults = computed(() => ({
+  myName: authStore.userInfo?.employeeName ?? '작업자',
+  myInitial: authStore.userInfo?.employeeName?.[0] ?? '작',
+  myAvatarColor: '#5B4FCF',
+  myTitle: '멘토링 요청 신청자',
+  field: '정밀가공',
+  period: '2주',
+  frequency: '주 1회',
+  purpose: '',
+  requestDetails: '',
+  operatingMemo: '',
 }))
+
+async function loadMyMentoringRequests() {
+  try {
+    const res = await knowledgeArticleApi.getMyMentoringRequests(authorId.value)
+    mentoringState.value = {
+      ...mentoringState.value,
+      pending: (res.data.data ?? []).map(mapMyMentoringRequest),
+    }
+  } catch (e) {
+    console.error('[KMS] 내 멘토링 요청 로드 실패:', e)
+    mentoringState.value = { ...mentoringState.value, pending: [] }
+  }
+}
+
+async function loadMyMentorings() {
+  try {
+    const res = await knowledgeArticleApi.getMenteeMentorings(authorId.value)
+    mentoringState.value = {
+      ...mentoringState.value,
+      ongoing: (res.data.data ?? [])
+        .filter((dto) => dto.mentoringStatus === 'IN_PROGRESS')
+        .map(mapMentoringSession),
+    }
+  } catch (e) {
+    console.error('[KMS] 내 진행 멘토링 로드 실패:', e)
+    mentoringState.value = { ...mentoringState.value, ongoing: [] }
+  }
+}
 
 // ── 모달 상태 ──────────────────────────────────────────────────
 const showAcceptModal  = ref(false)
@@ -266,8 +335,24 @@ function confirmAccept() {
   selectedRequest.value = null
 }
 
-function submitRequest() {
-  showRequestModal.value = false
+async function submitRequest(payload) {
+  try {
+    await knowledgeArticleApi.createMentoringRequest({
+      menteeId: authorId.value,
+      articleId: null,
+      mentoringField: payload.field,
+      requestTitle: `${payload.field} 멘토링 요청`,
+      requestContent: [payload.purpose, payload.requestDetails].filter(Boolean).join('\n\n'),
+      mentoringDurationWeeks: parseDurationWeeks(payload.period),
+      mentoringFrequency: payload.frequency,
+      requestPriority: 'MEDIUM',
+    })
+    showRequestModal.value = false
+    await Promise.allSettled([loadMyMentoringRequests(), loadMyMentorings()])
+  } catch (e) {
+    console.error('[KMS] 멘토링 요청 등록 실패:', e)
+    window.alert(e.response?.data?.message ?? '멘토링 요청 등록에 실패했습니다.')
+  }
 }
 
 async function handleAddArticle(data) {
@@ -405,7 +490,9 @@ function closeModal() {
       <div class="kh-sidebar">
         <TeamLeaderKnowledgeHubContributors :ranking="monthlyRanking" />
         <TeamLeaderKnowledgeHubMentoring
-          :mentoring="mentoringData"
+          :mentoring="mentoringState"
+          pending-caption="내 신청 현황"
+          pending-action-label="상세"
           @review-request="handleAcceptClick"
           @open-request="handleRequestClick"
         />
@@ -417,15 +504,15 @@ function closeModal() {
     </div>
 
     <!-- Modals -->
-    <WorkerMentoringAcceptModal
+    <TeamLeaderKnowledgeMentoringReviewModal
       v-if="showAcceptModal && selectedRequest"
       :request="selectedRequest"
       @close="closeModal"
-      @accept="confirmAccept"
+      @confirm="confirmAccept"
     />
     <WorkerMentoringRequestModal
       v-if="showRequestModal"
-      :defaults="mentoringRequestFormDefaults"
+      :defaults="mentoringRequestDefaults"
       @close="closeModal"
       @submit="submitRequest"
     />

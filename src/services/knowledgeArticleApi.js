@@ -134,6 +134,23 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/my/bookmarks', { params: { employeeId } })
   },
 
+  // ── 멘토링 조회 ─────────────────────────────────────────────────
+  getPendingMentoringRequests(mentorId, field) {
+    return kmsApi.get('/api/kms/mentoring/requests/pending', { params: { mentorId, field } })
+  },
+
+  getMyMentoringRequests(menteeId) {
+    return kmsApi.get('/api/kms/mentoring/requests/my', { params: { menteeId } })
+  },
+
+  getMentorMentorings(mentorId) {
+    return kmsApi.get('/api/kms/mentoring/mentor', { params: { mentorId } })
+  },
+
+  getMenteeMentorings(menteeId) {
+    return kmsApi.get('/api/kms/mentoring/mentee', { params: { menteeId } })
+  },
+
   // ── 승인 조회 ───────────────────────────────────────────────────
   getApprovalStats() {
     return kmsApi.get('/api/kms/approval/stats')
@@ -201,6 +218,27 @@ const knowledgeArticleApi = {
 
   removeBookmark(articleId, employeeId) {
     return kmsApi.delete('/api/kms/bookmarks', { params: { articleId, employeeId } })
+  },
+
+  // ── 멘토링 Command ─────────────────────────────────────────────
+  createMentoringRequest(data) {
+    return kmsApi.post('/api/kms/mentoring/requests', data)
+  },
+
+  updateMentoringRequest(requestId, data) {
+    return kmsApi.put(`/api/kms/mentoring/requests/${requestId}`, data)
+  },
+
+  acceptMentoringRequest(requestId, data) {
+    return kmsApi.put(`/api/kms/mentoring/requests/${requestId}/accept`, data)
+  },
+
+  rejectMentoringRequest(requestId, data) {
+    return kmsApi.put(`/api/kms/mentoring/requests/${requestId}/reject`, data)
+  },
+
+  completeMentoring(mentoringId, data) {
+    return kmsApi.put(`/api/kms/mentoring/${mentoringId}/complete`, data)
   },
 
   // ── 승인 처리 (TL / DL) ─────────────────────────────────────────
