@@ -2,17 +2,12 @@
 import { computed, reactive, watch } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
 
-const ENVIRONMENT_TYPE_OPTIONS = [
-  { value: 'DRYROOM', label: '드라이룸' },
-  { value: 'CLEANROOM', label: '클린룸' },
-  { value: 'GENERAL', label: '일반 환경' },
-]
-
 const props = defineProps({
   isOpen: { type: Boolean, default: false },
   factoryLines: { type: Array, default: () => [] },
   processes: { type: Array, default: () => [] },
   environmentStandards: { type: Array, default: () => [] },
+  environmentTypeOptions: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits([
@@ -325,7 +320,7 @@ watch(
               환경 유형
               <select v-model="environmentForm.environmentType">
                 <option
-                  v-for="type in ENVIRONMENT_TYPE_OPTIONS"
+                  v-for="type in environmentTypeOptions"
                   :key="type.value"
                   :value="type.value"
                 >
@@ -378,7 +373,7 @@ watch(
             >
               <button type="button" class="list-row__main" @click="selectEnvironment(environment)">
                 <strong>{{ environment.environmentName }}</strong>
-                <span>{{ environment.environmentCode }} / {{ environment.environmentType }}</span>
+                <span>{{ environment.environmentCode }} / {{ environmentTypeOptions.find((type) => type.value === environment.environmentType)?.label ?? environment.environmentType }}</span>
               </button>
               <button type="button" class="list-row__danger" @click="deleteEnvironment(environment)">삭제</button>
             </div>

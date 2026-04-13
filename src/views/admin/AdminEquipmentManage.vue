@@ -16,6 +16,11 @@ const facilities = ref([])
 const factoryLines = ref([])
 const processes = ref([])
 const environmentStandards = ref([])
+const enumValues = ref({
+  equipmentStatuses: [],
+  equipmentGrades: [],
+  environmentTypes: [],
+})
 const searchQuery = ref('')
 const selectedLine = ref('ALL')
 const isModalOpen = ref(false)
@@ -52,14 +57,20 @@ async function fetchFacilities() {
 }
 
 async function fetchReferenceData() {
-  const [lineData, processData, environmentData] = await Promise.all([
+  const [lineData, processData, environmentData, enumData] = await Promise.all([
     requestJson(`${EQUIPMENT_API}/factory-lines`),
     requestJson(`${EQUIPMENT_API}/equipment-processes`),
     requestJson(`${EQUIPMENT_API}/environment-standards`),
+    requestJson(`${EQUIPMENT_API}/enum-values`),
   ])
   factoryLines.value = Array.isArray(lineData) ? lineData : []
   processes.value = Array.isArray(processData) ? processData : []
   environmentStandards.value = Array.isArray(environmentData) ? environmentData : []
+  enumValues.value = {
+    equipmentStatuses: Array.isArray(enumData?.equipmentStatuses) ? enumData.equipmentStatuses : [],
+    equipmentGrades: Array.isArray(enumData?.equipmentGrades) ? enumData.equipmentGrades : [],
+    environmentTypes: Array.isArray(enumData?.environmentTypes) ? enumData.environmentTypes : [],
+  }
 }
 
 async function loadPageData() {
@@ -135,6 +146,10 @@ const lineOptions = computed(() => {
     ...options,
   ]
 })
+
+const equipmentStatusOptions = computed(() => enumValues.value.equipmentStatuses)
+const equipmentGradeOptions = computed(() => enumValues.value.equipmentGrades)
+const environmentTypeOptions = computed(() => enumValues.value.environmentTypes)
 
 const processOptions = computed(() =>
   processes.value.map((process) => ({
@@ -425,6 +440,7 @@ onMounted(loadPageData)
       :page-end="pageEnd"
       :page-buttons="pageButtons"
       :is-loading="isLoading"
+      :equipment-status-options="equipmentStatusOptions"
       @edit-click="openEditModal"
       @delete-click="onDelete"
       @page-change="currentPage = $event"
@@ -436,6 +452,8 @@ onMounted(loadPageData)
       :line-options="lineOptions"
       :process-options="processOptions"
       :environment-options="environmentOptions"
+      :equipment-status-options="equipmentStatusOptions"
+      :equipment-grade-options="equipmentGradeOptions"
       @close="closeModal"
       @save="onSave"
     />
@@ -445,6 +463,7 @@ onMounted(loadPageData)
       :factory-lines="factoryLines"
       :processes="processes"
       :environment-standards="environmentStandards"
+      :environment-type-options="environmentTypeOptions"
       @close="closeLineProcessModal"
       @save-line="onSaveLine"
       @delete-line="onDeleteLine"
