@@ -30,6 +30,13 @@ function handleSubmit() {
     memo: memo.value,
   })
 }
+
+function handleDraft() {
+  emit('save-draft', {
+    jobId: props.job.id,
+    memo: memo.value,
+  })
+}
 </script>
 
 <template>
@@ -42,7 +49,7 @@ function handleSubmit() {
     showDraftButton
     @close="emit('close')"
     @cancel="emit('close')"
-    @draft="emit('save-draft')"
+    @draft="handleDraft"
     @confirm="handleSubmit"
   >
     <template #header>

@@ -1,35 +1,21 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { API_BASE } from '@/constants'
+import { getWorkerPointMission } from '@/services/workerHrApi'
 import WorkerPointTotalHolding from '@/components/hr/worker/point-mission/WorkerPointTotalHolding.vue'
 import WorkerPointAccrualHistory from '@/components/hr/worker/point-mission/WorkerPointAccrualHistory.vue'
 import WorkerPointPerMission from '@/components/hr/worker/point-mission/WorkerPointPerMission.vue'
-const authStore = useAuthStore()
 
 const loading = ref(true)
 const pointSummary = ref(null)
 const pointHistory = ref([])
 const upgradeMissions = ref([])
 
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
-
 onMounted(async () => {
-  const employeeId = authStore.employee?.employee_id
-
   try {
-    const [summaryData, historyData, missionsData] = await Promise.all([
-      fetchJson(`${API_BASE}/pointSummary?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/pointHistory?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/upgradeMissions?employee_id=${employeeId}`),
-    ])
-
-    pointSummary.value = summaryData[0] ?? null
-    pointHistory.value = historyData
-    upgradeMissions.value = missionsData
+    const data = await getWorkerPointMission()
+    pointSummary.value = data.summary
+    pointHistory.value = data.history
+    upgradeMissions.value = data.missions
   } catch (e) {
     console.error('Failed to load point/mission data:', e)
   } finally {

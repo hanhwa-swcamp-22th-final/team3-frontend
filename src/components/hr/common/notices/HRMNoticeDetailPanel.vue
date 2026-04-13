@@ -25,7 +25,6 @@ const emit = defineEmits(['edit', 'delete'])
     <div class="hrm-detail__bottom">
       <div class="hrm-detail__meta">
         <span>{{ notice.date ?? '미게시' }}</span>
-        <span>대상: {{ notice.targets.join(' / ') }}</span>
       </div>
 
       <div v-if="notice.attachment" class="hrm-detail__attachment">

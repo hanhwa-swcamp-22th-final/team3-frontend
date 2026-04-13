@@ -1,26 +1,30 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { mockOrganization, POSITION_MAP } from '@/mocks/hrmanager/organization.js'
 import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
+import hrApi from '@/services/hrApi'
 
-import { API_BASE } from '@/constants'
-const API = API_BASE
+const ROLE_LABELS = { WORKER: '사원', TL: '팀장', DL: '부서장', HRM: 'HR 매니저', ADMIN: '관리자' }
+const DEPT_COLORS = [
+  '#7c6fcd', '#4b89c8', '#1aaa8e', '#d94f6e',
+  '#a07826', '#e07c7c', '#2bbfb0', '#e8a020',
+]
 
 // ── 상태 ─────────────────────────────────────────────────────────
-const employees    = ref([])
-const groups       = ref(mockOrganization.map(g => ({ ...g, teams: g.teams.map(t => ({ ...t, memberIds: [...t.memberIds] })) })))
+const groups      = ref([])   // [{id, name, color, description, teams:[{id, name, memberCount, leader}]}]
+const employees   = ref([])   // 전체 직원 목록 (모달 인력풀용)
+const teamMembers = ref([])   // 선택된 팀의 멤버 목록
 
 const treeSearch   = ref('')
-const selectedTeam = ref(null)   // { groupId, team }
-const selectedGroup = ref(null)  // 팀 추가 모달 열 때 어느 그룹인지
+const selectedTeam = ref(null)        // { groupId, team }
+const selectedGroup = ref(null)       // 팀 추가 모달용 그룹
+const selectedGroupDetail = ref(null) // 그룹 상세 패널
 
-const showGroupModal     = ref(false)
-const showGroupEditModal = ref(false)
-const showTeamModal      = ref(false)
-const isEditMode         = ref(false)
-const selectedGroupDetail = ref(null)
+const showGroupModal      = ref(false)
+const showGroupEditModal  = ref(false)
+const showTeamModal       = ref(false)
+const isEditMode          = ref(false)
 
 const confirmModal = ref({ show: false, title: '', message: '', onConfirm: null })
 function openConfirm(title, message, onConfirm) {
@@ -42,12 +46,12 @@ function showToast(message, type = 'success') {
   toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
 }
 
-const tierFilter   = ref('')
-const posFilter    = ref('')
-const nameSearch   = ref('')
+const tierFilter = ref('')
+const posFilter  = ref('')
+const nameSearch = ref('')
 
-const TIERS    = ['S', 'A', 'B', 'C']
-const POSITIONS = ['팀장', '선임연구원', '대리', '주임', '사원', '과장']
+const TIERS     = ['S', 'A', 'B', 'C']
+const POSITIONS = Object.values(ROLE_LABELS)
 
 // 그룹 접기/펼치기
 const collapsedGroups = ref(new Set())
@@ -62,13 +66,43 @@ function isExpanded(groupId) {
 }
 
 // ── 데이터 로딩 ───────────────────────────────────────────────────
-onMounted(async () => {
+async function loadOrgTree() {
   try {
-    const data = await fetch(`${API}/employees`).then(r => r.json())
-    employees.value = data
+    const res = await hrApi.get('/api/v1/hr/org/units')
+    const tree = res.data?.data
+    if (!tree) return
+    const roots = tree.children ?? (tree.type === 'DEPARTMENT' ? [tree] : [])
+    groups.value = roots.map((dept, i) => ({
+      id:          dept.unitId,
+      name:        dept.unitName,
+      color:       DEPT_COLORS[i % DEPT_COLORS.length],
+      description: '',
+      teams: (dept.children ?? []).map(team => ({
+        id:          team.unitId,
+        name:        team.unitName,
+        description: '',
+        memberCount: 0,
+        leader:      null,
+        leaderId:    null,
+        memberIds:   [],
+      })),
+    }))
   } catch (e) {
-    console.error('직원 데이터 로딩 실패', e)
+    console.error('조직도 로딩 실패', e)
   }
+}
+
+async function loadEmployees() {
+  try {
+    const res = await hrApi.get('/api/v1/hr/org/employees', { params: { page: 0, size: 200 } })
+    employees.value = res.data?.data ?? []
+  } catch (e) {
+    console.error('직원 목록 로딩 실패', e)
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([loadOrgTree(), loadEmployees()])
 })
 
 // ── 유틸 ─────────────────────────────────────────────────────────
@@ -80,17 +114,13 @@ function tierTextColor(tier) {
   return tier === 'B' ? '#1a1000' : 'var(--color-white)'
 }
 function positionOf(emp) {
-  return POSITION_MAP[emp.employee_id] ?? { position: '사원', dept: '기타' }
-}
-function employeesOfTeam(team) {
-  return employees.value.filter(e => team.memberIds.includes(e.employee_id))
+  return { position: ROLE_LABELS[emp.role] ?? emp.role ?? '사원', dept: emp.departmentName ?? '기타' }
 }
 function isLeader(team, emp) {
-  return team.leaderId === emp.employee_id
+  return emp.role === 'TL'
 }
 function leaderOf(team) {
-  if (!team.leaderId) return null
-  return employees.value.find(e => e.employee_id === team.leaderId) ?? null
+  return team?.leader ?? null
 }
 
 const COLOR_NAMES = {
@@ -117,12 +147,13 @@ const filteredGroups = computed(() => {
 // ── 팀원 목록 필터링 ──────────────────────────────────────────────
 const filteredMembers = computed(() => {
   if (!selectedTeam.value) return []
-  const members = employeesOfTeam(selectedTeam.value.team)
-  return members.filter(emp => {
-    if (tierFilter.value && emp.employee_current_tier !== tierFilter.value) return false
-    const { position } = positionOf(emp)
-    if (posFilter.value && position !== posFilter.value) return false
-    if (nameSearch.value && !emp.employee_name.includes(nameSearch.value)) return false
+  return teamMembers.value.filter(emp => {
+    if (tierFilter.value && emp.currentTier !== tierFilter.value) return false
+    if (posFilter.value) {
+      const { position } = positionOf(emp)
+      if (position !== posFilter.value) return false
+    }
+    if (nameSearch.value && !emp.name.includes(nameSearch.value)) return false
     return true
   })
 })
@@ -131,28 +162,63 @@ const selectedGroup$ = computed(() =>
   selectedTeam.value ? groups.value.find(g => g.id === selectedTeam.value.groupId) : null
 )
 
-// ── 인력풀 필터링 (이미 다른 팀에 속한 직원 제외) ──────────────────
+// ── 그룹 전체 인원 수 ─────────────────────────────────────────────
+const groupTotalMemberCount = computed(() => {
+  if (!selectedGroupDetail.value) return 0
+  return selectedGroupDetail.value.teams.reduce((s, t) => s + (t.memberCount ?? 0), 0)
+})
+
+// ── 인력풀 (모달용) ───────────────────────────────────────────────
 const availableEmployees = computed(() => {
   const currentTeamId = isEditMode.value ? selectedTeam.value?.team?.id : null
   const usedIds = new Set()
   groups.value.forEach(g => g.teams.forEach(t => {
-    if (t.id !== currentTeamId) t.memberIds.forEach(id => usedIds.add(id))
+    if (t.id !== currentTeamId) (t.memberIds ?? []).forEach(id => usedIds.add(id))
   }))
-  return employees.value.filter(e => e.employee_id && !usedIds.has(e.employee_id))
+  return employees.value.filter(e => e.employeeId && !usedIds.has(e.employeeId))
 })
 
 // ── 이벤트 핸들러 ─────────────────────────────────────────────────
-function selectGroup(group) {
+async function selectGroup(group) {
   selectedGroupDetail.value = group
   selectedTeam.value = null
+  // 팀별 멤버 수 갱신
+  try {
+    const res = await hrApi.get(`/api/v1/hr/org/departments/${group.id}`)
+    const detail = res.data?.data
+    if (detail?.teams) {
+      detail.teams.forEach(t => {
+        const team = group.teams.find(gt => gt.id === t.teamId)
+        if (team) team.memberCount = t.memberCount
+      })
+    }
+  } catch { /* ignore */ }
 }
 
-function selectTeam(group, team) {
+async function selectTeam(group, team) {
   selectedTeam.value = { groupId: group.id, team }
   selectedGroupDetail.value = null
   tierFilter.value = ''
   posFilter.value  = ''
   nameSearch.value = ''
+  // 팀원 로딩
+  try {
+    const res = await hrApi.get(`/api/v1/hr/org/teams/${team.id}/members`)
+    const data = res.data?.data
+    if (data) {
+      const leader  = data.leaderInfo
+      const members = data.members ?? []
+      teamMembers.value = leader ? [leader, ...members] : members
+      team.leader      = leader
+      team.leaderId    = leader?.employeeId ?? null
+      team.memberIds   = teamMembers.value.map(m => m.employeeId)
+      team.memberCount = teamMembers.value.length
+    } else {
+      teamMembers.value = []
+    }
+  } catch {
+    teamMembers.value = []
+  }
 }
 
 function openTeamModal(group) {
@@ -176,64 +242,111 @@ function openTeamEditFromTree(group, team) {
   openEditModal()
 }
 
-function handleGroupSubmit(data) {
-  groups.value.push({
-    id:          Date.now(),
-    name:        data.name,
-    description: data.description,
-    color:       data.color,
-    teams:       [],
-  })
-  showGroupModal.value = false
-  showToast(`'${data.name}' 그룹이 추가되었습니다.`)
+// ── CRUD ──────────────────────────────────────────────────────────
+async function handleGroupSubmit(data) {
+  try {
+    const res = await hrApi.post('/api/v1/hr/org/departments', {
+      departmentName: data.name,
+      depth: 'DEPARTMENT',
+    })
+    const newId = res.data?.data
+    const color = DEPT_COLORS[groups.value.length % DEPT_COLORS.length]
+    groups.value.push({ id: newId, name: data.name, color, description: data.description ?? '', teams: [] })
+    showGroupModal.value = false
+    showToast(`'${data.name}' 그룹이 추가되었습니다.`)
+  } catch {
+    showToast('그룹 추가에 실패했습니다.', 'error')
+  }
 }
 
-function handleGroupEditSubmit(data) {
+async function handleGroupEditSubmit(data) {
   const group = selectedGroupDetail.value
-  group.name        = data.name
-  group.description = data.description
-  group.color       = data.color
-  showGroupEditModal.value = false
-  showToast(`'${data.name}' 그룹이 수정되었습니다.`)
+  try {
+    await hrApi.put(`/api/v1/hr/org/departments/${group.id}`, {
+      departmentName: data.name,
+      depth: 'DEPARTMENT',
+    })
+    group.name        = data.name
+    group.description = data.description ?? ''
+    group.color       = data.color
+    showGroupEditModal.value = false
+    showToast(`'${data.name}' 그룹이 수정되었습니다.`)
+  } catch {
+    showToast('그룹 수정에 실패했습니다.', 'error')
+  }
 }
 
-function handleTeamSubmit(data) {
+async function handleTeamSubmit(data) {
   if (isEditMode.value) {
     const team = selectedTeam.value.team
-    team.name        = data.name
-    team.description = data.description
-    team.memberIds   = data.memberIds
-    showToast(`'${data.name}' 팀 정보가 수정되었습니다.`)
+    try {
+      await hrApi.put(`/api/v1/hr/org/teams/${team.id}`, { teamName: data.name, leaderId: team.leaderId })
+
+      const currentIds = new Set(team.memberIds ?? [])
+      const newIds     = new Set(data.memberIds ?? [])
+      const toAdd    = [...newIds].filter(id => !currentIds.has(id))
+      const toRemove = [...currentIds].filter(id => !newIds.has(id))
+
+      if (toAdd.length > 0)
+        await hrApi.post(`/api/v1/hr/org/teams/${team.id}/members`, { employeeIds: toAdd })
+      for (const id of toRemove)
+        await hrApi.delete(`/api/v1/hr/org/teams/${team.id}/members/${id}`)
+
+      team.name = data.name
+      // 팀원 목록 재로딩
+      await selectTeam(selectedGroup$?.value ?? groups.value.find(g => g.id === selectedTeam.value.groupId), team)
+      showToast(`'${data.name}' 팀 정보가 수정되었습니다.`)
+    } catch {
+      showToast('팀 수정에 실패했습니다.', 'error')
+    }
   } else {
     const group = groups.value.find(g => g.id === selectedGroup.value.id)
     if (!group) return
-    group.teams.push({
-      id:          Date.now(),
-      name:        data.name,
-      description: data.description,
-      memberIds:   data.memberIds,
-      leaderId:    null,
-    })
-    showToast(`'${data.name}' 팀이 추가되었습니다.`)
+    try {
+      const res = await hrApi.post(`/api/v1/hr/org/departments/${group.id}/teams`, {
+        teamName: data.name,
+        leaderId: null,
+      })
+      const newId = res.data?.data
+      if (data.memberIds?.length > 0)
+        await hrApi.post(`/api/v1/hr/org/teams/${newId}/members`, { employeeIds: data.memberIds })
+
+      group.teams.push({
+        id:          newId,
+        name:        data.name,
+        description: data.description ?? '',
+        memberCount: data.memberIds?.length ?? 0,
+        leader:      null,
+        leaderId:    null,
+        memberIds:   data.memberIds ?? [],
+      })
+      showToast(`'${data.name}' 팀이 추가되었습니다.`)
+    } catch {
+      showToast('팀 추가에 실패했습니다.', 'error')
+    }
   }
   showTeamModal.value = false
 }
 
 function setLeader(team, emp) {
-  const wasLeader = team.leaderId === emp.employee_id
-  team.leaderId = wasLeader ? null : emp.employee_id
-  showToast(wasLeader ? '팀장을 해제했습니다.' : `${emp.employee_name}님을 팀장으로 지정했습니다.`)
+  showToast('팀장 지정은 역할 변경 메뉴에서 처리합니다.')
 }
 
 function removeMember(team, emp) {
   openConfirm(
     '팀원 제거',
-    `${emp.employee_name}님을 팀에서 제거하시겠습니까?`,
-    () => {
-      const idx = team.memberIds.indexOf(emp.employee_id)
-      if (idx !== -1) team.memberIds.splice(idx, 1)
-      if (team.leaderId === emp.employee_id) team.leaderId = null
-      showToast(`${emp.employee_name}님을 팀에서 제거했습니다.`)
+    `${emp.name}님을 팀에서 제거하시겠습니까?`,
+    async () => {
+      try {
+        await hrApi.delete(`/api/v1/hr/org/teams/${team.id}/members/${emp.employeeId}`)
+        const idx = teamMembers.value.findIndex(m => m.employeeId === emp.employeeId)
+        if (idx !== -1) teamMembers.value.splice(idx, 1)
+        team.memberCount = Math.max(0, (team.memberCount ?? 1) - 1)
+        team.memberIds = team.memberIds.filter(id => id !== emp.employeeId)
+        showToast(`${emp.name}님을 팀에서 제거했습니다.`)
+      } catch {
+        showToast('팀원 제거에 실패했습니다.', 'error')
+      }
     }
   )
 }
@@ -242,10 +355,15 @@ function deleteTeam(group, team) {
   openConfirm(
     '팀 삭제',
     `'${team.name}' 팀을 삭제하시겠습니까?`,
-    () => {
-      group.teams = group.teams.filter(t => t.id !== team.id)
-      if (selectedTeam.value?.team?.id === team.id) selectedTeam.value = null
-      showToast(`'${team.name}' 팀이 삭제되었습니다.`)
+    async () => {
+      try {
+        await hrApi.delete(`/api/v1/hr/org/teams/${team.id}`)
+        group.teams = group.teams.filter(t => t.id !== team.id)
+        if (selectedTeam.value?.team?.id === team.id) selectedTeam.value = null
+        showToast(`'${team.name}' 팀이 삭제되었습니다.`)
+      } catch {
+        showToast('팀 삭제에 실패했습니다.', 'error')
+      }
     }
   )
 }
@@ -254,11 +372,16 @@ function deleteGroup(group) {
   openConfirm(
     '그룹 삭제',
     `'${group.name}' 그룹을 삭제하시겠습니까?\n소속된 모든 팀 정보도 함께 삭제됩니다.`,
-    () => {
-      groups.value = groups.value.filter(g => g.id !== group.id)
-      if (group.teams.some(t => t.id === selectedTeam.value?.team?.id)) selectedTeam.value = null
-      selectedGroupDetail.value = null
-      showToast(`'${group.name}' 그룹이 삭제되었습니다.`)
+    async () => {
+      try {
+        await hrApi.delete(`/api/v1/hr/org/departments/${group.id}`)
+        groups.value = groups.value.filter(g => g.id !== group.id)
+        if (group.teams.some(t => t.id === selectedTeam.value?.team?.id)) selectedTeam.value = null
+        selectedGroupDetail.value = null
+        showToast(`'${group.name}' 그룹이 삭제되었습니다.`)
+      } catch {
+        showToast('그룹 삭제에 실패했습니다.', 'error')
+      }
     }
   )
 }
@@ -329,8 +452,8 @@ function deleteGroup(group) {
                 <span class="team-node__name">{{ team.name }}</span>
                 <div class="team-node__leader" v-if="leaderOf(team)">
                   <span class="team-node__leader-label">팀장 :</span>
-                  <div class="team-node__leader-avatar">{{ leaderOf(team).employee_name[0] }}</div>
-                  <span class="team-node__leader-name">{{ leaderOf(team).employee_name }}</span>
+                  <div class="team-node__leader-avatar">{{ leaderOf(team).name[0] }}</div>
+                  <span class="team-node__leader-name">{{ leaderOf(team).name }}</span>
                 </div>
                 <div class="team-node__leader" v-else>
                   <span class="team-node__leader-label team-node__leader-label--empty">팀장 미지정</span>
@@ -344,7 +467,7 @@ function deleteGroup(group) {
                   <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                 </button>
               </div>
-              <span class="team-node__count">{{ team.memberIds.length }}명</span>
+              <span class="team-node__count">{{ team.memberCount ?? 0 }}명</span>
             </div>
           </template>
 
@@ -395,16 +518,16 @@ function deleteGroup(group) {
         <div v-if="filteredMembers.length === 0" class="member-list__empty">
           해당 조건의 팀원이 없습니다.
         </div>
-        <div v-for="emp in filteredMembers" :key="emp.employee_id" class="member-card">
+        <div v-for="emp in filteredMembers" :key="emp.employeeId" class="member-card">
           <div class="member-card__avatar"
-            :style="{ background: tierColor(emp.employee_current_tier) }"
-          >{{ emp.employee_name[0] }}</div>
+            :style="{ background: tierColor(emp.currentTier) }"
+          >{{ emp.name[0] }}</div>
           <div class="member-card__info">
             <div class="member-card__row1">
-              <span class="member-card__name">{{ emp.employee_name }}</span>
+              <span class="member-card__name">{{ emp.name }}</span>
               <span class="member-card__tier"
-                :style="{ background: tierColor(emp.employee_current_tier), color: tierTextColor(emp.employee_current_tier) }"
-              >{{ emp.employee_current_tier }}</span>
+                :style="{ background: tierColor(emp.currentTier), color: tierTextColor(emp.currentTier) }"
+              >{{ emp.currentTier }}</span>
               <span v-if="isLeader(selectedTeam.team, emp)" class="member-card__leader-badge">팀장</span>
             </div>
             <p class="member-card__sub">
@@ -465,7 +588,7 @@ function deleteGroup(group) {
           <div class="group-detail__stat-info">
             <span class="group-detail__stat-label">전체 인원</span>
             <div class="group-detail__stat-value">
-              <span class="group-detail__stat-num">{{ selectedGroupDetail.teams.reduce((s, t) => s + t.memberIds.length, 0) }}</span>
+              <span class="group-detail__stat-num">{{ groupTotalMemberCount }}</span>
               <span class="group-detail__stat-unit">명</span>
             </div>
           </div>
@@ -499,12 +622,12 @@ function deleteGroup(group) {
               <svg class="org-icon org-icon--sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
               </svg>
-              {{ team.memberIds.length }}명
+              {{ team.memberCount ?? 0 }}명
             </div>
             <div class="group-detail__team-card-leader" v-if="leaderOf(team)">
               팀장 :
-              <div class="group-detail__team-card-avatar">{{ leaderOf(team).employee_name[0] }}</div>
-              {{ leaderOf(team).employee_name }}
+              <div class="group-detail__team-card-avatar">{{ leaderOf(team).name[0] }}</div>
+              {{ leaderOf(team).name }}
             </div>
             <div class="group-detail__team-card-leader group-detail__team-card-leader--empty" v-else>팀장 미지정</div>
           </div>
@@ -962,18 +1085,11 @@ function deleteGroup(group) {
 .group-detail__team-card-leader--empty { font-style: italic; }
 .group-detail__team-card-arrow {
   width: 18px; height: 18px; flex-shrink: 0;
-  color: var(--color-primary-300);
-  transition: color .12s;
+  color: var(--color-text-muted);
 }
-.group-detail__team-card:hover .group-detail__team-card-arrow { color: var(--color-primary-500); }
 
-/* ── 삭제 확인 모달 ── */
 .org-confirm__message {
-  font-size: var(--font-size-sm); color: var(--color-text-default);
-  white-space: pre-line; padding: 8px 0;
+  font-size: var(--font-size-sm); color: var(--color-primary-800);
+  white-space: pre-line;
 }
-:deep(.base-confirm-modal__primary) {
-  background: var(--color-danger);
-}
-
 </style>
