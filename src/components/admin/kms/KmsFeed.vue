@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
-import { TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
 import { BaseFilterTabs } from '@/components/common/base'
+import { getKmsTagStyle } from '@/utils/kmsTagStyle'
 
 const props = defineProps({
   articles:          { type: Array,  default: () => [] },
@@ -39,8 +39,7 @@ const filteredCards = computed(() => {
 function tagStyle(tag) {
   const found = props.tagFilters.find((t) => t.key === tag)
   if (found) return { background: found.bg, color: found.color }
-  if (TAG_STYLE[tag]) return { background: TAG_STYLE[tag].bg, color: TAG_STYLE[tag].color }
-  return { background: 'var(--color-primary-100)', color: 'var(--color-primary-600)' }
+  return getKmsTagStyle(tag)
 }
 </script>
 

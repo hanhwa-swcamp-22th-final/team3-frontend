@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-import { TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
@@ -10,6 +9,7 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
+import { buildKmsTagFilters } from '@/utils/kmsTagStyle'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
@@ -192,10 +192,9 @@ async function loadRecommendations() {
 async function loadTags() {
   try {
     const res = await knowledgeArticleApi.getTags()
-    tagFilters.value = (res.data.data ?? []).map((tag) => ({
-      key: tag.tagName,
-      ...TAG_STYLE[tag.tagName],
-    }))
+    tagFilters.value = buildKmsTagFilters(
+      (res.data.data ?? []).map((tag) => tag.tagName).filter(Boolean),
+    )
   } catch (e) {
     console.error('[KMS] 태그 목록 로드 실패:', e)
     tagFilters.value = []
