@@ -132,6 +132,7 @@ function handleConvertText() {
 
 .department-evaluation-form-panel {
   overflow-y: auto;
+  min-height: 600px;
   max-height: calc(100vh - 200px);
 }
 

@@ -175,6 +175,7 @@ function renderRecordingSummary() {
   border: 1px solid var(--color-border-default);
   border-radius: 24px;
   background: var(--color-bg-surface);
+  min-height: 600px;
 }
 
 .evaluation-form-panel__header {

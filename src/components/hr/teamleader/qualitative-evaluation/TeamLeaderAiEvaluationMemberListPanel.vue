@@ -172,7 +172,7 @@ function goToPage(page) {
   border-radius: 24px;
   background: var(--color-bg-surface);
   height: 100%;
-  min-height: 0;
+  min-height: 600px;
   overflow: hidden;
   box-sizing: border-box;
 }

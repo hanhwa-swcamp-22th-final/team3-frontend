@@ -33,6 +33,7 @@ function mapStatus(apiStatus) {
 function mapTarget(t) {
   return {
     id: t.evaluateeId,
+    evaluationPeriodId: t.evaluationPeriodId,
     name: t.employeeName,
     avatar: (t.employeeName ?? '?')[0],
     avatarColor: avatarColor(t.employeeName),
@@ -97,11 +98,11 @@ async function handleSelect(member) {
 }
 
 async function handleSave(draftText) {
-  if (!selectedMember.value || !evalPeriodId.value) return
+  if (!selectedMember.value) return
   try {
     await updateDlEvaluation(selectedMember.value.id, {
       status: 'DRAFT',
-      evaluationPeriodId: evalPeriodId.value,
+      evaluationPeriodId: selectedMember.value.evaluationPeriodId,
       evalComment: draftText,
       inputMethod: 'TEXT',
     })
@@ -116,12 +117,12 @@ async function handleSave(draftText) {
 }
 
 async function handleSubmit(draftText) {
-  if (!selectedMember.value || !evalPeriodId.value) return
+  if (!selectedMember.value) return
   if (isSubmitted.value) return
   try {
     await updateDlEvaluation(selectedMember.value.id, {
       status: 'SUBMITTED',
-      evaluationPeriodId: evalPeriodId.value,
+      evaluationPeriodId: selectedMember.value.evaluationPeriodId,
       evalComment: draftText,
       inputMethod: 'TEXT',
     })

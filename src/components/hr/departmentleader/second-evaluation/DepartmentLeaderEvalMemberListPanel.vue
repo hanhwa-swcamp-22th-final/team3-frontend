@@ -142,7 +142,7 @@ const statusFilterLabel = computed(
   border-radius: 24px;
   background: var(--color-bg-surface);
   height: 100%;
-  min-height: 0;
+  min-height: 600px;
   box-sizing: border-box;
   overflow: hidden;
 }
