@@ -57,9 +57,9 @@ defineProps({
 }
 
 .contributors__row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   border: 1px solid var(--color-border-default);
   border-radius: 14px;
@@ -71,6 +71,15 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.contributors__left {
+  min-width: 0;
+  flex: 1;
+}
+
+.contributors__left > div {
+  min-width: 0;
 }
 
 .contributors__rank {
@@ -98,11 +107,27 @@ defineProps({
   font-size: 12px;
 }
 
-.contributors__left strong { color: var(--color-primary-800); }
+.contributors__left strong {
+  color: var(--color-primary-800);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contributors__right {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 78px;
+}
+
 .contributors__right p {
   margin: 0;
   font-size: 11px;
   color: var(--color-text-muted);
   text-align: right;
+  white-space: nowrap;
 }
 </style>

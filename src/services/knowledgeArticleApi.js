@@ -199,8 +199,8 @@ const knowledgeArticleApi = {
   },
 
   // ── Admin Command ─────────────────────────────────────────────
-  deleteArticleByAdmin(articleId) {
-    return kmsApi.delete(`/api/kms/admin/articles/${articleId}`)
+  deleteArticleByAdmin(articleId, data) {
+    return kmsApi.delete(`/api/kms/admin/articles/${articleId}`, { data })
   },
 }
 

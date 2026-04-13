@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-import KmsStatCards from '@/components/admin/kms/KmsStatCardsWrapper.vue'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
+import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
+import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
+import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
@@ -58,7 +60,7 @@ function mapToContributor(dto, idx) {
     name:    dto.employeeName ?? '',
     initial: dto.employeeName?.[0] ?? '?',
     color:   '#5B4FCF',
-    count:   dto.articleCount ?? 0,
+    articles: dto.articleCount ?? 0,
     views:   dto.totalViewCount ?? 0,
   }
 }
@@ -74,15 +76,16 @@ const hubStats       = ref({
   newThisMonthChange: 0,
   averageViewCountChange: 0,
 })
+const selectedArticle = ref(null)
 
 const selectedFilter    = ref('전체')
 const selectedTagFilter = ref(null)
 
 // ── 통계 카드 ─────────────────────────────────────────────────
 const statCards = computed(() => [
-  { label: '등록 지식 수', value: String(hubStats.value.totalArticles ?? 0), unit: '건', trend: null },
-  { label: '이달 신규', value: String(hubStats.value.newThisMonth ?? 0), unit: '건', trend: formatTrend(hubStats.value.newThisMonthChange) },
-  { label: '평균 조회수', value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1), unit: '', trend: formatTrend(hubStats.value.averageViewCountChange, 1) },
+  { label: '등록 지식 수', value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`, helper: '' },
+  { label: '이달 신규', value: `${Number(hubStats.value.newThisMonth ?? 0).toLocaleString()}건`, helper: formatTrend(hubStats.value.newThisMonthChange), tone: Number(hubStats.value.newThisMonthChange ?? 0) < 0 ? 'danger' : 'success' },
+  { label: '평균 조회수', value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1), helper: formatTrend(hubStats.value.averageViewCountChange, 1), tone: Number(hubStats.value.averageViewCountChange ?? 0) < 0 ? 'danger' : 'success' },
 ])
 
 // ── 데이터 로드 ───────────────────────────────────────────────
@@ -137,28 +140,99 @@ async function loadContributors() {
 async function loadRecommendations() {
   try {
     const res = await knowledgeArticleApi.getRecommendations()
-    recommendations.value = (res.data.data ?? []).map((dto) => dto.articleTitle ?? '')
+    recommendations.value = (res.data.data ?? []).map((dto) => ({
+      id: dto.articleId,
+      title: dto.articleTitle ?? '',
+    }))
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
   }
 }
 
+async function openDetailModal(article) {
+  selectedArticle.value = {
+    id: article.id,
+    title: article.title,
+    category: article.category,
+    equipment: article.equipment,
+    date: article.date,
+    author: article.author?.name ?? article.author ?? '',
+    authorInitial: article.author?.initial ?? article.authorInitial ?? '?',
+    content: article.summary ?? '',
+    preview: article.summary ?? '',
+    views: article.views ?? 0,
+  }
+
+  try {
+    const res = await knowledgeArticleApi.getArticleDetail(article.id)
+    const dto = res.data.data ?? {}
+    selectedArticle.value = {
+      id: dto.articleId ?? article.id,
+      title: dto.articleTitle ?? article.title,
+      category: ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category ?? '',
+      equipment: dto.equipmentName ?? article.equipment ?? '',
+      date: article.date ?? formatDate(dto.createdAt),
+      author: dto.authorName ?? article.author?.name ?? article.author ?? '',
+      authorInitial: dto.authorName?.[0] ?? article.author?.initial ?? article.authorInitial ?? '?',
+      content: dto.articleContent ?? article.summary ?? '',
+      preview: article.summary ?? '',
+      views: dto.viewCount ?? article.views ?? 0,
+    }
+  } catch (e) {
+    console.error('[KMS] 관리자 문서 상세 로드 실패:', e)
+  }
+}
+
+function closeDetailModal() {
+  selectedArticle.value = null
+}
+
+function openRecommendedArticle(item) {
+  openDetailModal({
+    id: item.id,
+    title: item.title,
+    category: '',
+    equipment: '',
+    date: '',
+    author: '',
+    authorInitial: '?',
+    summary: '',
+    views: 0,
+  })
+}
+
 // ── Admin 삭제 ─────────────────────────────────────────────────
 async function handleDelete(articleId) {
-  if (!confirm('이 문서를 삭제하시겠습니까?')) return
+  const deletionReason = window.prompt('삭제 사유를 입력하세요. (10자 이상)')
+  if (deletionReason == null) return
+  if (deletionReason.trim().length < 10) {
+    window.alert('삭제 사유는 10자 이상 입력해야 합니다.')
+    return
+  }
+
   try {
-    await knowledgeArticleApi.deleteArticleByAdmin(articleId)
-    articles.value = articles.value.filter((a) => a.id !== articleId)
+    await knowledgeArticleApi.deleteArticleByAdmin(articleId, {
+      deletionReason: deletionReason.trim(),
+    })
+    if (selectedArticle.value?.id === articleId) {
+      closeDetailModal()
+    }
+    await Promise.allSettled([
+      loadHubStats(),
+      loadArticles(),
+      loadContributors(),
+      loadRecommendations(),
+    ])
   } catch (e) {
     console.error('[KMS] 문서 삭제 실패:', e)
+    window.alert('문서 삭제에 실패했습니다.')
   }
 }
 </script>
 
 <template>
   <div class="kms-view">
-    <!-- 상단 통계 카드 -->
-    <KmsStatCards :items="statCards" />
+    <TeamLeaderKnowledgeHubHeader :cards="statCards" />
 
     <!-- 메인 2열 레이아웃 -->
     <div class="kms-layout">
@@ -171,6 +245,7 @@ async function handleDelete(articleId) {
           @filterChange="selectedFilter = $event"
           @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"
+          @open-detail="openDetailModal"
         />
       </div>
 
@@ -178,10 +253,19 @@ async function handleDelete(articleId) {
       <div class="kms-side-col">
         <KmsSidePanel
           :contributors="contributors"
+        />
+        <TeamLeaderKnowledgeHubAiPanel
           :recommendations="recommendations"
+          @open-detail="openRecommendedArticle"
         />
       </div>
     </div>
+
+    <TeamLeaderKnowledgeDetailModal
+      v-if="selectedArticle"
+      :article="selectedArticle"
+      @close="closeDetailModal"
+    />
   </div>
 </template>
 
@@ -201,18 +285,28 @@ async function handleDelete(articleId) {
 }
 
 .kms-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
   gap: 16px;
   align-items: flex-start;
+  min-height: 0;
 }
 
 .kms-feed-col {
-  flex: 1;
   min-width: 0;
+  min-height: 0;
 }
 
 .kms-side-col {
-  width: 280px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .kms-layout {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

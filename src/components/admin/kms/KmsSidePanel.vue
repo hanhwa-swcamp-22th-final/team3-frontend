@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { BaseButton, BaseTextarea } from '@/components/common/base'
+import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
 import {
   MENTORING_ACTIVE,
   MENTORING_REQUEST,
@@ -9,7 +10,6 @@ import {
 
 const props = defineProps({
   contributors:    { type: Array, default: () => [] },
-  recommendations: { type: Array, default: () => [] },
 })
 
 const showAcceptModal = ref(false)
@@ -23,23 +23,7 @@ const handleAccept = () => {
 
 <template>
   <div class="side-panel">
-
-    <!-- 기여자 TOP 3 -->
-    <div class="panel-section">
-      <span class="section-title">🏆 지식 기여자 랭킹</span>
-      <div class="contributor-list">
-        <div v-for="c in contributors" :key="c.name" class="contributor-row">
-          <span class="contrib-rank">{{ c.rank }}</span>
-          <div class="contrib-avatar" :style="{ background: c.color }">{{ c.initial }}</div>
-          <span class="contrib-name">{{ c.name }}</span>
-          <span class="contrib-metrics">
-            <span class="contrib-count">게시글 {{ c.count }}건</span>
-            <span class="contrib-count">조회수 {{ c.views ?? 0 }}회</span>
-          </span>
-        </div>
-        <div v-if="contributors.length === 0" class="contrib-empty">기여자 데이터가 없습니다.</div>
-      </div>
-    </div>
+    <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
 
     <!-- 멘토링 매칭 현황 (백엔드 미구현 → mock 유지) -->
     <div class="panel-section">
@@ -66,21 +50,6 @@ const handleAccept = () => {
         <span v-else class="request-accepted">✓ 수락됨</span>
       </div>
     </div>
-
-    <!-- AI 추천 학습 -->
-    <div class="panel-section panel-section--ai">
-      <span class="section-title">🤖 AI 추천 학습</span>
-      <div class="ai-list">
-        <div v-for="(item, i) in recommendations" :key="i" class="ai-item">
-          <span class="ai-text">{{ item }}</span>
-          <span class="ai-arrow">→</span>
-        </div>
-        <div v-if="recommendations.length === 0" class="ai-item">
-          <span class="ai-text">추천 데이터가 없습니다.</span>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- 수락 확인 모달 -->
@@ -168,73 +137,6 @@ const handleAccept = () => {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-sub, #7a6fa8);
-}
-
-/* 기여자 */
-.contributor-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.contributor-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 36px;
-  border-bottom: 1px solid var(--color-border-soft, #f1eeff);
-}
-
-.contributor-row:last-child {
-  border-bottom: none;
-}
-
-.contrib-rank {
-  font-size: 14px;
-  width: 22px;
-  flex-shrink: 0;
-}
-
-.contrib-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-text-inverse);
-  flex-shrink: 0;
-}
-
-.contrib-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary-800);
-  flex: 1;
-}
-
-.contrib-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-primary-600, #5b4fcf);
-  flex-shrink: 0;
-}
-
-.contrib-metrics {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.contrib-empty {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  text-align: center;
-  padding: 8px 0;
 }
 
 /* 멘토링 */
@@ -334,17 +236,6 @@ const handleAccept = () => {
   font-weight: 700;
   color: var(--color-equip-active);
   flex-shrink: 0;
-}
-
-/* AI 추천 섹션 배경 */
-.panel-section--ai {
-  background: var(--color-primary-800);
-  border-color: var(--color-primary-800);
-  padding: 18px 18px 0;
-}
-
-.panel-section--ai .section-title {
-  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 수락 모달 오버레이 */
@@ -510,35 +401,4 @@ const handleAccept = () => {
   margin-top: 4px;
 }
 
-/* AI 추천 */
-.ai-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 18px;
-}
-
-.ai-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.ai-text {
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.ai-arrow {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
-}
 </style>

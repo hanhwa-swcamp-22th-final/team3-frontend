@@ -8,13 +8,12 @@ const props = defineProps({
   selectedFilter:    { type: String, default: '전체' },
   selectedTagFilter: { type: String, default: null },
 })
-const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete'])
+const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'open-detail'])
 
 // 카테고리 탭 (백엔드 기준)
 const KMS_FILTERS = [
   { key: '전체' },
   { key: '인기' },
-  { key: '최신' },
   { key: '내 북마크' },
 ]
 
@@ -32,8 +31,6 @@ const filteredCards = computed(() => {
 
   if (props.selectedFilter === '인기') {
     list = list.filter((card) => card.isPopular)
-  } else if (props.selectedFilter === '최신') {
-    list = [...list].sort((a, b) => b.rawDate?.localeCompare(a.rawDate ?? '') ?? 0)
   } else if (props.selectedFilter === '내 북마크') {
     list = list.filter((card) => card.bookmarked)
   }
@@ -81,7 +78,12 @@ function tagStyle(tag) {
 
     <!-- 지식 카드 목록 -->
     <div class="card-list">
-      <div v-for="card in filteredCards" :key="card.id" class="knowledge-card">
+      <div
+        v-for="card in filteredCards"
+        :key="card.id"
+        class="knowledge-card"
+        @click="emit('open-detail', card)"
+      >
 
         <!-- 카드 헤더 -->
         <div class="card-header">
@@ -115,7 +117,6 @@ function tagStyle(tag) {
           </div>
           <div class="card-meta">
             <span class="meta-item">👁 {{ card.views }}</span>
-            <span class="meta-item">💬 {{ card.comments }}</span>
           </div>
         </div>
 
