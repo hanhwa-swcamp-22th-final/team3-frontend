@@ -1,27 +1,12 @@
-﻿<script setup>
-import { computed, ref } from 'vue'
-
-const props = defineProps({
+<script setup>
+defineProps({
   article: {
     type: Object,
     required: true,
   },
 })
 
-const emit = defineEmits(['close', 'submit-comment'])
-const commentText = ref('')
-
-const commentCount = computed(() => props.article.commentList?.length ?? props.article.comments ?? 0)
-
-function handleSubmitComment() {
-  const value = commentText.value.trim()
-  if (!value) {
-    return
-  }
-
-  emit('submit-comment', value)
-  commentText.value = ''
-}
+const emit = defineEmits(['close'])
 </script>
 
 <template>
@@ -39,7 +24,7 @@ function handleSubmitComment() {
       <div class="detail-modal__meta">
         <span class="detail-modal__badge">{{ article.category }}</span>
         <span class="detail-modal__badge detail-modal__badge--soft">{{ article.equipment }}</span>
-        <span class="detail-modal__code">{{ article.code }}</span>
+        <span v-if="article.code" class="detail-modal__code">{{ article.code }}</span>
         <span class="detail-modal__date">{{ article.date }}</span>
       </div>
 
@@ -47,7 +32,7 @@ function handleSubmitComment() {
         <span class="detail-modal__avatar">{{ article.authorInitial }}</span>
         <div>
           <strong>{{ article.author }}</strong>
-          <p>댓글 {{ commentCount }}건</p>
+          <p>조회수 {{ article.views }}</p>
         </div>
       </div>
 
@@ -55,39 +40,6 @@ function handleSubmitComment() {
         <h3>내용</h3>
         <p class="detail-modal__content">{{ article.content || article.preview }}</p>
       </article>
-
-      <section class="detail-modal__comments">
-        <div class="detail-modal__comments-head">
-          <h3>댓글</h3>
-          <span>{{ commentCount }}건</span>
-        </div>
-
-        <div class="detail-modal__comment-compose">
-          <textarea
-            v-model="commentText"
-            class="detail-modal__comment-input"
-            placeholder="댓글을 입력하세요"
-            rows="3"
-          ></textarea>
-          <div class="detail-modal__comment-actions">
-            <button type="button" class="detail-modal__comment-submit" @click="handleSubmitComment">
-              댓글 등록
-            </button>
-          </div>
-        </div>
-
-        <div v-if="article.commentList?.length" class="detail-modal__comment-list">
-          <article v-for="comment in article.commentList" :key="comment.id" class="detail-modal__comment">
-            <div class="detail-modal__comment-meta">
-              <strong>{{ comment.author }}</strong>
-              <span>{{ comment.date }}</span>
-            </div>
-            <p>{{ comment.body }}</p>
-          </article>
-        </div>
-
-        <div v-else class="detail-modal__comment-empty">등록된 댓글이 없습니다.</div>
-      </section>
 
       <div class="detail-modal__actions">
         <button type="button" class="detail-modal__ghost" @click="emit('close')">닫기</button>
@@ -125,9 +77,7 @@ function handleSubmitComment() {
 }
 
 .detail-modal__head,
-.detail-modal__actions,
-.detail-modal__comments-head,
-.detail-modal__comment-actions {
+.detail-modal__actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -179,9 +129,7 @@ function handleSubmitComment() {
 }
 
 .detail-modal__code,
-.detail-modal__date,
-.detail-modal__comments-head span,
-.detail-modal__comment-meta span {
+.detail-modal__date {
   font-size: 13px;
   color: var(--color-text-muted);
 }
@@ -208,22 +156,18 @@ function handleSubmitComment() {
 }
 
 .detail-modal__author strong,
-.detail-modal__comments h3,
-.detail-modal__section h3,
-.detail-modal__comment strong {
+.detail-modal__section h3 {
   font-size: 15px;
   color: var(--color-primary-800);
 }
 
-.detail-modal__author p,
-.detail-modal__comment p {
+.detail-modal__author p {
   margin-top: 4px;
   font-size: 13px;
   color: var(--color-text-muted);
 }
 
-.detail-modal__section,
-.detail-modal__comments {
+.detail-modal__section {
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
@@ -238,81 +182,8 @@ function handleSubmitComment() {
   white-space: pre-line;
 }
 
-.detail-modal__comment-compose {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 14px;
-  background: #faf8ff;
-}
-
-.detail-modal__comment-input {
-  width: 100%;
-  min-height: 88px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 12px;
-  resize: vertical;
-  font: inherit;
-  color: var(--color-text-default);
-  background: #fff;
-}
-
-.detail-modal__comment-input:focus {
-  outline: 2px solid rgba(91, 80, 214, 0.18);
-  border-color: var(--color-primary-300);
-}
-
-.detail-modal__comment-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
 .detail-modal__actions {
   justify-content: flex-end;
-}
-
-.detail-modal__comment-submit {
-  height: 40px;
-  padding: 0 16px;
-  border: none;
-  border-radius: 12px;
-  background: var(--color-primary-700);
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.detail-modal__comment-list {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.detail-modal__comment {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #faf8ff;
-}
-
-.detail-modal__comment-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.detail-modal__comment-empty {
-  margin-top: 12px;
-  min-height: 96px;
-  display: grid;
-  place-items: center;
-  border: 1px dashed var(--color-border-default);
-  border-radius: 14px;
-  color: var(--color-text-muted);
-  font-size: 13px;
 }
 
 .detail-modal__ghost {

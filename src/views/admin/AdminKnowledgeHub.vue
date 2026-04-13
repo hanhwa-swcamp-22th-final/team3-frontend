@@ -7,6 +7,18 @@ import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
+function formatTrend(value, digits = 0) {
+  const numeric = Number(value ?? 0)
+  const abs = Math.abs(numeric)
+  const formatted = digits > 0 ? abs.toFixed(digits) : Math.round(abs).toLocaleString()
+
+  if (numeric < 0) {
+    return `▼${formatted}`
+  }
+
+  return `▲${formatted}`
+}
+
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
   if (!isoString) return ''
@@ -43,8 +55,8 @@ const RANK_ICONS = ['👑', '🥈', '🥉']
 function mapToContributor(dto, idx) {
   return {
     rank:    RANK_ICONS[idx] ?? String(idx + 1),
-    name:    dto.authorName ?? '',
-    initial: dto.authorName?.[0] ?? '?',
+    name:    dto.employeeName ?? '',
+    initial: dto.employeeName?.[0] ?? '?',
     color:   '#5B4FCF',
     count:   dto.articleCount ?? 0,
   }
@@ -54,27 +66,48 @@ function mapToContributor(dto, idx) {
 const articles       = ref([])
 const contributors   = ref([])
 const recommendations = ref([])
-const statsData      = ref({ pendingCount: 0, approvedThisMonth: 0, rejectionRate: 0 })
+const hubStats       = ref({
+  totalArticles: 0,
+  newThisMonth: 0,
+  averageViewCount: 0,
+  newThisMonthChange: 0,
+  averageViewCountChange: 0,
+})
 
 const selectedFilter    = ref('전체')
 const selectedTagFilter = ref(null)
 
 // ── 통계 카드 ─────────────────────────────────────────────────
 const statCards = computed(() => [
-  { label: '승인 대기',   value: String(statsData.value.pendingCount ?? 0),      unit: '건', trend: null },
-  { label: '이번달 승인', value: String(statsData.value.approvedThisMonth ?? 0), unit: '건', trend: null },
-  { label: '반려율',      value: Number(statsData.value.rejectionRate ?? 0).toFixed(1), unit: '%', trend: null },
+  { label: '등록 지식 수', value: String(hubStats.value.totalArticles ?? 0), unit: '건', trend: null },
+  { label: '이달 신규', value: String(hubStats.value.newThisMonth ?? 0), unit: '건', trend: formatTrend(hubStats.value.newThisMonthChange) },
+  { label: '평균 조회수', value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1), unit: '', trend: formatTrend(hubStats.value.averageViewCountChange, 1) },
 ])
 
 // ── 데이터 로드 ───────────────────────────────────────────────
 onMounted(async () => {
   await Promise.allSettled([
+    loadHubStats(),
     loadArticles(),
     loadContributors(),
     loadRecommendations(),
-    loadStats(),
   ])
 })
+
+async function loadHubStats() {
+  try {
+    const res = await knowledgeArticleApi.getHubStats()
+    hubStats.value = res.data.data ?? {
+      totalArticles: 0,
+      newThisMonth: 0,
+      averageViewCount: 0,
+      newThisMonthChange: 0,
+      averageViewCountChange: 0,
+    }
+  } catch (e) {
+    console.error('[KMS] 허브 통계 로드 실패:', e)
+  }
+}
 
 async function loadArticles() {
   try {
@@ -106,15 +139,6 @@ async function loadRecommendations() {
     recommendations.value = (res.data.data ?? []).map((dto) => dto.articleTitle ?? '')
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
-  }
-}
-
-async function loadStats() {
-  try {
-    const res = await knowledgeArticleApi.getApprovalStats()
-    statsData.value = res.data.data ?? {}
-  } catch (e) {
-    console.error('[KMS] 승인 통계 로드 실패:', e)
   }
 }
 

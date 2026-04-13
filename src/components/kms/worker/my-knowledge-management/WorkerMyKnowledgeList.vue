@@ -109,7 +109,6 @@ function actionLabel(status) {
         <div class="mkl__card-bottom">
           <div class="mkl__card-meta">
             <span>조회수 {{ article.views }}</span>
-            <span>댓글 {{ article.comments }}</span>
             <span>재사용 {{ article.reuses }}회</span>
           </div>
           <div class="mkl__card-actions">

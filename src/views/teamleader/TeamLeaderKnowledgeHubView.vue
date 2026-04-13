@@ -14,7 +14,6 @@ import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/kn
 
 // 백엔드 미구현 항목만 mock 유지
 import {
-  knowledgeHubSummaryCards,
   knowledgeHubMentoring,
   knowledgeHubMentoringRequestDefaults,
   knowledgeWriteModalOptions,
@@ -25,6 +24,18 @@ import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
+
+function formatTrend(value, digits = 0) {
+  const numeric = Number(value ?? 0)
+  const abs = Math.abs(numeric)
+  const formatted = digits > 0 ? abs.toFixed(digits) : Math.round(abs).toLocaleString()
+
+  if (numeric < 0) {
+    return { text: `▼${formatted}`, tone: 'danger' }
+  }
+
+  return { text: `▲${formatted}`, tone: 'success' }
+}
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -47,11 +58,9 @@ function mapToFeedItem(dto) {
     authorInitial: dto.authorName?.[0] ?? '?',
     authorTier:   '-',
     views:        dto.viewCount ?? 0,
-    comments:     dto.commentCount ?? 0,
     isPopular:    (dto.viewCount ?? 0) > 50,
     isBookmarked: false,
     status:       dto.articleStatus,
-    commentList:  [],
   }
 }
 
@@ -59,8 +68,8 @@ function mapToFeedItem(dto) {
 function mapToContributor(dto, index) {
   return {
     rank:        dto.rank ?? index + 1,
-    name:        dto.authorName ?? '',
-    initial:     dto.authorName?.[0] ?? '?',
+    name:        dto.employeeName ?? '',
+    initial:     dto.employeeName?.[0] ?? '?',
     tier:        '-',
     articles:    dto.articleCount ?? 0,
     avatarColor: '#5B4FCF',
@@ -89,31 +98,62 @@ const knowledgeCategories = [
 const articles         = ref([])
 const contributors     = ref([])
 const aiRecommendations = ref([])
+const hubStats         = ref({
+  totalArticles: 0,
+  newThisMonth: 0,
+  averageViewCount: 0,
+  newThisMonthChange: 0,
+  averageViewCountChange: 0,
+})
 
 // ── 통계 / 멘토링 (백엔드 미구현 → mock 유지) ─────────────────────
-const statState = reactive({ totalArticles: 1284, newThisMonth: 42, pendingApproval: 7 })
 const mentoringState = reactive({
   ongoing: [...knowledgeHubMentoring.ongoing],
   pending: [...knowledgeHubMentoring.pending],
 })
 
-const summaryCards = computed(() =>
-  knowledgeHubSummaryCards.map((card) => {
-    if (card.key === 'totalArticles')  return { ...card, value: `${statState.totalArticles.toLocaleString()}건` }
-    if (card.key === 'newThisMonth')   return { ...card, value: `${statState.newThisMonth}건` }
-    if (card.key === 'pendingApproval') return { ...card, value: `${statState.pendingApproval}건` }
-    return card
-  })
-)
+const summaryCards = computed(() => [
+  { key: 'totalArticles', label: '등록 지식 수', value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`, helper: '' },
+  {
+    key: 'newThisMonth',
+    label: '이달 신규',
+    value: `${Number(hubStats.value.newThisMonth ?? 0).toLocaleString()}건`,
+    helper: formatTrend(hubStats.value.newThisMonthChange).text,
+    tone: formatTrend(hubStats.value.newThisMonthChange).tone,
+  },
+  {
+    key: 'avgViews',
+    label: '평균 조회수',
+    value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1),
+    helper: formatTrend(hubStats.value.averageViewCountChange, 1).text,
+    tone: formatTrend(hubStats.value.averageViewCountChange, 1).tone,
+  },
+])
 
 // ── 데이터 로드 ───────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.allSettled([
+    loadHubStats(),
     loadArticles(),
     loadContributors(),
     loadRecommendations(),
   ])
 })
+
+async function loadHubStats() {
+  try {
+    const res = await knowledgeArticleApi.getHubStats()
+    hubStats.value = res.data.data ?? {
+      totalArticles: 0,
+      newThisMonth: 0,
+      averageViewCount: 0,
+      newThisMonthChange: 0,
+      averageViewCountChange: 0,
+    }
+  } catch (e) {
+    console.error('[KMS] 허브 통계 로드 실패:', e)
+  }
+}
 
 async function loadArticles() {
   try {
@@ -197,8 +237,6 @@ async function openDetailModal(article) {
     authorInitial: article.authorInitial,
     content: '',
     views: article.views,
-    comments: article.comments,
-    commentList: article.commentList ?? [],
   }
   try {
     const res = await knowledgeArticleApi.getArticleDetail(article.id)
@@ -213,8 +251,6 @@ async function openDetailModal(article) {
       authorInitial: dto.authorName?.[0] ?? article.authorInitial,
       content: dto.articleContent ?? '',
       views: dto.viewCount ?? article.views,
-      comments: dto.commentCount ?? article.comments,
-      commentList: article.commentList ?? [],
     }
   } catch (e) {
     console.error('[KMS] 문서 상세 로드 실패:', e)
@@ -223,17 +259,17 @@ async function openDetailModal(article) {
 
 function closeDetailModal() { selectedArticle.value = null }
 
-function submitDetailComment(body) {
-  if (!selectedArticle.value) return
-  const article = selectedArticle.value
-  const nextId = Math.max(...(article.commentList ?? []).map((c) => c.id), 0) + 1
-  article.commentList = [...(article.commentList ?? []), { id: nextId, author: '최민정', date: formatDate(new Date().toISOString()), body }]
-  article.comments = article.commentList.length
-  const idx = articles.value.findIndex((a) => a.id === article.id)
-  if (idx !== -1) {
-    articles.value[idx] = { ...articles.value[idx], commentList: [...article.commentList], comments: article.comments }
-    selectedArticle.value = articles.value[idx]
-  }
+function openRecommendedArticle(item) {
+  openDetailModal({
+    id: item.id,
+    title: item.title,
+    category: '',
+    equipment: '',
+    date: '',
+    author: '',
+    authorInitial: '?',
+    views: 0,
+  })
 }
 
 // ── 멘토링 모달 (백엔드 미구현 → mock 유지) ───────────────────────
@@ -274,7 +310,10 @@ function submitMentoringRequest(payload) {
           @review-request="openMentoringReview"
           @open-request="openMentoringRequestModal"
         />
-        <TeamLeaderKnowledgeHubAiPanel :recommendations="aiRecommendations" />
+        <TeamLeaderKnowledgeHubAiPanel
+          :recommendations="aiRecommendations"
+          @open-detail="openRecommendedArticle"
+        />
       </div>
     </section>
 
@@ -290,7 +329,6 @@ function submitMentoringRequest(payload) {
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
-      @submit-comment="submitDetailComment"
     />
 
     <TeamLeaderKnowledgeMentoringReviewModal

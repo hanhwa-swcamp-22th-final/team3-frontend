@@ -171,7 +171,7 @@ function categoryClass(category) {
             <span class="feed__author-name">{{ article.author }}</span>
             <span class="feed__tier" :class="tierClass(article.authorTier)">{{ article.authorTier }}</span>
           </div>
-          <div class="feed__meta"><span>댓글 {{ article.comments }}</span></div>
+          <div class="feed__meta"><span>조회수 {{ article.views }}</span></div>
         </div>
       </article>
 

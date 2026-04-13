@@ -44,8 +44,6 @@ function categoryClass(cat) {
       <span class="kd__sep">·</span>
       <span>조회수 {{ article.views }}</span>
       <span class="kd__sep">·</span>
-      <span>댓글 {{ article.comments }}</span>
-      <span class="kd__sep">·</span>
       <span>재사용 {{ article.reuses }}회</span>
     </div>
 

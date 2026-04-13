@@ -18,7 +18,13 @@ defineProps({
       <template #value>
         <div class="value-block">
           <span class="stat-value">{{ item.value }}<span class="stat-unit">{{ item.unit }}</span></span>
-          <span v-if="item.trend" class="stat-trend">{{ item.trend }}</span>
+          <span
+            v-if="item.trend"
+            class="stat-trend"
+            :class="{ 'stat-trend--negative': String(item.trend).startsWith('▼') }"
+          >
+            {{ item.trend }}
+          </span>
         </div>
       </template>
     </BaseStatCard>
@@ -70,5 +76,9 @@ defineProps({
   font-size: 11px;
   font-weight: 700;
   color: var(--color-mint-500, #00BF95);
+}
+
+.stat-trend--negative {
+  color: var(--color-danger-text);
 }
 </style>

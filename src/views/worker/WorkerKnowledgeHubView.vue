@@ -15,7 +15,6 @@ import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 
 // 백엔드 미구현 항목만 mock 유지
 import {
-  knowledgeStats,
   ongoingMentoring,
   mentoringRequests,
   mentoringRequestFormDefaults,
@@ -26,6 +25,18 @@ import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId  = computed(() => Number(authStore.userInfo?.employeeId))
+
+function formatTrend(value, digits = 0) {
+  const numeric = Number(value ?? 0)
+  const abs = Math.abs(numeric)
+  const formatted = digits > 0 ? abs.toFixed(digits) : Math.round(abs).toLocaleString()
+
+  if (numeric < 0) {
+    return { text: `▼${formatted}`, tone: 'danger' }
+  }
+
+  return { text: `▲${formatted}`, tone: 'success' }
+}
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -48,7 +59,6 @@ function mapToFeedItem(dto) {
     authorInitial: dto.authorName?.[0] ?? '?',
     authorTier: '-',
     views: dto.viewCount ?? 0,
-    comments: dto.commentCount ?? 0,
     isPopular: (dto.viewCount ?? 0) > 50,
     isBookmarked: false,
     status: dto.articleStatus,
@@ -59,8 +69,8 @@ function mapToFeedItem(dto) {
 function mapToContributor(dto, index) {
   return {
     rank: dto.rank ?? index + 1,
-    name: dto.authorName ?? '',
-    initial: dto.authorName?.[0] ?? '?',
+    name: dto.employeeName ?? '',
+    initial: dto.employeeName?.[0] ?? '?',
     tier: '-',
     articles: dto.articleCount ?? 0,
     avatarColor: '#5B4FCF',
@@ -92,15 +102,38 @@ const knowledgeCategories = [
 const knowledgeArticles = ref([])
 const monthlyRanking    = ref([])
 const aiRecommendations = ref([])
+const hubStats          = ref({
+  totalArticles: 0,
+  newThisMonth: 0,
+  averageViewCount: 0,
+  newThisMonthChange: 0,
+  averageViewCountChange: 0,
+})
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.allSettled([
+    loadHubStats(),
     loadArticles(),
     loadContributors(),
     loadRecommendations(),
   ])
 })
+
+async function loadHubStats() {
+  try {
+    const res = await knowledgeArticleApi.getHubStats()
+    hubStats.value = res.data.data ?? {
+      totalArticles: 0,
+      newThisMonth: 0,
+      averageViewCount: 0,
+      newThisMonthChange: 0,
+      averageViewCountChange: 0,
+    }
+  } catch (e) {
+    console.error('[KMS] 허브 통계 로드 실패:', e)
+  }
+}
 
 async function loadArticles() {
   try {
@@ -142,20 +175,22 @@ const headerCards = computed(() => [
   {
     key: 'total',
     label: '등록 지식 총',
-    value: `${knowledgeStats.totalArticles.toLocaleString()}건`,
+    value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`,
     helper: '',
   },
   {
     key: 'new',
     label: '이달 신규',
-    value: `${knowledgeStats.newThisMonth}건`,
-    helper: knowledgeStats.newThisMonthDiff ? `▲${knowledgeStats.newThisMonthDiff}` : '',
+    value: `${Number(hubStats.value.newThisMonth ?? 0).toLocaleString()}건`,
+    helper: formatTrend(hubStats.value.newThisMonthChange).text,
+    tone: formatTrend(hubStats.value.newThisMonthChange).tone,
   },
   {
-    key: 'my',
-    label: '내 작성글',
-    value: `${knowledgeStats.myArticles}`,
-    helper: knowledgeStats.myArticlesDiff ? `▲${knowledgeStats.myArticlesDiff}` : '',
+    key: 'avg',
+    label: '평균 조회수',
+    value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1),
+    helper: formatTrend(hubStats.value.averageViewCountChange, 1).text,
+    tone: formatTrend(hubStats.value.averageViewCountChange, 1).tone,
   },
 ])
 
@@ -247,8 +282,6 @@ async function openDetailModal(article) {
     authorInitial: article.authorInitial,
     content:       '',
     views:         article.views,
-    comments:      article.comments,
-    commentList:   [],
   }
   try {
     const res = await knowledgeArticleApi.getArticleDetail(article.id)
@@ -263,8 +296,6 @@ async function openDetailModal(article) {
       authorInitial: dto.authorName?.[0] ?? article.authorInitial,
       content:       dto.articleContent ?? '',
       views:         dto.viewCount ?? article.views,
-      comments:      dto.commentCount ?? article.comments,
-      commentList:   [],
     }
   } catch (e) {
     console.error('[KMS] 문서 상세 로드 실패:', e)
@@ -273,6 +304,19 @@ async function openDetailModal(article) {
 
 function closeDetailModal() {
   selectedArticle.value = null
+}
+
+function openRecommendedArticle(item) {
+  openDetailModal({
+    id: item.id,
+    title: item.title,
+    category: '',
+    equipment: '',
+    date: '',
+    author: '',
+    authorInitial: '?',
+    views: 0,
+  })
 }
 
 function closeModal() {
@@ -304,7 +348,10 @@ function closeModal() {
           @review-request="handleAcceptClick"
           @open-request="handleRequestClick"
         />
-        <TeamLeaderKnowledgeHubAiPanel :recommendations="aiRecommendations" />
+        <TeamLeaderKnowledgeHubAiPanel
+          :recommendations="aiRecommendations"
+          @open-detail="openRecommendedArticle"
+        />
       </div>
     </div>
 

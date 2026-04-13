@@ -39,7 +39,6 @@ function mapToMyArticle(dto) {
     summary:      dto.articleContent ? dto.articleContent.slice(0, 120) : '',
     content:      dto.articleContent ?? '',
     views:           dto.viewCount ?? 0,
-    comments:        dto.commentCount ?? 0,
     reuses:          dto.reuseCount ?? 0,
     rejectionReason: dto.articleRejectionReason ?? '',
   }

@@ -95,6 +95,10 @@ const knowledgeArticleApi = {
     return kmsApi.get(`/api/kms/articles/${articleId}`)
   },
 
+  getHubStats() {
+    return kmsApi.get('/api/kms/stats', { params: { stat: 'hub' } })
+  },
+
   // limit: 노출할 기여자 수 (기본 5)
   getContributors(limit = 5) {
     return kmsApi.get('/api/kms/articles/contributors', { params: { limit } })

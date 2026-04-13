@@ -26,7 +26,7 @@ const handleAccept = () => {
 
     <!-- 기여자 TOP 3 -->
     <div class="panel-section">
-      <span class="section-title">🏆 이달의 지식 기여자</span>
+      <span class="section-title">🏆 지식 기여자 랭킹</span>
       <div class="contributor-list">
         <div v-for="c in contributors" :key="c.name" class="contributor-row">
           <span class="contrib-rank">{{ c.rank }}</span>
