@@ -5,6 +5,7 @@ import DepartmentLeaderFirstEvaluationSummary from './DepartmentLeaderFirstEvalu
 
 const props = defineProps({
   member: { type: Object, default: null },
+  readonly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['save', 'submit'])
@@ -69,6 +70,7 @@ function handleConvertText() {
     :show-guide-button="true"
     :guide-button-label="'1차 평가 참고'"
     :guide-disabled="true"
+    :readonly="readonly"
     :recording-summary-renderer="() => ({ title: '2차 평가 작성 현황', description: `${draftText.trim().length}자 입력 완료` })"
     @update:model-value="draftText = $event"
     @voice-input="handleVoiceInput"
@@ -81,19 +83,24 @@ function handleConvertText() {
 
     <template #footer>
       <div class="eval-form__actions">
-        <span class="eval-form__submit-hint" :class="{ 'eval-form__submit-hint--ready': canSubmit }">
-          {{ canSubmit ? '제출 가능한 상태입니다. 검토 후 최종 제출하세요.' : '2차 평가는 20자 이상 입력해야 제출할 수 있습니다.' }}
-        </span>
-        <button class="eval-form__btn eval-form__btn--save" @click="emit('save', draftText)">
-          임시저장
-        </button>
-        <button
-          class="eval-form__btn eval-form__btn--submit"
-          :disabled="!canSubmit"
-          @click="emit('submit', draftText)"
+        <span
+          class="eval-form__submit-hint"
+          :class="{ 'eval-form__submit-hint--ready': readonly || canSubmit, 'eval-form__submit-hint--submitted': readonly }"
         >
-          최종 제출
-        </button>
+          {{ readonly ? '제출이 완료된 평가입니다.' : canSubmit ? '제출 가능한 상태입니다. 검토 후 최종 제출하세요.' : '2차 평가는 20자 이상 입력해야 제출할 수 있습니다.' }}
+        </span>
+        <template v-if="!readonly">
+          <button class="eval-form__btn eval-form__btn--save" @click="emit('save', draftText)">
+            임시저장
+          </button>
+          <button
+            class="eval-form__btn eval-form__btn--submit"
+            :disabled="!canSubmit"
+            @click="emit('submit', draftText)"
+          >
+            최종 제출
+          </button>
+        </template>
       </div>
     </template>
   </AiEvaluationFormPanel>
@@ -146,6 +153,11 @@ function handleConvertText() {
 
 .eval-form__submit-hint--ready {
   color: #1d7f5f;
+}
+
+.eval-form__submit-hint--submitted {
+  color: #1d7f5f;
+  font-weight: var(--font-weight-semibold);
 }
 
 .eval-form__btn {
