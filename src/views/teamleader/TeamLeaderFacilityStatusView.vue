@@ -1,52 +1,180 @@
-﻿<script setup>
-import { computed, ref, watch } from 'vue'
+<script setup>
+import { computed, onMounted, ref, watch } from 'vue'
 import { BaseFilterTabs } from '@/components/common/base'
 import TeamLeaderFacilityStatusCard from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityStatusCard.vue'
 import TeamLeaderFacilityTrendPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityTrendPanel.vue'
 import TeamLeaderFacilityHistoryPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityHistoryPanel.vue'
-import {
-  facilityStatusFilters,
-  facilityStatusCards,
-  facilityStatusTrend,
-  facilityStatusHistory,
-} from '@/mocks/teamleader/facilityStatus'
+import { getMyTeamFacilities, getFacilityHistory, getFacilityTrends } from '@/services/teamLeaderScmApi'
 
-const activeFilter = ref('all')
+const STATUS_TONE  = { OPERATING: 'mint', UNDER_INSPECTION: 'warning', STOPPED: 'danger', DISPOSED: 'soft' }
+const STATUS_LABEL = { OPERATING: '가동중', UNDER_INSPECTION: '점검중', STOPPED: '정지', DISPOSED: '폐기' }
+const TIER_TONE    = { S: 'primary', A: 'primary', B: 'warning', C: 'soft' }
+const TREND_TONES  = ['mint', 'primary', 'warning', 'danger']
+
+const BUCKET_COUNT    = 7
+const BUCKET_INTERVAL = 4 * 3600 * 1000  // 4 h → 7 buckets span 24 h
+
+const facilities      = ref([])
+const facilityTrends  = ref({})   // { [equipmentId]: FacilityTrendsDto[] }
+const facilityHistories = ref([]) // flat merged array with .facilityName added
+const activeFilter    = ref('all')
 const activeTrendFilter = ref('all')
-const currentPage = ref(1)
-const pageSize = 4
+const currentPage     = ref(1)
+const pageSize        = 4
 
-const filteredCards = computed(() => {
-  if (activeFilter.value === 'all') return facilityStatusCards
-  return facilityStatusCards.filter((card) => card.category === activeFilter.value)
+// ── Filter tabs (derived from real category data) ─────────────────
+const facilityFilters = computed(() => {
+  const cats = [...new Set(facilities.value.map((f) => f.category).filter(Boolean))]
+  return [
+    { key: 'all', label: `전체(${facilities.value.length})`, tone: 'default' },
+    ...cats.map((cat) => ({ key: cat, label: cat, tone: 'primary' })),
+  ]
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
+// ── E_idx calculation ─────────────────────────────────────────────
+function computeEIdx(trends, status) {
+  if (status === 'DISPOSED') return null
+  if (status === 'STOPPED')  return 0.2
+  const base    = status === 'OPERATING' ? 0.9 : 0.5
+  const cutoff  = Date.now() - 24 * 3600 * 1000
+  const recent  = (trends ?? []).filter((e) => new Date(e.detectedAt).getTime() >= cutoff).length
+  return Math.max(0, base - recent * 0.1)
+}
 
-const pagedCards = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredCards.value.slice(start, start + pageSize)
+// ── Relative-time formatter ───────────────────────────────────────
+function relativeTime(dateStr) {
+  if (!dateStr) return '-'
+  const d     = new Date(dateStr)
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const day   = new Date(d);  day.setHours(0, 0, 0, 0)
+  const diff  = Math.round((today - day) / 86400000)
+  const hhmm  = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  if (diff === 0) return `오늘 ${hhmm}`
+  if (diff === 1) return `어제 ${hhmm}`
+  return `${diff}일 전`
+}
+
+// ── Card list ─────────────────────────────────────────────────────
+const facilityCards = computed(() =>
+  facilities.value.map((f) => {
+    const trends    = facilityTrends.value[f.equipmentId] ?? []
+    const eIdx      = computeEIdx(trends, f.status)
+    const latest    = trends[0]
+    const tone      = STATUS_TONE[f.status]  ?? 'soft'
+    return {
+      id:        String(f.equipmentId),
+      code:      `EQ-${String(f.equipmentId).padStart(3, '0')}`,
+      name:      f.equipmentName,
+      category:  f.category,
+      status:    STATUS_LABEL[f.status] ?? f.status,
+      tone,
+      dotTone:   tone,
+      value:     eIdx,
+      operator:  f.managerName  ?? '미배정',
+      initial:   f.managerName?.[0] ?? '-',
+      tier:      f.managerTier  ?? '',
+      tierTone:  TIER_TONE[f.managerTier] ?? 'soft',
+      updatedAt: latest ? relativeTime(latest.detectedAt) : '-',
+    }
+  })
+)
+
+// ── Card filter + pagination ──────────────────────────────────────
+const filteredCards = computed(() =>
+  activeFilter.value === 'all'
+    ? facilityCards.value
+    : facilityCards.value.filter((c) => c.category === activeFilter.value)
+)
+
+const totalPages  = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
+const pagedCards  = computed(() => filteredCards.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize))
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
+
+watch(activeFilter,   () => { currentPage.value = 1 })
+watch(filteredCards,  () => { if (currentPage.value > totalPages.value) currentPage.value = totalPages.value })
+
+// ── Trend panel ───────────────────────────────────────────────────
+const trendChartData = computed(() => {
+  const now         = Date.now()
+  const bucketTimes = Array.from({ length: BUCKET_COUNT }, (_, i) =>
+    now - (BUCKET_COUNT - 1 - i) * BUCKET_INTERVAL
+  )
+  const labels = bucketTimes.map((t, i) => {
+    if (i === BUCKET_COUNT - 1) return '지금'
+    const d = new Date(t)
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  })
+
+  const series = facilities.value.map((f, idx) => {
+    const trends   = facilityTrends.value[f.equipmentId] ?? []
+    const half     = BUCKET_INTERVAL / 2
+    const base     = STATUS_TONE[f.status] === 'danger' ? 0.2 : STATUS_TONE[f.status] === 'soft' ? 0 : 0.9
+    const values   = bucketTimes.map((bt) => {
+      const count = trends.filter((e) => {
+        const t = new Date(e.detectedAt).getTime()
+        return t >= bt - half && t <= bt + half
+      }).length
+      return Math.max(0, base - count * 0.2)
+    })
+    return {
+      id:       String(f.equipmentId),
+      label:    f.equipmentName,
+      category: f.category,
+      tone:     TREND_TONES[idx % TREND_TONES.length],
+      values,
+    }
+  })
+
+  return { labels, series }
 })
-
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
 
 const filteredTrend = computed(() => {
-  if (activeTrendFilter.value === 'all') return facilityStatusTrend
-
-  return {
-    ...facilityStatusTrend,
-    series: facilityStatusTrend.series.filter((series) => series.id.toUpperCase() === activeTrendFilter.value),
-  }
+  const data = trendChartData.value
+  if (activeTrendFilter.value === 'all') return data
+  return { ...data, series: data.series.filter((s) => s.category === activeTrendFilter.value) }
 })
 
-watch(activeFilter, () => {
-  currentPage.value = 1
-})
+// ── History panel ─────────────────────────────────────────────────
+const historyItems = computed(() =>
+  facilityHistories.value
+    .slice()
+    .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt))
+    .slice(0, 6)
+    .map((h) => ({
+      id:    h.eventId,
+      time:  relativeTime(h.occurredAt),
+      title: `${h.facilityName} ${h.eventType}: ${h.description}`,
+    }))
+)
 
-watch(filteredCards, () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = totalPages.value
-  }
+// ── Data loading ──────────────────────────────────────────────────
+onMounted(async () => {
+  const raw = await getMyTeamFacilities().catch(() => [])
+  facilities.value = Array.isArray(raw) ? raw : []
+  if (facilities.value.length === 0) return
+
+  const ids = facilities.value.map((f) => f.equipmentId)
+
+  const [trendsResults, historiesResults] = await Promise.all([
+    Promise.all(
+      ids.map((id) =>
+        getFacilityTrends(id)
+          .then((data) => ({ id, data: Array.isArray(data) ? data : [] }))
+          .catch(() => ({ id, data: [] }))
+      )
+    ),
+    Promise.all(
+      ids.map((id) => {
+        const f = facilities.value.find((f) => f.equipmentId === id)
+        return getFacilityHistory(id)
+          .then((data) => (Array.isArray(data) ? data : []).map((h) => ({ ...h, facilityName: f?.equipmentName ?? '' })))
+          .catch(() => [])
+      })
+    ),
+  ])
+
+  facilityTrends.value    = Object.fromEntries(trendsResults.map((r) => [r.id, r.data]))
+  facilityHistories.value = historiesResults.flat()
 })
 </script>
 
@@ -54,7 +182,7 @@ watch(filteredCards, () => {
   <section class="teamleader-facility-view">
     <BaseFilterTabs
       class="teamleader-facility-view__filters"
-      :items="facilityStatusFilters"
+      :items="facilityFilters"
       :model-value="activeFilter"
       variant="chip"
       size="sm"
@@ -90,12 +218,12 @@ watch(filteredCards, () => {
       <section class="teamleader-facility-view__right-column">
         <TeamLeaderFacilityTrendPanel
           :trend="filteredTrend"
-          :filters="facilityStatusFilters"
+          :filters="facilityFilters"
           :active-filter="activeTrendFilter"
           @change-filter="activeTrendFilter = $event"
         />
 
-        <TeamLeaderFacilityHistoryPanel :items="facilityStatusHistory" />
+        <TeamLeaderFacilityHistoryPanel :items="historyItems" />
       </section>
     </section>
   </section>

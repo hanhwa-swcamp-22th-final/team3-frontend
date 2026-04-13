@@ -1,14 +1,16 @@
 import axios from 'axios'
-import { HR_API_BASE, ADMIN_API_BASE } from '@/constants'
+import { ADMIN_API_BASE } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
 
-const hrApi = axios.create({
-  baseURL: HR_API_BASE,
+const SCM_API_BASE = import.meta.env.VITE_SCM_API_BASE ?? 'http://localhost:8082'
+
+const scmApi = axios.create({
+  baseURL: SCM_API_BASE,
   timeout: 5000,
   withCredentials: true,
 })
 
-hrApi.interceptors.request.use((config) => {
+scmApi.interceptors.request.use((config) => {
   const authStore = useAuthStore()
   if (authStore.accessToken) {
     config.headers.Authorization = `Bearer ${authStore.accessToken}`
@@ -30,7 +32,7 @@ function processQueue(error, token) {
   failedQueue = []
 }
 
-hrApi.interceptors.response.use(
+scmApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
@@ -44,7 +46,7 @@ hrApi.interceptors.response.use(
         failedQueue.push({ resolve, reject })
       }).then((token) => {
         originalRequest.headers.Authorization = `Bearer ${token}`
-        return hrApi(originalRequest)
+        return scmApi(originalRequest)
       })
     }
 
@@ -52,11 +54,9 @@ hrApi.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const res = await axios.post(
-        `${ADMIN_API_BASE}/api/v1/auth/refresh`,
-        null,
-        { withCredentials: true }
-      )
+      const res = await axios.post(`${ADMIN_API_BASE}/api/v1/auth/refresh`, null, {
+        withCredentials: true,
+      })
 
       if (res.data?.success && res.data.data?.accessToken) {
         const newToken = res.data.data.accessToken
@@ -64,7 +64,7 @@ hrApi.interceptors.response.use(
         authStore.setToken(newToken)
         processQueue(null, newToken)
         originalRequest.headers.Authorization = `Bearer ${newToken}`
-        return hrApi(originalRequest)
+        return scmApi(originalRequest)
       }
     } catch (refreshError) {
       processQueue(refreshError, null)
@@ -80,4 +80,4 @@ hrApi.interceptors.response.use(
   }
 )
 
-export default hrApi
+export default scmApi

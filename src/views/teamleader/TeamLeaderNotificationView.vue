@@ -1,115 +1,148 @@
 ﻿<script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import hrApi from '@/services/hrApi'
 import TeamLeaderNotificationFilterBar from '@/components/hr/teamleader/notification/TeamLeaderNotificationFilterBarWrapper.vue'
 import TeamLeaderNotificationList from '@/components/hr/teamleader/notification/TeamLeaderNotificationListWrapper.vue'
 import TeamLeaderNotificationAssistPanel from '@/components/hr/teamleader/notification/TeamLeaderNotificationAssistPanel.vue'
-import { notificationFilters, notificationHeadlineAlert, notificationItems, notificationAssistPanels } from '@/mocks/teamleader/notification'
+import { notificationAssistPanels } from '@/mocks/teamleader/notification'
 
-const activeFilter = ref('all')
-const notifications = ref(notificationItems.map((item) => ({ ...item })))
+// ── 상수 ──────────────────────────────────────────
+const notificationFilters = [
+  { key: 'all',     label: '전체' },
+  { key: 'info',    label: '평가/배정' },
+  { key: 'warn',    label: '이의신청' },
+  { key: 'success', label: '승급' },
+  { key: 'fault',   label: '편향감지' },
+]
+
+const TYPE_MAP = {
+  RESULTS:        { label: '평가결과', tone: 'info' },
+  OBJECTIONS:     { label: '이의신청', tone: 'warn' },
+  PROMOTION:      { label: '승급',    tone: 'success' },
+  ARRANGEMENT:    { label: '배정',    tone: 'info' },
+  BIAS_DETECTION: { label: '편향감지', tone: 'fault' },
+}
+
+// ── 헬퍼 ──────────────────────────────────────────
+function timeAgo(isoStr) {
+  if (!isoStr) return ''
+  const diff = Date.now() - new Date(isoStr).getTime()
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return '방금 전'
+  if (min < 60) return `${min}분 전`
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return `${hr}시간 전`
+  return `${Math.floor(hr / 24)}일 전`
+}
+
+function normalize(n) {
+  const meta = TYPE_MAP[n.notificationType] ?? { label: n.notificationType, tone: 'info' }
+  return {
+    id:             n.notificationRecipientId,
+    notificationId: n.notificationId,
+    type:           meta.label,
+    tone:           meta.tone,
+    title:          n.notificationTitle,
+    description:    n.notificationContent,
+    time:           timeAgo(n.notificationSentAt),
+    unread:         !n.notificationIsRead,
+    actionLabel:    n.notificationIsRead ? '보기' : '확인',
+  }
+}
+
+// ── 상태 ──────────────────────────────────────────
+const activeFilter           = ref('all')
+const notifications          = ref([])
+const selectedNotificationId = ref(null)
+const activeAssistPanelId    = ref(null)
+const headlineFeedback       = ref('')
+
+// assistPanels는 SCM API 연동 전까지 mock 유지
 const assistPanels = ref(
   notificationAssistPanels.map((panel) => ({
     ...panel,
-    equipment: { ...panel.equipment },
-    candidates: panel.candidates.map((candidate) => ({ ...candidate })),
+    equipment:  { ...panel.equipment },
+    candidates: panel.candidates.map((c) => ({ ...c })),
   }))
 )
-const selectedNotificationId = ref(null)
-const activeAssistPanelId = ref(null)
-const headlineFeedback = ref('')
 
-const filteredNotifications = computed(() => {
-  if (activeFilter.value === 'all') {
-    return notifications.value
+// ── API ───────────────────────────────────────────
+async function fetchNotifications() {
+  try {
+    const res = await hrApi.get('/api/v1/hr/notifications')
+    const list = res.data?.success ? res.data.data : res.data
+    notifications.value = (Array.isArray(list) ? list : []).map(normalize)
+  } catch (err) {
+    console.error('알림 조회 실패:', err)
   }
+}
 
+async function ackNotification(item) {
+  try {
+    await hrApi.post(`/api/v1/hr/notifications/${item.notificationId}/ack`)
+    notifications.value = notifications.value.map((n) =>
+      n.id === item.id ? { ...n, unread: false, actionLabel: '보기' } : n
+    )
+  } catch (err) {
+    console.error('알림 확인 실패:', err)
+  }
+}
+
+onMounted(fetchNotifications)
+
+// ── 필터 ──────────────────────────────────────────
+const filteredNotifications = computed(() => {
+  if (activeFilter.value === 'all') return notifications.value
   return notifications.value.filter((item) => item.tone === activeFilter.value)
 })
+
+// ── 헤드라인: 가장 최근 미확인 알림 ────────────────
+const headlineNotification = computed(() =>
+  notifications.value.find((n) => n.unread) ?? notifications.value[0] ?? null
+)
 
 function handleFilterChange(filterKey) {
   activeFilter.value = filterKey
 }
 
-function extractEquipmentCode(title = '') {
-  return title.split(' - ')[0]?.trim() ?? ''
-}
-
-function findMatchingPanelId(item) {
-  const equipmentCode = extractEquipmentCode(item.title)
-  return assistPanels.value.find((panel) => panel.equipment.code === equipmentCode)?.id ?? null
-}
-
 function selectNotification(item) {
   selectedNotificationId.value = item.id
-  activeAssistPanelId.value = findMatchingPanelId(item)
+  activeAssistPanelId.value = null
+  if (item.unread) ackNotification(item)
 }
 
 function handleHeadlineAction() {
-  const headlineItem = notifications.value.find((item) => extractEquipmentCode(item.title) === 'WLD-01')
-
-  if (!headlineItem) {
-    return
-  }
-
-  selectNotification(headlineItem)
-  headlineFeedback.value = '선택된 알림에 맞춰 우측 빠른 재배정 후보를 불러왔습니다.'
+  if (!headlineNotification.value) return
+  selectNotification(headlineNotification.value)
+  headlineFeedback.value = '선택된 알림으로 이동했습니다.'
 }
 
 function handleQuickAssign({ panel, candidate }) {
-  if (!panel || !candidate) {
-    return
-  }
-
+  if (!panel || !candidate) return
   assistPanels.value = assistPanels.value.map((entry) =>
     entry.id === panel.id
       ? {
           ...entry,
-          equipment: {
-            ...entry.equipment,
-            assignee: `현재 담당: ${candidate.name} (${candidate.tier}-Tier)`,
-            status: '배정 완료',
-          },
+          equipment:  { ...entry.equipment, assignee: `현재 담당: ${candidate.name} (${candidate.tier}-Tier)`, status: '배정 완료' },
           actionLabel: '배정 완료',
         }
       : entry
   )
-
-  notifications.value = notifications.value.map((item) =>
-    extractEquipmentCode(item.title) === panel.equipment.code
-      ? {
-          ...item,
-          type: '완료',
-          title: `${panel.equipment.code} - ${candidate.name} 배정 확정`,
-          description: `${panel.equipment.line} · ${candidate.scoreLabel} 기준 즉시 배정`,
-          time: '방금 전',
-          actionLabel: '보기',
-          tone: 'success',
-          unread: false,
-        }
-      : item
-  )
-
-  const updatedItem = notifications.value.find((item) => item.title.startsWith(`${panel.equipment.code} - `))
-
-  if (updatedItem) {
-    selectedNotificationId.value = updatedItem.id
-  }
-
   headlineFeedback.value = `${panel.equipment.code} 설비를 ${candidate.name}에게 즉시 배정했습니다.`
 }
 </script>
 
 <template>
   <section class="teamleader-notification-view">
-    <section class="teamleader-notification-view__headline">
+    <section v-if="headlineNotification" class="teamleader-notification-view__headline">
       <div>
-        <h1>{{ notificationHeadlineAlert.title }}</h1>
-        <p>{{ notificationHeadlineAlert.description }}</p>
+        <h1>{{ headlineNotification.title }}</h1>
+        <p>{{ headlineNotification.description }}</p>
         <p v-if="headlineFeedback" class="teamleader-notification-view__headline-feedback">
           {{ headlineFeedback }}
         </p>
       </div>
-      <button type="button" @click="handleHeadlineAction">{{ notificationHeadlineAlert.actionLabel }}</button>
+      <button type="button" @click="handleHeadlineAction">확인</button>
     </section>
 
     <section class="teamleader-notification-view__content">

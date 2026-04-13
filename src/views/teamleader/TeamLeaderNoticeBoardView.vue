@@ -1,33 +1,68 @@
-﻿<script setup>
-import { computed, ref } from 'vue'
-import HRMNoticeListPanel from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
+<script setup>
+import { ref, watch, onMounted } from 'vue'
+import hrApi from '@/services/hrApi'
+import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
-import { noticeBoardItems } from '@/mocks/teamleader/noticeBoard'
 
-const selectedNoticeId = ref(noticeBoardItems[0]?.id ?? null)
+const STATUS_MAP = { POSTING: '게시중', RESERVATION: '예약', TEMPORARY: '임시' }
 
-const notices = computed(() =>
-  noticeBoardItems.map((notice) => ({
-    id: notice.id,
-    title: notice.title,
-    status: notice.status,
-    isImportant: notice.pin,
-    author: notice.author.replace('작성자 ', ''),
-    date: notice.schedule,
-    views: Number(String(notice.views).replace(/[^0-9]/g, '')) || 0,
-    targets: notice.target.replace('대상: ', '').split(' / '),
-    content: notice.summary,
-    attachment: notice.attachmentLabel ?? '',
-  }))
-)
-
-const selectedNotice = computed(() => {
-  return notices.value.find((notice) => notice.id === selectedNoticeId.value) ?? notices.value[0] ?? null
-})
-
-function handleSelectNotice(noticeId) {
-  selectedNoticeId.value = noticeId
+function formatDate(isoStr) {
+  if (!isoStr) return null
+  const d = new Date(isoStr)
+  const pad = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`
 }
+
+function normalizeList(n) {
+  return {
+    id:          n.noticeId,
+    title:       n.noticeTitle,
+    author:      String(n.authorId ?? '-'),
+    status:      STATUS_MAP[n.noticeStatus] ?? n.noticeStatus,
+    isImportant: n.isImportant === 1,
+    views:       n.noticeViews ?? 0,
+    date:        formatDate(n.publishStartAt ?? n.createdAt),
+  }
+}
+
+function normalizeDetail(n) {
+  return {
+    ...normalizeList(n),
+    content:    n.noticeContent ?? '',
+    attachment: n.attachments?.[0]?.fileName ?? '',
+  }
+}
+
+const notices        = ref([])
+const selectedId     = ref(null)
+const selectedNotice = ref(null)
+
+async function fetchNotices() {
+  try {
+    const res = await hrApi.get('/api/v1/hr/notices')
+    const list = res.data?.success ? res.data.data : res.data
+    notices.value = (Array.isArray(list) ? list : []).map(normalizeList)
+    if (!selectedId.value && notices.value.length) {
+      selectedId.value = notices.value[0].id
+    }
+  } catch (err) {
+    console.error('공지 목록 조회 실패:', err)
+  }
+}
+
+async function fetchDetail(id) {
+  if (!id) { selectedNotice.value = null; return }
+  try {
+    const res = await hrApi.get(`/api/v1/hr/notices/${id}`)
+    const data = res.data?.success ? res.data.data : res.data
+    selectedNotice.value = normalizeDetail(data)
+  } catch (err) {
+    console.error('공지 상세 조회 실패:', err)
+  }
+}
+
+watch(selectedId, (id) => fetchDetail(id))
+onMounted(fetchNotices)
 </script>
 
 <template>
@@ -36,12 +71,17 @@ function handleSelectNotice(noticeId) {
       <div class="teamleader-noticeboard-view__main">
         <HRMNoticeListPanel
           :notices="notices"
-          :selected-id="selectedNotice?.id"
-          @select="handleSelectNotice"
+          :selected-id="selectedId"
+          :filter-tabs="['전체', '중요']"
+          :allow-hide-important="true"
+          @select="selectedId = $event"
         />
       </div>
 
-      <HRMNoticeDetailPanel v-if="selectedNotice" :notice="selectedNotice" />
+      <HRMNoticeDetailPanel
+        :notice="selectedNotice"
+        :readonly="true"
+      />
     </section>
   </section>
 </template>

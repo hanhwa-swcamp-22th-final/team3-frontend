@@ -1,55 +1,121 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, onMounted } from 'vue'
+import hrApi from '@/services/hrApi'
 import { BaseStatCard, BaseFilterTabs, BaseNotificationList } from '@/components/common/base'
-import { notificationItems, notificationFilters } from '@/mocks/departmentleader/notification'
 
-const router = useRouter()
-const activeFilter = ref('all')
+// ── 상수 ──────────────────────────────────────────
+const TYPE_MAP = {
+  RESULTS:        { label: '평가결과', category: 'results',     tone: 'info' },
+  OBJECTIONS:     { label: '이의신청', category: 'objections',  tone: 'warn' },
+  PROMOTION:      { label: '승급',    category: 'promotion',   tone: 'success' },
+  ARRANGEMENT:    { label: '배정',    category: 'arrangement', tone: 'info' },
+  BIAS_DETECTION: { label: '편향감지', category: 'bias',        tone: 'fault' },
+}
 
+const notificationFilters = [
+  { key: 'all',         label: '전체',    categoryKey: null },
+  { key: 'results',     label: '평가결과', categoryKey: 'results' },
+  { key: 'objections',  label: '이의신청', categoryKey: 'objections' },
+  { key: 'promotion',   label: '승급',    categoryKey: 'promotion' },
+  { key: 'arrangement', label: '배정',    categoryKey: 'arrangement' },
+  { key: 'bias',        label: '편향감지', categoryKey: 'bias' },
+]
+
+// ── 헬퍼 ──────────────────────────────────────────
+function timeAgo(isoStr) {
+  if (!isoStr) return ''
+  const diff = Date.now() - new Date(isoStr).getTime()
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return '방금 전'
+  if (min < 60) return `${min}분 전`
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return `${hr}시간 전`
+  return `${Math.floor(hr / 24)}일 전`
+}
+
+function normalize(n) {
+  const meta = TYPE_MAP[n.notificationType] ?? { label: n.notificationType, category: 'etc', tone: 'info' }
+  return {
+    id:             n.notificationRecipientId,
+    notificationId: n.notificationId,
+    type:           meta.label,
+    category:       meta.category,
+    tone:           meta.tone,
+    title:          n.notificationTitle,
+    description:    n.notificationContent,
+    time:           timeAgo(n.notificationSentAt),
+    unread:         !n.notificationIsRead,
+    actionLabel:    n.notificationIsRead ? '보기' : '확인',
+  }
+}
+
+// ── 상태 ──────────────────────────────────────────
+const notifications = ref([])
+const summary       = ref({ totalCount: 0, unreadCount: 0 })
+const activeFilter  = ref('all')
+
+// ── API ───────────────────────────────────────────
+async function fetchNotifications() {
+  try {
+    const [listRes, summaryRes] = await Promise.all([
+      hrApi.get('/api/v1/hr/notifications'),
+      hrApi.get('/api/v1/hr/notifications/summary'),
+    ])
+    const list = listRes.data?.success ? listRes.data.data : listRes.data
+    notifications.value = (Array.isArray(list) ? list : []).map(normalize)
+    summary.value = summaryRes.data?.success ? summaryRes.data.data : summaryRes.data
+  } catch (err) {
+    console.error('알림 조회 실패:', err)
+  }
+}
+
+async function ackNotification(item) {
+  try {
+    await hrApi.post(`/api/v1/hr/notifications/${item.notificationId}/ack`)
+    notifications.value = notifications.value.map((n) =>
+      n.id === item.id ? { ...n, unread: false, actionLabel: '보기' } : n
+    )
+    if (summary.value.unreadCount > 0) summary.value.unreadCount--
+  } catch (err) {
+    console.error('알림 확인 실패:', err)
+  }
+}
+
+onMounted(fetchNotifications)
+
+// ── 필터 ──────────────────────────────────────────
 const filterTabItems = computed(() =>
   notificationFilters.map((f) => ({
     key:   f.key,
     label: f.label,
     count: f.categoryKey
-      ? notificationItems.filter((i) => i.category === f.categoryKey).length
-      : notificationItems.length,
-  })),
+      ? notifications.value.filter((i) => i.category === f.categoryKey).length
+      : notifications.value.length,
+  }))
 )
 
 const filteredItems = computed(() => {
   const f = notificationFilters.find((f) => f.key === activeFilter.value)
-  if (!f || !f.categoryKey) return notificationItems.map(toBaseItem)
-  return notificationItems.filter((i) => i.category === f.categoryKey).map(toBaseItem)
+  if (!f?.categoryKey) return notifications.value
+  return notifications.value.filter((i) => i.category === f.categoryKey)
 })
 
-// BaseNotificationList expects item.type (not item.categoryLabel)
-function toBaseItem(i) {
-  return { ...i, type: i.categoryLabel }
-}
+const biasCount = computed(() =>
+  notifications.value.filter((i) => i.category === 'bias').length
+)
 
 function handleClickAction(item) {
-  const routeMap = {
-    kms:    'DLKnowledgeApproval',
-    member: 'TeamCapability',
-    eval:   'DepartmentLeaderDashboardEvaluation',
-  }
-  const routeName = routeMap[item.category]
-  if (routeName) router.push({ name: routeName })
+  if (item.unread) ackNotification(item)
 }
-
-const totalCount  = notificationItems.length
-const unreadCount = computed(() => notificationItems.filter((i) => i.unread).length)
-const urgentCount = computed(() => notificationItems.filter((i) => i.category === 'fault').length)
 </script>
 
 <template>
   <section class="dl-notif-view">
     <!-- Metric cards -->
     <div class="dl-notif-view__metrics">
-      <BaseStatCard label="전체 알림"  :value="`${totalCount}건`"  tone="primary" variant="compact" />
-      <BaseStatCard label="미확인"     :value="`${unreadCount}건`" tone="danger"  variant="compact" />
-      <BaseStatCard label="긴급"       :value="`${urgentCount}건`" tone="danger"  variant="compact" />
+      <BaseStatCard label="전체 알림"  :value="`${summary.totalCount}건`"  tone="primary" variant="compact" />
+      <BaseStatCard label="미확인"     :value="`${summary.unreadCount}건`" tone="danger"  variant="compact" />
+      <BaseStatCard label="편향감지"   :value="`${biasCount}건`"           tone="danger"  variant="compact" />
     </div>
 
     <!-- Filter bar + list -->
@@ -68,6 +134,7 @@ const urgentCount = computed(() => notificationItems.filter((i) => i.category ==
     <BaseNotificationList
       :items="filteredItems"
       :page-size="6"
+      @click-item="handleClickAction"
       @click-action="handleClickAction"
     />
   </section>
