@@ -1,6 +1,27 @@
 <script setup>
 import { BaseButton } from '@/components/common/base'
 
+const STATUS_LABELS = {
+  OPERATING: '가동 중',
+  STOPPED: '중지',
+  UNDER_INSPECTION: '점검 중',
+  DISPOSED: '폐기',
+}
+
+const STATUS_STYLE = {
+  OPERATING: { bg: 'var(--color-equip-active-bg)', border: 'var(--color-equip-active-border)', color: 'var(--color-equip-active)' },
+  UNDER_INSPECTION: { bg: 'var(--color-equip-warning-bg)', border: 'var(--color-equip-warning-border)', color: 'var(--color-equip-warning)' },
+  STOPPED: { bg: 'var(--color-equip-stopped-bg)', border: 'var(--color-equip-stopped-border)', color: 'var(--color-equip-stopped)' },
+  DISPOSED: { bg: 'var(--color-equip-stopped-bg)', border: 'var(--color-equip-stopped-border)', color: 'var(--color-equip-stopped)' },
+}
+
+const GRADE_STYLE = {
+  S: { bg: '#E8FFF5', border: '#00BF95', color: '#00BF95' },
+  A: { bg: '#E8F4FF', border: '#3B82F6', color: '#1A6DB5' },
+  B: { bg: '#FFF7ED', border: '#FFD166', color: '#9A3412' },
+  C: { bg: '#FFF0F0', border: '#EF476F', color: '#EF476F' },
+}
+
 defineProps({
   facilities: { type: Array, default: () => [] },
   totalCount: { type: Number, default: 0 },
@@ -14,38 +35,9 @@ defineProps({
 
 const emit = defineEmits(['editClick', 'deleteClick', 'pageChange'])
 
-const STATUS_LABELS = {
-  OPERATING: '가동 중',
-  STOPPED: '중지',
-  UNDER_INSPECTION: '점검 중',
-  DISPOSED: '폐기',
-}
-
-const statusStyle = (status) => {
-  if (status === 'OPERATING') {
-    return {
-      bg: 'var(--color-equip-active-bg)',
-      border: 'var(--color-equip-active-border)',
-      color: 'var(--color-equip-active)',
-    }
-  }
-
-  if (status === 'UNDER_INSPECTION') {
-    return {
-      bg: 'var(--color-equip-warning-bg)',
-      border: 'var(--color-equip-warning-border)',
-      color: 'var(--color-equip-warning)',
-    }
-  }
-
-  return {
-    bg: 'var(--color-equip-stopped-bg)',
-    border: 'var(--color-equip-stopped-border)',
-    color: 'var(--color-equip-stopped)',
-  }
-}
-
 const statusLabel = (status) => STATUS_LABELS[status] ?? status ?? '-'
+const statusStyle = (status) => STATUS_STYLE[status] ?? STATUS_STYLE.STOPPED
+const gradeStyle = (grade) => GRADE_STYLE[grade] ?? GRADE_STYLE.C
 
 const formatEquipmentIdx = (value) => {
   if (value === null || value === undefined || value === '') return '-'
@@ -57,10 +49,11 @@ const formatEquipmentIdx = (value) => {
 <template>
   <div class="table-wrap">
     <div class="table-header">
-      <span class="col-id">설비 Code</span>
+      <span class="col-code">설비 Code</span>
       <span class="col-name">설비명</span>
       <span class="col-line">라인</span>
       <span class="col-process">공정</span>
+      <span class="col-env">환경</span>
       <span class="col-grade">초기 등급</span>
       <span class="col-current-grade">현재 등급</span>
       <span class="col-eidx">E_idx</span>
@@ -76,12 +69,39 @@ const formatEquipmentIdx = (value) => {
         :key="facility.equipmentId"
         class="table-row"
       >
-        <span class="col-id">{{ facility.equipmentCode }}</span>
+        <span class="col-code">{{ facility.equipmentCode }}</span>
         <span class="col-name">{{ facility.equipmentName }}</span>
         <span class="col-line">{{ facility.factoryLineName ?? '-' }}</span>
         <span class="col-process">{{ facility.equipmentProcessName ?? '-' }}</span>
-        <span class="col-grade">{{ facility.equipmentGrade ?? '-' }}</span>
-        <span class="col-current-grade">{{ facility.currentEquipmentGrade ?? facility.equipmentGrade ?? '-' }}</span>
+        <span class="col-env">{{ facility.environmentName ?? '-' }}</span>
+        <span class="col-grade">
+          <span
+            v-if="facility.equipmentGrade"
+            class="grade-badge"
+            :style="{
+              background: gradeStyle(facility.equipmentGrade).bg,
+              border: `1px solid ${gradeStyle(facility.equipmentGrade).border}`,
+              color: gradeStyle(facility.equipmentGrade).color,
+            }"
+          >
+            {{ facility.equipmentGrade }}
+          </span>
+          <span v-else>-</span>
+        </span>
+        <span class="col-current-grade">
+          <span
+            v-if="facility.currentEquipmentGrade ?? facility.equipmentGrade"
+            class="grade-badge"
+            :style="{
+              background: gradeStyle(facility.currentEquipmentGrade ?? facility.equipmentGrade).bg,
+              border: `1px solid ${gradeStyle(facility.currentEquipmentGrade ?? facility.equipmentGrade).border}`,
+              color: gradeStyle(facility.currentEquipmentGrade ?? facility.equipmentGrade).color,
+            }"
+          >
+            {{ facility.currentEquipmentGrade ?? facility.equipmentGrade }}
+          </span>
+          <span v-else>-</span>
+        </span>
         <span class="col-eidx">{{ formatEquipmentIdx(facility.currentEquipmentIdx ?? facility.latestEquipmentIdx) }}</span>
         <span class="col-status">
           <span
@@ -173,6 +193,7 @@ const formatEquipmentIdx = (value) => {
   color: var(--color-primary-300);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 .table-row {
@@ -190,25 +211,36 @@ const formatEquipmentIdx = (value) => {
 .table-row span {
   font-size: 12px;
   color: var(--color-primary-800);
+  text-align: center;
 }
 
-.col-id { flex: 1.4; }
-.col-name { flex: 1.8; }
-.col-line { flex: 1.2; }
-.col-process { flex: 1.4; }
-.col-grade { flex: 0.7; }
-.col-current-grade { flex: 0.7; }
-.col-eidx { flex: 0.7; }
-.col-status { flex: 1; }
+.table-row .col-code,
+.table-row .col-name {
+  text-align: left;
+}
+
+.col-code { width: 140px; flex-shrink: 0; }
+.col-name { flex: 1.5; min-width: 0; }
+.col-line { flex: 1; min-width: 0; }
+.col-process { flex: 1.1; min-width: 0; }
+.col-env { flex: 1; min-width: 0; }
+.col-grade { width: 72px; flex-shrink: 0; }
+.col-current-grade { width: 72px; flex-shrink: 0; }
+.col-eidx { width: 72px; flex-shrink: 0; }
+.col-status { width: 100px; flex-shrink: 0; }
 .col-action {
-  flex: 1;
+  width: 120px;
+  flex-shrink: 0;
   display: flex;
+  justify-content: center;
   gap: 6px;
 }
 
-.status-badge {
+.status-badge,
+.grade-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 3px 8px;
   border-radius: 999px;
   font-size: 10px;
