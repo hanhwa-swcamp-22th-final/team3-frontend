@@ -119,7 +119,9 @@ onMounted(async () => {
 async function loadArticles() {
   try {
     const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20, status: 'APPROVED' })
-    articles.value = (res.data.data ?? []).map(mapToFeedItem)
+    articles.value = (res.data.data ?? [])
+      .filter((dto) => dto.articleStatus === 'APPROVED')
+      .map(mapToFeedItem)
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
   }

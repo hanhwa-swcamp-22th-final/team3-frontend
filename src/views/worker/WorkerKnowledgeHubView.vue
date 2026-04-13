@@ -9,6 +9,7 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
 import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
+import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 
@@ -103,7 +104,9 @@ onMounted(async () => {
 async function loadArticles() {
   try {
     const res = await knowledgeArticleApi.getArticles({ page: 0, size: 20, status: 'APPROVED' })
-    knowledgeArticles.value = (res.data.data ?? []).map(mapToFeedItem)
+    knowledgeArticles.value = (res.data.data ?? [])
+      .filter((dto) => dto.articleStatus === 'APPROVED')
+      .map(mapToFeedItem)
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
   }
@@ -222,6 +225,49 @@ async function handleSaveDraft(data) {
   }
 }
 
+// ── 상세 모달 ─────────────────────────────────────────────────
+const selectedArticle = ref(null)
+
+async function openDetailModal(article) {
+  // 목록 데이터로 즉시 열고, API로 본문 내용을 채움
+  selectedArticle.value = {
+    id:            article.id,
+    title:         article.title,
+    category:      article.category,
+    equipment:     article.equipment,
+    date:          article.date,
+    author:        article.author,
+    authorInitial: article.authorInitial,
+    content:       '',
+    views:         article.views,
+    comments:      article.comments,
+    commentList:   [],
+  }
+  try {
+    const res = await knowledgeArticleApi.getArticleDetail(article.id)
+    const dto = res.data.data ?? {}
+    selectedArticle.value = {
+      id:            dto.articleId,
+      title:         dto.articleTitle ?? article.title,
+      category:      ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+      equipment:     dto.equipmentName ?? article.equipment,
+      date:          article.date,
+      author:        dto.authorName ?? article.author,
+      authorInitial: dto.authorName?.[0] ?? article.authorInitial,
+      content:       dto.articleContent ?? '',
+      views:         dto.viewCount ?? article.views,
+      comments:      dto.commentCount ?? article.comments,
+      commentList:   [],
+    }
+  } catch (e) {
+    console.error('[KMS] 문서 상세 로드 실패:', e)
+  }
+}
+
+function closeDetailModal() {
+  selectedArticle.value = null
+}
+
 function closeModal() {
   showAcceptModal.value  = false
   showRequestModal.value = false
@@ -241,6 +287,7 @@ function closeModal() {
         :categories="knowledgeCategories"
         :articles="knowledgeArticles"
         @open-write="showAddModal = true"
+        @open-detail="openDetailModal"
       />
 
       <div class="kh-sidebar">
@@ -272,6 +319,13 @@ function closeModal() {
       @close="closeModal"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"
+    />
+
+    <!-- 지식 상세 모달 -->
+    <TeamLeaderKnowledgeDetailModal
+      v-if="selectedArticle"
+      :article="selectedArticle"
+      @close="closeDetailModal"
     />
   </div>
 </template>
