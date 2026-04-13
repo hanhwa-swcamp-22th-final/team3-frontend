@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { BaseFilterTabs } from '@/components/common/base'
 import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
@@ -12,6 +12,8 @@ const emit = defineEmits(['detail', 'edit'])
 const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = 4
 
 const filteredArticles = computed(() => {
   let result = props.articles
@@ -41,6 +43,26 @@ const filteredArticles = computed(() => {
   return result
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+
+const pagedArticles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredArticles.value.slice(start, start + pageSize)
+})
+
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+
+watch([activeCategory, searchQuery], () => {
+  currentPage.value = 1
+})
+
+watch(filteredArticles, (articles) => {
+  const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal
+  }
+})
+
 function statusClass(status) {
   if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
   if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
@@ -54,9 +76,13 @@ function categoryClass(cat) {
 
 function actionLabel(status) {
   if (status === ARTICLE_STATUS_LABEL.APPROVED) return '수정'
-  if (status === ARTICLE_STATUS_LABEL.PENDING) return '승인 요청'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return '수정'
   if (status === ARTICLE_STATUS_LABEL.REJECTED) return '수정'
   return '수정'
+}
+
+function setPage(page) {
+  currentPage.value = page
 }
 </script>
 
@@ -89,7 +115,7 @@ function actionLabel(status) {
 
     <!-- Article Cards -->
     <div class="mkl__list">
-      <div v-for="article in filteredArticles" :key="article.id" class="mkl__card">
+      <div v-for="article in pagedArticles" :key="article.id" class="mkl__card">
         <div class="mkl__card-top">
           <div class="mkl__card-badges">
             <span class="mkl__badge" :class="categoryClass(article.category)">
@@ -109,7 +135,7 @@ function actionLabel(status) {
         <div class="mkl__card-bottom">
           <div class="mkl__card-meta">
             <span>조회수 {{ article.views }}</span>
-            <span>재사용 {{ article.reuses }}회</span>
+            <span>수정 횟수 {{ article.reuses }}회</span>
           </div>
           <div class="mkl__card-actions">
             <button class="mkl__action-btn" @click="emit('detail', article)">상세</button>
@@ -117,6 +143,21 @@ function actionLabel(status) {
           </div>
         </div>
       </div>
+
+      <div v-if="filteredArticles.length === 0" class="mkl__empty">조건에 맞는 문서가 없습니다.</div>
+    </div>
+
+    <div v-if="filteredArticles.length > 0" class="mkl__pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        type="button"
+        class="mkl__page"
+        :class="{ 'mkl__page--active': currentPage === page }"
+        @click="setPage(page)"
+      >
+        {{ page }}
+      </button>
     </div>
   </div>
 </template>
@@ -209,6 +250,15 @@ function actionLabel(status) {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.mkl__empty {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
 }
 
 .mkl__card {
@@ -361,5 +411,30 @@ function actionLabel(status) {
 .mkl__action-btn:hover {
   border-color: var(--color-primary-300);
   color: var(--color-primary-700);
+}
+
+.mkl__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.mkl__page {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  color: var(--color-text-default);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mkl__page--active {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: #fff;
 }
 </style>

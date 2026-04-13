@@ -44,7 +44,7 @@ function categoryClass(cat) {
       <span class="kd__sep">·</span>
       <span>조회수 {{ article.views }}</span>
       <span class="kd__sep">·</span>
-      <span>재사용 {{ article.reuses }}회</span>
+      <span>수정 횟수 {{ article.reuses }}회</span>
     </div>
 
     <!-- 반려 사유 (반려 상태일 때만 표시) -->

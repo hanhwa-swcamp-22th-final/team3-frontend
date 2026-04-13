@@ -5,7 +5,6 @@ import { ARTICLE_CATEGORY_LABEL, ARTICLE_STATUS_LABEL } from '@/constants'
 import WorkerKnowledgeManagementHeader from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementHeader.vue'
 import WorkerKnowledgeManagementOverallCount from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementOverallCount.vue'
 import WorkerMyKnowledgeList from '@/components/kms/worker/my-knowledge-management/WorkerMyKnowledgeList.vue'
-import WorkerKnowledgeApprovalStatus from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeApprovalStatus.vue'
 import WorkerKnowledgeEditHistory from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditHistory.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 import WorkerKnowledgeDetailModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeDetailModal.vue'
@@ -58,18 +57,10 @@ function mapToOverallCount(dto) {
     approvedSub: '',
     pending,
     pendingSub:  '',
+    rejected,
+    rejectedSub: '',
     draft,
     draftSub:    '',
-  }
-}
-
-// ── 백엔드 DTO → 승인 현황 shape ───────────────────────────────
-function mapToApprovalStatus(dto) {
-  return {
-    approved: dto.approvedCount ?? dto.approved ?? 0,
-    pending:  dto.pendingCount  ?? dto.pending  ?? 0,
-    rejected: dto.rejectedCount ?? dto.rejected ?? 0,
-    draft:    dto.draftCount    ?? dto.draft    ?? 0,
   }
 }
 
@@ -84,8 +75,18 @@ function mapToHistoryItem(dto) {
 }
 
 // ── 상태 ────────────────────────────────────────────────────────
-const overallCount    = ref({ total: 0, totalSub: '', approved: 0, approvedSub: '', pending: 0, pendingSub: '', draft: 0, draftSub: '' })
-const approvalStatus  = ref({ approved: 0, pending: 0, rejected: 0, draft: 0 })
+const overallCount    = ref({
+  total: 0,
+  totalSub: '',
+  approved: 0,
+  approvedSub: '',
+  pending: 0,
+  pendingSub: '',
+  rejected: 0,
+  rejectedSub: '',
+  draft: 0,
+  draftSub: '',
+})
 const myArticles      = ref([])
 const editHistory     = ref([])
 
@@ -107,8 +108,7 @@ async function loadStats() {
   try {
     const res = await knowledgeArticleApi.getMyArticleStats(authorId.value)
     const dto = res.data.data ?? {}
-    overallCount.value   = mapToOverallCount(dto)
-    approvalStatus.value = mapToApprovalStatus(dto)
+    overallCount.value = mapToOverallCount(dto)
   } catch (e) {
     console.error('[KMS] 통계 로드 실패:', e)
   }
@@ -136,6 +136,13 @@ async function loadHistory() {
 function openDetailModal(article) {
   selectedArticle.value = article
   showDetailModal.value = true
+}
+
+function openHistoryDetail(historyItem) {
+  const matchedArticle = myArticles.value.find((article) => article.id === historyItem.id)
+  if (matchedArticle) {
+    openDetailModal(matchedArticle)
+  }
 }
 
 // APPROVED 문서: startRevision 으로 복사본 ID를 먼저 받은 뒤,
@@ -246,18 +253,17 @@ async function handleEditSaveDraft(data) {
     <!-- Overall Count Cards -->
     <WorkerKnowledgeManagementOverallCount :counts="overallCount" />
 
-    <!-- Main Grid: List (left) + Sidebar (right) -->
-    <div class="mkm-grid">
+    <div class="mkm-main">
       <WorkerMyKnowledgeList
         :articles="myArticles"
         @detail="openDetailModal"
         @edit="openEditModal"
       />
 
-      <div class="mkm-sidebar">
-        <WorkerKnowledgeApprovalStatus :status="approvalStatus" />
-        <WorkerKnowledgeEditHistory :history="editHistory" />
-      </div>
+      <WorkerKnowledgeEditHistory
+        :history="editHistory"
+        @open-detail="openHistoryDetail"
+      />
     </div>
 
     <!-- Add Modal -->
@@ -297,16 +303,9 @@ async function handleEditSaveDraft(data) {
   background: var(--color-bg-app);
 }
 
-.mkm-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.mkm-sidebar {
+.mkm-main {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 </style>
