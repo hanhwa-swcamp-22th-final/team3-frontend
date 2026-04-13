@@ -92,13 +92,24 @@ function clonePolicyConfig(config = DEFAULT_POLICY_CONFIG) {
   return JSON.parse(JSON.stringify(config))
 }
 
+const UNSAFE_POLICY_CONFIG_KEYS = new Set(['__proto__', 'prototype', 'constructor'])
+
+function isMergeablePolicyNode(value) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+}
+
 function mergePolicyConfig(source) {
   const target = clonePolicyConfig()
 
   function merge(targetNode, sourceNode) {
     Object.entries(sourceNode ?? {}).forEach(([key, value]) => {
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        targetNode[key] = merge(targetNode[key] && typeof targetNode[key] === 'object' ? targetNode[key] : {}, value)
+      if (UNSAFE_POLICY_CONFIG_KEYS.has(key)) return
+
+      if (isMergeablePolicyNode(value)) {
+        const currentValue = Object.prototype.hasOwnProperty.call(targetNode, key)
+          ? targetNode[key]
+          : undefined
+        targetNode[key] = merge(isMergeablePolicyNode(currentValue) ? currentValue : {}, value)
       } else {
         targetNode[key] = value
       }
