@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { BaseButton } from '@/components/common/base'
 
-const props = defineProps({
+defineProps({
   item: {
     type: Object,
     default: null,
@@ -21,11 +21,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
-
-function reviewClass(value) {
-  if (value === '없음') return 'review__metric-value--safe'
-  return 'review__metric-value--number'
-}
 </script>
 
 <template>
@@ -61,28 +56,6 @@ function reviewClass(value) {
         <div class="review__attachment">{{ item.attachment }}</div>
       </article>
 
-      <section class="review__ai">
-        <p class="review__section-title">AI 자동 검토 결과</p>
-        <div class="review__metrics">
-          <article class="review__metric-card">
-            <span>{{ item.aiReview.duplication.label }}</span>
-            <strong class="review__metric-value review__metric-value--number">{{ item.aiReview.duplication.value }}</strong>
-            <small>{{ item.aiReview.duplication.helper }}</small>
-          </article>
-          <article class="review__metric-card">
-            <span>{{ item.aiReview.reliability.label }}</span>
-            <strong class="review__metric-value review__metric-value--number">{{ item.aiReview.reliability.value }}</strong>
-            <small>{{ item.aiReview.reliability.helper }}</small>
-          </article>
-          <article class="review__metric-card">
-            <span>{{ item.aiReview.harmfulness.label }}</span>
-            <strong class="review__metric-value" :class="reviewClass(item.aiReview.harmfulness.value)">{{ item.aiReview.harmfulness.value }}</strong>
-            <small>{{ item.aiReview.harmfulness.helper }}</small>
-          </article>
-        </div>
-        <p class="review__overall">종합 의견: {{ item.aiReview.overall }}</p>
-      </section>
-
       <label class="review__comment">
         심사 코멘트 (선택)
         <textarea
@@ -95,6 +68,18 @@ function reviewClass(value) {
           `반려`는 10자 이상, `보류`는 비어 있지 않은 코멘트가 필요합니다.
         </p>
       </label>
+
+      <section
+        v-if="item.approverName && item.reviewComment"
+        class="review__hold-info"
+      >
+        <p class="review__section-title">최근 보류 정보</p>
+        <div class="review__hold-meta">
+          <strong>{{ item.approverName }}</strong>
+          <span v-if="item.updatedAt">{{ item.updatedAt }}</span>
+        </div>
+        <p class="review__hold-comment">{{ item.reviewComment }}</p>
+      </section>
 
       <div class="review__actions">
         <BaseButton variant="danger" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('reject', item)">반려</BaseButton>
@@ -156,9 +141,7 @@ function reviewClass(value) {
 
 .review__date,
 .review__author p,
-.review__attachment,
-.review__overall,
-.review__metric-card small {
+.review__attachment {
   font-size: 12px;
   color: var(--color-text-muted);
 }
@@ -211,8 +194,8 @@ function reviewClass(value) {
 }
 
 .review__article-card,
-.review__ai,
-.review__comment {
+.review__comment,
+.review__hold-info {
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
   padding: 14px;
@@ -226,42 +209,28 @@ function reviewClass(value) {
   color: var(--color-text-default);
 }
 
-.review__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.review__metric-card {
-  border: 1px solid var(--color-border-default);
-  border-radius: 12px;
-  padding: 12px;
-  display: grid;
-  gap: 4px;
-  text-align: center;
-}
-
-.review__metric-card span {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-primary-300);
-}
-
-.review__metric-value {
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.review__metric-value--number {
-  color: #18b9a7;
-}
-
-.review__metric-value--safe {
-  color: #18b9a7;
-}
-
 .review__comment {
   color: var(--color-primary-800);
+}
+
+.review__hold-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.review__hold-meta strong {
+  color: var(--color-primary-800);
+}
+
+.review__hold-comment {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-default);
 }
 
 .review__comment textarea {
@@ -305,10 +274,6 @@ function reviewClass(value) {
 }
 
 @media (max-width: 860px) {
-  .review__metrics {
-    grid-template-columns: 1fr;
-  }
-
   .review__head,
   .review__actions,
   .review__meta-row {

@@ -1,14 +1,11 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { ref, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
-
-const authStore = useAuthStore()
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -19,11 +16,21 @@ function formatDate(isoString) {
   return `${mm}.${dd}`
 }
 
+function formatDateTime(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mi = String(d.getMinutes()).padStart(2, '0')
+  return `${yyyy}.${mm}.${dd} ${hh}:${mi}`
+}
+
 // ── 백엔드 DTO → 대기 큐 아이템 ─────────────────────────────────
 function mapToQueueItem(dto) {
   return {
     id:     dto.articleId,
-    type:   '신규',
     title:  dto.articleTitle,
     author: dto.authorName ?? '',
     date:   formatDate(dto.createdAt),
@@ -38,7 +45,7 @@ function mapToReviewItem(dto) {
     date:          formatDate(dto.createdAt),
     author:        dto.authorName ?? '',
     authorInitial: dto.authorName?.[0] ?? '?',
-    authorTier:    '-',
+    authorTier:    dto.authorTier ?? '-',
     line:          '-',
     workCount:     '-',
     category:      ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory,
@@ -46,12 +53,8 @@ function mapToReviewItem(dto) {
     tier:          '-',
     summary:       dto.articleContent ?? '',
     attachment:    '',
-    aiReview: {
-      duplication: { label: '중복도',      value: '-',   helper: '-'   },
-      reliability: { label: '정보 신뢰도', value: '-',   helper: '-'   },
-      harmfulness: { label: '유해 콘텐츠', value: '없음', helper: '통과' },
-      overall: '자동 검토 정보가 없습니다.',
-    },
+    approverName:  dto.approverName ?? '',
+    updatedAt:     formatDateTime(dto.updatedAt),
     reviewComment: dto.articleApprovalOpinion ?? '',
   }
 }
@@ -59,7 +62,6 @@ function mapToReviewItem(dto) {
 // ── 상태 ──────────────────────────────────────────────────────
 const items       = ref([])
 const statsData   = ref({ pendingCount: 0, approvedThisMonth: 0, rejectionRate: 0 })
-const activeFilter   = ref('all')
 const selectedId     = ref(null)
 const reviewNote     = ref('')
 const selectedDetail = ref(null)
@@ -67,23 +69,6 @@ const reviewError    = ref('')
 const isSubmitting   = ref(false)
 const toast          = ref({ show: false, message: '', type: 'success' })
 let toastTimer = null
-
-// ── 필터 / 목록 ───────────────────────────────────────────────
-const filters = computed(() => {
-  const newCount  = items.value.filter((i) => i.type === '신규').length
-  const editCount = items.value.filter((i) => i.type === '수정').length
-  return [
-    { key: 'all',  label: '전체', count: items.value.length },
-    { key: 'new',  label: '신규', count: newCount },
-    { key: 'edit', label: '수정', count: editCount },
-  ]
-})
-
-const filteredItems = computed(() => {
-  if (activeFilter.value === 'new')  return items.value.filter((i) => i.type === '신규')
-  if (activeFilter.value === 'edit') return items.value.filter((i) => i.type === '수정')
-  return items.value
-})
 
 // ── 데이터 로드 ───────────────────────────────────────────────
 onMounted(async () => {
@@ -131,16 +116,6 @@ async function selectItem(id) {
     reviewNote.value = selectedDetail.value.reviewComment ?? ''
   } catch (e) {
     console.error('[KMS] 승인 상세 로드 실패:', e)
-  }
-}
-
-function changeFilter(filterKey) {
-  activeFilter.value = filterKey
-  const stillVisible = filteredItems.value.some((i) => i.id === selectedId.value)
-  if (!stillVisible) {
-    const first = filteredItems.value[0]
-    if (first) selectItem(first.id)
-    else { selectedId.value = null; selectedDetail.value = null; reviewNote.value = '' }
   }
 }
 
@@ -244,11 +219,8 @@ async function handleReject() {
 
     <section class="dl-knowledge-approval-view__grid">
       <TeamLeaderKnowledgeApprovalQueue
-        :items="filteredItems"
-        :filters="filters"
-        :active-filter="activeFilter"
+        :items="items"
         :selected-id="selectedId"
-        @change-filter="changeFilter"
         @select-item="selectItem"
       />
 
