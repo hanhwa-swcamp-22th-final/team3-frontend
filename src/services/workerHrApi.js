@@ -4,9 +4,9 @@ function unwrap(response) {
   return response.data?.data ?? response.data
 }
 
-async function optionalGet(url, fallback = null) {
+async function optionalGet(url, config = {}, fallback = null) {
   try {
-    const response = await hrApi.get(url)
+    const response = await hrApi.get(url, config)
     return unwrap(response) ?? fallback
   } catch (error) {
     console.warn(`Optional HR request failed: ${url}`, error)
@@ -239,12 +239,12 @@ export async function getWorkerProfileDashboard() {
     notice,
     tierHistory,
   ] = await Promise.all([
-    optionalGet('/api/v1/hr/workers/me/profile', {}),
-    optionalGet('/api/v1/hr/workers/me/skills', []),
-    optionalGet('/api/v1/hr/workers/me/tier-chart', []),
-    optionalGet('/api/v1/hr/workers/me/missions/upgrade', []),
-    optionalGet('/api/v1/hr/notices/pinned', null),
-    optionalGet('/api/v1/hr/workers/me/tier-history', []),
+    optionalGet('/api/v1/hr/workers/me/profile', {}, {}),
+    optionalGet('/api/v1/hr/workers/me/skills', {}, []),
+    optionalGet('/api/v1/hr/workers/me/tier-chart', {}, []),
+    optionalGet('/api/v1/hr/workers/me/missions/upgrade', {}, []),
+    optionalGet('/api/v1/hr/notices/pinned', {}, null),
+    optionalGet('/api/v1/hr/workers/me/tier-history', {}, []),
   ])
 
   const tier = normalizeTier(profile.currentTier)
@@ -306,4 +306,171 @@ export async function getWorkerSkillGap(targetTier = 'S+') {
     params: { targetTier },
   })
   return buildSkillGapViewModel(unwrap(response) ?? {})
+}
+
+function toEvalHistoryViewModel(item) {
+  return {
+    id: item.qualitativeEvaluationId, // Backend uses qualitativeEvaluationId as the key for appeal
+    evalPeriodId: item.evalPeriodId,
+    quarter: `${item.evalYear}-${item.evalSequence}`,
+    statusBadge: item.status === 'CONFIRMED' ? '확정' : '검토중',
+    score: toNumber(item.score),
+    tier: normalizeTier(item.grade),
+    appealable: !!item.appealable,
+    // diff: Deleted as backend doesn't provide
+    // statusText: Deleted as backend doesn't provide
+  }
+}
+
+function toAppealDetailViewModel(appeal) {
+  if (!appeal) return null
+
+  // Process status mapping: PENDING=1, REVIEWING=2, COMPLETED=3
+  const statusStepMap = {
+    PENDING: 1,
+    REVIEWING: 2,
+    COMPLETED: 3,
+  }
+
+  return {
+    appealId: appeal.appealId,
+    evalHistoryId: appeal.qualitativeEvaluationId,
+    title: appeal.title ?? '-',
+    content: appeal.content ?? '',
+    appealType: appeal.appealType ?? 'ETC',
+    status: appeal.status ?? 'PENDING',
+    processStatus: statusStepMap[appeal.status] ?? 1,
+    submittedDate: formatDate(appeal.filedAt),
+    reviewResult: appeal.reviewResult ?? '',
+    // quarter: Missing in backend
+    // scores: Missing in backend
+    // attachments: Missing in backend
+  }
+}
+
+export async function getWorkerAppealRequestData() {
+  const [historyResponse, appealsResponse] = await Promise.all([
+    hrApi.get('/api/v1/hr/workers/me/evaluations/history'),
+    hrApi.get('/api/v1/hr/appeals/me'),
+  ])
+
+  const history = (unwrap(historyResponse)?.content ?? []).map(toEvalHistoryViewModel)
+  const appeals = (unwrap(appealsResponse) ?? []).map(toAppealDetailViewModel)
+
+  return {
+    history,
+    appeals,
+  }
+}
+
+export async function registerAppeal(payload) {
+  const response = await hrApi.post('/api/v1/hr/appeals', payload)
+  return unwrap(response)
+}
+
+export async function updateAppeal(appealId, payload) {
+  const response = await hrApi.put(`/api/v1/hr/appeals/${appealId}`, payload)
+  return unwrap(response)
+}
+
+function toEvalStatusViewModel(status) {
+  if (!status) return null
+
+  return {
+    evalPeriodId: status.evalPeriodId,
+    periodLabel: status.evalYear ? `${status.evalYear}-Q${status.evalSequence}` : '-',
+    overallScore: 0, // Missing in backend
+    tier: '-', // Missing in backend
+    quantitative: { score: 0, diff: 0 },
+    qualitative: { score: 0, diff: 0, weight: 0.6 },
+    equipmentCorrection: { label: '-', sub: '-' },
+    composite: { score: 0, diff: 0, sub: '-' },
+    rank: '-',
+    rankTotal: '-',
+    rankDiff: 0,
+  }
+}
+
+function toQuantitativeViewModel(quant) {
+  if (!quant) return null
+
+  // Map raw scores to steps
+  const steps = [
+    { label: '01 UPH Score', value: quant.uphScore != null ? `${quant.uphScore}점` : '-' },
+    { label: '02 Yield Score', value: quant.yieldScore != null ? `${quant.yieldScore}점` : '-' },
+    { label: '03 Lead Time Score', value: quant.leadTimeScore != null ? `${quant.leadTimeScore}점` : '-' },
+    { label: '04 Actual Error', value: quant.actualError != null ? `${quant.actualError}%` : '-' },
+  ]
+
+  return {
+    steps,
+    eidxChart: { title: '설비 가동 효율(E_idx) 추이', data: [], avg: '-', min: '-', max: '-' },
+    aiSummary: '정량 평가 데이터 분석 중입니다.',
+  }
+}
+
+function toQualitativeViewModel(qual) {
+  if (!qual) return null
+
+  let categories = []
+  try {
+    if (qual.evalItems) {
+      const items = typeof qual.evalItems === 'string' ? JSON.parse(qual.evalItems) : qual.evalItems
+      categories = Object.entries(items).map(([label, score]) => ({
+        label,
+        score: toNumber(score),
+        tags: [],
+        barColor: '#5B4FCF',
+      }))
+    }
+  } catch (e) {
+    console.warn('Failed to parse evalItems:', e)
+  }
+
+  return {
+    evaluator: '-',
+    evaluatorRole: 'Evaluator',
+    nlpConfidence: '0.00',
+    grade: qual.grade ?? '-',
+    score: toNumber(qual.score),
+    categories,
+    aiAnalysis: '정성 평가 의견을 분석 중입니다.',
+  }
+}
+
+function toFeedbackViewModel(fb) {
+  if (!fb) return null
+
+  const items = fb.feedbackItems || []
+  const tlFeedback = items.find(i => i.evaluationLevel === 1) || {}
+
+  return {
+    chartData: [],
+    feedback: {
+      content: tlFeedback.evalComment ?? '등록된 피드백이 없습니다.',
+      author: 'Team Leader',
+      date: '-',
+    },
+    nextQuarterGoals: [
+      { label: '생산성 향상', current: '-', target: '-' },
+      { label: '품질 관리', current: '-', target: '-' },
+    ],
+  }
+}
+
+export async function getWorkerEvaluationData(periodId = null) {
+  const params = periodId ? { periodId } : {}
+  const [status, quantitative, qualitative, feedback] = await Promise.all([
+    optionalGet('/api/v1/hr/workers/me/evaluations/status', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', { params }, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', { params }, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/feedback', { params }, null),
+  ])
+
+  return {
+    status: toEvalStatusViewModel(status),
+    quantitative: toQuantitativeViewModel(quantitative),
+    qualitative: toQualitativeViewModel(qualitative),
+    feedback: toFeedbackViewModel(feedback),
+  }
 }

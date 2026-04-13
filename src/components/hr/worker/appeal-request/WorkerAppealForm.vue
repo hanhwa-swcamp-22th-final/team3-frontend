@@ -10,45 +10,25 @@ const isConfirmed = computed(() => props.statusBadge === '확정')
 
 const emit = defineEmits(['cancel', 'submit'])
 
-const checkedCategories = ref([...props.appealData.categories])
-const appealContent = ref(props.appealData.content)
-const attachments = ref([...props.appealData.attachments])
+const appealTitle = ref(props.appealData.title || '')
+const selectedType = ref(props.appealData.appealType || 'QUANTITATIVE_ERROR')
+const appealContent = ref(props.appealData.content || '')
 
 watch(
   () => props.appealData,
   (data) => {
-    checkedCategories.value = [...data.categories]
-    appealContent.value = data.content
-    attachments.value = [...data.attachments]
+    appealTitle.value = data.title || ''
+    selectedType.value = data.appealType || 'QUANTITATIVE_ERROR'
+    appealContent.value = data.content || ''
   },
 )
 
-const categoryOptions = [
-  '정량 평가 점수 오류',
-  '정성 평가 항목 이의',
-  '설비 보정 계수 오류',
+const typeOptions = [
+  { value: 'QUANTITATIVE_ERROR', label: '정량 평가 점수 오류' },
+  { value: 'QUALITATIVE_ERROR', label: '정성 평가 항목 이의' },
+  { value: 'EQUIPMENT_ERROR', label: '설비 보정 계수 오류' },
+  { value: 'ETC', label: '기타' },
 ]
-
-function toggleCategory(cat) {
-  const idx = checkedCategories.value.indexOf(cat)
-  if (idx >= 0) {
-    checkedCategories.value.splice(idx, 1)
-  } else {
-    checkedCategories.value.push(cat)
-  }
-}
-
-function removeFile(index) {
-  attachments.value.splice(index, 1)
-}
-
-function addFile() {
-  // placeholder — in production, trigger file picker
-}
-
-function quantClass(item) {
-  return item.flagDown ? 'score--down' : ''
-}
 
 const processSteps = computed(() => {
   const s = props.appealData.processStatus
@@ -67,9 +47,9 @@ const submitLabel = computed(() => {
 
 function handleSubmit() {
   const payload = {
-    categories: [...checkedCategories.value],
+    title: appealTitle.value,
+    appealType: selectedType.value,
     content: appealContent.value,
-    attachments: [...attachments.value],
   }
   emit('submit', payload)
   if (props.appealData.processStatus >= 1) {
@@ -86,47 +66,30 @@ function handleSubmit() {
       <h3 class="af__title">이의 신청 — {{ appealData.quarter }}</h3>
     </div>
 
-    <!-- Score Summary -->
-    <div class="af__scores">
-      <span class="af__scores-label">현재 확정 점수</span>
-      <div class="af__scores-grid">
-        <div class="af__score-col">
-          <span class="af__score-value" :class="{ 'score--down': appealData.scores.quantFlagDown }">
-            {{ appealData.scores.quantitative }}
-          </span>
-          <span class="af__score-sub">
-            정량
-            <span v-if="appealData.scores.quantFlagDown" class="af__score-flag">▼</span>
-          </span>
-        </div>
-        <div class="af__score-divider"></div>
-        <div class="af__score-col">
-          <span class="af__score-value">{{ appealData.scores.qualitative }}</span>
-          <span class="af__score-sub">정성</span>
-        </div>
-        <div class="af__score-divider"></div>
-        <div class="af__score-col">
-          <span class="af__score-value af__score-value--composite">{{ appealData.scores.composite }}</span>
-          <span class="af__score-sub">종합</span>
-        </div>
-      </div>
-      <span class="af__scores-reason">이의 제기 사유: {{ appealData.reason }}</span>
+    <!-- Title -->
+    <div class="af__section">
+      <h4 class="af__section-title">제목</h4>
+      <input
+        v-model="appealTitle"
+        class="af__input"
+        type="text"
+        placeholder="이의 신청 제목을 입력해주세요."
+        :disabled="isConfirmed"
+      />
     </div>
 
-    <!-- Categories -->
+    <!-- Appeal Type -->
     <div class="af__section">
       <h4 class="af__section-title">이의 제기 항목</h4>
-      <div class="af__categories">
-        <label v-for="cat in categoryOptions" :key="cat" class="af__category">
-          <input
-            type="checkbox"
-            :checked="checkedCategories.includes(cat)"
-            :disabled="isConfirmed"
-            @change="toggleCategory(cat)"
-          />
-          <span>{{ cat }}</span>
-        </label>
-      </div>
+      <select
+        v-model="selectedType"
+        class="af__select"
+        :disabled="isConfirmed"
+      >
+        <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
     </div>
 
     <!-- Content -->
@@ -141,16 +104,11 @@ function handleSubmit() {
       ></textarea>
     </div>
 
-    <!-- Attachments -->
-    <div class="af__section">
-      <h4 class="af__section-title">근거 자료 첨부</h4>
-      <div class="af__attachments">
-        <div v-for="(file, i) in attachments" :key="i" class="af__file">
-          <span class="af__file-icon">📎</span>
-          <span class="af__file-name">{{ file }}</span>
-          <button v-if="!isConfirmed" class="af__file-remove" @click="removeFile(i)">X</button>
-        </div>
-        <button v-if="!isConfirmed" class="af__file-add" @click="addFile">+ 파일 추가</button>
+    <!-- Review Result (if available) -->
+    <div v-if="appealData.reviewResult" class="af__section af__section--result">
+      <h4 class="af__section-title">검토 결과</h4>
+      <div class="af__result-box">
+        {{ appealData.reviewResult }}
       </div>
     </div>
 
@@ -220,102 +178,27 @@ function handleSubmit() {
   margin: 0;
 }
 
-/* ── Score Summary ──────────────────────────────────────── */
-.af__scores {
+/* ── Form Elements ─────────────────────────────────────── */
+.af__input,
+.af__select {
+  box-sizing: border-box;
+  width: 100%;
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
-}
-
-.af__scores-label {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.af__scores-grid {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin: 14px 0 16px;
-}
-
-.af__score-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.af__score-divider {
-  width: 1px;
-  height: 48px;
-  background: var(--color-border-default);
-  flex-shrink: 0;
-}
-
-.af__score-value {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--color-text-strong);
-  line-height: 1;
-}
-
-.score--down {
-  color: var(--color-text-strong);
-}
-
-.af__score-value--composite {
-  color: var(--color-danger);
-}
-
-.af__score-sub {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.af__score-flag {
-  color: var(--color-danger);
-  font-size: 11px;
-}
-
-.af__scores-reason {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-/* ── Sections ───────────────────────────────────────────── */
-.af__section-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-strong);
-  margin: 0 0 10px;
-}
-
-.af__categories {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-left: 4px;
-}
-
-.af__category {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  border-radius: var(--radius-base);
+  padding: 10px 14px;
   font-size: 14px;
   color: var(--color-text-default);
-  cursor: pointer;
+  background: var(--color-bg-surface);
 }
 
-.af__category input[type='checkbox'] {
-  accent-color: var(--color-primary-700);
-  width: 16px;
-  height: 16px;
+.af__input:focus,
+.af__select:focus {
+  outline: none;
+  border-color: var(--color-primary-300);
 }
 
 .af__textarea {
+  box-sizing: border-box;
   width: 100%;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-base);
@@ -333,53 +216,26 @@ function handleSubmit() {
   box-shadow: var(--shadow-focus);
 }
 
-/* ── Attachments ────────────────────────────────────────── */
-.af__attachments {
-  border: 1px solid var(--color-border-default);
+.af__section--result {
+  margin-top: 10px;
+}
+
+.af__result-box {
+  background: var(--color-primary-100);
+  border: 1px solid var(--color-primary-200);
   border-radius: var(--radius-base);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.af__file {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  padding: 16px;
   font-size: 14px;
-  color: var(--color-text-default);
+  color: var(--color-primary-800);
+  line-height: 1.6;
 }
 
-.af__file-icon {
+/* ── Sections ───────────────────────────────────────────── */
+.af__section-title {
   font-size: 14px;
-}
-
-.af__file-name {
-  font-weight: 500;
-}
-
-.af__file-remove {
-  background: none;
-  border: 1px solid var(--color-border-default);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-.af__file-add {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.af__file-add:hover {
-  color: var(--color-primary-700);
+  font-weight: 700;
+  color: var(--color-text-strong);
+  margin: 0 0 10px;
 }
 
 /* ── Process Status ─────────────────────────────────────── */

@@ -53,9 +53,7 @@ function statusBadgeClass(status) {
         <div class="ah__card-score">
           <span class="ah__score">{{ item.score }}</span>
           <span class="ah__tier" :class="tierClass(item.tier)">{{ item.tier }}</span>
-          <span class="ah__diff" :class="diffClass(item.diff)">{{ diffText(item.diff) }}</span>
         </div>
-        <span class="ah__status-text">{{ item.statusText }}</span>
       </div>
     </div>
   </div>

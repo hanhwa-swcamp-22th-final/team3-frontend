@@ -13,7 +13,7 @@ onMounted(() => {
 })
 
 const chartPoints = computed(() => {
-  const pts = props.data.chartData
+  const pts = props.data?.chartData || []
   const len = pts.length
   if (!len) return { overall: '', team: '' }
 
@@ -74,6 +74,7 @@ const chartPoints = computed(() => {
           :class="{ 'gf__line--drawn': animated }"
         />
       </svg>
+      <div v-if="!data?.chartData?.length" class="gf__chart-empty">성장 추이 데이터가 없습니다.</div>
       <div class="gf__chart-legend">
         <span class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--overall"></span>
@@ -89,20 +90,20 @@ const chartPoints = computed(() => {
     <!-- TL Feedback -->
     <div class="gf__feedback">
       <span class="gf__feedback-label">TEAM LEADER 피드백</span>
-      <p class="gf__feedback-text">{{ data.feedback.content }}</p>
-      <span class="gf__feedback-meta">{{ data.feedback.author }} · {{ data.feedback.date }}</span>
+      <p class="gf__feedback-text">{{ data?.feedback?.content ?? '등록된 피드백이 없습니다.' }}</p>
+      <span class="gf__feedback-meta">{{ data?.feedback?.author ?? '-' }} · {{ data?.feedback?.date ?? '-' }}</span>
     </div>
 
     <!-- Next quarter goals -->
     <div class="gf__goals">
       <span class="gf__goals-title">🎯 다음 분기 목표</span>
       <div class="gf__goals-grid">
-        <div v-for="goal in data.nextQuarterGoals" :key="goal.label" class="gf__goal">
+        <div v-for="goal in (data?.nextQuarterGoals || [])" :key="goal.label" class="gf__goal">
           <span class="gf__goal-label">{{ goal.label }}</span>
           <div class="gf__goal-values">
-            <span class="gf__goal-current">{{ goal.current }}</span>
+            <span class="gf__goal-current">{{ goal.current ?? '-' }}</span>
             <span class="gf__goal-arrow">→</span>
-            <span class="gf__goal-target">{{ String(goal.target).replace('건', '') }}</span>
+            <span class="gf__goal-target">{{ String(goal.target ?? '-').replace('건', '') }}</span>
           </div>
         </div>
       </div>
