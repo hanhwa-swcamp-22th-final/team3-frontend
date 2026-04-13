@@ -11,6 +11,18 @@ const STATUS_MAP = { NO_INPUT: 'not_started', DRAFT: 'in_progress', SUBMITTED: '
 
 const rawTargets = ref([])
 const evalPeriodId = ref(null)
+const periodInfo = ref(null)
+
+const periodLabel = computed(() => {
+  if (!periodInfo.value?.evalYear) return null
+  const raw = String(periodInfo.value.evalYear)
+  const year = raw.slice(0, 4)
+  const month = raw.length >= 6 ? String(parseInt(raw.slice(4), 10)) : null
+  const seq = periodInfo.value.evalSequence
+  return month
+    ? `${year}년 ${month}월 ${seq}차 평가`
+    : `${year}년 ${seq}차 평가`
+})
 
 const selectedTargetId = ref('')
 const guideOpen = ref(false)
@@ -45,6 +57,12 @@ onMounted(async () => {
     const res = await fetchTlTargets()
     const data = res.data.data
     evalPeriodId.value = data.evalPeriodId
+    periodInfo.value = {
+      evalYear: data.evalYear,
+      evalSequence: data.evalSequence,
+      startDate: data.startDate,
+      endDate: data.endDate,
+    }
     rawTargets.value = data.targets.map(mapTarget)
     data.targets.forEach((t) => {
       const targetKey = `${t.evaluateeId}:${t.evaluationPeriodId ?? 'none'}`
@@ -254,10 +272,20 @@ onBeforeUnmount(() => {
   <section class="teamleader-ai-evaluation-view">
     <section class="teamleader-ai-evaluation-view__progress-card">
       <div class="teamleader-ai-evaluation-view__progress-copy">
-        <p class="teamleader-ai-evaluation-view__progress-eyebrow">제출 완료 현황</p>
-        <strong class="teamleader-ai-evaluation-view__progress-title">
-          {{ submittedCount }} / {{ memberListItems.length }}명 제출 완료
-        </strong>
+        <div>
+          <p class="teamleader-ai-evaluation-view__progress-eyebrow">제출 완료 현황</p>
+          <strong class="teamleader-ai-evaluation-view__progress-title">
+            {{ submittedCount }} / {{ memberListItems.length }}명 제출 완료
+          </strong>
+        </div>
+        <div v-if="periodLabel" class="teamleader-ai-evaluation-view__period-info">
+          <span class="teamleader-ai-evaluation-view__period-badge">
+            {{ periodLabel }}
+          </span>
+          <span class="teamleader-ai-evaluation-view__period-dates">
+            {{ periodInfo.startDate }} ~ {{ periodInfo.endDate }}
+          </span>
+        </div>
       </div>
       <BaseProgressBar
         :value="evaluationCompletionRate"
@@ -340,6 +368,32 @@ onBeforeUnmount(() => {
   color: var(--color-primary-800);
   font-size: var(--font-size-base-plus);
   font-weight: var(--font-weight-bold);
+}
+
+.teamleader-ai-evaluation-view__period-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.teamleader-ai-evaluation-view__period-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.teamleader-ai-evaluation-view__period-dates {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .teamleader-ai-evaluation-view__content {

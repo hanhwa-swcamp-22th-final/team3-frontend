@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onBeforeUnmount, onMounted } from 'vue'
+import { BaseProgressBar } from '@/components/common/base'
 import { BaseToast } from '@/components/common/base/overlay'
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
@@ -8,7 +9,19 @@ import { fetchDlTargets, fetchDlEvaluationDetail, updateDlEvaluation } from '@/s
 const members = ref([])
 const selectedMember = ref(null)
 const evalPeriodId = ref(null)
+const periodInfo = ref(null)
 const toast = ref({ show: false, message: '', type: 'success' })
+
+const periodLabel = computed(() => {
+  if (!periodInfo.value?.evalYear) return null
+  const raw = String(periodInfo.value.evalYear)
+  const year = raw.slice(0, 4)
+  const month = raw.length >= 6 ? String(parseInt(raw.slice(4), 10)) : null
+  const seq = periodInfo.value.evalSequence
+  return month
+    ? `${year}년 ${month}월 ${seq}차 평가`
+    : `${year}년 ${seq}차 평가`
+})
 let toastTimer = null
 
 const totalCount = computed(() => members.value.length)
@@ -59,9 +72,15 @@ function showToast(message, type = 'success') {
 async function loadTargets() {
   try {
     const res = await fetchDlTargets()
-    const { evalPeriodId: pid, targets } = res.data.data
-    evalPeriodId.value = pid
-    members.value = targets.map(mapTarget)
+    const data = res.data.data
+    evalPeriodId.value = data.evalPeriodId
+    periodInfo.value = {
+      evalYear: data.evalYear,
+      evalSequence: data.evalSequence,
+      startDate: data.startDate,
+      endDate: data.endDate,
+    }
+    members.value = data.targets.map(mapTarget)
     if (members.value.length > 0) {
       await handleSelect(members.value[0])
     }
@@ -152,14 +171,29 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="dl-eval-view">
-    <!-- Progress bar -->
-    <div class="dl-eval-view__progress-bar">
-      <span class="dl-eval-view__progress-label">평가 진행률</span>
-      <div class="dl-eval-view__bar-track">
-        <div class="dl-eval-view__bar-fill" :style="{ width: progressPercent + '%' }" />
+    <!-- Progress card -->
+    <section class="dl-eval-view__progress-card">
+      <div class="dl-eval-view__progress-copy">
+        <div>
+          <p class="dl-eval-view__progress-eyebrow">제출 완료 현황</p>
+          <strong class="dl-eval-view__progress-title">
+            {{ submittedCount }} / {{ totalCount }}명 제출 완료
+          </strong>
+        </div>
+        <div v-if="periodLabel" class="dl-eval-view__period-info">
+          <span class="dl-eval-view__period-badge">{{ periodLabel }}</span>
+          <span class="dl-eval-view__period-dates">
+            {{ periodInfo.startDate }} ~ {{ periodInfo.endDate }}
+          </span>
+        </div>
       </div>
-      <span class="dl-eval-view__progress-count">{{ submittedCount }} / {{ totalCount }}명 완료</span>
-    </div>
+      <BaseProgressBar
+        :value="progressPercent"
+        tone="success"
+        size="md"
+        label="평가 제출 진행률"
+      />
+    </section>
 
     <!-- Content -->
     <div class="dl-eval-view__content">
@@ -181,53 +215,74 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .dl-eval-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  flex: 1;
   width: 100%;
   min-width: 0;
-  padding: 20px 28px 28px;
+  min-height: 0;
+  height: calc(100vh - 80px);
+  padding: 12px 10px;
   background: var(--color-bg-app);
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* Progress bar */
-.dl-eval-view__progress-bar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 20px;
+/* Progress card */
+.dl-eval-view__progress-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
   border: 1px solid var(--color-border-default);
-  border-radius: 14px;
+  border-radius: 20px;
   background: var(--color-bg-surface);
 }
 
-.dl-eval-view__progress-label {
-  font-size: var(--font-size-sm);
+.dl-eval-view__progress-copy {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dl-eval-view__progress-eyebrow {
+  margin: 0 0 4px;
+  color: var(--color-primary-500);
+  font-size: var(--font-size-xs-plus);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
+}
+
+.dl-eval-view__progress-title {
+  color: var(--color-primary-800);
+  font-size: var(--font-size-base-plus);
+  font-weight: var(--font-weight-bold);
+}
+
+.dl-eval-view__period-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dl-eval-view__period-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   white-space: nowrap;
 }
 
-.dl-eval-view__bar-track {
-  flex: 1;
-  height: 10px;
-  border-radius: 99px;
-  background: var(--color-border-soft);
-  overflow: hidden;
-}
-
-.dl-eval-view__bar-fill {
-  height: 100%;
-  border-radius: 99px;
-  background: var(--color-primary-600);
-  transition: width 0.4s ease;
-}
-
-.dl-eval-view__progress-count {
+.dl-eval-view__period-dates {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-700);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
@@ -243,6 +298,20 @@ onBeforeUnmount(() => {
 @media (max-width: 900px) {
   .dl-eval-view__content {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dl-eval-view {
+    padding: 12px;
+    height: auto;
+    min-height: calc(100vh - 80px);
+    overflow: auto;
+  }
+
+  .dl-eval-view__progress-copy {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
