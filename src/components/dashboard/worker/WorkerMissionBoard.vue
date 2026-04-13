@@ -11,7 +11,7 @@ onMounted(() => {
 defineProps({
   missions: {
     type: Array,
-    required: true,
+    default: () => [],
     // [{ title, points, current, target, icon }]
   },
 })
@@ -24,7 +24,7 @@ defineProps({
     <div class="missions__list">
       <div v-for="(m, i) in missions" :key="i" class="missions__card">
         <div class="missions__card-header">
-          <span class="missions__icon">{{ m.icon }}</span>
+          <span v-if="m.icon" class="missions__icon">{{ m.icon }}</span>
           <div class="missions__card-info">
             <span class="missions__card-title">{{ m.title }}</span>
             <span class="missions__card-points">+{{ m.points }}</span>

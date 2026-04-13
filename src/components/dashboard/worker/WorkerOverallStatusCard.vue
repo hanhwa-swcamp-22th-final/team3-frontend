@@ -11,14 +11,15 @@ defineProps({
     <!-- Top row: score + tier -->
     <div class="status-card__top">
       <div class="status-card__score-block">
-        <span class="status-card__score">{{ worker.score }}</span>
+        <span class="status-card__score">{{ worker.score ?? '-' }}</span>
         <span class="status-card__score-label">OVERALL</span>
       </div>
-      <div class="status-card__type">
+      <div v-if="worker.type" class="status-card__type">
         <span class="status-card__type-label">{{ worker.type }}</span>
         <span class="status-card__type-sub">등급 가능</span>
       </div>
       <div
+        v-if="worker.tier"
         class="status-card__tier"
         :style="{ background: tierColor(worker.tier) }"
       >
@@ -29,14 +30,14 @@ defineProps({
     <!-- Profile -->
     <div class="status-card__profile">
       <div class="status-card__avatar">
-        <span class="status-card__avatar-text">{{ worker.name.charAt(0) }}</span>
+        <span class="status-card__avatar-text">{{ worker.name?.charAt(0) ?? '' }}</span>
       </div>
-      <p class="status-card__name">{{ worker.name }}</p>
-      <p class="status-card__name-en">{{ worker.nameEn }}</p>
+      <p class="status-card__name">{{ worker.name ?? '-' }}</p>
+      <p v-if="worker.nameEn" class="status-card__name-en">{{ worker.nameEn }}</p>
     </div>
 
     <!-- Skill scores 2x3 grid -->
-    <div class="status-card__skills">
+    <div v-if="worker.skillGrid" class="status-card__skills">
       <div v-for="(s, i) in worker.skillGrid" :key="i" class="status-card__skill">
         <span class="status-card__skill-score">{{ s.value }}</span>
         <span class="status-card__skill-label">{{ s.label }}</span>
@@ -46,19 +47,19 @@ defineProps({
     <!-- Stats row -->
     <div class="status-card__stats">
       <div class="status-card__stat">
-        <span class="status-card__stat-value">{{ worker.historyPeriod }}</span>
+        <span class="status-card__stat-value">{{ worker.historyPeriod ?? '-' }}</span>
         <span class="status-card__stat-label">경력</span>
       </div>
       <div class="status-card__stat">
-        <span class="status-card__stat-value">{{ worker.worksDone }}</span>
+        <span class="status-card__stat-value">{{ worker.worksDone ?? '-' }}</span>
         <span class="status-card__stat-label">완료작업</span>
       </div>
       <div class="status-card__stat">
-        <span class="status-card__stat-value">{{ worker.finishRate }}%</span>
+        <span class="status-card__stat-value">{{ worker.finishRate != null ? worker.finishRate + '%' : '-' }}</span>
         <span class="status-card__stat-label">완료율</span>
       </div>
       <div class="status-card__stat">
-        <span class="status-card__stat-value">{{ worker.aiEval }}</span>
+        <span class="status-card__stat-value">{{ worker.aiEval ?? '-' }}</span>
         <span class="status-card__stat-label">AI평가</span>
       </div>
     </div>
