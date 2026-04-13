@@ -1,13 +1,6 @@
 <script setup>
 import { BaseButton } from '@/components/common/base'
 
-const STATUS_LABELS = {
-  OPERATING: '가동 중',
-  STOPPED: '중지',
-  UNDER_INSPECTION: '점검 중',
-  DISPOSED: '폐기',
-}
-
 const STATUS_STYLE = {
   OPERATING: { bg: 'var(--color-equip-active-bg)', border: 'var(--color-equip-active-border)', color: 'var(--color-equip-active)' },
   UNDER_INSPECTION: { bg: 'var(--color-equip-warning-bg)', border: 'var(--color-equip-warning-border)', color: 'var(--color-equip-warning)' },
@@ -22,7 +15,7 @@ const GRADE_STYLE = {
   C: { bg: '#FFF0F0', border: '#EF476F', color: '#EF476F' },
 }
 
-defineProps({
+const props = defineProps({
   facilities: { type: Array, default: () => [] },
   totalCount: { type: Number, default: 0 },
   currentPage: { type: Number, default: 1 },
@@ -31,11 +24,12 @@ defineProps({
   pageEnd: { type: Number, default: 0 },
   pageButtons: { type: Array, default: () => [] },
   isLoading: { type: Boolean, default: false },
+  equipmentStatusOptions: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['editClick', 'deleteClick', 'pageChange'])
 
-const statusLabel = (status) => STATUS_LABELS[status] ?? status ?? '-'
+const statusLabel = (status) => props.equipmentStatusOptions?.find((option) => option.value === status)?.label ?? status ?? '-'
 const statusStyle = (status) => STATUS_STYLE[status] ?? STATUS_STYLE.STOPPED
 const gradeStyle = (grade) => GRADE_STYLE[grade] ?? GRADE_STYLE.C
 

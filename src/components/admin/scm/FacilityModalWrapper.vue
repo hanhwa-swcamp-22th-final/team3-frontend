@@ -2,21 +2,14 @@
 import { computed, ref, watch } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
 
-const STATUS_OPTIONS = [
-  { value: 'OPERATING', label: '가동 중' },
-  { value: 'STOPPED', label: '중지' },
-  { value: 'UNDER_INSPECTION', label: '점검 중' },
-  { value: 'DISPOSED', label: '폐기' },
-]
-
-const GRADE_OPTIONS = ['S', 'A', 'B', 'C'].map((grade) => ({ value: grade, label: grade }))
-
 const props = defineProps({
   isOpen: { type: Boolean, default: false },
   facility: { type: Object, default: null },
   lineOptions: { type: Array, default: () => [] },
   processOptions: { type: Array, default: () => [] },
   environmentOptions: { type: Array, default: () => [] },
+  equipmentStatusOptions: { type: Array, default: () => [] },
+  equipmentGradeOptions: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['close', 'save'])
@@ -179,7 +172,7 @@ function handleSave() {
             <div class="field">
               <label>설비 상태</label>
               <select v-model="form.equipmentStatus">
-                <option v-for="status in STATUS_OPTIONS" :key="status.value" :value="status.value">
+                <option v-for="status in equipmentStatusOptions" :key="status.value" :value="status.value">
                   {{ status.label }}
                 </option>
               </select>
@@ -191,7 +184,7 @@ function handleSave() {
             <div class="field">
               <label>초기 등급</label>
               <select v-model="form.equipmentGrade">
-                <option v-for="grade in GRADE_OPTIONS" :key="grade.value" :value="grade.value">
+                <option v-for="grade in equipmentGradeOptions" :key="grade.value" :value="grade.value">
                   {{ grade.label }}
                 </option>
               </select>
