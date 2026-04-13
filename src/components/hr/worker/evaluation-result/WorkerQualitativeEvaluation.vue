@@ -22,18 +22,21 @@ onMounted(() => {
 
     <!-- Evaluator info -->
     <div class="ql__evaluator">
-      <div class="ql__avatar">{{ evaluation.evaluator.charAt(0) }}</div>
+      <div class="ql__avatar">{{ (evaluation?.evaluator || '-').charAt(0) }}</div>
       <span class="ql__evaluator-name">
-        {{ evaluation.evaluator }} ({{ evaluation.evaluatorRole }})
+        {{ evaluation?.evaluator ?? '-' }} ({{ evaluation?.evaluatorRole ?? '-' }})
       </span>
-      <span class="ql__nlp">NLP 신뢰도 {{ evaluation.nlpConfidence }}</span>
+      <span class="ql__nlp">NLP 신뢰도 {{ evaluation?.nlpConfidence ?? '0.00' }}</span>
     </div>
 
     <hr class="ql__divider" />
 
     <!-- Category scores -->
     <div class="ql__categories">
-      <div v-for="cat in evaluation.categories" :key="cat.label" class="ql__cat">
+      <div v-if="(evaluation?.categories || []).length === 0" class="ql__empty">
+        정성 평가 데이터가 없습니다.
+      </div>
+      <div v-for="cat in (evaluation?.categories || [])" :key="cat.label" class="ql__cat">
         <div class="ql__cat-top">
           <span class="ql__cat-label">{{ cat.label }}</span>
           <span class="ql__cat-score">{{ cat.score }}점</span>
@@ -45,7 +48,7 @@ onMounted(() => {
           ></div>
         </div>
         <div class="ql__tags">
-          <span v-for="tag in cat.tags" :key="tag" class="ql__tag">{{ tag }}</span>
+          <span v-for="tag in (cat.tags || [])" :key="tag" class="ql__tag">{{ tag }}</span>
         </div>
       </div>
     </div>
@@ -53,7 +56,7 @@ onMounted(() => {
     <!-- AI analysis -->
     <div class="ql__ai">
       <h4 class="ql__ai-title">🤖 AI 분석 원문 요약</h4>
-      <p class="ql__ai-text">{{ evaluation.aiAnalysis }}</p>
+      <p class="ql__ai-text">{{ evaluation?.aiAnalysis ?? '정성 평가 데이터 분석 중입니다.' }}</p>
     </div>
   </div>
 </template>

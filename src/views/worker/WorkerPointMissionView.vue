@@ -29,11 +29,11 @@ onMounted(async () => {
     <div v-if="loading" class="pm-loading">데이터를 불러오는 중...</div>
 
     <template v-else>
-      <WorkerPointTotalHolding v-if="pointSummary" :summary="pointSummary" />
+      <WorkerPointTotalHolding :summary="pointSummary" />
 
       <div class="pm-grid">
-        <WorkerPointAccrualHistory v-if="pointHistory.length" :history="pointHistory" />
-        <WorkerPointPerMission v-if="upgradeMissions.length" :missions="upgradeMissions" />
+        <WorkerPointAccrualHistory :history="pointHistory" />
+        <WorkerPointPerMission :missions="upgradeMissions" />
       </div>
     </template>
   </div>

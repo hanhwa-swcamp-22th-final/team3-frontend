@@ -1,12 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { API_BASE } from '@/constants'
+import { getWorkerEvaluationData } from '@/services/workerHrApi'
 import WorkerEvaluationStatus from '@/components/hr/worker/evaluation-result/WorkerEvaluationStatus.vue'
 import WorkerQuantitativeEvaluation from '@/components/hr/worker/evaluation-result/WorkerQuantitativeEvaluation.vue'
 import WorkerQualitativeEvaluation from '@/components/hr/worker/evaluation-result/WorkerQualitativeEvaluation.vue'
 import WorkerGrowthFeedback from '@/components/hr/worker/evaluation-result/WorkerGrowthFeedback.vue'
-const authStore = useAuthStore()
 
 const loading = ref(true)
 const evalStatus = ref(null)
@@ -14,26 +12,14 @@ const quantEval = ref(null)
 const qualEval = ref(null)
 const growthData = ref(null)
 
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
-
 onMounted(async () => {
-  const employeeId = authStore.employee?.employee_id
-
   try {
-    const [statusData, quantData, qualData, growthResult] = await Promise.all([
-      fetchJson(`${API_BASE}/evaluationStatus?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/quantitativeEval?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/qualitativeEval?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/growthFeedback?employee_id=${employeeId}`),
-    ])
+    const data = await getWorkerEvaluationData()
 
-    evalStatus.value = statusData[0] ?? null
-    quantEval.value = quantData[0] ?? null
-    qualEval.value = qualData[0] ?? null
-    growthData.value = growthResult[0] ?? null
+    evalStatus.value = data.status
+    quantEval.value = data.quantitative
+    qualEval.value = data.qualitative
+    growthData.value = data.feedback
   } catch (e) {
     console.error('Failed to load evaluation data:', e)
   } finally {
@@ -47,12 +33,12 @@ onMounted(async () => {
     <div v-if="loading" class="eval-loading">데이터를 불러오는 중...</div>
 
     <template v-else>
-      <WorkerEvaluationStatus v-if="evalStatus" :status="evalStatus" />
+      <WorkerEvaluationStatus :status="evalStatus" />
 
       <div class="eval-grid">
-        <WorkerQuantitativeEvaluation v-if="quantEval" :evaluation="quantEval" />
-        <WorkerQualitativeEvaluation v-if="qualEval" :evaluation="qualEval" />
-        <WorkerGrowthFeedback v-if="growthData" :data="growthData" />
+        <WorkerQuantitativeEvaluation :evaluation="quantEval" />
+        <WorkerQualitativeEvaluation :evaluation="qualEval" />
+        <WorkerGrowthFeedback :data="growthData" />
       </div>
     </template>
   </div>
