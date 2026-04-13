@@ -1,50 +1,294 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { ARTICLE_CATEGORY_LABEL, ARTICLE_STATUS_LABEL } from '@/constants'
 import WorkerKnowledgeManagementHeader from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementHeader.vue'
 import WorkerKnowledgeManagementOverallCount from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementOverallCount.vue'
 import WorkerMyKnowledgeList from '@/components/kms/worker/my-knowledge-management/WorkerMyKnowledgeList.vue'
-import WorkerKnowledgeApprovalStatus from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeApprovalStatus.vue'
 import WorkerKnowledgeEditHistory from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditHistory.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 import WorkerKnowledgeDetailModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeDetailModal.vue'
 import WorkerKnowledgeEditModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditModal.vue'
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
-import {
-  knowledgeOverallCount,
-  myKnowledgeArticles,
-  approvalStatus,
-  editHistory,
-} from '@/mocks/worker/workerMyKnowledgeData'
+const authStore = useAuthStore()
+const authorId = computed(() => Number(authStore.userInfo?.employeeId))
 
-const showAddModal = ref(false)
+// ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
+function formatDate(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}.${mm}.${dd}`
+}
+
+// ── 백엔드 DTO → 내 문서 카드 shape ────────────────────────────
+function mapToMyArticle(dto) {
+  const isDeleted = Boolean(dto.deleted)
+  return {
+    id:           dto.articleId,
+    title:        dto.articleTitle,
+    category:     ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory,
+    categoryEnum: dto.articleCategory,   // 수정 모달 초기화용
+    equipment:    dto.equipmentName ?? '',
+    equipmentId:  dto.equipmentId ?? null, // 수정 모달 초기화용
+    status:       isDeleted ? '삭제대기' : (ARTICLE_STATUS_LABEL[dto.articleStatus] ?? dto.articleStatus),
+    rawStatus:    dto.articleStatus,
+    date:         formatDate(dto.updatedAt ?? dto.createdAt),
+    summary:      dto.articleContent ? dto.articleContent.slice(0, 120) : '',
+    content:      dto.articleContent ?? '',
+    views:           dto.viewCount ?? 0,
+    reuses:          dto.reuseCount ?? 0,
+    rejectionReason: dto.articleRejectionReason ?? '',
+    deletionReason:  dto.articleDeletionReason ?? '',
+    isDeleted,
+  }
+}
+
+// ── 백엔드 DTO → 통계 counts shape ─────────────────────────────
+function mapToOverallCount(dto) {
+  const approved = dto.approvedCount ?? dto.approved ?? 0
+  const pending  = dto.pendingCount  ?? dto.pending  ?? 0
+  const rejected = dto.rejectedCount ?? dto.rejected ?? 0
+  const draft    = dto.draftCount    ?? dto.draft    ?? 0
+  const total    = dto.total ?? (approved + pending + rejected + draft)
+  return {
+    total,
+    totalSub:    '',
+    approved,
+    approvedSub: '',
+    pending,
+    pendingSub:  '',
+    rejected,
+    rejectedSub: '',
+    draft,
+    draftSub:    '',
+  }
+}
+
+// ── 백엔드 DTO → 수정 이력 shape ───────────────────────────────
+function mapToHistoryItem(dto) {
+  return {
+    id:     dto.articleId,
+    title:  dto.articleTitle,
+    date:   formatDate(dto.updatedAt ?? dto.createdAt),
+    status: ARTICLE_STATUS_LABEL[dto.articleStatus] ?? dto.articleStatus,
+  }
+}
+
+// ── 상태 ────────────────────────────────────────────────────────
+const overallCount    = ref({
+  total: 0,
+  totalSub: '',
+  approved: 0,
+  approvedSub: '',
+  pending: 0,
+  pendingSub: '',
+  rejected: 0,
+  rejectedSub: '',
+  draft: 0,
+  draftSub: '',
+})
+const myArticles      = ref([])
+const editHistory     = ref([])
+
+const showAddModal    = ref(false)
 const showDetailModal = ref(false)
-const showEditModal = ref(false)
+const showEditModal   = ref(false)
 const selectedArticle = ref(null)
 
-function handleAddArticle() {
-  showAddModal.value = false
+// ── 데이터 로드 ────────────────────────────────────────────────
+onMounted(async () => {
+  await Promise.allSettled([
+    loadStats(),
+    loadArticles(),
+    loadHistory(),
+  ])
+})
+
+async function loadStats() {
+  try {
+    const res = await knowledgeArticleApi.getMyArticleStats(authorId.value)
+    const dto = res.data.data ?? {}
+    overallCount.value = mapToOverallCount(dto)
+  } catch (e) {
+    console.error('[KMS] 통계 로드 실패:', e)
+  }
 }
 
-function handleSaveDraft() {
-  showAddModal.value = false
+async function loadArticles() {
+  try {
+    const res = await knowledgeArticleApi.getMyArticles({ authorId: authorId.value, page: 0, size: 50 })
+    myArticles.value = (res.data.data ?? []).map(mapToMyArticle)
+  } catch (e) {
+    console.error('[KMS] 내 문서 목록 로드 실패:', e)
+  }
 }
 
+async function loadHistory() {
+  try {
+    const res = await knowledgeArticleApi.getMyArticleHistory(authorId.value)
+    editHistory.value = (res.data.data ?? []).map(mapToHistoryItem)
+  } catch (e) {
+    console.error('[KMS] 수정 이력 로드 실패:', e)
+  }
+}
+
+// ── 모달 핸들러 ────────────────────────────────────────────────
 function openDetailModal(article) {
   selectedArticle.value = article
   showDetailModal.value = true
 }
 
-function openEditModal(article) {
-  selectedArticle.value = article
-  showEditModal.value = true
+function openHistoryDetail(historyItem) {
+  const matchedArticle = myArticles.value.find((article) => article.id === historyItem.id)
+  if (matchedArticle) {
+    openDetailModal(matchedArticle)
+  }
 }
 
-function handleEditSubmit() {
-  showEditModal.value = false
+// APPROVED 문서: startRevision 으로 복사본 ID를 먼저 받은 뒤,
+// 복사본의 상세 내용을 직접 조회해서 모달에 넘김 (목록 API content 누락 방지)
+// DRAFT / REJECTED: 바로 모달 열기
+async function openEditModal(article) {
+  if (article.status === '승인완료') {
+    try {
+      const revRes = await knowledgeArticleApi.startRevision(article.id, authorId.value)
+      const revisionId = revRes.data.data   // Long revisionArticleId
+
+      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId)
+      const dto = detailRes.data.data ?? {}
+
+      selectedArticle.value = {
+        id:           revisionId,
+        title:        dto.articleTitle ?? article.title,
+        category:     ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+        categoryEnum: dto.articleCategory ?? article.categoryEnum,
+        equipment:    dto.equipmentName ?? article.equipment,
+        equipmentId:  dto.equipmentId ?? article.equipmentId,
+        status:       ARTICLE_STATUS_LABEL[dto.articleStatus] ?? article.status,
+        rawStatus:    dto.articleStatus,
+        content:      dto.articleContent ?? '',
+        isRevision:   true,
+        isDeleted:    Boolean(dto.deleted),
+      }
+      showEditModal.value = true
+    } catch (e) {
+      console.error('[KMS] 수정본 생성 실패:', e)
+    }
+  } else {
+    selectedArticle.value = article
+    showEditModal.value = true
+  }
 }
 
-function handleEditSaveDraft() {
-  showEditModal.value = false
+async function handleAddArticle(data) {
+  try {
+    await knowledgeArticleApi.createArticle({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await Promise.allSettled([loadStats(), loadArticles()])
+  } catch (e) {
+    console.error('[KMS] 문서 등록 실패:', e)
+  }
+}
+
+async function handleSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveDraft({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] 임시저장 실패:', e)
+  }
+}
+
+// "수정 완료" → DRAFT / REJECTED / APPROVED복사본 모두 submitDraft (→ PENDING)
+async function handleEditSubmit(data) {
+  try {
+    const submitPayload = {
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    }
+
+    if (selectedArticle.value?.status === '승인대기') {
+      await knowledgeArticleApi.updateArticle(data.id, submitPayload)
+    } else {
+      await knowledgeArticleApi.submitDraft(data.id, submitPayload)
+    }
+
+    showEditModal.value = false
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 제출 실패:', e)
+  }
+}
+
+// "임시 저장" → 수정 내용 유지 + DRAFT 전환
+async function handleEditSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveArticleAsDraft(data.id, {
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showEditModal.value = false
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 임시저장(수정) 실패:', e)
+  }
+}
+
+async function handleDeleteArticle(article) {
+  const confirmed = window.confirm(`'${article.title}' 문서를 삭제하시겠습니까?`)
+  if (!confirmed) return
+
+  try {
+    await knowledgeArticleApi.deleteArticle(article.id, { requesterId: authorId.value })
+    if (selectedArticle.value?.id === article.id) {
+      showDetailModal.value = false
+      selectedArticle.value = null
+    }
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 삭제 실패:', e)
+    window.alert('문서 삭제에 실패했습니다.')
+  }
+}
+
+async function handleRestoreArticle(article) {
+  const confirmed = window.confirm(`'${article.title}' 문서를 복원하시겠습니까?`)
+  if (!confirmed) return
+
+  try {
+    await knowledgeArticleApi.restoreArticle(article.id, { requesterId: authorId.value })
+    if (selectedArticle.value?.id === article.id) {
+      showDetailModal.value = false
+      selectedArticle.value = null
+    }
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 복원 실패:', e)
+    window.alert('문서 복원에 실패했습니다.')
+  }
 }
 </script>
 
@@ -54,20 +298,21 @@ function handleEditSaveDraft() {
     <WorkerKnowledgeManagementHeader @openAddModal="showAddModal = true" />
 
     <!-- Overall Count Cards -->
-    <WorkerKnowledgeManagementOverallCount :counts="knowledgeOverallCount" />
+    <WorkerKnowledgeManagementOverallCount :counts="overallCount" />
 
-    <!-- Main Grid: List (left) + Sidebar (right) -->
-    <div class="mkm-grid">
+    <div class="mkm-main">
       <WorkerMyKnowledgeList
-        :articles="myKnowledgeArticles"
+        :articles="myArticles"
         @detail="openDetailModal"
         @edit="openEditModal"
+        @delete="handleDeleteArticle"
+        @restore="handleRestoreArticle"
       />
 
-      <div class="mkm-sidebar">
-        <WorkerKnowledgeApprovalStatus :status="approvalStatus" />
-        <WorkerKnowledgeEditHistory :history="editHistory" />
-      </div>
+      <WorkerKnowledgeEditHistory
+        :history="editHistory"
+        @open-detail="openHistoryDetail"
+      />
     </div>
 
     <!-- Add Modal -->
@@ -83,6 +328,8 @@ function handleEditSaveDraft() {
       v-if="showDetailModal && selectedArticle"
       :article="selectedArticle"
       @close="showDetailModal = false"
+      @delete="handleDeleteArticle"
+      @restore="handleRestoreArticle"
     />
 
     <!-- Edit Modal -->
@@ -107,16 +354,9 @@ function handleEditSaveDraft() {
   background: var(--color-bg-app);
 }
 
-.mkm-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.mkm-sidebar {
+.mkm-main {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 </style>

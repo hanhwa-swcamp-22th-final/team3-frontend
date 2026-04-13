@@ -1,13 +1,16 @@
 <script setup>
 import { ref } from 'vue'
 import { BaseButton, BaseTextarea } from '@/components/common/base'
+import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
 import {
-  TOP_CONTRIBUTORS,
   MENTORING_ACTIVE,
   MENTORING_REQUEST,
-  AI_RECOMMENDATIONS,
   TIER_BADGE,
 } from '@/mocks/admin/kms/kmsData.js'
+
+const props = defineProps({
+  contributors:    { type: Array, default: () => [] },
+})
 
 const showAcceptModal = ref(false)
 const accepted = ref(false)
@@ -20,27 +23,9 @@ const handleAccept = () => {
 
 <template>
   <div class="side-panel">
+    <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
 
-    <!-- 기여자 TOP 3 -->
-    <div class="panel-section">
-      <span class="section-title">🏆 이달의 지식 기여자</span>
-      <div class="contributor-list">
-        <div v-for="c in TOP_CONTRIBUTORS" :key="c.name" class="contributor-row">
-          <span class="contrib-rank">{{ c.rank }}</span>
-          <div class="contrib-avatar" :style="{ background: c.color }">{{ c.initial }}</div>
-          <span class="contrib-name">{{ c.name }}</span>
-          <span
-            class="contrib-tier"
-            :style="TIER_BADGE[c.tier]
-              ? { background: TIER_BADGE[c.tier].bg, color: TIER_BADGE[c.tier].color }
-              : {}"
-          >{{ c.tier }}</span>
-          <span class="contrib-count">{{ c.count }}건</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 멘토링 매칭 현황 -->
+    <!-- 멘토링 매칭 현황 (백엔드 미구현 → mock 유지) -->
     <div class="panel-section">
       <span class="section-title">🤝 멘토링 매칭 현황</span>
 
@@ -65,18 +50,6 @@ const handleAccept = () => {
         <span v-else class="request-accepted">✓ 수락됨</span>
       </div>
     </div>
-
-    <!-- AI 추천 학습 -->
-    <div class="panel-section panel-section--ai">
-      <span class="section-title">🤖 AI 추천 학습</span>
-      <div class="ai-list">
-        <div v-for="(item, i) in AI_RECOMMENDATIONS" :key="i" class="ai-item">
-          <span class="ai-text">{{ item }}</span>
-          <span class="ai-arrow">→</span>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- 수락 확인 모달 -->
@@ -164,65 +137,6 @@ const handleAccept = () => {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-sub, #7a6fa8);
-}
-
-/* 기여자 */
-.contributor-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.contributor-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 36px;
-  border-bottom: 1px solid var(--color-border-soft, #f1eeff);
-}
-
-.contributor-row:last-child {
-  border-bottom: none;
-}
-
-.contrib-rank {
-  font-size: 14px;
-  width: 22px;
-  flex-shrink: 0;
-}
-
-.contrib-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-text-inverse);
-  flex-shrink: 0;
-}
-
-.contrib-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary-800);
-  flex: 1;
-}
-
-.contrib-tier {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
-.contrib-count {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-primary-600, #5b4fcf);
-  flex-shrink: 0;
 }
 
 /* 멘토링 */
@@ -317,23 +231,11 @@ const handleAccept = () => {
   flex-shrink: 0;
 }
 
-/* 수락됨 텍스트 */
 .request-accepted {
   font-size: 10px;
   font-weight: 700;
   color: var(--color-equip-active);
   flex-shrink: 0;
-}
-
-/* AI 추천 섹션 배경 */
-.panel-section--ai {
-  background: var(--color-primary-800);
-  border-color: var(--color-primary-800);
-  padding: 18px 18px 0;
-}
-
-.panel-section--ai .section-title {
-  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 수락 모달 오버레이 */
@@ -491,22 +393,6 @@ const handleAccept = () => {
   margin: 0;
 }
 
-.am-box-textarea {
-  width: 100%;
-  resize: none;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  color: var(--color-modal-title);
-  font-family: var(--font-family-base);
-  outline: none;
-  box-sizing: border-box;
-}
-
-.am-box-textarea::placeholder {
-  color: var(--color-placeholder-light);
-}
-
 /* 버튼 */
 .am-actions {
   display: flex;
@@ -515,61 +401,4 @@ const handleAccept = () => {
   margin-top: 4px;
 }
 
-.am-btn {
-  height: 48px;
-  padding: 0 28px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: var(--font-family-base);
-}
-
-.am-btn--cancel {
-  background: var(--color-bg-surface);
-  border: 3px solid var(--color-border-default);
-  color: var(--color-modal-label);
-}
-
-.am-btn--cancel:hover { background: var(--color-primary-50); }
-
-.am-btn--confirm {
-  background: var(--color-primary-600);
-  border: none;
-  color: var(--color-text-inverse);
-}
-
-.am-btn--confirm:hover { background: var(--color-primary-700); }
-
-/* AI 추천 */
-.ai-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 18px;
-}
-
-.ai-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.ai-text {
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.ai-arrow {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
-}
 </style>

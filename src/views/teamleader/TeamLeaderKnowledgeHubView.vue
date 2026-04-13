@@ -1,5 +1,7 @@
-﻿<script setup>
-import { computed, reactive, ref } from 'vue'
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
@@ -9,193 +11,343 @@ import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModalWrapper.vue'
 import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModalWrapper.vue'
+
+// 백엔드 미구현 항목만 mock 유지
 import {
-  knowledgeHubSummaryCards,
-  knowledgeHubCategories,
-  knowledgeHubArticles,
-  knowledgeHubContributors,
   knowledgeHubMentoring,
   knowledgeHubMentoringRequestDefaults,
-  knowledgeHubAiRecommendations,
   knowledgeWriteModalOptions,
 } from '@/mocks/teamleader'
 
-const showWriteModal = ref(false)
-const selectedArticle = ref(null)
-const selectedMentoringRequest = ref(null)
-const showMentoringRequestModal = ref(false)
-const publishedArticles = ref([...knowledgeHubArticles.map((article) => ({
-  ...article,
-  status: 'submitted',
-}))])
-const draftArticles = ref([])
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
+
+const authStore = useAuthStore()
+const authorId = computed(() => Number(authStore.userInfo?.employeeId))
+const requesterRole = computed(() => 'TEAMLEADER')
+
+function formatTrend(value, digits = 0) {
+  const numeric = Number(value ?? 0)
+  const abs = Math.abs(numeric)
+  const formatted = digits > 0 ? abs.toFixed(digits) : Math.round(abs).toLocaleString()
+
+  if (numeric < 0) {
+    return { text: `▼${formatted}`, tone: 'danger' }
+  }
+
+  return { text: `▲${formatted}`, tone: 'success' }
+}
+
+// ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
+function formatDate(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${mm}.${dd}`
+}
+
+// ── 백엔드 DTO → 피드 카드 shape ────────────────────────────────
+function mapToFeedItem(dto) {
+  return {
+    id:           dto.articleId,
+    title:        dto.articleTitle,
+    category:     ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory,
+    equipment:    dto.equipmentName ?? '',
+    date:         formatDate(dto.createdAt),
+    author:       dto.authorName ?? '',
+    authorInitial: dto.authorName?.[0] ?? '?',
+    authorTier:   dto.authorTier ?? 'C',
+    views:        dto.viewCount ?? 0,
+    isPopular:    (dto.viewCount ?? 0) > 50,
+    isBookmarked: Boolean(dto.bookmarked),
+    status:       dto.articleStatus,
+  }
+}
+
+// ── 백엔드 DTO → 기여자 shape ────────────────────────────────────
+function mapToContributor(dto, index) {
+  return {
+    rank:        dto.rank ?? index + 1,
+    name:        dto.employeeName ?? '',
+    initial:     dto.employeeName?.[0] ?? '?',
+    tier:        dto.employeeTier ?? 'C',
+    articles:    dto.articleCount ?? 0,
+    views:       dto.totalViewCount ?? 0,
+    avatarColor: '#5B4FCF',
+  }
+}
+
+// ── 백엔드 DTO → AI 추천 shape ───────────────────────────────────
+function mapToRecommendation(dto) {
+  return { id: dto.articleId, title: dto.articleTitle }
+}
+
+// ── 카테고리 탭 (백엔드 enum 기준) ──────────────────────────────
+const knowledgeCategories = [
+  { key: 'all',    label: '전체' },
+  { key: 'popular', label: '인기' },
+  { key: 'bookmarked', label: '내 북마크' },
+  { key: '장애조치', label: '장애조치' },
+  { key: '공정개선', label: '공정개선' },
+  { key: '설비운영', label: '설비운영' },
+  { key: '안전',    label: '안전' },
+  { key: '기타',    label: '기타' },
+]
+
+// ── API 상태 ─────────────────────────────────────────────────────
+const articles         = ref([])
+const bookmarkArticles = ref([])
+const contributors     = ref([])
+const aiRecommendations = ref([])
+const hubStats         = ref({
+  totalArticles: 0,
+  newThisMonth: 0,
+  averageViewCount: 0,
+  newThisMonthChange: 0,
+  averageViewCountChange: 0,
+})
+
+// ── 통계 / 멘토링 (백엔드 미구현 → mock 유지) ─────────────────────
 const mentoringState = reactive({
   ongoing: [...knowledgeHubMentoring.ongoing],
   pending: [...knowledgeHubMentoring.pending],
 })
-const statState = reactive({
-  totalArticles: 1284,
-  newThisMonth: 42,
-  pendingApproval: 7,
-})
 
-const summaryCards = computed(() => knowledgeHubSummaryCards.map((card) => {
-  if (card.key === 'totalArticles') {
-    return { ...card, value: `${statState.totalArticles.toLocaleString()}건` }
-  }
-  if (card.key === 'newThisMonth') {
-    return { ...card, value: `${statState.newThisMonth}건` }
-  }
-  if (card.key === 'pendingApproval') {
-    return { ...card, value: `${statState.pendingApproval}건` }
-  }
-  return card
-}))
-
-const articles = computed(() => [
-  ...draftArticles.value,
-  ...publishedArticles.value,
+const summaryCards = computed(() => [
+  { key: 'totalArticles', label: '등록 지식 수', value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`, helper: '' },
+  {
+    key: 'newThisMonth',
+    label: '이달 신규',
+    value: `${Number(hubStats.value.newThisMonth ?? 0).toLocaleString()}건`,
+    helper: formatTrend(hubStats.value.newThisMonthChange).text,
+    tone: formatTrend(hubStats.value.newThisMonthChange).tone,
+  },
+  {
+    key: 'avgViews',
+    label: '평균 조회수',
+    value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1),
+    helper: formatTrend(hubStats.value.averageViewCountChange, 1).text,
+    tone: formatTrend(hubStats.value.averageViewCountChange, 1).tone,
+  },
 ])
 
-function openWriteModal() {
-  showWriteModal.value = true
-}
+// ── 데이터 로드 ───────────────────────────────────────────────────
+onMounted(async () => {
+  await Promise.allSettled([
+    loadHubStats(),
+    loadArticles(),
+    loadBookmarks(),
+    loadContributors(),
+    loadRecommendations(),
+  ])
+})
 
-function closeWriteModal() {
-  showWriteModal.value = false
-}
-
-function openDetailModal(article) {
-  selectedArticle.value = article
-}
-
-function closeDetailModal() {
-  selectedArticle.value = null
-}
-
-function submitDetailComment(body) {
-  if (!selectedArticle.value) {
-    return
+const visibleArticles = computed(() => {
+  const merged = new Map()
+  for (const article of articles.value) {
+    merged.set(article.id, article)
   }
-
-  const article = selectedArticle.value
-  const nextId = Math.max(...(article.commentList ?? []).map((item) => item.id), 0) + 1
-  const nextComment = {
-    id: nextId,
-    author: '최민정',
-    date: '03.17 18:05',
-    body,
+  for (const article of bookmarkArticles.value) {
+    const existing = merged.get(article.id)
+    merged.set(article.id, existing ? { ...existing, ...article, isBookmarked: true } : article)
   }
+  return [...merged.values()]
+})
 
-  article.commentList = [...(article.commentList ?? []), nextComment]
-  article.comments = article.commentList.length
-
-  const targetCollection = article.status === 'draft' ? draftArticles : publishedArticles
-  const targetIndex = targetCollection.value.findIndex((item) => item.id === article.id)
-  if (targetIndex !== -1) {
-    targetCollection.value[targetIndex] = {
-      ...targetCollection.value[targetIndex],
-      commentList: [...article.commentList],
-      comments: article.comments,
+async function loadHubStats() {
+  try {
+    const res = await knowledgeArticleApi.getHubStats()
+    hubStats.value = res.data.data ?? {
+      totalArticles: 0,
+      newThisMonth: 0,
+      averageViewCount: 0,
+      newThisMonthChange: 0,
+      averageViewCountChange: 0,
     }
-    selectedArticle.value = targetCollection.value[targetIndex]
+  } catch (e) {
+    console.error('[KMS] 허브 통계 로드 실패:', e)
   }
 }
 
-function openMentoringReview(request) {
-  selectedMentoringRequest.value = request
+async function loadArticles() {
+  try {
+    const res = await knowledgeArticleApi.getArticles({
+      page: 0,
+      size: 20,
+      status: 'APPROVED',
+      requesterId: authorId.value,
+      requesterRole: requesterRole.value,
+    })
+    articles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
+      .filter((dto) => dto.articleStatus === 'APPROVED')
+      .map(mapToFeedItem),
+      (item) => item.author,
+    )
+  } catch (e) {
+    console.error('[KMS] 문서 목록 로드 실패:', e)
+  }
 }
 
-function closeMentoringReview() {
-  selectedMentoringRequest.value = null
+async function loadBookmarks() {
+  try {
+    const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
+    bookmarkArticles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
+        .filter((dto) => dto.articleStatus === 'APPROVED')
+        .map(mapToFeedItem),
+      (item) => item.author,
+    ).map((item) => ({ ...item, isBookmarked: true }))
+  } catch (e) {
+    console.error('[KMS] 북마크 목록 로드 실패:', e)
+  }
 }
 
+async function loadContributors() {
+  try {
+    const res = await knowledgeArticleApi.getContributors(5)
+    contributors.value = filterVisibleKmsAuthors(
+      (res.data.data ?? []).map(mapToContributor),
+      (item) => item.name,
+    )
+  } catch (e) {
+    console.error('[KMS] 기여자 랭킹 로드 실패:', e)
+  }
+}
+
+async function loadRecommendations() {
+  try {
+    const res = await knowledgeArticleApi.getRecommendations()
+    aiRecommendations.value = (res.data.data ?? []).map(mapToRecommendation)
+  } catch (e) {
+    console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+async function handleAddArticle(data) {
+  try {
+    await knowledgeArticleApi.createArticle({
+      authorId: authorId.value,
+      title: data.title,
+      category: data.category,
+      equipmentId: data.equipmentId,
+      content: data.content,
+    })
+    showWriteModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] TL 문서 등록 실패:', e)
+  }
+}
+
+async function handleSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveDraft({
+      authorId: authorId.value,
+      title: data.title,
+      category: data.category,
+      equipmentId: data.equipmentId,
+      content: data.content,
+    })
+    showWriteModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] TL 임시저장 실패:', e)
+  }
+}
+
+// ── 상세 모달 ─────────────────────────────────────────────────────
+const showWriteModal = ref(false)
+const selectedArticle = ref(null)
+
+async function openDetailModal(article) {
+  selectedArticle.value = {
+    id: article.id,
+    title: article.title,
+    category: article.category,
+    equipment: article.equipment,
+    date: article.date,
+    author: article.author,
+    authorInitial: article.authorInitial,
+    authorTier: article.authorTier,
+    content: '',
+    views: article.views,
+    isBookmarked: Boolean(article.isBookmarked),
+  }
+  try {
+    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
+    const dto = res.data.data ?? {}
+    selectedArticle.value = {
+      id: dto.articleId,
+      title: dto.articleTitle ?? article.title,
+      category: ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+      equipment: dto.equipmentName ?? article.equipment,
+      date: article.date,
+      author: dto.authorName ?? article.author,
+      authorInitial: dto.authorName?.[0] ?? article.authorInitial,
+      authorTier: dto.authorTier ?? article.authorTier,
+      content: dto.articleContent ?? '',
+      views: dto.viewCount ?? article.views,
+      isBookmarked: Boolean(dto.bookmarked ?? article.isBookmarked),
+    }
+  } catch (e) {
+    console.error('[KMS] 문서 상세 로드 실패:', e)
+  }
+}
+
+function closeDetailModal() { selectedArticle.value = null }
+
+function openRecommendedArticle(item) {
+  openDetailModal({
+    id: item.id,
+    title: item.title,
+    category: '',
+    equipment: '',
+    date: '',
+    author: '',
+    authorInitial: '?',
+    authorTier: 'C',
+    views: 0,
+    isBookmarked: false,
+  })
+}
+
+async function toggleBookmark(article) {
+  try {
+    if (article.isBookmarked) {
+      await knowledgeArticleApi.removeBookmark(article.id, authorId.value)
+    } else {
+      await knowledgeArticleApi.addBookmark(article.id, authorId.value)
+    }
+
+    await Promise.allSettled([loadArticles(), loadBookmarks()])
+
+    if (selectedArticle.value?.id === article.id) {
+      selectedArticle.value = { ...selectedArticle.value, isBookmarked: !article.isBookmarked }
+    }
+  } catch (e) {
+    console.error('[KMS] 북마크 처리 실패:', e)
+    window.alert('북마크 처리에 실패했습니다.')
+  }
+}
+
+// ── 멘토링 모달 (백엔드 미구현 → mock 유지) ───────────────────────
+const selectedMentoringRequest = ref(null)
+const showMentoringRequestModal = ref(false)
+
+function openMentoringReview(request)  { selectedMentoringRequest.value = request }
+function closeMentoringReview()        { selectedMentoringRequest.value = null }
 function confirmMentoringReview(request) {
-  mentoringState.pending = mentoringState.pending.filter((item) => item.id !== request.id)
+  mentoringState.pending = mentoringState.pending.filter((i) => i.id !== request.id)
   closeMentoringReview()
 }
-
-function openMentoringRequestModal() {
-  showMentoringRequestModal.value = true
-}
-
-function closeMentoringRequestModal() {
-  showMentoringRequestModal.value = false
-}
-
+function openMentoringRequestModal()   { showMentoringRequestModal.value = true }
+function closeMentoringRequestModal()  { showMentoringRequestModal.value = false }
 function submitMentoringRequest(payload) {
-  const nextId = Math.max(...mentoringState.pending.map((item) => item.id), 0) + 1
-  mentoringState.pending.unshift({
-    id: nextId,
-    name: payload.field,
-    requester: 'TL-REQ',
-    summary: payload.purpose,
-    requestedBy: '최민정',
-    requestedAt: '03.17 16:40',
-    priority: '중간',
-    reason: payload.purpose,
-    details: payload.requestDetails,
-  })
+  const nextId = Math.max(...mentoringState.pending.map((i) => i.id), 0) + 1
+  mentoringState.pending.unshift({ id: nextId, name: payload.field, requester: 'TL-REQ', summary: payload.purpose, requestedBy: '최민정', requestedAt: formatDate(new Date().toISOString()), priority: '중간', reason: payload.purpose, details: payload.requestDetails })
   showMentoringRequestModal.value = false
-}
-
-function handleSubmitKnowledge(payload) {
-  const nextId = Math.max(
-    ...publishedArticles.value.map((item) => item.id),
-    ...draftArticles.value.map((item) => item.id),
-    0
-  ) + 1
-  publishedArticles.value.unshift({
-    id: nextId,
-    code: `KMS-${2100 + nextId}`,
-    title: payload.title,
-    preview: payload.summary || payload.content.slice(0, 90),
-    category: payload.category,
-    equipment: payload.equipment,
-    date: '03.17',
-    author: '최민정',
-    authorInitial: '최',
-    authorTier: 'S',
-    comments: 0,
-    content: payload.content,
-    commentList: [],
-    isPopular: false,
-    isSubscribed: true,
-    status: 'submitted',
-  })
-
-  statState.totalArticles += 1
-  statState.newThisMonth += 1
-  statState.pendingApproval += 1
-  closeWriteModal()
-}
-
-function handleDraftKnowledge(payload) {
-  const nextId = Math.max(
-    ...publishedArticles.value.map((item) => item.id),
-    ...draftArticles.value.map((item) => item.id),
-    0
-  ) + 1
-  draftArticles.value.unshift({
-    id: nextId,
-    code: `KMS-DRAFT-${2100 + nextId}`,
-    title: payload.title || '임시 저장 문서',
-    preview: payload.summary || payload.content.slice(0, 90) || '작성 중인 임시 저장 문서입니다.',
-    category: payload.category,
-    equipment: payload.equipment,
-    date: '03.17',
-    author: '최민정',
-    authorInitial: '최',
-    authorTier: 'S',
-    comments: 0,
-    content: payload.content,
-    commentList: [],
-    isPopular: false,
-    isSubscribed: false,
-    status: 'draft',
-  })
-
-  closeWriteModal()
 }
 </script>
 
@@ -205,36 +357,40 @@ function handleDraftKnowledge(payload) {
 
     <section class="teamleader-knowledge-view__grid">
       <TeamLeaderKnowledgeHubFeed
-        :categories="knowledgeHubCategories"
-        :articles="articles"
-        @open-write="openWriteModal"
+        :categories="knowledgeCategories"
+        :articles="visibleArticles"
+        @open-write="showWriteModal = true"
         @open-detail="openDetailModal"
+        @toggle-bookmark="toggleBookmark"
       />
 
       <div class="teamleader-knowledge-view__sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="knowledgeHubContributors" />
+        <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
         <TeamLeaderKnowledgeHubMentoring
           :mentoring="mentoringState"
           @review-request="openMentoringReview"
           @open-request="openMentoringRequestModal"
         />
-        <TeamLeaderKnowledgeHubAiPanel :recommendations="knowledgeHubAiRecommendations" />
+        <TeamLeaderKnowledgeHubAiPanel
+          :recommendations="aiRecommendations"
+          @open-detail="openRecommendedArticle"
+        />
       </div>
     </section>
 
     <TeamLeaderKnowledgeWriteModal
       v-if="showWriteModal"
       :options="knowledgeWriteModalOptions"
-      @close="closeWriteModal"
-      @draft="handleDraftKnowledge"
-      @submit="handleSubmitKnowledge"
+      @close="showWriteModal = false"
+      @draft="handleSaveDraft"
+      @submit="handleAddArticle"
     />
 
     <TeamLeaderKnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
-      @submit-comment="submitDetailComment"
+      @toggle-bookmark="toggleBookmark"
     />
 
     <TeamLeaderKnowledgeMentoringReviewModal

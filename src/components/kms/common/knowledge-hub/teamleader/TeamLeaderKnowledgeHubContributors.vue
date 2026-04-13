@@ -17,11 +17,15 @@ defineProps({
           <span class="contributors__rank">{{ person.rank }}</span>
           <span class="contributors__avatar" :style="{ background: person.avatarColor }">{{ person.initial }}</span>
           <div>
-            <strong>{{ person.name }}</strong>
+            <div class="contributors__name-row">
+              <strong>{{ person.name }}</strong>
+              <span class="contributors__tier" :class="`contributors__tier--${String(person.tier ?? 'C').toLowerCase()}`">{{ person.tier }}</span>
+            </div>
           </div>
         </div>
         <div class="contributors__right">
-          <p>지식 {{ person.articles }}건</p>
+          <p>게시글 {{ person.articles }}건</p>
+          <p>조회수 {{ person.views ?? 0 }}회</p>
         </div>
       </article>
     </div>
@@ -56,9 +60,9 @@ defineProps({
 }
 
 .contributors__row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   border: 1px solid var(--color-border-default);
   border-radius: 14px;
@@ -70,6 +74,15 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.contributors__left {
+  min-width: 0;
+  flex: 1;
+}
+
+.contributors__left > div {
+  min-width: 0;
 }
 
 .contributors__rank {
@@ -97,10 +110,47 @@ defineProps({
   font-size: 12px;
 }
 
-.contributors__left strong { color: var(--color-primary-800); }
+.contributors__left strong {
+  color: var(--color-primary-800);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contributors__name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.contributors__tier {
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.contributors__tier--s { background: #00bf95; color: #fff; }
+.contributors__tier--a { background: var(--color-primary-600); color: #fff; }
+.contributors__tier--b { background: #ffd166; color: #2d237c; }
+.contributors__tier--c { background: #ef476f; color: #fff; }
+
+.contributors__right {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 78px;
+}
+
 .contributors__right p {
   margin: 0;
   font-size: 11px;
   color: var(--color-text-muted);
+  text-align: right;
+  white-space: nowrap;
 }
 </style>

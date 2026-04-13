@@ -1,17 +1,18 @@
 <script setup>
 import { BaseModal } from '@/components/common/base'
-import { CATEGORY_CLASS_MAP } from '@/constants'
+import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
 defineProps({
   article: { type: Object, required: true },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'delete', 'restore'])
 
 function statusClass(status) {
-  if (status === '승인 완료') return 'st--approved'
-  if (status === '승인 대기') return 'st--pending'
-  if (status === '반려') return 'st--rejected'
+  if (status === '삭제대기') return 'st--deleted'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
   return 'st--draft'
 }
 
@@ -44,9 +45,18 @@ function categoryClass(cat) {
       <span class="kd__sep">·</span>
       <span>조회수 {{ article.views }}</span>
       <span class="kd__sep">·</span>
-      <span>댓글 {{ article.comments }}</span>
-      <span class="kd__sep">·</span>
-      <span>재사용 {{ article.reuses }}회</span>
+      <span>수정 횟수 {{ article.reuses }}회</span>
+    </div>
+
+    <!-- 반려 사유 (반려 상태일 때만 표시) -->
+    <div v-if="article.status === '반려' && article.rejectionReason" class="kd__section kd__section--rejected">
+      <h4 class="kd__section-title kd__section-title--rejected">반려 사유</h4>
+      <p class="kd__text kd__text--rejected">{{ article.rejectionReason }}</p>
+    </div>
+
+    <div v-if="article.isDeleted && article.deletionReason" class="kd__section kd__section--rejected">
+      <h4 class="kd__section-title kd__section-title--rejected">삭제 사유</h4>
+      <p class="kd__text kd__text--rejected">{{ article.deletionReason }}</p>
     </div>
 
     <!-- Summary -->
@@ -59,6 +69,14 @@ function categoryClass(cat) {
     <div class="kd__section">
       <h4 class="kd__section-title">본문</h4>
       <p class="kd__text kd__text--content">{{ article.content }}</p>
+    </div>
+
+    <div v-if="article.isDeleted" class="kd__actions">
+      <button type="button" class="kd__restore-btn" @click="emit('restore', article)">복원</button>
+    </div>
+
+    <div v-else-if="article.rawStatus !== 'APPROVED'" class="kd__actions">
+      <button type="button" class="kd__delete-btn" @click="emit('delete', article)">삭제</button>
     </div>
   </BaseModal>
 </template>
@@ -142,6 +160,12 @@ function categoryClass(cat) {
   background: var(--color-neutral-100);
 }
 
+.st--deleted {
+  color: var(--color-status-rejected);
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 /* ── Meta ─────────────────────────────────────────────── */
 .kd__meta {
   display: flex;
@@ -186,5 +210,50 @@ function categoryClass(cat) {
   background: var(--color-bg-app);
   border-radius: var(--radius-sm);
   padding: 16px;
+}
+
+.kd__section--rejected {
+  border: 1px solid var(--color-status-rejected-border, #f5b8c6);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  background: var(--color-status-rejected-bg, #fff0f4);
+}
+
+.kd__section-title--rejected {
+  color: var(--color-status-rejected, #c0103e);
+}
+
+.kd__text--rejected {
+  white-space: pre-line;
+  color: var(--color-status-rejected, #c0103e);
+}
+
+.kd__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.kd__delete-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-status-rejected-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-status-rejected-bg);
+  color: var(--color-status-rejected);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kd__restore-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-status-approved-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-status-approved-bg);
+  color: var(--color-status-approved);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

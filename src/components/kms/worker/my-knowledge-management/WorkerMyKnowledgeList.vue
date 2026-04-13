@@ -1,26 +1,32 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { BaseFilterTabs } from '@/components/common/base'
-import { CATEGORY_CLASS_MAP } from '@/constants'
+import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
 const props = defineProps({
   articles: { type: Array, required: true },
 })
 
-const emit = defineEmits(['detail', 'edit'])
+const emit = defineEmits(['detail', 'edit', 'delete', 'restore'])
 
-const categories = ['전체', '정밀가공', '설비점검', '품질관리', '승인대기', '반려']
+const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장', '삭제대기']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = 4
 
 const filteredArticles = computed(() => {
   let result = props.articles
 
   if (activeCategory.value !== '전체') {
     if (activeCategory.value === '승인대기') {
-      result = result.filter((a) => a.status === '승인 대기')
+      result = result.filter((a) => a.status === '승인대기')
     } else if (activeCategory.value === '반려') {
       result = result.filter((a) => a.status === '반려')
+    } else if (activeCategory.value === '임시저장') {
+      result = result.filter((a) => a.status === '임시저장')
+    } else if (activeCategory.value === '삭제대기') {
+      result = result.filter((a) => a.status === '삭제대기')
     } else {
       result = result.filter((a) => a.category === activeCategory.value)
     }
@@ -39,10 +45,31 @@ const filteredArticles = computed(() => {
   return result
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+
+const pagedArticles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredArticles.value.slice(start, start + pageSize)
+})
+
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+
+watch([activeCategory, searchQuery], () => {
+  currentPage.value = 1
+})
+
+watch(filteredArticles, (articles) => {
+  const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal
+  }
+})
+
 function statusClass(status) {
-  if (status === '승인 완료') return 'st--approved'
-  if (status === '승인 대기') return 'st--pending'
-  if (status === '반려') return 'st--rejected'
+  if (status === '삭제대기') return 'st--deleted'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return 'st--approved'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return 'st--pending'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return 'st--rejected'
   return 'st--draft'
 }
 
@@ -51,10 +78,14 @@ function categoryClass(cat) {
 }
 
 function actionLabel(status) {
-  if (status === '승인 완료') return '수정'
-  if (status === '승인 대기') return '승인 요청'
-  if (status === '반려') return '수정'
+  if (status === ARTICLE_STATUS_LABEL.APPROVED) return '수정'
+  if (status === ARTICLE_STATUS_LABEL.PENDING) return '수정'
+  if (status === ARTICLE_STATUS_LABEL.REJECTED) return '수정'
   return '수정'
+}
+
+function setPage(page) {
+  currentPage.value = page
 }
 </script>
 
@@ -87,7 +118,7 @@ function actionLabel(status) {
 
     <!-- Article Cards -->
     <div class="mkl__list">
-      <div v-for="article in filteredArticles" :key="article.id" class="mkl__card">
+      <div v-for="article in pagedArticles" :key="article.id" class="mkl__card" :class="{ 'mkl__card--deleted': article.isDeleted }">
         <div class="mkl__card-top">
           <div class="mkl__card-badges">
             <span class="mkl__badge" :class="categoryClass(article.category)">
@@ -107,15 +138,49 @@ function actionLabel(status) {
         <div class="mkl__card-bottom">
           <div class="mkl__card-meta">
             <span>조회수 {{ article.views }}</span>
-            <span>댓글 {{ article.comments }}</span>
-            <span>재사용 {{ article.reuses }}회</span>
+            <span>수정 횟수 {{ article.reuses }}회</span>
           </div>
           <div class="mkl__card-actions">
             <button class="mkl__action-btn" @click="emit('detail', article)">상세</button>
-            <button class="mkl__action-btn" @click="emit('edit', article)">{{ actionLabel(article.status) }}</button>
+            <button
+              v-if="!article.isDeleted"
+              class="mkl__action-btn"
+              @click="emit('edit', article)"
+            >
+              {{ actionLabel(article.status) }}
+            </button>
+            <button
+              v-if="!article.isDeleted && article.rawStatus !== 'APPROVED'"
+              class="mkl__action-btn mkl__action-btn--delete"
+              @click="emit('delete', article)"
+            >
+              삭제
+            </button>
+            <button
+              v-if="article.isDeleted"
+              class="mkl__action-btn mkl__action-btn--restore"
+              @click="emit('restore', article)"
+            >
+              복원
+            </button>
           </div>
         </div>
       </div>
+
+      <div v-if="filteredArticles.length === 0" class="mkl__empty">조건에 맞는 문서가 없습니다.</div>
+    </div>
+
+    <div v-if="filteredArticles.length > 0" class="mkl__pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        type="button"
+        class="mkl__page"
+        :class="{ 'mkl__page--active': currentPage === page }"
+        @click="setPage(page)"
+      >
+        {{ page }}
+      </button>
     </div>
   </div>
 </template>
@@ -210,6 +275,15 @@ function actionLabel(status) {
   gap: 14px;
 }
 
+.mkl__empty {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
 .mkl__card {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
@@ -222,6 +296,11 @@ function actionLabel(status) {
 
 .mkl__card:hover {
   border-color: var(--color-primary-300);
+}
+
+.mkl__card--deleted {
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
 }
 
 .mkl__card-top {
@@ -306,6 +385,12 @@ function actionLabel(status) {
   background: var(--color-neutral-100);
 }
 
+.st--deleted {
+  color: var(--color-status-rejected);
+  border-color: var(--color-status-rejected-border);
+  background: var(--color-status-rejected-bg);
+}
+
 .mkl__card-date {
   font-size: 13px;
   color: var(--color-primary-600);
@@ -360,5 +445,52 @@ function actionLabel(status) {
 .mkl__action-btn:hover {
   border-color: var(--color-primary-300);
   color: var(--color-primary-700);
+}
+
+.mkl__action-btn--delete {
+  border-color: var(--color-status-rejected-border);
+  color: var(--color-status-rejected);
+  background: var(--color-status-rejected-bg);
+}
+
+.mkl__action-btn--delete:hover {
+  border-color: var(--color-status-rejected);
+  color: var(--color-status-rejected);
+}
+
+.mkl__action-btn--restore {
+  border-color: var(--color-status-approved-border);
+  color: var(--color-status-approved);
+  background: var(--color-status-approved-bg);
+}
+
+.mkl__action-btn--restore:hover {
+  border-color: var(--color-status-approved);
+  color: var(--color-status-approved);
+}
+
+.mkl__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.mkl__page {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  color: var(--color-text-default);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mkl__page--active {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: #fff;
 }
 </style>

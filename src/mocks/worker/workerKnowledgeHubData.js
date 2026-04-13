@@ -15,7 +15,7 @@ export const knowledgeCategories = [
   { key: 'all', label: '전체' },
   { key: 'popular', label: '인기' },
   { key: 'latest', label: '최신' },
-  { key: 'subscribed', label: '내 구독' },
+  { key: 'bookmarked', label: '내 북마크' },
   { key: '정밀가공', label: '정밀가공' },
   { key: '설비점검', label: '설비점검' },
   { key: '품질관리', label: '품질관리' },

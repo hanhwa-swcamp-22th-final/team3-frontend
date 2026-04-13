@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref } from 'vue'
 
 defineProps({
@@ -8,6 +8,7 @@ defineProps({
   },
 })
 
+const emit = defineEmits(['open-detail'])
 const isCollapsed = ref(true)
 </script>
 
@@ -23,7 +24,13 @@ const isCollapsed = ref(true)
         <div>
           <strong>{{ item.title }}</strong>
         </div>
-        <span>→</span>
+        <button
+          type="button"
+          class="ai-panel__action"
+          @click="emit('open-detail', item)"
+        >
+          →
+        </button>
       </article>
     </div>
   </section>
@@ -96,8 +103,17 @@ const isCollapsed = ref(true)
   color: #fff;
 }
 
-.ai-panel__item span {
+.ai-panel__action {
+  border: none;
+  background: transparent;
   color: rgba(255, 255, 255, 0.78);
   font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.ai-panel__action:hover {
+  color: #fff;
+  transform: translateX(2px);
 }
 </style>

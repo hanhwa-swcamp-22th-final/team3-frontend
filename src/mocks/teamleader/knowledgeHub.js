@@ -8,7 +8,7 @@ export const knowledgeHubCategories = [
   { key: 'all', label: '전체' },
   { key: 'popular', label: '인기' },
   { key: 'latest', label: '최신' },
-  { key: 'subscribed', label: '내 구독' },
+  { key: 'bookmarked', label: '내 북마크' },
   { key: '정밀가공', label: '정밀가공' },
   { key: '설비점검', label: '설비점검' },
   { key: '품질관리', label: '품질관리' },
@@ -33,7 +33,7 @@ export const knowledgeHubArticles = [
       { id: 2, author: '최민정', date: '03.17 15:25', body: '공구 교환 주기 기준을 작업 표준서에도 반영해 두겠습니다.' },
     ],
     isPopular: true,
-    isSubscribed: true,
+    isBookmarked: true,
   },
   {
     id: 2,
@@ -52,7 +52,7 @@ export const knowledgeHubArticles = [
       { id: 1, author: '임원석', date: '03.15 11:42', body: '자연 냉각 시간 조건을 겨울/여름 기준으로 나눠서 적어도 좋겠습니다.' },
     ],
     isPopular: false,
-    isSubscribed: true,
+    isBookmarked: true,
   },
   {
     id: 3,
@@ -71,7 +71,7 @@ export const knowledgeHubArticles = [
       { id: 1, author: '황자현', date: '03.13 09:18', body: '센서 오차 기준표 링크도 추가되면 좋겠습니다.' },
     ],
     isPopular: false,
-    isSubscribed: false,
+    isBookmarked: false,
   },
   {
     id: 4,
@@ -90,7 +90,7 @@ export const knowledgeHubArticles = [
       { id: 1, author: '손창우', date: '03.11 17:08', body: '가공 조건별 진동 로그 예시도 다음 버전에 추가해 주세요.' },
     ],
     isPopular: true,
-    isSubscribed: false,
+    isBookmarked: false,
   },
   {
     id: 5,
@@ -110,7 +110,7 @@ export const knowledgeHubArticles = [
       { id: 2, author: '황자현', date: '03.09 16:20', body: '현장 작업자가 바로 볼 수 있게 체크리스트 버전도 필요합니다.' },
     ],
     isPopular: false,
-    isSubscribed: true,
+    isBookmarked: true,
   },
 ]
 

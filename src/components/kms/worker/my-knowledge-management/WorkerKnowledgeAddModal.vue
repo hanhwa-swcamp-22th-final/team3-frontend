@@ -1,31 +1,55 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
-import { KMS_CATEGORY_OPTIONS as categoryOptions, KMS_EQUIPMENT_OPTIONS as equipmentOptions } from '@/constants'
+import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const emit = defineEmits(['close', 'submit', 'saveDraft'])
 
-const title = ref('')
-const category = ref('')
-const equipment = ref('')
-const summary = ref('')
-const content = ref('')
+const title       = ref('')
+const category    = ref('')
+const equipmentId = ref(null)
+const content     = ref('')
+
+const equipmentList = ref([])
+const errorMessage = ref('')
+const equipmentLoadFailed = ref(false)
+
+onMounted(async () => {
+  try {
+    const res = await knowledgeArticleApi.getEquipments()
+    equipmentList.value = res.data.data ?? []
+    equipmentLoadFailed.value = equipmentList.value.length === 0
+    if (equipmentLoadFailed.value) {
+      errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+    }
+  } catch (e) {
+    console.error('[KMS] 설비 목록 로드 실패:', e)
+    equipmentLoadFailed.value = true
+    errorMessage.value = '설비 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+  }
+})
 
 function getData() {
   return {
-    title: title.value,
-    category: category.value,
-    equipment: equipment.value,
-    summary: summary.value,
-    content: content.value,
+    title:       title.value,
+    category:    category.value,
+    equipmentId: equipmentId.value || null,
+    content:     content.value,
   }
 }
 
 function handleSubmit() {
+  if (!equipmentId.value) {
+    errorMessage.value = '설비를 선택해야 등록할 수 있습니다.'
+    return
+  }
+  errorMessage.value = ''
   emit('submit', getData())
 }
 
 function handleSaveDraft() {
+  errorMessage.value = ''
   emit('saveDraft', getData())
 }
 </script>
@@ -53,14 +77,16 @@ function handleSaveDraft() {
             v-model="title"
             class="ka__input"
             type="text"
-            placeholder="문서 제목을 입력하세요"
+            placeholder="문서 제목을 입력하세요 (1~50자)"
           />
         </div>
         <div class="ka__field">
           <label class="ka__label">카테고리</label>
           <select v-model="category" class="ka__select">
             <option value="" disabled hidden></option>
-            <option v-for="opt in categoryOptions" :key="opt" :value="opt">{{ opt }}</option>
+            <option v-for="opt in ARTICLE_CATEGORY_OPTIONS" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
       </div>
@@ -69,23 +95,16 @@ function handleSaveDraft() {
       <div class="ka__row">
         <div class="ka__field">
           <label class="ka__label">설비</label>
-          <select v-model="equipment" class="ka__select">
-            <option value="" disabled hidden></option>
-            <option v-for="opt in equipmentOptions" :key="opt" :value="opt">{{ opt }}</option>
+          <select v-model="equipmentId" class="ka__select" :disabled="equipmentLoadFailed">
+            <option :value="null" disabled hidden></option>
+            <option
+              v-for="eq in equipmentList"
+              :key="eq.equipmentId ?? eq.id"
+              :value="eq.equipmentId ?? eq.id"
+            >
+              {{ eq.equipmentName ?? eq.name }}
+            </option>
           </select>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="ka__row">
-        <div class="ka__field">
-          <label class="ka__label">요약</label>
-          <textarea
-            v-model="summary"
-            class="ka__textarea ka__textarea--sm"
-            placeholder="핵심 요약을 입력하세요"
-            rows="2"
-          ></textarea>
         </div>
       </div>
 
@@ -100,17 +119,17 @@ function handleSaveDraft() {
           <textarea
             v-model="content"
             class="ka__textarea ka__textarea--lg"
-            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요"
+            placeholder="작업 조건, 문제 원인, 해결 방법을 정리하세요 (최소 50자)"
             rows="6"
           ></textarea>
         </div>
       </div>
     </div>
+    <p v-if="errorMessage" class="ka__error">{{ errorMessage }}</p>
   </BaseFormModal>
 </template>
 
 <style scoped>
-/* ── Form ─────────────────────────────────────────────── */
 .ka__form {
   display: flex;
   flex-direction: column;
@@ -179,10 +198,6 @@ function handleSaveDraft() {
   color: var(--color-text-muted);
 }
 
-.ka__textarea--sm {
-  min-height: 48px;
-}
-
 .ka__textarea--lg {
   min-height: 140px;
 }
@@ -207,5 +222,11 @@ function handleSaveDraft() {
   font-size: 12px;
   color: var(--color-text-muted);
   margin: 0;
+}
+
+.ka__error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-danger);
 }
 </style>

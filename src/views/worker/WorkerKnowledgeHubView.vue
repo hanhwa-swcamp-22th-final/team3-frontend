@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
@@ -8,39 +9,227 @@ import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub
 import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
 import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
+import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 
+import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+
+// 백엔드 미구현 항목만 mock 유지
 import {
-  knowledgeStats,
-  knowledgeCategories,
-  knowledgeArticles,
-  monthlyRanking,
   ongoingMentoring,
   mentoringRequests,
   mentoringRequestFormDefaults,
-  aiRecommendations,
 } from '@/mocks/worker/workerKnowledgeHubData'
 
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
+
+const authStore = useAuthStore()
+const authorId  = computed(() => Number(authStore.userInfo?.employeeId))
+const requesterRole = computed(() => 'WORKER')
+
+function formatTrend(value, digits = 0) {
+  const numeric = Number(value ?? 0)
+  const abs = Math.abs(numeric)
+  const formatted = digits > 0 ? abs.toFixed(digits) : Math.round(abs).toLocaleString()
+
+  if (numeric < 0) {
+    return { text: `▼${formatted}`, tone: 'danger' }
+  }
+
+  return { text: `▲${formatted}`, tone: 'success' }
+}
+
+// ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
+function formatDate(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${mm}.${dd}`
+}
+
+// ── 백엔드 DTO → 피드 카드 shape 변환 ──────────────────────────
+function mapToFeedItem(dto) {
+  return {
+    id: dto.articleId,
+    title: dto.articleTitle,
+    category: ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory,
+    equipment: dto.equipmentName ?? '',
+    date: formatDate(dto.createdAt),
+    author: dto.authorName ?? '',
+    authorInitial: dto.authorName?.[0] ?? '?',
+    authorTier: dto.authorTier ?? 'C',
+    views: dto.viewCount ?? 0,
+    isPopular: (dto.viewCount ?? 0) > 50,
+    isBookmarked: Boolean(dto.bookmarked),
+    status: dto.articleStatus,
+  }
+}
+
+// ── 백엔드 DTO → 기여자 shape 변환 ─────────────────────────────
+function mapToContributor(dto, index) {
+  return {
+    rank: dto.rank ?? index + 1,
+    name: dto.employeeName ?? '',
+    initial: dto.employeeName?.[0] ?? '?',
+    tier: dto.employeeTier ?? 'C',
+    articles: dto.articleCount ?? 0,
+    views: dto.totalViewCount ?? 0,
+    avatarColor: '#5B4FCF',
+  }
+}
+
+// ── 백엔드 DTO → AI 추천 shape 변환 ────────────────────────────
+function mapToRecommendation(dto) {
+  return {
+    id: dto.articleId,
+    title: dto.articleTitle,
+  }
+}
+
+// ── 카테고리 탭 (백엔드 enum 기준) ─────────────────────────────
+const knowledgeCategories = [
+  { key: 'all',    label: '전체' },
+  { key: 'popular', label: '인기' },
+  { key: 'bookmarked', label: '내 북마크' },
+  { key: '장애조치',   label: '장애조치' },
+  { key: '공정개선',   label: '공정개선' },
+  { key: '설비운영',   label: '설비운영' },
+  { key: '안전',       label: '안전' },
+  { key: '기타',       label: '기타' },
+]
+
+// ── API 상태 ────────────────────────────────────────────────────
+const knowledgeArticles = ref([])
+const bookmarkArticles  = ref([])
+const monthlyRanking    = ref([])
+const aiRecommendations = ref([])
+const hubStats          = ref({
+  totalArticles: 0,
+  newThisMonth: 0,
+  averageViewCount: 0,
+  newThisMonthChange: 0,
+  averageViewCountChange: 0,
+})
+
+// ── 데이터 로드 ────────────────────────────────────────────────
+onMounted(async () => {
+  await Promise.allSettled([
+    loadHubStats(),
+    loadArticles(),
+    loadBookmarks(),
+    loadContributors(),
+    loadRecommendations(),
+  ])
+})
+
+const visibleArticles = computed(() => {
+  const merged = new Map()
+  for (const article of knowledgeArticles.value) {
+    merged.set(article.id, article)
+  }
+  for (const article of bookmarkArticles.value) {
+    const existing = merged.get(article.id)
+    merged.set(article.id, existing ? { ...existing, ...article, isBookmarked: true } : article)
+  }
+  return [...merged.values()]
+})
+
+async function loadHubStats() {
+  try {
+    const res = await knowledgeArticleApi.getHubStats()
+    hubStats.value = res.data.data ?? {
+      totalArticles: 0,
+      newThisMonth: 0,
+      averageViewCount: 0,
+      newThisMonthChange: 0,
+      averageViewCountChange: 0,
+    }
+  } catch (e) {
+    console.error('[KMS] 허브 통계 로드 실패:', e)
+  }
+}
+
+async function loadArticles() {
+  try {
+    const res = await knowledgeArticleApi.getArticles({
+      page: 0,
+      size: 20,
+      status: 'APPROVED',
+      requesterId: authorId.value,
+      requesterRole: requesterRole.value,
+    })
+    knowledgeArticles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
+      .filter((dto) => dto.articleStatus === 'APPROVED')
+      .map(mapToFeedItem),
+      (item) => item.author,
+    )
+  } catch (e) {
+    console.error('[KMS] 문서 목록 로드 실패:', e)
+  }
+}
+
+async function loadBookmarks() {
+  try {
+    const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
+    bookmarkArticles.value = filterVisibleKmsAuthors(
+      (res.data.data ?? [])
+        .filter((dto) => dto.articleStatus === 'APPROVED')
+        .map(mapToFeedItem),
+      (item) => item.author,
+    ).map((item) => ({ ...item, isBookmarked: true }))
+  } catch (e) {
+    console.error('[KMS] 북마크 목록 로드 실패:', e)
+  }
+}
+
+async function loadContributors() {
+  try {
+    const res = await knowledgeArticleApi.getContributors(5)
+    monthlyRanking.value = filterVisibleKmsAuthors(
+      (res.data.data ?? []).map(mapToContributor),
+      (item) => item.name,
+    )
+  } catch (e) {
+    console.error('[KMS] 기여자 랭킹 로드 실패:', e)
+  }
+}
+
+async function loadRecommendations() {
+  try {
+    const res = await knowledgeArticleApi.getRecommendations()
+    aiRecommendations.value = (res.data.data ?? []).map(mapToRecommendation)
+  } catch (e) {
+    console.error('[KMS] AI 추천 로드 실패:', e)
+  }
+}
+
+// ── 헤더 카드 (통계 — 백엔드 미구현, mock 유지) ────────────────
 const headerCards = computed(() => [
   {
     key: 'total',
     label: '등록 지식 총',
-    value: `${knowledgeStats.totalArticles.toLocaleString()}건`,
+    value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`,
     helper: '',
   },
   {
     key: 'new',
     label: '이달 신규',
-    value: `${knowledgeStats.newThisMonth}건`,
-    helper: knowledgeStats.newThisMonthDiff ? `▲${knowledgeStats.newThisMonthDiff}` : '',
+    value: `${Number(hubStats.value.newThisMonth ?? 0).toLocaleString()}건`,
+    helper: formatTrend(hubStats.value.newThisMonthChange).text,
+    tone: formatTrend(hubStats.value.newThisMonthChange).tone,
   },
   {
-    key: 'my',
-    label: '내 작성글',
-    value: `${knowledgeStats.myArticles}`,
-    helper: knowledgeStats.myArticlesDiff ? `▲${knowledgeStats.myArticlesDiff}` : '',
+    key: 'avg',
+    label: '평균 조회수',
+    value: Number(hubStats.value.averageViewCount ?? 0).toFixed(1),
+    helper: formatTrend(hubStats.value.averageViewCountChange, 1).text,
+    tone: formatTrend(hubStats.value.averageViewCountChange, 1).tone,
   },
 ])
 
+// ── 멘토링 데이터 (백엔드 미구현, mock 유지) ───────────────────
 const mentoringData = computed(() => ({
   ongoing: ongoingMentoring.map((m) => ({
     id: m.id,
@@ -57,10 +246,11 @@ const mentoringData = computed(() => ({
   })),
 }))
 
-const showAcceptModal = ref(false)
+// ── 모달 상태 ──────────────────────────────────────────────────
+const showAcceptModal  = ref(false)
 const showRequestModal = ref(false)
-const showAddModal = ref(false)
-const selectedRequest = ref(null)
+const showAddModal     = ref(false)
+const selectedRequest  = ref(null)
 
 function handleAcceptClick(request) {
   selectedRequest.value = request
@@ -80,19 +270,120 @@ function submitRequest() {
   showRequestModal.value = false
 }
 
-function handleAddArticle() {
-  showAddModal.value = false
+async function handleAddArticle(data) {
+  try {
+    await knowledgeArticleApi.createArticle({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] 문서 등록 실패:', e)
+  }
 }
 
-function handleSaveDraft() {
-  showAddModal.value = false
+async function handleSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveDraft({
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    })
+    showAddModal.value = false
+    await loadArticles()
+  } catch (e) {
+    console.error('[KMS] 임시저장 실패:', e)
+  }
+}
+
+// ── 상세 모달 ─────────────────────────────────────────────────
+const selectedArticle = ref(null)
+
+async function openDetailModal(article) {
+  // 목록 데이터로 즉시 열고, API로 본문 내용을 채움
+  selectedArticle.value = {
+    id:            article.id,
+    title:         article.title,
+    category:      article.category,
+    equipment:     article.equipment,
+    date:          article.date,
+    author:        article.author,
+    authorInitial: article.authorInitial,
+    authorTier:    article.authorTier,
+    content:       '',
+    views:         article.views,
+    isBookmarked:  Boolean(article.isBookmarked),
+  }
+  try {
+    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
+    const dto = res.data.data ?? {}
+    selectedArticle.value = {
+      id:            dto.articleId,
+      title:         dto.articleTitle ?? article.title,
+      category:      ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? article.category,
+      equipment:     dto.equipmentName ?? article.equipment,
+      date:          article.date,
+      author:        dto.authorName ?? article.author,
+      authorInitial: dto.authorName?.[0] ?? article.authorInitial,
+      authorTier:    dto.authorTier ?? article.authorTier,
+      content:       dto.articleContent ?? '',
+      views:         dto.viewCount ?? article.views,
+      isBookmarked:  Boolean(dto.bookmarked ?? article.isBookmarked),
+    }
+  } catch (e) {
+    console.error('[KMS] 문서 상세 로드 실패:', e)
+  }
+}
+
+function closeDetailModal() {
+  selectedArticle.value = null
+}
+
+function openRecommendedArticle(item) {
+  openDetailModal({
+    id: item.id,
+    title: item.title,
+    category: '',
+    equipment: '',
+    date: '',
+    author: '',
+    authorInitial: '?',
+    authorTier: 'C',
+    views: 0,
+    isBookmarked: false,
+  })
+}
+
+async function toggleBookmark(article) {
+  try {
+    if (article.isBookmarked) {
+      await knowledgeArticleApi.removeBookmark(article.id, authorId.value)
+    } else {
+      await knowledgeArticleApi.addBookmark(article.id, authorId.value)
+    }
+
+    await Promise.allSettled([loadArticles(), loadBookmarks()])
+
+    if (selectedArticle.value?.id === article.id) {
+      selectedArticle.value = { ...selectedArticle.value, isBookmarked: !article.isBookmarked }
+    }
+  } catch (e) {
+    console.error('[KMS] 북마크 처리 실패:', e)
+    window.alert('북마크 처리에 실패했습니다.')
+  }
 }
 
 function closeModal() {
-  showAcceptModal.value = false
+  showAcceptModal.value  = false
   showRequestModal.value = false
-  showAddModal.value = false
-  selectedRequest.value = null
+  showAddModal.value     = false
+  selectedRequest.value  = null
 }
 </script>
 
@@ -105,8 +396,10 @@ function closeModal() {
     <div class="kh-grid">
       <TeamLeaderKnowledgeHubFeed
         :categories="knowledgeCategories"
-        :articles="knowledgeArticles"
+        :articles="visibleArticles"
         @open-write="showAddModal = true"
+        @open-detail="openDetailModal"
+        @toggle-bookmark="toggleBookmark"
       />
 
       <div class="kh-sidebar">
@@ -116,7 +409,10 @@ function closeModal() {
           @review-request="handleAcceptClick"
           @open-request="handleRequestClick"
         />
-        <TeamLeaderKnowledgeHubAiPanel :recommendations="aiRecommendations" />
+        <TeamLeaderKnowledgeHubAiPanel
+          :recommendations="aiRecommendations"
+          @open-detail="openRecommendedArticle"
+        />
       </div>
     </div>
 
@@ -138,6 +434,14 @@ function closeModal() {
       @close="closeModal"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"
+    />
+
+    <!-- 지식 상세 모달 -->
+    <TeamLeaderKnowledgeDetailModal
+      v-if="selectedArticle"
+      :article="selectedArticle"
+      @close="closeDetailModal"
+      @toggle-bookmark="toggleBookmark"
     />
   </div>
 </template>

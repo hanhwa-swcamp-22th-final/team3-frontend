@@ -10,7 +10,7 @@ export const KMS_FILTERS = [
   { key: '전체',   bg: '#2D1F6E', color: '#FFFFFF', activeBg: '#2D1F6E' },
   { key: '인기',   bg: '#FFFFFF', color: '#7A6FA8', activeBg: '#2D1F6E' },
   { key: '최신',   bg: '#FFFFFF', color: '#7A6FA8', activeBg: '#2D1F6E' },
-  { key: '내 구독', bg: '#FFFFFF', color: '#7A6FA8', activeBg: '#2D1F6E' },
+  { key: '내 북마크', bg: '#FFFFFF', color: '#7A6FA8', activeBg: '#2D1F6E' },
 ]
 
 export const KMS_TAG_FILTERS = [
@@ -52,7 +52,7 @@ export const DUMMY_KNOWLEDGE = [
     author: { name: '손창우', initial: '손', color: '#5B4FCF', tier: 'S' },
     views: 156,
     comments: 8,
-    subscribed: true,
+    bookmarked: true,
   },
   {
     id: 2,
@@ -63,7 +63,7 @@ export const DUMMY_KNOWLEDGE = [
     author: { name: '손창우', initial: '손', color: '#5B4FCF', tier: 'S' },
     views: 203,
     comments: 12,
-    subscribed: false,
+    bookmarked: false,
   },
   {
     id: 3,
@@ -74,7 +74,7 @@ export const DUMMY_KNOWLEDGE = [
     author: { name: '손창우', initial: '손', color: '#5B4FCF', tier: 'S' },
     views: 289,
     comments: 15,
-    subscribed: true,
+    bookmarked: true,
   },
   {
     id: 4,
@@ -85,7 +85,7 @@ export const DUMMY_KNOWLEDGE = [
     author: { name: '김신우', initial: '김', color: '#3D35A0', tier: 'A' },
     views: 178,
     comments: 6,
-    subscribed: false,
+    bookmarked: false,
   },
 ]
 
