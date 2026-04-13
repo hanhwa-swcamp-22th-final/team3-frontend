@@ -59,6 +59,7 @@ function mapToContributor(dto, idx) {
     initial: dto.employeeName?.[0] ?? '?',
     color:   '#5B4FCF',
     count:   dto.articleCount ?? 0,
+    views:   dto.totalViewCount ?? 0,
   }
 }
 

@@ -160,6 +160,11 @@ const knowledgeArticleApi = {
     return kmsApi.put(`/api/kms/articles/${articleId}`, data)
   },
 
+  // DRAFT / PENDING / REJECTED -> DRAFT
+  saveArticleAsDraft(articleId, data) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/draft`, data)
+  },
+
   // APPROVED 문서 수정 시작: 복사본(DRAFT) 생성 또는 기존 복사본 반환
   // requesterId: Long
   startRevision(articleId, requesterId) {

@@ -73,6 +73,7 @@ function mapToContributor(dto, index) {
     initial: dto.employeeName?.[0] ?? '?',
     tier: '-',
     articles: dto.articleCount ?? 0,
+    views: dto.totalViewCount ?? 0,
     avatarColor: '#5B4FCF',
   }
 }
@@ -89,7 +90,6 @@ function mapToRecommendation(dto) {
 const knowledgeCategories = [
   { key: 'all',    label: '전체' },
   { key: 'popular', label: '인기' },
-  { key: 'latest',  label: '최신' },
   { key: 'bookmarked', label: '내 북마크' },
   { key: '장애조치',   label: '장애조치' },
   { key: '공정개선',   label: '공정개선' },

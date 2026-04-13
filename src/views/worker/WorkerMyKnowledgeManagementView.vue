@@ -213,7 +213,31 @@ async function handleSaveDraft(data) {
 // "수정 완료" → DRAFT / REJECTED / APPROVED복사본 모두 submitDraft (→ PENDING)
 async function handleEditSubmit(data) {
   try {
-    await knowledgeArticleApi.submitDraft(data.id, {
+    const submitPayload = {
+      authorId:    authorId.value,
+      title:       data.title,
+      category:    data.category,
+      equipmentId: data.equipmentId,
+      content:     data.content,
+    }
+
+    if (selectedArticle.value?.status === '승인대기') {
+      await knowledgeArticleApi.updateArticle(data.id, submitPayload)
+    } else {
+      await knowledgeArticleApi.submitDraft(data.id, submitPayload)
+    }
+
+    showEditModal.value = false
+    await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
+  } catch (e) {
+    console.error('[KMS] 문서 제출 실패:', e)
+  }
+}
+
+// "임시 저장" → 수정 내용 유지 + DRAFT 전환
+async function handleEditSaveDraft(data) {
+  try {
+    await knowledgeArticleApi.saveArticleAsDraft(data.id, {
       authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
@@ -222,23 +246,6 @@ async function handleEditSubmit(data) {
     })
     showEditModal.value = false
     await Promise.allSettled([loadStats(), loadArticles(), loadHistory()])
-  } catch (e) {
-    console.error('[KMS] 문서 제출 실패:', e)
-  }
-}
-
-// "임시 저장" → updateDraft (DRAFT / REJECTED 상태 유지)
-async function handleEditSaveDraft(data) {
-  try {
-    await knowledgeArticleApi.updateArticle(data.id, {
-      authorId:    authorId.value,
-      title:       data.title,
-      category:    data.category,
-      equipmentId: data.equipmentId,
-      content:     data.content,
-    })
-    showEditModal.value = false
-    await loadArticles()
   } catch (e) {
     console.error('[KMS] 임시저장(수정) 실패:', e)
   }

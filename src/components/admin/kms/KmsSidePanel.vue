@@ -32,7 +32,10 @@ const handleAccept = () => {
           <span class="contrib-rank">{{ c.rank }}</span>
           <div class="contrib-avatar" :style="{ background: c.color }">{{ c.initial }}</div>
           <span class="contrib-name">{{ c.name }}</span>
-          <span class="contrib-count">{{ c.count }}건</span>
+          <span class="contrib-metrics">
+            <span class="contrib-count">게시글 {{ c.count }}건</span>
+            <span class="contrib-count">조회수 {{ c.views ?? 0 }}회</span>
+          </span>
         </div>
         <div v-if="contributors.length === 0" class="contrib-empty">기여자 데이터가 없습니다.</div>
       </div>
@@ -216,6 +219,14 @@ const handleAccept = () => {
   font-size: 11px;
   font-weight: 700;
   color: var(--color-primary-600, #5b4fcf);
+  flex-shrink: 0;
+}
+
+.contrib-metrics {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   flex-shrink: 0;
 }
 

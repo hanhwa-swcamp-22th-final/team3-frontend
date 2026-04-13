@@ -21,7 +21,8 @@ defineProps({
           </div>
         </div>
         <div class="contributors__right">
-          <p>지식 {{ person.articles }}건</p>
+          <p>게시글 {{ person.articles }}건</p>
+          <p>조회수 {{ person.views ?? 0 }}회</p>
         </div>
       </article>
     </div>
@@ -102,5 +103,6 @@ defineProps({
   margin: 0;
   font-size: 11px;
   color: var(--color-text-muted);
+  text-align: right;
 }
 </style>
