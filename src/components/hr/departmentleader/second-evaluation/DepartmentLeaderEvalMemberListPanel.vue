@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { TIER_BADGE_STYLES as tierColors } from '@/constants'
+import EvaluationMemberCard from '@/components/hr/common/evaluation/EvaluationMemberCard.vue'
 
 const props = defineProps({
   members: { type: Array, default: () => [] },
@@ -10,9 +10,9 @@ const props = defineProps({
 const emit = defineEmits(['select'])
 
 const statusConfig = {
-  submitted:    { label: '제출 완료', icon: '✓', cardClass: 'card--submitted' },
-  in_progress:  { label: '작성 중',   icon: '✏', cardClass: 'card--in-progress' },
-  not_started:  { label: '미작성',    icon: '⊘', cardClass: 'card--not-started' },
+  submitted: { label: '제출 완료' },
+  in_progress: { label: '작성 중' },
+  not_started: { label: '미작성' },
 }
 
 const search = ref('')
@@ -31,9 +31,10 @@ const statusOptions = [
 
 const filtered = computed(() =>
   props.members.filter((m) => {
+    const keyword = search.value.trim()
     const matchTeam   = teamFilter.value   === '전체' || m.team   === teamFilter.value
     const matchStatus = statusFilter.value === '전체' || m.status === statusFilter.value
-    const matchSearch = m.name.includes(search.value.trim())
+    const matchSearch = !keyword || m.name.includes(keyword) || m.team?.includes(keyword)
     return matchTeam && matchStatus && matchSearch
   })
 )
@@ -55,12 +56,15 @@ const statusFilterLabel = computed(
 
 <template>
   <section class="eval-member-list">
-    <!-- Header -->
-    <h3 class="eval-member-list__title">팀원 평가 현황</h3>
+    <div class="eval-member-list__header">
+      <div>
+        <p class="eval-member-list__eyebrow">평가 대상 현황</p>
+        <h3 class="eval-member-list__title">대상자 목록</h3>
+      </div>
+      <span class="eval-member-list__count">총 {{ members.length }}명</span>
+    </div>
 
-    <!-- Filters -->
     <div class="eval-member-list__filters">
-      <!-- Team dropdown -->
       <div class="eval-member-list__dropdown-wrap">
         <button class="eval-member-list__filter-btn" @click="teamDropdownOpen = !teamDropdownOpen; statusDropdownOpen = false">
           <span class="eval-member-list__filter-label">팀: {{ teamFilter }}</span>
@@ -77,7 +81,6 @@ const statusFilterLabel = computed(
         </ul>
       </div>
 
-      <!-- Status dropdown -->
       <div class="eval-member-list__dropdown-wrap">
         <button class="eval-member-list__filter-btn" @click="statusDropdownOpen = !statusDropdownOpen; teamDropdownOpen = false">
           <span class="eval-member-list__filter-label">상태: {{ statusFilterLabel }}</span>
@@ -95,42 +98,34 @@ const statusFilterLabel = computed(
       </div>
     </div>
 
-    <!-- Search -->
-    <div class="eval-member-list__search">
-      <span class="eval-member-list__search-icon">🔍</span>
+    <label class="eval-member-list__search" aria-label="평가 대상 검색">
+      <span class="eval-member-list__search-icon" aria-hidden="true">⌕</span>
       <input
         v-model="search"
         class="eval-member-list__search-input"
-        placeholder="팀원 검색..."
+        placeholder="이름 또는 팀명으로 검색"
       />
-    </div>
+    </label>
 
     <ul class="eval-member-list__list">
       <li
         v-for="m in filtered"
         :key="m.id"
-        class="eval-card"
-        :class="[statusConfig[m.status]?.cardClass, { 'eval-card--selected': m.id === selectedId }]"
-        @click="emit('select', m)"
+        class="eval-member-list__item"
       >
-        <div class="eval-card__left">
-          <div class="eval-card__avatar" :style="{ background: m.avatarColor }">
-            {{ m.avatar }}
-          </div>
-          <div class="eval-card__info">
-            <div class="eval-card__name-row">
-              <span class="eval-card__name">{{ m.name }}</span>
-              <span
-                class="eval-card__tier"
-                :style="{ background: tierColors[m.tier]?.bg, color: tierColors[m.tier]?.text }"
-              >{{ m.tier }}</span>
-            </div>
-            <span class="eval-card__status">
-              {{ statusConfig[m.status]?.icon }} {{ statusConfig[m.status]?.label }}
-            </span>
-          </div>
-        </div>
-        <span class="eval-card__date">{{ m.statusDate }}</span>
+        <EvaluationMemberCard
+          :member-id="m.id"
+          :name="m.name"
+          :avatar="m.avatar"
+          :avatar-color="m.avatarColor"
+          :tier="m.tier"
+          :meta="`${m.team} | ${m.position ?? '직무 정보 없음'}`"
+          :status="m.status"
+          :status-label="statusConfig[m.status]?.label"
+          :status-date="m.statusDate"
+          :selected="m.id === selectedId"
+          @select="emit('select', m)"
+        />
       </li>
     </ul>
 
@@ -139,49 +134,81 @@ const statusFilterLabel = computed(
 
 <style scoped>
 .eval-member-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   gap: 12px;
   padding: 20px;
   border: 1px solid var(--color-border-default);
   border-radius: 24px;
   background: var(--color-bg-surface);
   height: 100%;
+  min-height: 0;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.eval-member-list__title {
-  font-size: var(--font-size-sm);
+.eval-member-list__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eval-member-list__eyebrow {
+  margin: 0 0 4px;
+  font-size: var(--font-size-xs-plus);
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary-600);
+  color: var(--color-primary-500);
+}
+
+.eval-member-list__title {
   margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
+}
+
+.eval-member-list__count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
 }
 
 .eval-member-list__filters {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .eval-member-list__dropdown-wrap {
   position: relative;
   flex: 1;
+  min-width: 0;
 }
 
 .eval-member-list__filter-btn {
   width: 100%;
-  background: var(--color-primary-100);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
+  height: 38px;
+  padding: 0 36px 0 14px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary-700);
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+  box-sizing: border-box;
 }
 
 .eval-member-list__filter-label {
@@ -194,33 +221,36 @@ const statusFilterLabel = computed(
   position: absolute;
   right: 10px;
   flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 .eval-member-list__dropdown {
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
+  left: 0;
   z-index: 10;
   list-style: none;
-  min-width: 140px;
+  width: 100%;
   padding: 0;
   margin: 0;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
   overflow: hidden;
 }
 
 .eval-member-list__dropdown-item {
-  padding: 10px 16px;
+  padding: 10px 14px;
   font-size: var(--font-size-sm);
   cursor: pointer;
   color: var(--color-text-default);
 }
+
 .eval-member-list__dropdown-item:hover {
   background: var(--color-primary-100);
 }
+
 .eval-member-list__dropdown-item--active {
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
@@ -230,25 +260,29 @@ const statusFilterLabel = computed(
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  border-radius: 14px;
+  padding: 10px 12px;
   background: var(--color-bg-surface-muted);
 }
 
 .eval-member-list__search-icon {
-  font-size: var(--font-size-base);
   flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base-plus);
 }
 
 .eval-member-list__search-input {
+  width: 100%;
+  min-width: 0;
   border: none;
   background: transparent;
   outline: none;
   font-size: var(--font-size-sm);
   color: var(--color-text-default);
-  width: 100%;
 }
+
 .eval-member-list__search-input::placeholder {
   color: var(--color-text-muted);
 }
@@ -258,132 +292,29 @@ const statusFilterLabel = computed(
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 2px;
+  padding: 0 4px 0 0;
   margin: 0;
-  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
-/* Card base */
-.eval-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background 0.15s;
+.eval-member-list__item {
+  list-style: none;
 }
 
-.eval-card__left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+@media (max-width: 720px) {
+  .eval-member-list {
+    padding: 16px;
+  }
 
-/* Status variants */
-.card--submitted {
-  background: #e8faf4;
-  border-color: #a7e9d0;
-}
+  .eval-member-list__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-.card--in-progress {
-  background: #1e1650;
-  border-color: #3d2fa0;
-}
+  .eval-member-list__filters {
+    flex-direction: column;
+  }
 
-.card--not-started {
-  background: #f7f7f9;
-  border-color: var(--color-border-soft);
-}
-
-.eval-card--selected {
-  outline: 2px solid var(--color-primary-400);
-}
-
-/* Avatar */
-.eval-card__avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  flex-shrink: 0;
-}
-
-/* Info */
-.eval-card__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.eval-card__name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.eval-card__name {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-}
-
-.card--submitted .eval-card__name,
-.card--not-started .eval-card__name {
-  color: var(--color-primary-800);
-}
-
-.card--in-progress .eval-card__name {
-  color: #fff;
-}
-
-.eval-card__tier {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-extrabold);
-}
-
-.eval-card__status {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.card--submitted .eval-card__status {
-  color: #16a37a;
-}
-
-.card--in-progress .eval-card__status {
-  color: #c4b8ff;
-}
-
-.card--not-started .eval-card__status {
-  color: var(--color-text-muted);
-}
-
-/* Date */
-.eval-card__date {
-  font-size: var(--font-size-xs);
-  flex-shrink: 0;
-}
-
-.card--submitted .eval-card__date,
-.card--not-started .eval-card__date {
-  color: var(--color-text-muted);
-}
-
-.card--in-progress .eval-card__date {
-  color: #c4b8ff;
 }
 </style>

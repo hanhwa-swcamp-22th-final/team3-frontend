@@ -1,140 +1,109 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { TIER_BADGE_STYLES as tierColors, scoreToStars } from '@/constants'
+import { computed, ref, watch } from 'vue'
+import AiEvaluationFormPanel from '@/components/hr/common/evaluation/AiEvaluationFormPanel.vue'
+import DepartmentLeaderFirstEvaluationSummary from './DepartmentLeaderFirstEvaluationSummary.vue'
 
 const props = defineProps({
   member: { type: Object, default: null },
+  readonly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['save', 'submit'])
 
-// Local copy of evaluations so edits don't mutate prop directly
-const localEvals = ref([])
+const draftText = ref('')
+const recordingState = ref('idle')
+const uploadedFileName = ref('')
+const uploadedText = ref('')
 
 watch(
   () => props.member,
-  (m) => {
-    if (!m) return
-    localEvals.value = m.evaluations.map((e) => ({ ...e }))
+  (member) => {
+    draftText.value = member?.secondEvaluationDraft ?? ''
+    recordingState.value = 'idle'
+    uploadedFileName.value = ''
+    uploadedText.value = ''
   },
   { immediate: true },
 )
 
-function updateScore(idx, raw) {
-  const score = Math.min(100, Math.max(0, Number(raw) || 0))
-  localEvals.value[idx].score = score
-  localEvals.value[idx].stars = scoreToStars(score)
+const canSubmit = computed(() => draftText.value.trim().length >= 20)
+
+function handleVoiceInput() {
+  recordingState.value = recordingState.value === 'recording' ? 'ready' : 'recording'
+  if (recordingState.value === 'recording') {
+    uploadedText.value = ''
+  } else {
+    uploadedText.value =
+      '음성 입력 mock 초안입니다. 1차 평가 내용과 현업 관찰 내용을 바탕으로 2차 평가 의견을 정리한 뒤 최종 문장을 직접 보완하세요.'
+  }
 }
 
-function setStars(idx, stars) {
-  localEvals.value[idx].stars = stars
+async function handleFileChange(file) {
+  if (!file) return
+
+  uploadedFileName.value = file.name
+  if (file.type.startsWith('text/') || /\.(txt|md|log)$/i.test(file.name)) {
+    uploadedText.value = await file.text()
+    return
+  }
+
+  uploadedText.value = `[업로드 파일 mock] ${file.name} 파일이 선택되었습니다. 실제 변환은 후속 API 연동 단계에서 지원됩니다.`
 }
 
-const canSubmit = computed(() =>
-  localEvals.value.every(
-    (e) => e.score > 0 && String(e.comment).trim() !== '',
-  ),
-)
-
+function handleConvertText() {
+  if (!uploadedText.value) return
+  draftText.value = uploadedText.value
+}
 </script>
 
 <template>
-  <section v-if="member" class="eval-form">
-    <!-- Member header -->
-    <div class="eval-form__header">
-      <div class="eval-form__avatar" :style="{ background: member.avatarColor }">
-        {{ member.avatar }}
+  <AiEvaluationFormPanel
+    v-if="member"
+    class="department-evaluation-form-panel"
+    :title="`${member.name} 2차 평가 작성`"
+    :description="`${member.code} | ${member.team} | ${member.experience}`"
+    :model-value="draftText"
+    :notice-text="'팀리더 1차 평가 내용과 AI 권고 점수는 참고 자료입니다. 음성 입력 또는 파일 업로드로 초안을 만든 뒤 아래 편집 영역에서 2차 평가 문장을 직접 완성하세요.'"
+    :editor-placeholder="'2차 평가 의견을 입력하세요. 1차 평가 내용 검토, 종합 판단, 보완 의견이 드러나도록 작성합니다.'"
+    :recording-state="recordingState"
+    :uploaded-file-name="uploadedFileName"
+    :show-guide-button="true"
+    :guide-button-label="'1차 평가 참고'"
+    :guide-disabled="true"
+    :readonly="readonly"
+    :recording-summary-renderer="() => ({ title: '2차 평가 작성 현황', description: `${draftText.trim().length}자 입력 완료` })"
+    @update:model-value="draftText = $event"
+    @voice-input="handleVoiceInput"
+    @file-selected="handleFileChange"
+    @convert-text="handleConvertText"
+  >
+    <template #summary>
+      <DepartmentLeaderFirstEvaluationSummary :summary="member.firstEvaluationSummary" />
+    </template>
+
+    <template #footer>
+      <div class="eval-form__actions">
+        <span
+          class="eval-form__submit-hint"
+          :class="{ 'eval-form__submit-hint--ready': readonly || canSubmit, 'eval-form__submit-hint--submitted': readonly }"
+        >
+          {{ readonly ? '제출이 완료된 평가입니다.' : canSubmit ? '제출 가능한 상태입니다. 검토 후 최종 제출하세요.' : '2차 평가는 20자 이상 입력해야 제출할 수 있습니다.' }}
+        </span>
+        <template v-if="!readonly">
+          <button class="eval-form__btn eval-form__btn--save" @click="emit('save', draftText)">
+            임시저장
+          </button>
+          <button
+            class="eval-form__btn eval-form__btn--submit"
+            :disabled="!canSubmit"
+            @click="emit('submit', draftText)"
+          >
+            최종 제출
+          </button>
+        </template>
       </div>
-      <div class="eval-form__member-info">
-        <div class="eval-form__name-row">
-          <span class="eval-form__name">{{ member.name }}</span>
-          <span
-            class="eval-form__tier-badge"
-            :style="{ background: tierColors[member.tier]?.bg, color: tierColors[member.tier]?.text }"
-          >{{ member.tier }}</span>
-        </div>
-        <span class="eval-form__meta">2차인 · {{ member.tier }}-Tier · {{ member.experience }}</span>
-      </div>
-    </div>
-
-    <!-- AI recommendation -->
-    <div class="eval-form__ai-box">
-      <span class="eval-form__ai-label">AI 산출 정량 평균 점수 권고</span>
-      <div class="eval-form__ai-scores">
-        <div class="eval-form__ai-score">
-          <span class="eval-form__ai-value">{{ member.aiRecommended.quantitative }}</span>
-          <span class="eval-form__ai-kind">정량</span>
-        </div>
-        <div class="eval-form__ai-divider" />
-        <div class="eval-form__ai-score">
-          <span class="eval-form__ai-value">{{ member.aiRecommended.qualitative }}</span>
-          <span class="eval-form__ai-kind">정성</span>
-        </div>
-        <div class="eval-form__ai-divider" />
-        <div class="eval-form__ai-score">
-          <span class="eval-form__ai-value">{{ member.aiRecommended.composite }}</span>
-          <span class="eval-form__ai-kind">종합</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Evaluation categories -->
-    <div class="eval-form__categories">
-      <div
-        v-for="(item, idx) in localEvals"
-        :key="item.category"
-        class="eval-category"
-      >
-        <div class="eval-category__title-row">
-          <span class="eval-category__name">{{ item.category }}</span>
-          <input
-            class="eval-category__score"
-            type="number"
-            min="0"
-            max="100"
-            :value="localEvals[idx].score"
-            @input="updateScore(idx, $event.target.value)"
-          />
-        </div>
-
-        <!-- Stars -->
-        <div class="eval-category__stars">
-          <span
-            v-for="s in 5"
-            :key="s"
-            class="eval-category__star"
-            :class="{ 'eval-category__star--filled': s <= item.stars }"
-            @click="setStars(idx, s)"
-          >★</span>
-        </div>
-
-        <!-- Comment input -->
-        <input
-          v-model="localEvals[idx].comment"
-          class="eval-category__input"
-          type="text"
-          :placeholder="`${item.category} 코멘트 입력...`"
-        />
-      </div>
-    </div>
-
-    <!-- Action buttons -->
-    <div class="eval-form__actions">
-      <span v-if="!canSubmit" class="eval-form__submit-hint">
-        모든 항목의 점수와 코멘트를 입력해야 제출할 수 있습니다.
-      </span>
-      <button class="eval-form__btn eval-form__btn--save" @click="emit('save', localEvals)">
-        임시저장
-      </button>
-      <button
-        class="eval-form__btn eval-form__btn--submit"
-        :disabled="!canSubmit"
-        @click="emit('submit', localEvals)"
-      >
-        최종 제출
-      </button>
-    </div>
-  </section>
+    </template>
+  </AiEvaluationFormPanel>
 
   <section v-else class="eval-form eval-form--empty">
     <p>좌측 목록에서 팀원을 선택하세요.</p>
@@ -161,198 +130,11 @@ const canSubmit = computed(() =>
   font-size: var(--font-size-base);
 }
 
-/* Header */
-.eval-form__header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.department-evaluation-form-panel {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
 }
 
-.eval-form__avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  flex-shrink: 0;
-}
-
-.eval-form__member-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.eval-form__name-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.eval-form__name {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-extrabold);
-  color: var(--color-primary-800);
-}
-
-.eval-form__tier-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-extrabold);
-}
-
-.eval-form__meta {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-/* AI recommendation box */
-.eval-form__ai-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 20px;
-  border-radius: 14px;
-  background: #f0eeff;
-}
-
-.eval-form__ai-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary-700);
-  white-space: nowrap;
-}
-
-.eval-form__ai-scores {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.eval-form__ai-score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.eval-form__ai-value {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-extrabold);
-  color: var(--color-primary-800);
-}
-
-.eval-form__ai-kind {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.eval-form__ai-divider {
-  width: 1px;
-  height: 28px;
-  background: var(--color-border-default);
-}
-
-/* Categories */
-.eval-form__categories {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.eval-category {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.eval-category__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.eval-category__name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-800);
-}
-
-.eval-category__score {
-  width: 72px;
-  text-align: center;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-extrabold);
-  color: var(--color-primary-600);
-  border: 1.5px solid var(--color-primary-300);
-  border-radius: 8px;
-  padding: 4px 8px;
-  background: var(--color-primary-50, #f5f3ff);
-  outline: none;
-  -moz-appearance: textfield;
-  transition: border-color 0.15s;
-}
-.eval-category__score:focus {
-  border-color: var(--color-primary-500);
-}
-.eval-category__score::-webkit-inner-spin-button,
-.eval-category__score::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-}
-
-/* Stars */
-.eval-category__stars {
-  display: flex;
-  gap: 4px;
-}
-
-.eval-category__star {
-  font-size: var(--font-size-xl);
-  color: #ddd;
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.1s;
-}
-
-.eval-category__star--filled {
-  color: #f5a623;
-}
-
-.eval-category__star:hover {
-  color: #f5c060;
-}
-
-/* Comment input */
-.eval-category__input {
-  width: 100%;
-  height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 10px;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-default);
-  background: var(--color-bg-surface-muted);
-  box-sizing: border-box;
-  outline: none;
-}
-.eval-category__input::placeholder {
-  color: var(--color-text-muted);
-}
-.eval-category__input:focus {
-  border-color: var(--color-primary-400);
-}
-
-/* Action buttons */
 .eval-form__actions {
   display: flex;
   align-items: center;
@@ -369,6 +151,15 @@ const canSubmit = computed(() =>
   text-align: left;
 }
 
+.eval-form__submit-hint--ready {
+  color: #1d7f5f;
+}
+
+.eval-form__submit-hint--submitted {
+  color: #1d7f5f;
+  font-weight: var(--font-weight-semibold);
+}
+
 .eval-form__btn {
   height: 42px;
   padding: 0 24px;
@@ -379,6 +170,7 @@ const canSubmit = computed(() =>
   border: none;
   transition: opacity 0.15s;
 }
+
 .eval-form__btn:hover {
   opacity: 0.85;
 }
