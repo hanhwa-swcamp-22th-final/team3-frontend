@@ -1,8 +1,11 @@
-﻿<script setup>
-defineProps({
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
   ranking: { type: Array, default: () => [] },
 })
 
+const topRanking = computed(() => props.ranking.slice(0, 3))
 </script>
 
 <template>
@@ -12,7 +15,7 @@ defineProps({
     </div>
 
     <div class="contributors__list">
-      <article v-for="person in ranking" :key="person.rank" class="contributors__row">
+      <article v-for="person in topRanking" :key="person.rank" class="contributors__row">
         <div class="contributors__left">
           <span class="contributors__rank">{{ person.rank }}</span>
           <span class="contributors__avatar" :style="{ background: person.avatarColor }">{{ person.initial }}</span>

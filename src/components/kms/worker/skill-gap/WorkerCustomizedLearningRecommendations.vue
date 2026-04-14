@@ -6,6 +6,8 @@ const props = defineProps({
   articles: { type: Array, required: true },
 })
 
+const emit = defineEmits(['open-article'])
+
 const localCourses = ref([])
 
 // Initialize or update local copy when prop changes
@@ -18,6 +20,10 @@ const startCourse = (id) => {
   if (course && course.status === '시작하기') {
     course.status = '진행중'
   }
+}
+
+const openArticle = (article) => {
+  emit('open-article', article)
 }
 </script>
 
@@ -59,10 +65,16 @@ const startCourse = (id) => {
     <div class="lr__articles">
       <span class="lr__articles-label">📘 관련 KMS 지식</span>
       <div class="lr__articles-list">
-        <div v-for="article in articles" :key="article.id" class="lr__article">
+        <button
+          v-for="article in articles"
+          :key="article.id"
+          type="button"
+          class="lr__article"
+          @click="openArticle(article)"
+        >
           <span class="lr__article-title">{{ article.title }}</span>
           <span class="lr__article-likes">👍{{ article.likes }}</span>
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -217,10 +229,12 @@ const startCourse = (id) => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
+  border: none;
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
+  text-align: left;
 }
 
 .lr__article:hover {
