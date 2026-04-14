@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getWorkerSkillGap } from '@/services/workerHrApi'
+import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import WorkerSkillGapChartAndStatus from '@/components/kms/worker/skill-gap/WorkerSkillGapChartAndStatus.vue'
 import WorkerSkillGapAiAnalysisReport from '@/components/kms/worker/skill-gap/WorkerSkillGapAiAnalysisReport.vue'
 import WorkerCustomizedLearningRecommendations from '@/components/kms/worker/skill-gap/WorkerCustomizedLearningRecommendations.vue'
 
 const loading = ref(true)
+const currentTier = ref('C')
+const targetTier = ref('B')
 const skillGapSkills = ref([])
 const skillGapSummary = ref({ currentOverall: 0, targetOverall: 0, totalGap: 0 })
 const aiAnalysisReport = ref({
@@ -22,7 +24,10 @@ const relatedKmsArticles = ref([])
 
 onMounted(async () => {
   try {
-    const data = await getWorkerSkillGap()
+    const response = await knowledgeArticleApi.getWorkerSkillGap()
+    const data = response.data?.data ?? response.data
+    currentTier.value = data.currentTier ?? 'C'
+    targetTier.value = data.targetTier ?? currentTier.value
     skillGapSkills.value = data.skills
     skillGapSummary.value = data.summary
     aiAnalysisReport.value = data.report
@@ -43,6 +48,8 @@ onMounted(async () => {
     <div v-else class="sg-grid">
       <!-- Left: Radar Chart + Skill Status -->
       <WorkerSkillGapChartAndStatus
+        :current-tier="currentTier"
+        :target-tier="targetTier"
         :skills="skillGapSkills"
         :summary="skillGapSummary"
       />

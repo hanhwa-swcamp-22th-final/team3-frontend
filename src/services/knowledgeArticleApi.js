@@ -108,6 +108,10 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles/recommendations')
   },
 
+  getWorkerSkillGap() {
+    return kmsApi.get('/api/kms/workers/me/skill-gap')
+  },
+
   getTags() {
     return kmsApi.get('/api/kms/tags')
   },
@@ -153,7 +157,7 @@ const knowledgeArticleApi = {
   },
 
   // ── Worker Command ────────────────────────────────────────────
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   createArticle(data) {
     return kmsApi.post('/api/kms/articles', data)
   },
@@ -162,7 +166,7 @@ const knowledgeArticleApi = {
     return kmsApi.post('/api/kms/articles/drafts', data)
   },
 
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   // DRAFT / PENDING / REJECTED 상태 문서만 허용 (임시저장용)
   updateArticle(articleId, data) {
     return kmsApi.put(`/api/kms/articles/${articleId}`, data)
@@ -179,7 +183,7 @@ const knowledgeArticleApi = {
   },
 
   // DRAFT / REJECTED → PENDING 제출
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   submitDraft(articleId, data) {
     return kmsApi.put(`/api/kms/articles/${articleId}/submit`, data)
   },
