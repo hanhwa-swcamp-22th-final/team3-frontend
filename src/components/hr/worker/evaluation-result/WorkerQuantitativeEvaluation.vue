@@ -45,7 +45,7 @@ function parseLabel(label) {
 
     <!-- Formula steps -->
     <div class="qn__steps">
-      <div v-for="(step, i) in evaluation.steps" :key="i" class="qn__step">
+      <div v-for="(step, i) in (evaluation?.steps || [])" :key="i" class="qn__step">
         <div class="qn__step-label">
           <span class="qn__step-name">{{ parseLabel(step.label).name }}</span>
           <span v-if="showFormula && parseLabel(step.label).formula" class="qn__step-formula">
@@ -63,11 +63,11 @@ function parseLabel(label) {
 
     <!-- E_idx chart -->
     <div class="qn__chart-card">
-      <h4 class="qn__chart-title">📈 {{ evaluation.eidxChart.title }}</h4>
+      <h4 class="qn__chart-title">📈 {{ evaluation?.eidxChart?.title ?? '설비 가동 효율 추이' }}</h4>
       <div class="qn__chart">
         <svg viewBox="0 0 280 80" class="qn__chart-svg">
           <line
-            v-for="(_, i) in evaluation.eidxChart.data.slice(0, -1)"
+            v-for="(_, i) in (evaluation?.eidxChart?.data || []).slice(0, -1)"
             :key="'l' + i"
             :x1="i * (260 / (evaluation.eidxChart.data.length - 1)) + 10"
             :y1="70 - ((evaluation.eidxChart.data[i] - 0.85) / 0.15) * 60"
@@ -80,14 +80,14 @@ function parseLabel(label) {
         </svg>
       </div>
       <span class="qn__chart-meta">
-        평균 E_idx: {{ evaluation.eidxChart.avg }} · 최저: {{ evaluation.eidxChart.min }}({{ evaluation.eidxChart.minDate }}) · 최고: {{ evaluation.eidxChart.max }}
+        평균 E_idx: {{ evaluation?.eidxChart?.avg ?? '-' }} · 최저: {{ evaluation?.eidxChart?.min ?? '-' }}({{ evaluation?.eidxChart?.minDate ?? '-' }}) · 최고: {{ evaluation?.eidxChart?.max ?? '-' }}
       </span>
     </div>
 
     <!-- AI Summary -->
     <div class="qn__ai">
       <h4 class="qn__ai-title">AI 요약</h4>
-      <p class="qn__ai-text">{{ evaluation.aiSummary }}</p>
+      <p class="qn__ai-text">{{ evaluation?.aiSummary ?? '정량 평가 분석 데이터가 없습니다.' }}</p>
     </div>
   </div>
 </template>

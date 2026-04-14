@@ -1,14 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
-import { ADMIN_API_BASE } from '@/constants'
-import { useAuthStore } from '@/stores/auth'
-import ProfileStatusBoard  from '@/components/admin/hr/ProfileStatusBoardWrapper.vue'
-import ProfileSearchToolbar from '@/components/admin/hr/ProfileSearchToolbar.vue'
-import ProfileListTable    from '@/components/admin/hr/ProfileListTable.vue'
+import employeeApi from '@/services/employeeApi'
+import EmployeeStatusBoardWrapper  from '@/components/admin/hr/EmployeeStatusBoardWrapper.vue'
+import EmployeeSearchToolbar from '@/components/admin/hr/EmployeeSearchToolbar.vue'
+import EmployeeListTable    from '@/components/admin/hr/EmployeeListTable.vue'
 import EmployeeCreateUpdate from '@/components/admin/hr/EmployeeCreateUpdate.vue'
-
-const authStore = useAuthStore()
 
 // ── State ──────────────────────────────────────────
 const employees    = ref([])
@@ -18,16 +14,14 @@ const isLoading    = ref(false)
 const fetchEmployees = async () => {
   isLoading.value = true
   try {
-    const res = await axios.get(
-      `${ADMIN_API_BASE}/api/v1/organization/employees/summary`,
-      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
-    )
+    const res = await employeeApi.getEmployeesSummary()
     const list = res.data?.success ? res.data.data : res.data
     employees.value = (Array.isArray(list) ? list : []).map((e, i) => ({
       id:                       i + 1,
       employee_code:            e.employeeCode,
       employee_name:            e.employeeName,
-      employee_role:            e.employeeRole, // 역할 정보 추가
+      employee_role:            e.employeeRole,
+      employee_status:          e.employeeStatus,
       employee_current_tier:    e.employeeTier,
       employee_line:            e.factoryLineName,
       employee_equipment:       e.equipmentName,
@@ -121,13 +115,8 @@ const onLineChange = (v) => { selectedLine.value = v; currentPage.value = 1 }
 const openAddModal  = () => { editingEmployee.value = null; isModalOpen.value = true }
 const openEditModal = async (emp) => {
   try {
-    const res = await axios.get(
-      `${ADMIN_API_BASE}/api/v1/organization/employee/${emp.employee_code}`,
-      { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
-    )
+    const res = await employeeApi.getEmployeeByCode(emp.employee_code)
     const data = res.data?.success ? res.data.data : res.data
-    // employeeId만 전달, 나머지 필드는 빈 상태로 모달 열기
-    // 사용자가 입력한 항목만 업데이트됨
     editingEmployee.value = { employeeId: data.employeeId }
     isModalOpen.value = true
   } catch (err) {
@@ -138,9 +127,6 @@ const openEditModal = async (emp) => {
 const closeModal = () => { isModalOpen.value = false; editingEmployee.value = null }
 
 const onSaved = async (formData) => {
-  const authHeader = { headers: { Authorization: `Bearer ${authStore.accessToken}` } }
-
-  // 빈 문자열을 null로 변환 (백엔드 partial update에서 null은 변경 없음)
   const toNull = (v) => (v === '' || v === undefined) ? null : v
 
   const skillKeys = [
@@ -150,7 +136,6 @@ const onSaved = async (formData) => {
 
   try {
     if (formData.employeeId) {
-      // ── 수정 모드: PUT /api/v1/organization/employee ──
       const updatePayload = {
         employeeId:             formData.employeeId,
         employeeName:           toNull(formData.employeeName),
@@ -164,24 +149,14 @@ const onSaved = async (formData) => {
         employeeTier:           toNull(formData.employeeTier),
         hireDate:               toNull(formData.hireDate),
       }
-      // 역량 점수 포함 (non-zero만)
       skillKeys.forEach(k => {
         const v = Number(formData[k]) || 0
         if (v > 0) updatePayload[k] = v
       })
 
-      await axios.put(
-        `${ADMIN_API_BASE}/api/v1/organization/employee`,
-        updatePayload,
-        authHeader,
-      )
+      await employeeApi.updateEmployee(updatePayload)
     } else {
-      // ── 등록 모드: POST /api/v1/organization/employee ──
-      await axios.post(
-        `${ADMIN_API_BASE}/api/v1/organization/employee`,
-        formData,
-        authHeader,
-      )
+      await employeeApi.createEmployee(formData)
     }
 
     await fetchEmployees()
@@ -193,17 +168,24 @@ const onSaved = async (formData) => {
 }
 
 // ── 삭제 ────────────────────────────────────────────
-const removeEmployee = (id) => {
+const removeEmployee = async (id) => {
   if (!confirm('삭제하시겠습니까?')) return
-  const idx = employees.value.findIndex(e => e.id === id)
-  if (idx !== -1) employees.value.splice(idx, 1)
+  const emp = employees.value.find(e => e.id === id)
+  if (!emp) return
+  try {
+    await employeeApi.deleteEmployee(emp.employee_code)
+    await fetchEmployees()
+  } catch (err) {
+    console.error('사원 삭제 실패:', err)
+    alert('사원 삭제에 실패했습니다.')
+  }
 }
 </script>
 
 <template>
   <div class="admin-profiles">
 
-    <ProfileSearchToolbar
+    <EmployeeSearchToolbar
         :searchQuery="searchQuery"
         :selectedTier="selectedTier"
         :selectedLine="selectedLine"
@@ -215,7 +197,7 @@ const removeEmployee = (id) => {
     />
 
 
-    <ProfileStatusBoard
+    <EmployeeStatusBoardWrapper
       :totalCount="totalCount"
       :totalWorkerCount="totalWorkerCount"
       :totalDLCount="totalDLCount"
@@ -224,7 +206,7 @@ const removeEmployee = (id) => {
     />
 
 
-    <ProfileListTable
+    <EmployeeListTable
       :employees="employees"
       :filteredEmployees="filteredEmployees"
       :pagedEmployees="pagedEmployees"

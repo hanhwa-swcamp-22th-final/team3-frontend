@@ -55,6 +55,9 @@ function progressLabel(m) {
     </div>
 
     <div class="pm__list">
+      <div v-if="missions.length === 0" class="pm__empty">
+        현재 진행 중인 승급 미션이 없습니다.
+      </div>
       <div
         v-for="m in missions"
         :key="m.id"
@@ -170,6 +173,16 @@ function progressLabel(m) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.pm__empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  background: var(--color-bg-surface-muted);
+  border: 1px dashed var(--color-border-muted);
+  border-radius: var(--radius-md);
 }
 
 .pm__card {

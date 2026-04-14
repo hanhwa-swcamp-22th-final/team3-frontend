@@ -158,7 +158,7 @@ async function openEditModal(article) {
       const revRes = await knowledgeArticleApi.startRevision(article.id, authorId.value)
       const revisionId = revRes.data.data   // Long revisionArticleId
 
-      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId)
+      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId, { requesterId: authorId.value })
       const dto = detailRes.data.data ?? {}
 
       selectedArticle.value = {

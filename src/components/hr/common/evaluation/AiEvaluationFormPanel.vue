@@ -1,6 +1,4 @@
 <script setup>
-function defaultNoop() {}
-
 const props = defineProps({
   title: {
     type: String,
@@ -54,10 +52,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  recordingSummaryRenderer: {
-    type: Function,
-    default: null,
-  },
 })
 
 const emit = defineEmits([
@@ -75,9 +69,6 @@ function handleFileChange(event) {
   event.target.value = ''
 }
 
-function renderRecordingSummary() {
-  return (props.recordingSummaryRenderer ?? defaultNoop)()
-}
 </script>
 
 <template>
@@ -91,6 +82,10 @@ function renderRecordingSummary() {
       </div>
     </header>
 
+    <div v-if="noticeText" class="evaluation-form-panel__notice">
+      {{ noticeText }}
+    </div>
+
     <slot name="summary" />
 
     <div class="evaluation-form-panel__toolbar">
@@ -98,10 +93,13 @@ function renderRecordingSummary() {
         <button
           type="button"
           class="evaluation-form-panel__tool-button"
-          :class="{ 'evaluation-form-panel__tool-button--active': recordingState !== 'idle' }"
+          :class="{
+            'evaluation-form-panel__tool-button--active': recordingState !== 'idle',
+            'evaluation-form-panel__tool-button--recording': recordingState === 'recording',
+          }"
           @click="emit('voice-input')"
         >
-          음성 인식 시작
+          {{ recordingState === 'recording' ? '음성 인식 종료' : '음성 인식 시작' }}
         </button>
         <label class="evaluation-form-panel__tool-button">
           파일 업로드
@@ -129,19 +127,6 @@ function renderRecordingSummary() {
       </button>
     </div>
 
-    <div v-if="noticeText" class="evaluation-form-panel__notice">
-      {{ noticeText }}
-    </div>
-
-    <div v-if="recordingState !== 'idle' || uploadedFileName" class="evaluation-form-panel__status-row">
-      <span v-if="recordingState !== 'idle'" class="evaluation-form-panel__status-chip">
-        {{ recordingState === 'recording' ? '음성 입력 mock 진행 중' : '음성 초안 준비 완료' }}
-      </span>
-      <span v-if="uploadedFileName" class="evaluation-form-panel__status-chip evaluation-form-panel__status-chip--file">
-        업로드 파일: {{ uploadedFileName }}
-      </span>
-    </div>
-
     <textarea
       class="evaluation-form-panel__editor"
       :class="{ 'evaluation-form-panel__editor--readonly': readonly }"
@@ -150,18 +135,6 @@ function renderRecordingSummary() {
       :readonly="readonly"
       @input="!readonly && emit('update:modelValue', $event.target.value)"
     ></textarea>
-
-    <div class="evaluation-form-panel__recording-zone">
-      <slot name="recording-zone">
-        <div v-if="recordingSummaryRenderer" class="evaluation-form-panel__recording-summary">
-          <strong>{{ renderRecordingSummary().title }}</strong>
-          <p>{{ renderRecordingSummary().description }}</p>
-        </div>
-        <div v-else class="evaluation-form-panel__recording-ring">
-          <div class="evaluation-form-panel__recording-icon">🎤</div>
-        </div>
-      </slot>
-    </div>
 
     <footer v-if="$slots.footer" class="evaluation-form-panel__footer">
       <slot name="footer" />
@@ -175,6 +148,7 @@ function renderRecordingSummary() {
   border: 1px solid var(--color-border-default);
   border-radius: 24px;
   background: var(--color-bg-surface);
+  min-height: 600px;
 }
 
 .evaluation-form-panel__header {
@@ -194,6 +168,8 @@ function renderRecordingSummary() {
 .evaluation-form-panel__description {
   margin: 8px 0 0;
   font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.6;
   color: var(--color-text-muted);
 }
 
@@ -236,6 +212,24 @@ function renderRecordingSummary() {
   color: var(--color-primary-700);
 }
 
+.evaluation-form-panel__tool-button--recording {
+  position: relative;
+  border-color: #12a594;
+  background: linear-gradient(180deg, #dffaf5 0%, #c8f3eb 100%);
+  color: #0d7f73;
+}
+
+.evaluation-form-panel__tool-button--recording::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #12a594;
+  box-shadow: 0 0 0 0 rgba(18, 165, 148, 0.45);
+  animation: evaluation-recording-dot 1.4s ease-in-out infinite;
+}
+
 .evaluation-form-panel__file-input {
   display: none;
 }
@@ -251,6 +245,7 @@ function renderRecordingSummary() {
 
 .evaluation-form-panel__notice {
   margin-top: 14px;
+  margin-bottom: 14px;
   padding: 14px 16px;
   border: 1px solid #ffdca6;
   border-radius: 14px;
@@ -258,30 +253,6 @@ function renderRecordingSummary() {
   font-size: 13px;
   line-height: 1.6;
   color: #946200;
-}
-
-.evaluation-form-panel__status-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.evaluation-form-panel__status-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: #e9fbf6;
-  color: #168267;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.evaluation-form-panel__status-chip--file {
-  background: #f4f2ff;
-  color: var(--color-primary-700);
 }
 
 .evaluation-form-panel__editor {
@@ -313,58 +284,24 @@ function renderRecordingSummary() {
   box-shadow: none;
 }
 
-.evaluation-form-panel__recording-zone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 132px;
-  margin-top: 14px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(174, 236, 227, 0.5) 0%, rgba(232, 251, 247, 0.85) 100%);
-}
-
-.evaluation-form-panel__recording-ring {
-  width: 106px;
-  height: 106px;
-  border-radius: 50%;
-  border: 4px solid rgba(16, 147, 127, 0.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.evaluation-form-panel__recording-icon {
-  width: 86px;
-  height: 86px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #08c8a7;
-  font-size: 34px;
-}
-
-.evaluation-form-panel__recording-summary {
-  text-align: center;
-  color: #168267;
-}
-
-.evaluation-form-panel__recording-summary strong {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 18px;
-}
-
-.evaluation-form-panel__recording-summary p {
-  margin: 0;
-}
-
 .evaluation-form-panel__footer {
   display: grid;
   gap: 14px;
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--color-border-soft);
+}
+
+@keyframes evaluation-recording-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(18, 165, 148, 0.45);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 6px rgba(18, 165, 148, 0);
+  }
 }
 
 @media (max-width: 720px) {

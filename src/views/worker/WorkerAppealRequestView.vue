@@ -1,39 +1,27 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { API_BASE } from '@/constants'
+import { getWorkerAppealRequestData, registerAppeal, updateAppeal } from '@/services/workerHrApi'
 import WorkerAppealNotification from '@/components/hr/worker/appeal-request/WorkerAppealNotification.vue'
 import WorkerAppealHistory from '@/components/hr/worker/appeal-request/WorkerAppealHistory.vue'
 import WorkerAppealForm from '@/components/hr/worker/appeal-request/WorkerAppealForm.vue'
-const authStore = useAuthStore()
 
 const loading = ref(true)
 const evalHistory = ref([])
-const appealForms = ref({})
-const selectedId = ref(null)
-
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
+const appealForms = ref({}) // key: qualitativeEvaluationId
+const selectedId = ref(null) // qualitativeEvaluationId
 
 onMounted(async () => {
-  const employeeId = authStore.employee?.employee_id
-
   try {
-    const [historyData, formsData] = await Promise.all([
-      fetchJson(`${API_BASE}/evalHistory?employee_id=${employeeId}`),
-      fetchJson(`${API_BASE}/appealForms?employee_id=${employeeId}`),
-    ])
+    const { history, appeals } = await getWorkerAppealRequestData()
 
-    evalHistory.value = historyData
-    // Index appeal forms by evalHistory id
-    formsData.forEach((f) => {
-      appealForms.value[f.evalHistoryId] = f
+    evalHistory.value = history
+    // Index appeals by qualitativeEvaluationId
+    appeals.forEach((a) => {
+      appealForms.value[a.evalHistoryId] = a
     })
 
-    if (historyData.length) {
-      selectedId.value = historyData[0].id
+    if (history.length) {
+      selectedId.value = history[0].id
     }
   } catch (e) {
     console.error('Failed to load appeal data:', e)
@@ -44,7 +32,16 @@ onMounted(async () => {
 
 const selectedAppeal = computed(() => {
   if (!selectedId.value) return null
-  return appealForms.value[selectedId.value] ?? null
+  // If no appeal exists for this evaluation, create a draft object
+  return appealForms.value[selectedId.value] || {
+    evalHistoryId: selectedId.value,
+    title: '',
+    content: '',
+    appealType: 'QUANTITATIVE_ERROR',
+    status: 'NONE',
+    processStatus: 0,
+    submittedDate: '-',
+  }
 })
 
 const selectedStatus = computed(() => {
@@ -58,16 +55,40 @@ function handleSelect(id) {
 }
 
 function handleCancel() {
-  // reset form to original
+  // reset current selection if needed
 }
 
-function handleSubmit(payload) {
+async function handleSubmit(payload) {
   if (!selectedId.value) return
-  const form = appealForms.value[selectedId.value]
-  if (form) {
-    form.categories = [...payload.categories]
-    form.content = payload.content
-    form.attachments = [...payload.attachments]
+  const currentAppeal = appealForms.value[selectedId.value]
+
+  try {
+    if (currentAppeal && currentAppeal.appealId) {
+      // Update existing appeal
+      await updateAppeal(currentAppeal.appealId, {
+        qualitativeEvaluationId: selectedId.value,
+        appealType: payload.appealType,
+        title: payload.title,
+        content: payload.content,
+      })
+    } else {
+      // Register new appeal
+      await registerAppeal({
+        qualitativeEvaluationId: selectedId.value,
+        appealType: payload.appealType,
+        title: payload.title,
+        content: payload.content,
+      })
+    }
+    // Refresh data after save
+    const { history, appeals } = await getWorkerAppealRequestData()
+    evalHistory.value = history
+    appeals.forEach((a) => {
+      appealForms.value[a.evalHistoryId] = a
+    })
+  } catch (e) {
+    console.error('Failed to save appeal:', e)
+    alert('이의 신청 저장에 실패했습니다.')
   }
 }
 </script>

@@ -1,29 +1,43 @@
 <script setup>
 import { computed } from 'vue'
-import { KMS_TAG_FILTERS, TAG_STYLE } from '@/mocks/admin/kms/kmsData.js'
 import { BaseFilterTabs } from '@/components/common/base'
 
 const props = defineProps({
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: '전체' },
   selectedTagFilter: { type: String, default: null },
+  tagFilters:        { type: Array,  default: () => [] },
 })
 const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
+
+const TAG_PALETTE = [
+  {
+    bg: 'var(--color-success-soft, #dcfce7)',
+    color: 'var(--color-success-text, #028a6b)',
+  },
+  {
+    bg: 'var(--color-primary-100, #efeaff)',
+    color: 'var(--color-primary-700, #5b4fcf)',
+  },
+  {
+    bg: 'var(--color-warning-soft, #fef3c7)',
+    color: 'var(--color-warning-text, #a07000)',
+  },
+  {
+    bg: 'var(--color-danger-bg, #ffecf1)',
+    color: 'var(--color-danger-text, #c0103e)',
+  },
+  {
+    bg: 'var(--color-bg-surface-muted, #f8f7ff)',
+    color: 'var(--color-text-muted, #7a6fa8)',
+  },
+]
 
 // 카테고리 탭 (백엔드 기준)
 const KMS_FILTERS = [
   { key: '전체' },
   { key: '인기' },
   { key: '내 북마크' },
-]
-
-// 태그 필터 (백엔드 카테고리 기준)
-const tagFilters = [
-  { key: '장애조치', bg: '#E3FBEF', color: '#007A60' },
-  { key: '공정개선', bg: '#F0EEFF', color: '#5B4FCF' },
-  { key: '설비운영', bg: '#FFF8E0', color: '#A07000' },
-  { key: '안전',     bg: '#FFECF1', color: '#C0103E' },
-  { key: '기타',     bg: '#F4F4FB', color: '#7A6FA8' },
 ]
 
 const filteredCards = computed(() => {
@@ -44,11 +58,26 @@ const filteredCards = computed(() => {
   return list
 })
 
+function getPaletteIndex(tag) {
+  const value = String(tag ?? '')
+  let hash = 0
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) % TAG_PALETTE.length
+  }
+  return Math.abs(hash) % TAG_PALETTE.length
+}
+
+function getKmsTagStyle(tag) {
+  if (!tag) {
+    return TAG_PALETTE[0]
+  }
+  return TAG_PALETTE[getPaletteIndex(tag)]
+}
+
 function tagStyle(tag) {
-  const found = tagFilters.find((t) => t.key === tag)
-  if (found) return { background: found.bg, color: found.color }
-  if (TAG_STYLE[tag]) return { background: TAG_STYLE[tag].bg, color: TAG_STYLE[tag].color }
-  return { background: 'var(--color-primary-100)', color: 'var(--color-primary-600)' }
+  const found = props.tagFilters.find((t) => t.key === tag)
+  if (found?.bg && found?.color) return { background: found.bg, color: found.color }
+  return getKmsTagStyle(tag)
 }
 </script>
 
@@ -65,7 +94,7 @@ function tagStyle(tag) {
         @change="emit('filterChange', $event)"
       />
       <span
-        v-for="t in tagFilters"
+        v-for="t in props.tagFilters"
         :key="t.key"
         class="tag-chip"
         :style="selectedTagFilter === t.key

@@ -119,9 +119,8 @@ const statusFilterLabel = computed(
           :avatar="m.avatar"
           :avatar-color="m.avatarColor"
           :tier="m.tier"
-          :meta="`${m.team} | ${m.position ?? '직무 정보 없음'}`"
+          :meta="m.code && m.team ? `${m.code} | ${m.team}` : m.code || m.team || ''"
           :status="m.status"
-          :status-label="statusConfig[m.status]?.label"
           :status-date="m.statusDate"
           :selected="m.id === selectedId"
           @select="emit('select', m)"
@@ -142,7 +141,7 @@ const statusFilterLabel = computed(
   border-radius: 24px;
   background: var(--color-bg-surface);
   height: 100%;
-  min-height: 0;
+  min-height: 600px;
   box-sizing: border-box;
   overflow: hidden;
 }

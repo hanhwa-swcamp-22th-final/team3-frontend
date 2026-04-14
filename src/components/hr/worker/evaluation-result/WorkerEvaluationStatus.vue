@@ -18,9 +18,9 @@ onMounted(() => {
   requestAnimationFrame(step)
 })
 
-const scoreAngle = computed(() => (props.status.overallScore / 100) * 360)
+const scoreAngle = computed(() => ((props.status?.overallScore ?? 0) / 100) * 360)
 const circumference = 2 * Math.PI * 46
-const dashLen = computed(() => (props.status.overallScore / 100) * circumference)
+const dashLen = computed(() => ((props.status?.overallScore ?? 0) / 100) * circumference)
 
 function diffClass(val) {
   return val > 0 ? 'diff--up' : val < 0 ? 'diff--down' : ''
@@ -50,18 +50,18 @@ function diffText(val) {
         />
       </svg>
       <div class="es__gauge-text">
-        <span class="es__gauge-score">{{ status.overallScore }}</span>
+        <span class="es__gauge-score">{{ status?.overallScore ?? '-' }}</span>
         <span class="es__gauge-max">/ 100</span>
       </div>
-      <span class="es__gauge-tier">{{ status.tier }}-Tier</span>
+      <span class="es__gauge-tier">{{ status?.tier ?? '-' }}-Tier</span>
     </div>
 
     <!-- Metric columns -->
     <div class="es__metric">
       <span class="es__metric-label">정량 평가</span>
-      <span class="es__metric-value">{{ status.quantitative.score }}</span>
-      <span class="es__metric-diff" :class="diffClass(status.quantitative.diff)">
-        {{ diffText(status.quantitative.diff) }}
+      <span class="es__metric-value">{{ status?.quantitative?.score ?? '-' }}</span>
+      <span class="es__metric-diff" :class="diffClass(status?.quantitative?.diff ?? 0)">
+        {{ diffText(status?.quantitative?.diff ?? 0) }}
       </span>
     </div>
 
@@ -69,43 +69,43 @@ function diffText(val) {
 
     <div class="es__metric">
       <span class="es__metric-label">정성 평가</span>
-      <span class="es__metric-value">{{ status.qualitative.score }}</span>
-      <span class="es__metric-diff" :class="diffClass(status.qualitative.diff)">
-        {{ diffText(status.qualitative.diff) }}
+      <span class="es__metric-value">{{ status?.qualitative?.score ?? '-' }}</span>
+      <span class="es__metric-diff" :class="diffClass(status?.qualitative?.diff ?? 0)">
+        {{ diffText(status?.qualitative?.diff ?? 0) }}
       </span>
-      <span class="es__metric-sub">가중치 {{ status.qualitative.weight }}</span>
+      <span class="es__metric-sub">가중치 {{ status?.qualitative?.weight ?? '-' }}</span>
     </div>
 
     <div class="es__divider"></div>
 
     <div class="es__metric">
       <span class="es__metric-label">설비보정</span>
-      <span class="es__metric-value es__metric-value--accent">{{ status.equipmentCorrection.label }}</span>
-      <span class="es__metric-sub">{{ status.equipmentCorrection.sub }}</span>
+      <span class="es__metric-value es__metric-value--accent">{{ status?.equipmentCorrection?.label ?? '-' }}</span>
+      <span class="es__metric-sub">{{ status?.equipmentCorrection?.sub ?? '-' }}</span>
     </div>
 
     <div class="es__divider"></div>
 
     <div class="es__metric">
       <span class="es__metric-label">종합</span>
-      <span class="es__metric-value">{{ status.composite.score }}</span>
-      <span class="es__metric-diff" :class="diffClass(status.composite.diff)">
-        {{ diffText(status.composite.diff) }}
+      <span class="es__metric-value">{{ status?.composite?.score ?? '-' }}</span>
+      <span class="es__metric-diff" :class="diffClass(status?.composite?.diff ?? 0)">
+        {{ diffText(status?.composite?.diff ?? 0) }}
       </span>
-      <span class="es__metric-sub">{{ status.composite.sub }}</span>
+      <span class="es__metric-sub">{{ status?.composite?.sub ?? '-' }}</span>
     </div>
 
     <!-- Tier + Rank badge -->
     <div class="es__rank">
-      <span class="es__rank-quarter">이번 분기</span>
-      <span class="es__rank-tier">{{ status.tier }}-Tier</span>
+      <span class="es__rank-quarter">{{ status?.periodLabel ?? '이번 분기' }}</span>
+      <span class="es__rank-tier">{{ status?.tier ?? '-' }}-Tier</span>
       <span class="es__rank-label">라인 내 순위</span>
       <div class="es__rank-numbers">
-        <span class="es__rank-current">{{ status.rank }}</span>
+        <span class="es__rank-current">{{ status?.rank ?? '-' }}</span>
         <span class="es__rank-sep">/</span>
-        <span class="es__rank-total">{{ status.rankTotal }}위</span>
+        <span class="es__rank-total">{{ status?.rankTotal ?? '-' }}위</span>
       </div>
-      <span class="es__rank-diff diff--up" v-if="status.rankDiff > 0">
+      <span class="es__rank-diff diff--up" v-if="(status?.rankDiff ?? 0) > 0">
         ▲{{ status.rankDiff }} 전분기비
       </span>
     </div>

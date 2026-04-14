@@ -129,9 +129,8 @@ function goToPage(page) {
           :avatar="member.avatar"
           :avatar-tone="member.avatarTone"
           :tier="member.tier"
-          :meta="`${member.code} | ${member.periodHint} | ${member.scoreHint}`"
+          :meta="member.code"
           :status="member.status"
-          :status-label="statusConfig[member.status]?.label"
           :status-date="member.statusDate"
           :selected="String(member.id) === selectedId"
           @select="selectMember"
@@ -172,7 +171,7 @@ function goToPage(page) {
   border-radius: 24px;
   background: var(--color-bg-surface);
   height: 100%;
-  min-height: 0;
+  min-height: 600px;
   overflow: hidden;
   box-sizing: border-box;
 }

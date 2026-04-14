@@ -22,9 +22,12 @@ onMounted(() => {
   requestAnimationFrame(step)
 })
 
-const total = computed(() => props.summary.totalPoints)
+const total = computed(() => props.summary?.totalPoints ?? 0)
 const segments = computed(() => {
-  const dist = props.summary.distribution
+  const dist = props.summary?.distribution || []
+  if (dist.length === 0) {
+    return [{ label: '데이터 없음', value: 0, color: '#f3f4f6', pct: 100, offset: 0 }]
+  }
   const sum = dist.reduce((a, d) => a + d.value, 0)
   let offset = 0
   return dist.map((d) => {
@@ -46,9 +49,9 @@ const segments = computed(() => {
       </div>
       <div class="holding__gain">
         <span class="holding__gain-arrow">▲</span>
-        <span>+{{ summary.monthGain.toLocaleString() }} 이번 달</span>
+        <span>+{{ (summary?.monthGain ?? 0).toLocaleString() }} 이번 달</span>
       </div>
-      <span class="holding__compare">전월 대비 +{{ summary.monthGainPercent }}%</span>
+      <span class="holding__compare">전월 대비 +{{ summary?.monthGainPercent ?? 0 }}%</span>
     </div>
 
     <div class="holding__right">
@@ -78,7 +81,7 @@ const segments = computed(() => {
         <div v-for="(seg, i) in segments" :key="i" class="holding__legend-item">
           <span class="holding__legend-dot" :style="{ background: seg.color }"></span>
           <span class="holding__legend-label">{{ seg.label }}</span>
-          <span class="holding__legend-value">{{ seg.value.toLocaleString() }}</span>
+          <span class="holding__legend-value">{{ (seg.value ?? 0).toLocaleString() }}</span>
         </div>
       </div>
     </div>
