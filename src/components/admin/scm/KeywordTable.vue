@@ -177,7 +177,7 @@ const weightColor   = (w) => w >= 1.8 ? '#EF476F' : '#5B4FCF'
   color: var(--color-text-placeholder);
 }
 
-/* 페이지네이션 — ProfileListTable 동일 패턴 */
+/* 페이지네이션 — EmployeeListTable 동일 패턴 */
 .pagination {
   display: flex;
   align-items: center;
