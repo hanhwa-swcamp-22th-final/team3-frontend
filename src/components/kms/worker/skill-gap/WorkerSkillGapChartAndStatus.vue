@@ -199,6 +199,7 @@ const gapSummaryLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
 }
 
 .sg__label {

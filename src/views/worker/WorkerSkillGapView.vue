@@ -152,7 +152,11 @@ async function toggleBookmark(article) {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+}
+
+.sg-grid > * {
+  min-height: 100%;
 }
 
 .sg-loading {
