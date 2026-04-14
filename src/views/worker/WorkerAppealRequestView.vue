@@ -1,23 +1,35 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getWorkerAppealRequestData, registerAppeal, updateAppeal } from '@/services/workerHrApi'
+import { getWorkerAppealRequestData, registerAppeal } from '@/services/workerHrApi'
 import WorkerAppealNotification from '@/components/hr/worker/appeal-request/WorkerAppealNotification.vue'
 import WorkerAppealHistory from '@/components/hr/worker/appeal-request/WorkerAppealHistory.vue'
 import WorkerAppealForm from '@/components/hr/worker/appeal-request/WorkerAppealForm.vue'
 
 const loading = ref(true)
 const evalHistory = ref([])
-const appealForms = ref({}) // key: qualitativeEvaluationId
+const appealForms = ref({}) // key: evaluationPeriodId
 const selectedId = ref(null) // qualitativeEvaluationId
+
+function formatPeriod(history) {
+  const raw = String(history?.evalYear ?? '')
+  if (raw.length === 6) {
+    const year = raw.slice(0, 4)
+    const month = Number(raw.slice(4, 6))
+    return `${year}년 ${month}월 ${history?.evalSequence ?? ''}차`
+  }
+  if (history?.evalYear && history?.evalSequence != null) {
+    return `${history.evalYear}년 ${history.evalSequence}차`
+  }
+  return '-'
+}
 
 onMounted(async () => {
   try {
     const { history, appeals } = await getWorkerAppealRequestData()
 
     evalHistory.value = history
-    // Index appeals by qualitativeEvaluationId
     appeals.forEach((a) => {
-      appealForms.value[a.evalHistoryId] = a
+      appealForms.value[a.evalPeriodId] = a
     })
 
     if (history.length) {
@@ -32,23 +44,27 @@ onMounted(async () => {
 
 const selectedAppeal = computed(() => {
   if (!selectedId.value) return null
-  // If no appeal exists for this evaluation, create a draft object
-  return appealForms.value[selectedId.value] || {
+  const selectedHistory = evalHistory.value.find((h) => h.id === selectedId.value)
+  if (!selectedHistory) return null
+  const currentAppeal = appealForms.value[selectedHistory.evalPeriodId] || {
     evalHistoryId: selectedId.value,
+    evalPeriodId: selectedHistory.evalPeriodId,
     title: '',
     content: '',
-    appealType: 'QUANTITATIVE_ERROR',
+    appealType: 'SCORE_ERRORS',
     status: 'NONE',
     processStatus: 0,
     submittedDate: '-',
   }
+  return {
+    ...currentAppeal,
+    quarter: formatPeriod(selectedHistory),
+  }
 })
 
-const selectedStatus = computed(() => {
-  if (!selectedId.value) return null
-  const item = evalHistory.value.find((h) => h.id === selectedId.value)
-  return item?.statusBadge ?? null
-})
+const hasEvalHistory = computed(() =>
+  evalHistory.value.some((item) => item?.id != null || item?.evalPeriodId != null)
+)
 
 function handleSelect(id) {
   selectedId.value = id
@@ -60,31 +76,27 @@ function handleCancel() {
 
 async function handleSubmit(payload) {
   if (!selectedId.value) return
-  const currentAppeal = appealForms.value[selectedId.value]
+  const selectedHistory = evalHistory.value.find((h) => h.id === selectedId.value)
+  if (!selectedHistory?.evalPeriodId) return
+  const currentAppeal = appealForms.value[selectedHistory.evalPeriodId]
 
   try {
     if (currentAppeal && currentAppeal.appealId) {
-      // Update existing appeal
-      await updateAppeal(currentAppeal.appealId, {
-        qualitativeEvaluationId: selectedId.value,
-        appealType: payload.appealType,
-        title: payload.title,
-        content: payload.content,
-      })
-    } else {
-      // Register new appeal
-      await registerAppeal({
-        qualitativeEvaluationId: selectedId.value,
-        appealType: payload.appealType,
-        title: payload.title,
-        content: payload.content,
-      })
+      alert('제출된 이의신청은 수정할 수 없습니다.')
+      return
     }
+    await registerAppeal({
+      evaluationPeriodId: selectedHistory.evalPeriodId,
+      appealType: payload.appealType,
+      title: payload.title,
+      content: payload.content,
+    })
     // Refresh data after save
     const { history, appeals } = await getWorkerAppealRequestData()
     evalHistory.value = history
+    appealForms.value = {}
     appeals.forEach((a) => {
-      appealForms.value[a.evalHistoryId] = a
+      appealForms.value[a.evalPeriodId] = a
     })
   } catch (e) {
     console.error('Failed to save appeal:', e)
@@ -102,7 +114,7 @@ async function handleSubmit(payload) {
 
       <div class="ar-grid">
         <WorkerAppealHistory
-          v-if="evalHistory.length"
+          v-if="hasEvalHistory"
           :history="evalHistory"
           :selected-id="selectedId"
           @select="handleSelect"
@@ -110,10 +122,12 @@ async function handleSubmit(payload) {
         <WorkerAppealForm
           v-if="selectedAppeal"
           :appeal-data="selectedAppeal"
-          :status-badge="selectedStatus"
           @cancel="handleCancel"
           @submit="handleSubmit"
         />
+        <div v-else class="ar-empty">
+          평가 이력이 없습니다.
+        </div>
       </div>
     </template>
   </div>
@@ -144,5 +158,19 @@ async function handleSubmit(payload) {
   padding: 60px 0;
   font-size: 15px;
   color: var(--color-text-muted);
+}
+
+.ar-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-surface);
+  color: var(--color-text-muted);
+  font-size: 15px;
+  font-weight: 600;
 }
 </style>

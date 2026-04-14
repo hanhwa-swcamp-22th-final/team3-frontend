@@ -310,41 +310,42 @@ export async function getWorkerSkillGap(targetTier = 'S+') {
 
 function toEvalHistoryViewModel(item) {
   return {
-    id: item.qualitativeEvaluationId, // Backend uses qualitativeEvaluationId as the key for appeal
+    id: item.qualitativeEvaluationId,
+    qualitativeEvaluationId: item.qualitativeEvaluationId,
     evalPeriodId: item.evalPeriodId,
-    quarter: `${item.evalYear}-${item.evalSequence}`,
+    evalYear: item.evalYear,
+    evalSequence: item.evalSequence,
+    grade: normalizeTier(item.grade),
     statusBadge: item.status === 'CONFIRMED' ? '확정' : '검토중',
     score: toNumber(item.score),
-    tier: normalizeTier(item.grade),
+    firstScore: toNumber(item.firstScore),
+    secondScore: toNumber(item.secondScore),
+    quantScore: toNumber(item.quantScore),
+    underReview: !!item.underReview,
     appealable: !!item.appealable,
-    // diff: Deleted as backend doesn't provide
-    // statusText: Deleted as backend doesn't provide
   }
 }
 
 function toAppealDetailViewModel(appeal) {
   if (!appeal) return null
 
-  // Process status mapping: PENDING=1, REVIEWING=2, COMPLETED=3
   const statusStepMap = {
-    PENDING: 1,
+    SUBMITTED: 1,
+    RECEIVING: 2,
     REVIEWING: 2,
     COMPLETED: 3,
   }
 
   return {
     appealId: appeal.appealId,
-    evalHistoryId: appeal.qualitativeEvaluationId,
+    evalPeriodId: appeal.evaluationPeriodId,
     title: appeal.title ?? '-',
     content: appeal.content ?? '',
-    appealType: appeal.appealType ?? 'ETC',
-    status: appeal.status ?? 'PENDING',
+    appealType: appeal.appealType ?? 'OTHERS',
+    status: appeal.status ?? 'SUBMITTED',
     processStatus: statusStepMap[appeal.status] ?? 1,
     submittedDate: formatDate(appeal.filedAt),
     reviewResult: appeal.reviewResult ?? '',
-    // quarter: Missing in backend
-    // scores: Missing in backend
-    // attachments: Missing in backend
   }
 }
 
