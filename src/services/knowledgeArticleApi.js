@@ -91,8 +91,8 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles', { params })
   },
 
-  getArticleDetail(articleId, params = {}) {
-    return kmsApi.get(`/api/kms/articles/${articleId}`, { params })
+  getArticleDetail(articleId) {
+    return kmsApi.get(`/api/kms/articles/${articleId}`)
   },
 
   getHubStats() {
@@ -117,21 +117,21 @@ const knowledgeArticleApi = {
   },
 
   // ── 내 지식 관리 ────────────────────────────────────────────────
-  getMyArticleStats(authorId) {
-    return kmsApi.get('/api/kms/my/articles/stats', { params: { authorId } })
+  getMyArticleStats() {
+    return kmsApi.get('/api/kms/my/articles/stats')
   },
 
-  // params: { authorId, status, page, size }
+  // params: { status, page, size }
   getMyArticles(params = {}) {
     return kmsApi.get('/api/kms/my/articles', { params })
   },
 
-  getMyArticleHistory(authorId) {
-    return kmsApi.get('/api/kms/my/articles/history', { params: { authorId } })
+  getMyArticleHistory() {
+    return kmsApi.get('/api/kms/my/articles/history')
   },
 
-  getMyBookmarks(employeeId) {
-    return kmsApi.get('/api/kms/my/bookmarks', { params: { employeeId } })
+  getMyBookmarks() {
+    return kmsApi.get('/api/kms/my/bookmarks')
   },
 
   // ── 승인 조회 ───────────────────────────────────────────────────
@@ -174,9 +174,8 @@ const knowledgeArticleApi = {
   },
 
   // APPROVED 문서 수정 시작: 복사본(DRAFT) 생성 또는 기존 복사본 반환
-  // requesterId: Long
-  startRevision(articleId, requesterId) {
-    return kmsApi.put(`/api/kms/articles/${articleId}/revision`, { requesterId })
+  startRevision(articleId) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/revision`, {})
   },
 
   // DRAFT / REJECTED → PENDING 제출
@@ -185,13 +184,12 @@ const knowledgeArticleApi = {
     return kmsApi.put(`/api/kms/articles/${articleId}/submit`, data)
   },
 
-  // data: { requesterId }
-  deleteArticle(articleId, data) {
-    return kmsApi.delete(`/api/kms/articles/${articleId}`, { data })
+  deleteArticle(articleId) {
+    return kmsApi.delete(`/api/kms/articles/${articleId}`)
   },
 
-  restoreArticle(articleId, data) {
-    return kmsApi.put(`/api/kms/articles/${articleId}/restore`, data)
+  restoreArticle(articleId) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/restore`, {})
   },
 
   // tagIds: Long[]
@@ -199,12 +197,12 @@ const knowledgeArticleApi = {
     return kmsApi.put(`/api/kms/articles/${articleId}/tags`, { tagIds })
   },
 
-  addBookmark(articleId, employeeId) {
-    return kmsApi.post('/api/kms/bookmarks', { articleId, employeeId })
+  addBookmark(articleId) {
+    return kmsApi.post('/api/kms/bookmarks', { articleId })
   },
 
-  removeBookmark(articleId, employeeId) {
-    return kmsApi.delete('/api/kms/bookmarks', { params: { articleId, employeeId } })
+  removeBookmark(articleId) {
+    return kmsApi.delete('/api/kms/bookmarks', { params: { articleId } })
   },
 
   // ── 승인 처리 (TL / DL) ─────────────────────────────────────────

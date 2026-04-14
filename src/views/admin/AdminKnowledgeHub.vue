@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
@@ -10,8 +9,6 @@ import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hu
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
-const authStore = useAuthStore()
-const authorId = computed(() => Number(authStore.userInfo?.employeeId))
 const tagFilters = ref([])
 
 function formatTrend(value, digits = 0) {
@@ -140,8 +137,6 @@ async function loadArticles() {
       page: 0,
       size: 20,
       status: 'APPROVED',
-      requesterId: authorId.value,
-      requesterRole: 'ADMIN',
     })
     articles.value = filterVisibleKmsAuthors(
       (res.data.data ?? []).map(mapToFeedCard),
@@ -154,7 +149,7 @@ async function loadArticles() {
 
 async function loadBookmarks() {
   try {
-    const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
+    const res = await knowledgeArticleApi.getMyBookmarks()
     bookmarkArticles.value = filterVisibleKmsAuthors(
       (res.data.data ?? []).map(mapToFeedCard),
       (item) => item.author.name,
@@ -220,7 +215,7 @@ async function openDetailModal(article) {
   }
 
   try {
-    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
+    const res = await knowledgeArticleApi.getArticleDetail(article.id)
     const dto = res.data.data ?? {}
     selectedArticle.value = {
       id: dto.articleId ?? article.id,
@@ -265,9 +260,9 @@ function openRecommendedArticle(item) {
 async function toggleBookmark(article) {
   try {
     if (article.bookmarked || article.isBookmarked) {
-      await knowledgeArticleApi.removeBookmark(article.id, authorId.value)
+      await knowledgeArticleApi.removeBookmark(article.id)
     } else {
-      await knowledgeArticleApi.addBookmark(article.id, authorId.value)
+      await knowledgeArticleApi.addBookmark(article.id)
     }
 
     await Promise.allSettled([loadArticles(), loadBookmarks()])
