@@ -21,6 +21,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['approve', 'reject', 'review'])
+
+function canReview(detail, actionMode) {
+  if (!detail || !actionMode) return false
+  return detail.status !== 'COMPLETED'
+}
 </script>
 
 <template>
@@ -111,7 +116,7 @@ const emit = defineEmits(['approve', 'reject', 'review'])
           </div>
         </div>
 
-        <div v-if="actionMode" class="reviewer-appeal-detail__actions">
+        <div v-if="canReview(detail, actionMode)" class="reviewer-appeal-detail__actions">
           <template v-if="actionMode === 'tl'">
             <button class="reviewer-appeal-detail__btn reviewer-appeal-detail__btn--reject" :disabled="loading" @click="emit('reject')">
               기각

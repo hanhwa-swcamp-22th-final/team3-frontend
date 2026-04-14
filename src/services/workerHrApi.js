@@ -326,6 +326,13 @@ function toEvalHistoryViewModel(item) {
   }
 }
 
+const appealStatusLabelMap = {
+  SUBMITTED: '제출됨',
+  RECEIVING: '접수중',
+  REVIEWING: '검토중',
+  COMPLETED: '처리완료',
+}
+
 function toAppealDetailViewModel(appeal) {
   if (!appeal) return null
 
@@ -339,24 +346,142 @@ function toAppealDetailViewModel(appeal) {
   return {
     appealId: appeal.appealId,
     evalPeriodId: appeal.evaluationPeriodId,
+    evalYear: appeal.evalYear,
+    evalSequence: appeal.evalSequence,
     title: appeal.title ?? '-',
     content: appeal.content ?? '',
     appealType: appeal.appealType ?? 'OTHERS',
     status: appeal.status ?? 'SUBMITTED',
     processStatus: statusStepMap[appeal.status] ?? 1,
     submittedDate: formatDate(appeal.filedAt),
+    filedAt: appeal.filedAt ?? null,
     reviewResult: appeal.reviewResult ?? '',
+    attachments: (appeal.attachments ?? []).map((attachment) => ({
+      attachmentId: attachment.attachmentId,
+      fileName: attachment.fileName,
+      fileSize: toNumber(attachment.fileSize, null),
+    })),
   }
+}
+
+function toComparablePeriod(item) {
+  const year = String(item?.evalYear ?? '')
+  const sequence = String(item?.evalSequence ?? '').padStart(2, '0')
+  return `${year}${sequence}`
+}
+
+async function fetchAllWorkerEvalHistory(pageSize = 100) {
+  const history = []
+  let page = 0
+  let totalPages = 1
+
+  while (page < totalPages) {
+    const response = await hrApi.get('/api/v1/hr/workers/me/evaluations/history', {
+      params: { page, size: pageSize },
+    })
+    const data = unwrap(response) ?? {}
+    history.push(...(data.content ?? []).map(toEvalHistoryViewModel))
+    totalPages = data.totalPages ?? 0
+    page += 1
+  }
+
+  return history
+}
+
+function mergeAppealHistory(history, appeals) {
+  const appealByPeriodId = new Map(
+    appeals
+      .filter((appeal) => appeal?.evalPeriodId != null)
+      .map((appeal) => [appeal.evalPeriodId, appeal]),
+  )
+
+  const mergedHistory = history
+    .map((item) => {
+      const appeal = appealByPeriodId.get(item.evalPeriodId)
+
+      if (!appeal) {
+        return {
+          ...item,
+          hasAppeal: false,
+          displayBadge: item.underReview ? '검토중' : item.appealable ? '이의신청 가능' : '확정',
+          displayBadgeTone: item.underReview ? 'review' : item.appealable ? 'appealable' : 'confirmed',
+        }
+      }
+
+      const status = appeal.status ?? 'SUBMITTED'
+
+      return {
+        ...item,
+        hasAppeal: true,
+        appealId: appeal.appealId,
+        appealStatus: status,
+        appealFiledAt: appeal.filedAt,
+        displayBadge: appealStatusLabelMap[status] ?? status,
+        displayBadgeTone: status === 'COMPLETED' ? 'completed' : 'appeal',
+      }
+    })
+
+  const historyPeriodIds = new Set(history.map((item) => item.evalPeriodId))
+  const appealOnlyHistory = appeals
+    .filter((appeal) => appeal?.evalPeriodId != null && !historyPeriodIds.has(appeal.evalPeriodId))
+    .map((appeal) => {
+      const status = appeal.status ?? 'SUBMITTED'
+
+      return {
+        id: -(appeal.appealId ?? appeal.evalPeriodId),
+        qualitativeEvaluationId: null,
+        evalPeriodId: appeal.evalPeriodId,
+        evalYear: appeal.evalYear,
+        evalSequence: appeal.evalSequence,
+        grade: null,
+        statusBadge: null,
+        score: null,
+        firstScore: null,
+        secondScore: null,
+        quantScore: null,
+        underReview: false,
+        appealable: false,
+        hasAppeal: true,
+        appealId: appeal.appealId,
+        appealStatus: status,
+        appealFiledAt: appeal.filedAt,
+        displayBadge: appealStatusLabelMap[status] ?? status,
+        displayBadgeTone: status === 'COMPLETED' ? 'completed' : 'appeal',
+      }
+    })
+
+  return [...mergedHistory, ...appealOnlyHistory].sort((a, b) => {
+    if (a.hasAppeal && b.hasAppeal) {
+      return String(b.appealFiledAt ?? '').localeCompare(String(a.appealFiledAt ?? ''))
+    }
+    if (a.hasAppeal !== b.hasAppeal) {
+      return a.hasAppeal ? -1 : 1
+    }
+    return toComparablePeriod(b).localeCompare(toComparablePeriod(a))
+  })
 }
 
 export async function getWorkerAppealRequestData() {
   const [historyResponse, appealsResponse] = await Promise.all([
-    hrApi.get('/api/v1/hr/workers/me/evaluations/history'),
+    fetchAllWorkerEvalHistory(),
     hrApi.get('/api/v1/hr/appeals/me'),
   ])
 
-  const history = (unwrap(historyResponse)?.content ?? []).map(toEvalHistoryViewModel)
-  const appeals = (unwrap(appealsResponse) ?? []).map(toAppealDetailViewModel)
+  const appealSummaries = unwrap(appealsResponse) ?? []
+  const appealDetails = await Promise.all(
+    appealSummaries.map(async (appeal) => {
+      const detailResponse = await hrApi.get(`/api/v1/hr/appeals/${appeal.appealId}`)
+      return toAppealDetailViewModel({
+        ...appeal,
+        ...(unwrap(detailResponse) ?? {}),
+      })
+    }),
+  )
+  const appeals = appealDetails.filter(Boolean)
+  const history = mergeAppealHistory(
+    historyResponse,
+    appeals,
+  )
 
   return {
     history,
@@ -367,6 +492,19 @@ export async function getWorkerAppealRequestData() {
 export async function registerAppeal(payload) {
   const response = await hrApi.post('/api/v1/hr/appeals', payload)
   return unwrap(response)
+}
+
+export async function uploadAppealAttachments(appealId, files = []) {
+  if (!appealId || !files.length) return
+
+  const formData = new FormData()
+  files.forEach((file) => formData.append('files', file))
+
+  await hrApi.post(`/api/v1/hr/appeals/${appealId}/attachments`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
 }
 
 export async function updateAppeal(appealId, payload) {

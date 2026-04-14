@@ -6,6 +6,14 @@ const props = defineProps({
 
 const emit = defineEmits(['select'])
 
+function badgeClass(item) {
+  if (item.displayBadgeTone === 'appeal') return 'badge--appeal'
+  if (item.displayBadgeTone === 'completed') return 'badge--completed'
+  if (item.displayBadgeTone === 'review') return 'badge--review'
+  if (item.displayBadgeTone === 'appealable') return 'badge--appealable'
+  return 'badge--confirmed'
+}
+
 function tierClass(tier) {
   if (tier === 'S') return 'tier--s'
   if (tier === 'A') return 'tier--a'
@@ -32,7 +40,7 @@ function fmt(val) {
 <template>
   <div class="ah">
     <div class="ah__header">
-      <h3 class="ah__title">내 평가 이력</h3>
+      <h3 class="ah__title">내 이의신청 / 평가 이력</h3>
     </div>
 
     <div class="ah__list">
@@ -45,9 +53,7 @@ function fmt(val) {
       >
         <div class="ah__card-top">
           <span class="ah__period">{{ periodLabel(item) }}</span>
-          <span v-if="item.underReview" class="ah__badge badge--review">검토중</span>
-          <span v-else-if="item.appealable" class="ah__badge badge--appealable">이의신청 가능</span>
-          <span v-else class="ah__badge badge--confirmed">확정</span>
+          <span class="ah__badge" :class="badgeClass(item)">{{ item.displayBadge }}</span>
         </div>
 
         <div class="ah__scores">
@@ -153,9 +159,19 @@ function fmt(val) {
   color: #92400e;
 }
 
+.badge--appeal {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .badge--appealable {
   background: var(--color-primary-100);
   color: var(--color-primary-700);
+}
+
+.badge--completed {
+  background: var(--color-success-soft);
+  color: #166534;
 }
 
 .badge--confirmed {

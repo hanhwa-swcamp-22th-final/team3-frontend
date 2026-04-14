@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getWorkerAppealRequestData, registerAppeal } from '@/services/workerHrApi'
+import { getWorkerAppealRequestData, registerAppeal, uploadAppealAttachments } from '@/services/workerHrApi'
 import WorkerAppealNotification from '@/components/hr/worker/appeal-request/WorkerAppealNotification.vue'
 import WorkerAppealHistory from '@/components/hr/worker/appeal-request/WorkerAppealHistory.vue'
 import WorkerAppealForm from '@/components/hr/worker/appeal-request/WorkerAppealForm.vue'
@@ -85,12 +85,13 @@ async function handleSubmit(payload) {
       alert('제출된 이의신청은 수정할 수 없습니다.')
       return
     }
-    await registerAppeal({
+    const appealId = await registerAppeal({
       evaluationPeriodId: selectedHistory.evalPeriodId,
       appealType: payload.appealType,
       title: payload.title,
       content: payload.content,
     })
+    await uploadAppealAttachments(appealId, payload.files ?? [])
     // Refresh data after save
     const { history, appeals } = await getWorkerAppealRequestData()
     evalHistory.value = history
@@ -100,6 +101,11 @@ async function handleSubmit(payload) {
     })
   } catch (e) {
     console.error('Failed to save appeal:', e)
+    const errCode = e?.response?.data?.errorCode
+    if (errCode === 'APPEAL_ALREADY_EXISTS') {
+      alert('이의신청은 저장되었지만 새로고침이 필요합니다.')
+      return
+    }
     alert('이의 신청 저장에 실패했습니다.')
   }
 }

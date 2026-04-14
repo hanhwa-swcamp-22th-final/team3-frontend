@@ -12,6 +12,7 @@ const emit = defineEmits(['cancel', 'submit'])
 const appealTitle = ref(props.appealData.title || '')
 const selectedType = ref(props.appealData.appealType || 'SCORE_ERRORS')
 const appealContent = ref(props.appealData.content || '')
+const selectedFiles = ref([])
 
 watch(
   () => props.appealData,
@@ -19,6 +20,7 @@ watch(
     appealTitle.value = data.title || ''
     selectedType.value = data.appealType || 'SCORE_ERRORS'
     appealContent.value = data.content || ''
+    selectedFiles.value = []
   },
 )
 
@@ -64,11 +66,29 @@ const typeLabel = computed(() => typeLabelMap[selectedType.value] ?? '기타')
 const statusLabel = computed(() => statusLabelMap[props.appealData.status] ?? '이의 신청 작성')
 const reviewResultLabel = computed(() => reviewResultLabelMap[props.appealData.reviewResult] ?? props.appealData.reviewResult)
 
+function formatFileSize(size) {
+  if (size == null || Number.isNaN(Number(size))) return ''
+  const value = Number(size)
+  if (value < 1024) return `${value}B`
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)}KB`
+  return `${(value / (1024 * 1024)).toFixed(1)}MB`
+}
+
+function handleFileChange(event) {
+  const files = Array.from(event.target.files ?? [])
+  selectedFiles.value = files
+}
+
+function removeSelectedFile(index) {
+  selectedFiles.value = selectedFiles.value.filter((_, fileIndex) => fileIndex !== index)
+}
+
 function handleSubmit() {
   const payload = {
     title: appealTitle.value,
     appealType: selectedType.value,
     content: appealContent.value,
+    files: selectedFiles.value,
   }
   emit('submit', payload)
   if (props.appealData.processStatus >= 1) {
@@ -146,6 +166,37 @@ function handleSubmit() {
           placeholder="이의 제기 내용을 입력해주세요."
           :disabled="isReadonly"
         ></textarea>
+      </div>
+
+      <div class="af__section">
+        <label class="af__section-title" for="appeal-files">첨부파일</label>
+        <input
+          v-if="!isReadonly"
+          id="appeal-files"
+          class="af__input"
+          type="file"
+          multiple
+          @change="handleFileChange"
+        />
+        <div v-if="selectedFiles.length" class="af__file-list">
+          <div v-for="(file, index) in selectedFiles" :key="`${file.name}-${index}`" class="af__file-item">
+            <span>{{ file.name }}</span>
+            <button type="button" class="af__file-remove" @click="removeSelectedFile(index)">삭제</button>
+          </div>
+        </div>
+        <div v-else-if="isReadonly && appealData.attachments?.length" class="af__file-list">
+          <div
+            v-for="attachment in appealData.attachments"
+            :key="attachment.attachmentId"
+            class="af__file-item"
+          >
+            <span>{{ attachment.fileName }}</span>
+            <span class="af__file-size">{{ formatFileSize(attachment.fileSize) }}</span>
+          </div>
+        </div>
+        <span class="af__summary-meta">
+          근거 자료가 있으면 PDF, 이미지, 엑셀 파일 등을 함께 첨부할 수 있습니다.
+        </span>
       </div>
 
       <div v-if="appealData.reviewResult" class="af__section af__section--result">
@@ -368,6 +419,38 @@ function handleSubmit() {
   outline: none;
   border-color: var(--color-primary-300);
   box-shadow: 0 0 0 3px rgba(91, 80, 214, 0.08);
+}
+
+.af__file-list {
+  display: grid;
+  gap: 8px;
+}
+
+.af__file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: #faf8ff;
+  font-size: 13px;
+  color: var(--color-text-default);
+}
+
+.af__file-remove {
+  border: 0;
+  background: transparent;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.af__file-size {
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .af__section-title {

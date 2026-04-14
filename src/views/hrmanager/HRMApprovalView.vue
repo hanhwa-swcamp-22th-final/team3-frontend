@@ -17,6 +17,14 @@ function shortDate(dateStr) {
   return `${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 }
 
+function sortByFiledAtDesc(items) {
+  return [...items].sort((a, b) => {
+    const left = new Date(a?.filedAt ?? 0).getTime()
+    const right = new Date(b?.filedAt ?? 0).getTime()
+    return right - left
+  })
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
@@ -338,21 +346,26 @@ const isConfirmDisabled = computed(() => {
 })
 
 async function loadAppeals() {
-  const [pendingResponse, heldResponse, processedResponse] = await Promise.all([
+  const [pendingResponse, receivingResponse, reviewingResponse, processedResponse] = await Promise.all([
     hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'SUBMITTED' }),
     hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'RECEIVING' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'REVIEWING' }),
     hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'COMPLETED' }),
   ])
 
   const pendingMapped = (pendingResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
-  const heldMapped = (heldResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
+  const heldMapped = sortByFiledAtDesc([
+    ...(receivingResponse.data?.data?.content ?? []),
+    ...(reviewingResponse.data?.data?.content ?? []),
+  ]).map(mapAppealSummaryToItem)
   const processedMapped = (processedResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
 
   appealPendingList.value = pendingMapped
   appealHeldList.value = heldMapped
   appealProcessedList.value = processedMapped
   appealPendingTotalCount.value = pendingResponse.data?.data?.totalCount ?? 0
-  appealHeldTotalCount.value = heldResponse.data?.data?.totalCount ?? 0
+  appealHeldTotalCount.value =
+    (receivingResponse.data?.data?.totalCount ?? 0) + (reviewingResponse.data?.data?.totalCount ?? 0)
   appealProcessedTotalCount.value = processedResponse.data?.data?.totalCount ?? 0
 
   selectedAppealId.value =
@@ -367,14 +380,16 @@ async function loadAppeals() {
 }
 
 async function loadAppealCounts() {
-  const [pendingResponse, heldResponse, processedResponse] = await Promise.all([
+  const [pendingResponse, receivingResponse, reviewingResponse, processedResponse] = await Promise.all([
     hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'SUBMITTED' }),
     hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'RECEIVING' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'REVIEWING' }),
     hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'COMPLETED' }),
   ])
 
   appealPendingTotalCount.value = pendingResponse.data?.data?.totalCount ?? 0
-  appealHeldTotalCount.value = heldResponse.data?.data?.totalCount ?? 0
+  appealHeldTotalCount.value =
+    (receivingResponse.data?.data?.totalCount ?? 0) + (reviewingResponse.data?.data?.totalCount ?? 0)
   appealProcessedTotalCount.value = processedResponse.data?.data?.totalCount ?? 0
 }
 
