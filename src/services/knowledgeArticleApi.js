@@ -136,16 +136,20 @@ const knowledgeArticleApi = {
 
   // ── 승인 조회 ───────────────────────────────────────────────────
   getApprovalStats() {
-    return kmsApi.get('/api/kms/approval/stats')
+    return kmsApi.get('/api/kms/stats', { params: { stat: 'approval' } })
   },
 
   // params: { page, size }
   getApprovalList(params = {}) {
-    return kmsApi.get('/api/kms/approval', { params })
+    return kmsApi.get('/api/kms/articles', {
+      params: { ...params, stat: 'approval' },
+    })
   },
 
   getApprovalDetail(articleId) {
-    return kmsApi.get(`/api/kms/approval/${articleId}`)
+    return kmsApi.get(`/api/kms/articles/${articleId}`, {
+      params: { stat: 'approval' },
+    })
   },
 
   // ── Worker Command ────────────────────────────────────────────
@@ -207,11 +211,8 @@ const knowledgeArticleApi = {
   // role   : 'TL' | 'DL'
   // data   : { status: 'APPROVE'|'REJECT'|'PENDING', reviewComment }
   processApproval(role, articleId, data) {
-    const authStore = useAuthStore()
     const prefix = role === 'TL' ? 'tl' : 'dl'
-    return kmsApi.post(`/api/kms/${prefix}/articles/${articleId}/approval`, data, {
-      headers: { 'X-Employee-Id': authStore.userInfo?.employeeId },
-    })
+    return kmsApi.post(`/api/kms/${prefix}/articles/${articleId}/approval`, data)
   },
 
   // ── Admin Command ─────────────────────────────────────────────
