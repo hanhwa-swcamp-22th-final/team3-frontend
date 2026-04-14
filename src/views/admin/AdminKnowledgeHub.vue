@@ -8,7 +8,6 @@ import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/
 import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
-import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 const authStore = useAuthStore()
 const authorId = computed(() => Number(authStore.userInfo?.employeeId))
@@ -139,14 +138,9 @@ async function loadArticles() {
     const res = await knowledgeArticleApi.getArticles({
       page: 0,
       size: 20,
-      status: 'APPROVED',
-      requesterId: authorId.value,
-      requesterRole: 'ADMIN',
+      articleStatus: 'APPROVED',
     })
-    articles.value = filterVisibleKmsAuthors(
-      (res.data.data ?? []).map(mapToFeedCard),
-      (item) => item.author.name,
-    )
+    articles.value = (res.data.data ?? []).map(mapToFeedCard)
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
   }
@@ -155,10 +149,7 @@ async function loadArticles() {
 async function loadBookmarks() {
   try {
     const res = await knowledgeArticleApi.getMyBookmarks(authorId.value)
-    bookmarkArticles.value = filterVisibleKmsAuthors(
-      (res.data.data ?? []).map(mapToFeedCard),
-      (item) => item.author.name,
-    ).map((item) => ({ ...item, bookmarked: true }))
+    bookmarkArticles.value = (res.data.data ?? []).map(mapToFeedCard).map((item) => ({ ...item, bookmarked: true }))
   } catch (e) {
     console.error('[KMS] 북마크 목록 로드 실패:', e)
   }
@@ -167,10 +158,7 @@ async function loadBookmarks() {
 async function loadContributors() {
   try {
     const res = await knowledgeArticleApi.getContributors(3)
-    contributors.value = filterVisibleKmsAuthors(
-      (res.data.data ?? []).map(mapToContributor),
-      (item) => item.name,
-    )
+    contributors.value = (res.data.data ?? []).map(mapToContributor)
   } catch (e) {
     console.error('[KMS] 기여자 랭킹 로드 실패:', e)
   }
@@ -220,7 +208,7 @@ async function openDetailModal(article) {
   }
 
   try {
-    const res = await knowledgeArticleApi.getArticleDetail(article.id, { requesterId: authorId.value })
+    const res = await knowledgeArticleApi.getArticleDetail(article.id)
     const dto = res.data.data ?? {}
     selectedArticle.value = {
       id: dto.articleId ?? article.id,

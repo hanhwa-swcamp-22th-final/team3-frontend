@@ -96,7 +96,7 @@ const knowledgeArticleApi = {
   },
 
   getHubStats() {
-    return kmsApi.get('/api/kms/stats', { params: { stat: 'hub' } })
+    return kmsApi.get('/api/kms/stats', { params: { status: 'hub' } })
   },
 
   // limit: 노출할 기여자 수 (기본 5)
@@ -136,16 +136,23 @@ const knowledgeArticleApi = {
 
   // ── 승인 조회 ───────────────────────────────────────────────────
   getApprovalStats() {
-    return kmsApi.get('/api/kms/approval/stats')
+    return kmsApi.get('/api/kms/stats', { params: { status: 'pending' } })
   },
 
   // params: { page, size }
   getApprovalList(params = {}) {
-    return kmsApi.get('/api/kms/approval', { params })
+    return kmsApi.get('/api/kms/articles', {
+      params: {
+        ...params,
+        status: 'pending',
+      },
+    })
   },
 
   getApprovalDetail(articleId) {
-    return kmsApi.get(`/api/kms/approval/${articleId}`)
+    return kmsApi.get(`/api/kms/articles/${articleId}`, {
+      params: { status: 'pending' },
+    })
   },
 
   // ── Worker Command ────────────────────────────────────────────
