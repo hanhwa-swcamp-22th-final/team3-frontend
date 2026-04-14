@@ -3,7 +3,11 @@ import { ref, computed, onBeforeUnmount, onMounted } from 'vue'
 import { BaseToast } from '@/components/common/base/overlay'
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
-import { fetchDlTargets, fetchDlEvaluationDetail, updateDlEvaluation } from '@/services/departmentleader/evaluationApi'
+import {
+  fetchDlTargets,
+  fetchDlEvaluationDetail,
+  updateDlEvaluation,
+} from '@/services/departmentleader/evaluationApi'
 
 const members = ref([])
 const selectedMember = ref(null)
