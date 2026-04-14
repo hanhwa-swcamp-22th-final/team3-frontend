@@ -16,7 +16,7 @@ defineProps({
   },
 })
 
-defineEmits(['click-item', 'click-action', 'change-page'])
+defineEmits(['click-item', 'click-action', 'dismiss-item', 'change-page'])
 </script>
 
 <template>
@@ -26,6 +26,7 @@ defineEmits(['click-item', 'click-action', 'change-page'])
     :page-size="pageSize"
     @click-item="$emit('click-item', $event)"
     @click-action="$emit('click-action', $event)"
+    @dismiss-item="$emit('dismiss-item', $event)"
     @change-page="$emit('change-page', $event)"
   />
 </template>

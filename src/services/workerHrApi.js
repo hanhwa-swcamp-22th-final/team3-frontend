@@ -70,6 +70,24 @@ function toSkillViewModel(skill) {
   }
 }
 
+function calculateOverallSkillScore(skills) {
+  const scoreTargetSkillNames = new Set([
+    'EQUIPMENT_RESPONSE',
+    'TECHNICAL_TRANSFER',
+    'INNOVATION_PROPOSAL',
+    'SAFETY_COMPLIANCE',
+    'QUALITY_MANAGEMENT',
+    'PRODUCTIVITY',
+  ])
+  const scores = (skills ?? [])
+    .filter((skill) => scoreTargetSkillNames.has(skill.skillName))
+    .map((skill) => Number(skill.skillScore))
+    .filter(Number.isFinite)
+
+  if (!scores.length) return 0
+  return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+}
+
 function toTierHistoryMilestone(item) {
   const tier = normalizeTier(item.toTier)
   const isInitial = item.eventType === 'INITIAL'
@@ -248,16 +266,17 @@ export async function getWorkerProfileDashboard() {
   ])
 
   const tier = normalizeTier(profile.currentTier)
+  const skillGrid = skills.map(toSkillViewModel).slice(0, 6)
 
   return {
     worker: {
       id: profile.employeeId,
       name: profile.employeeName ?? '-',
       nameEn: profile.employeeCode ?? '',
-      score: Math.round(toNumber(profile.totalScore)),
+      score: calculateOverallSkillScore(skills),
       type: 'TECH',
       tier,
-      skillGrid: skills.map(toSkillViewModel).slice(0, 6),
+      skillGrid,
       historyPeriod: formatCareerPeriod(profile.hireDate),
       worksDone: '-',
       finishRate: 0,
