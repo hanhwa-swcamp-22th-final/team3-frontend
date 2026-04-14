@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
-import { BaseEmptyState } from '@/components/common/base'
 import EvaluationMemberCard from '@/components/hr/common/evaluation/EvaluationMemberCard.vue'
+import ListFilterDropdown from '@/components/hr/common/evaluation/ListFilterDropdown.vue'
+import ListPagination from '@/components/hr/common/evaluation/ListPagination.vue'
+import EvalListLayout from '@/components/hr/common/evaluation/EvalListLayout.vue'
 
 const props = defineProps({
   list:           { type: Array,  required: true },
@@ -85,66 +87,50 @@ watch(totalPages, (count) => {
 
 <template>
   <!-- 평가 승인 / 이의신청 공통 대형 패널 모드 -->
-  <article v-if="mode === 'evaluation' || mode === 'appeal'" class="hrm-panel hrm-panel--evaluation">
-    <div class="hrm-panel__header">
-      <div>
-        <p class="hrm-panel__eyebrow">{{ mode === 'appeal' ? '이의신청 현황' : '평가 대상 현황' }}</p>
-        <h3 class="hrm-panel__title">대상자 목록</h3>
-      </div>
-      <span class="hrm-panel__total">총 {{ pendingCount + processedCount }}명</span>
-    </div>
-
-    <div class="hrm-panel__filters">
-      <!-- 부서 -->
-      <div class="hrm-panel__dropdown-wrap">
-        <button class="hrm-panel__filter-btn" @click="deptDropdownOpen = !deptDropdownOpen; teamDropdownOpen = false; statusDropdownOpen = false">
-          <span class="hrm-panel__filter-label">부서: {{ deptFilter }}</span>
-          <span class="hrm-panel__filter-chevron">▾</span>
-        </button>
-        <ul v-if="deptDropdownOpen" class="hrm-panel__dropdown">
-          <li v-for="d in departments" :key="d" class="hrm-panel__dropdown-item"
-              :class="{ 'hrm-panel__dropdown-item--active': deptFilter === d }"
-              @click="selectDept(d)">{{ d }}</li>
-        </ul>
-      </div>
-      <!-- 팀 -->
-      <div class="hrm-panel__dropdown-wrap">
-        <button class="hrm-panel__filter-btn" @click="teamDropdownOpen = !teamDropdownOpen; deptDropdownOpen = false; statusDropdownOpen = false">
-          <span class="hrm-panel__filter-label">팀: {{ teamFilter }}</span>
-          <span class="hrm-panel__filter-chevron">▾</span>
-        </button>
-        <ul v-if="teamDropdownOpen" class="hrm-panel__dropdown">
-          <li v-for="t in teams" :key="t" class="hrm-panel__dropdown-item"
-              :class="{ 'hrm-panel__dropdown-item--active': teamFilter === t }"
-              @click="selectTeam(t)">{{ t }}</li>
-        </ul>
-      </div>
-      <!-- 상태 -->
-      <div class="hrm-panel__dropdown-wrap">
-        <button class="hrm-panel__filter-btn" @click="statusDropdownOpen = !statusDropdownOpen; deptDropdownOpen = false; teamDropdownOpen = false">
-          <span class="hrm-panel__filter-label">상태: {{ statusFilterLabel }}</span>
-          <span class="hrm-panel__filter-chevron">▾</span>
-        </button>
-        <ul v-if="statusDropdownOpen" class="hrm-panel__dropdown">
-          <li v-for="o in statusOptions" :key="o.value" class="hrm-panel__dropdown-item"
-              :class="{ 'hrm-panel__dropdown-item--active': statusFilter === o.value }"
-              @click="selectStatus(o.value)">{{ o.label }}</li>
-        </ul>
-      </div>
-    </div>
-
-    <label class="hrm-panel__search" aria-label="평가 대상 검색">
-      <span class="hrm-panel__search-icon" aria-hidden="true">⌕</span>
-      <input
-        v-model="search"
-        type="text"
-        class="hrm-panel__search-input"
-        :placeholder="mode === 'appeal' ? '이름으로 검색' : '이름으로 검색'"
+  <EvalListLayout
+    v-if="mode === 'evaluation' || mode === 'appeal'"
+    eyebrow="평가 대상 현황"
+    title="대상자 목록"
+    :total-label="`총 ${pendingCount + processedCount}${mode === 'appeal' ? '건' : '명'}`"
+    search-aria-label="평가 대상 검색"
+    search-placeholder="이름으로 검색"
+    :search-value="search"
+    :has-items="filteredEvalList.length > 0"
+    :empty-title="mode === 'appeal' ? '조건에 맞는 이의신청 대상이 없습니다.' : '조건에 맞는 평가 대상이 없습니다.'"
+    empty-description="검색어나 필터를 조정해 다른 대상을 확인해보세요."
+    @update:search-value="search = $event"
+  >
+    <template #filters>
+      <ListFilterDropdown
+        label="부서"
+        :value-label="deptFilter"
+        :options="departments.map((department) => ({ value: department, label: department }))"
+        :model-value="deptFilter"
+        :open="deptDropdownOpen"
+        @toggle="deptDropdownOpen = !deptDropdownOpen; teamDropdownOpen = false; statusDropdownOpen = false"
+        @select="selectDept"
       />
-    </label>
+      <ListFilterDropdown
+        label="팀"
+        :value-label="teamFilter"
+        :options="teams.map((team) => ({ value: team, label: team }))"
+        :model-value="teamFilter"
+        :open="teamDropdownOpen"
+        @toggle="teamDropdownOpen = !teamDropdownOpen; deptDropdownOpen = false; statusDropdownOpen = false"
+        @select="selectTeam"
+      />
+      <ListFilterDropdown
+        label="상태"
+        :value-label="statusFilterLabel"
+        :options="statusOptions"
+        :model-value="statusFilter"
+        :open="statusDropdownOpen"
+        @toggle="statusDropdownOpen = !statusDropdownOpen; deptDropdownOpen = false; teamDropdownOpen = false"
+        @select="selectStatus"
+      />
+    </template>
 
-    <template v-if="filteredEvalList.length">
-      <div class="hrm-eval-list">
+    <template #default>
         <EvaluationMemberCard
           v-for="item in pagedList"
           :key="item.id"
@@ -155,35 +141,21 @@ watch(totalPages, (count) => {
           :tier="item.tier"
           :meta="item.meta"
           :status="item.status"
-          :status-label="statusConfig[item.status]?.label"
+          :status-label="item.statusLabel ?? statusConfig[item.status]?.label"
           :status-date="item.statusDate"
           :selected="selectedId === item.id"
           @select="emit('select', item.id)"
         />
-      </div>
-
-      <div v-if="totalPages > 1" class="hrm-panel__pagination">
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          type="button"
-          class="hrm-panel__page"
-          :class="{ 'hrm-panel__page--active': page === currentPage }"
-          @click="currentPage = page"
-        >
-          {{ page }}
-        </button>
-      </div>
     </template>
 
-    <BaseEmptyState
-      v-else
-      icon="⌕"
-      :title="mode === 'appeal' ? '조건에 맞는 이의신청 대상이 없습니다.' : '조건에 맞는 평가 대상이 없습니다.'"
-      description="검색어나 필터를 조정해 다른 대상을 확인해보세요."
-      class="hrm-panel__empty"
-    />
-  </article>
+    <template v-if="totalPages > 1" #pagination>
+      <ListPagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change="currentPage = $event"
+      />
+    </template>
+  </EvalListLayout>
 
   <!-- 사용 안 하는 구형 리스트 모드 -->
   <article v-else class="hrm-panel">

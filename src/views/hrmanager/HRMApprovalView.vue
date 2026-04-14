@@ -8,6 +8,7 @@ import HRMApprovalList from '@/components/hr/hrmanager/evaluation-approval/HRMAp
 import HRMApprovalDetail from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalDetail.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 import hrApprovalApi from '@/services/hrApprovalApi.js'
+import { formatMemberMeta } from '@/utils/hrListFormat'
 
 function shortDate(dateStr) {
   if (!dateStr) return '-'
@@ -29,10 +30,17 @@ function formatPercent(done, total) {
 }
 
 const AVATAR_TONES = ['purple', 'green', 'gold']
+const APPEAL_TYPE_LABEL = {
+  SCORE_ERRORS: '점수 오류',
+  MISSING_ITEMS: '평가 항목 누락',
+  EVALUATION_PROCEDURES: '평가 절차 이의',
+  OTHERS: '기타',
+}
 
 const approvalMode = ref('evaluation')
 
 const STATUS_BADGE_STYLE = {
+  SUBMITTED: { label: '제출', bg: '#f3e8ff', color: '#7c3aed' },
   RECEIVING: { label: '접수', bg: '#eef2ff', color: '#4f46e5' },
   REVIEWING: { label: '보류', bg: '#fef3c7', color: '#92400e' },
   COMPLETED: { label: '완료', bg: '#dcfce7', color: '#166534' },
@@ -74,14 +82,19 @@ function normalizeEvaluationLevel(level) {
   return matched ? Number(matched[0]) : null
 }
 
+function getAppealTypeLabel(type) {
+  return APPEAL_TYPE_LABEL[type] ?? type ?? '-'
+}
+
 function defaultAppealDetail(summary) {
   return {
     avatar: summary.employeeName?.[0] ?? '?',
     dept: '-',
     evalType: '이의신청',
     quarter: '-',
-    reason: summary.title || '사유 없음',
+    reason: getAppealTypeLabel(summary.appealType),
     content: '내용 없음',
+    appealTitle: summary.title || '제목 없음',
     attachments: [],
     quantScore: '-',
     qualScore: '-',
@@ -93,7 +106,16 @@ function defaultAppealDetail(summary) {
     dataTrust: '-',
     aiAnalysis: '',
     inputMethod: 'TEXT',
+    firstStageScore: summary.firstScore != null ? summary.firstScore.toFixed(1) : '-',
+    firstStageComment: '',
+    secondStageScore: summary.secondScore != null ? summary.secondScore.toFixed(1) : '-',
+    secondStageComment: '',
   }
+}
+
+function formatAppealPeriod(evalYear, evalSequence) {
+  if (evalYear == null || evalSequence == null) return '-'
+  return `${evalYear}년 ${evalSequence}차 평가`
 }
 
 function defaultEvaluationDetail(summary) {
@@ -115,9 +137,9 @@ function defaultEvaluationDetail(summary) {
     dataTrust: '-',
     aiAnalysis: '',
     inputMethod: summary.inputMethod ?? 'TEXT',
-    firstStageScore: null,
+    firstStageScore: '-',
     firstStageComment: '',
-    secondStageScore: null,
+    secondStageScore: '-',
     secondStageComment: '',
   }
 }
@@ -126,15 +148,34 @@ function mapAppealSummaryToItem(summary) {
   const typeStyle = TYPE_STYLE['이의신청']
   const statusBadge = getAppealStatusBadge(summary.status)
   const processedBadge = getAppealProcessedBadge(summary.reviewResult, summary.status)
+  const avatarTone = AVATAR_TONES[summary.appealId % AVATAR_TONES.length]
+  const stageLabel = summary.status === 'SUBMITTED'
+    ? '검토 대기'
+    : summary.status === 'RECEIVING'
+      ? '접수 완료'
+      : summary.status === 'REVIEWING'
+        ? '검토중'
+        : '처리 완료'
 
   return {
     id: `appeal-${summary.appealId}`,
     appealId: summary.appealId,
+    evaluateeId: summary.appealEmployeeId,
+    evaluationPeriodId: summary.evaluationPeriodId,
     rawStatus: summary.status,
     type: '이의신청',
     typeBg: typeStyle.bg,
     typeColor: typeStyle.color,
     name: summary.employeeName,
+    avatar: (summary.employeeName ?? '?')[0],
+    avatarTone,
+    tier: summary.employeeTier ?? '',
+    team: summary.teamName ?? '',
+    department: summary.departmentName ?? '',
+    meta: formatMemberMeta(summary.employeeCode, summary.departmentName, summary.teamName),
+    status: summary.status === 'COMPLETED' ? 'submitted' : 'in_progress',
+    statusLabel: statusBadge.label,
+    statusDate: stageLabel,
     grade: statusBadge.label,
     gradeBg: statusBadge.bg,
     gradeColor: statusBadge.color,
@@ -166,7 +207,8 @@ function mapEvaluationSummaryToItem(summary, index) {
     tier: summary.employeeTier ?? '',
     team: summary.teamName ?? '',
     department: summary.departmentName ?? '',
-    meta: [summary.departmentName, summary.teamName].filter(Boolean).join(' > ') || `${summary.evaluationLevel ?? 2}차 평가`,
+    meta: formatMemberMeta(summary.employeeCode, summary.departmentName, summary.teamName)
+      || `${summary.evaluationLevel ?? 2}차 평가`,
     status: frontendStatus,
     statusLabel: summary.status === 'CONFIRMED' ? '확정 완료' : '검토 대기',
     statusDate: summary.status === 'CONFIRMED' ? '확정 완료' : '검토 대기',
@@ -189,9 +231,17 @@ function mergeAppealDetail(item, detail) {
     detail: {
       ...item.detail,
       avatar: detail.employeeName?.[0] ?? item.detail.avatar,
-      quarter: formatDate(detail.filedAt),
-      reason: detail.title || '사유 없음',
+      quarter: formatAppealPeriod(detail.evalYear, detail.evalSequence),
+      reason: getAppealTypeLabel(detail.appealType),
+      appealTitle: detail.title || '제목 없음',
       content: detail.content || '내용 없음',
+      quantScore: '-',
+      qualScore: detail.averageScore != null ? detail.averageScore.toFixed(1) : '-',
+      totalScore: detail.averageScore != null ? detail.averageScore.toFixed(1) : '-',
+      firstStageScore: detail.firstScore != null ? detail.firstScore.toFixed(1) : '-',
+      firstStageComment: detail.firstStageComment || '',
+      secondStageScore: detail.secondScore != null ? detail.secondScore.toFixed(1) : '-',
+      secondStageComment: detail.secondStageComment || '',
     },
   }
 }
@@ -265,7 +315,7 @@ const selectedItem = computed(() => {
 
 const isSelectedProcessed = computed(() => {
   if (approvalMode.value === 'appeal') {
-    return appealProcessedList.value.some(item => item.id === selectedAppealId.value)
+    return false
   }
   return evaluationProcessedList.value.some(item => item.id === selectedEvaluationId.value)  // CONFIRMED 상태
 })
@@ -288,27 +338,44 @@ const isConfirmDisabled = computed(() => {
 })
 
 async function loadAppeals() {
-  const status = appealActiveTab.value === '보류'
-    ? 'REVIEWING'
-    : appealActiveTab.value === '처리 완료'
-      ? 'COMPLETED'
-      : 'RECEIVING'
+  const [pendingResponse, heldResponse, processedResponse] = await Promise.all([
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'SUBMITTED' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'RECEIVING' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'COMPLETED' }),
+  ])
 
-  const response = await hrApprovalApi.getAppeals({ page: 0, size: 100, status })
-  const content = response.data?.data?.content ?? []
-  const totalCount = response.data?.data?.totalCount ?? 0
-  const mapped = content.map(mapAppealSummaryToItem)
-  if (status === 'RECEIVING') {
-    appealPendingList.value = mapped
-    appealPendingTotalCount.value = totalCount
-  } else if (status === 'REVIEWING') {
-    appealHeldList.value = mapped
-    appealHeldTotalCount.value = totalCount
-  } else {
-    appealProcessedList.value = mapped
-    appealProcessedTotalCount.value = totalCount
+  const pendingMapped = (pendingResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
+  const heldMapped = (heldResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
+  const processedMapped = (processedResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
+
+  appealPendingList.value = pendingMapped
+  appealHeldList.value = heldMapped
+  appealProcessedList.value = processedMapped
+  appealPendingTotalCount.value = pendingResponse.data?.data?.totalCount ?? 0
+  appealHeldTotalCount.value = heldResponse.data?.data?.totalCount ?? 0
+  appealProcessedTotalCount.value = processedResponse.data?.data?.totalCount ?? 0
+
+  selectedAppealId.value =
+    pendingMapped[0]?.id
+    ?? heldMapped[0]?.id
+    ?? processedMapped[0]?.id
+    ?? null
+
+  if (selectedAppealId.value) {
+    await loadAppealDetail(selectedAppealId.value)
   }
-  selectedAppealId.value = mapped[0]?.id ?? null
+}
+
+async function loadAppealCounts() {
+  const [pendingResponse, heldResponse, processedResponse] = await Promise.all([
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'SUBMITTED' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'RECEIVING' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'COMPLETED' }),
+  ])
+
+  appealPendingTotalCount.value = pendingResponse.data?.data?.totalCount ?? 0
+  appealHeldTotalCount.value = heldResponse.data?.data?.totalCount ?? 0
+  appealProcessedTotalCount.value = processedResponse.data?.data?.totalCount ?? 0
 }
 
 async function loadEvaluations() {
@@ -333,12 +400,16 @@ async function loadEvaluations() {
   evaluationPendingTotalCount.value = evaluationPendingList.value.length
   evaluationProcessedTotalCount.value = evaluationProcessedList.value.length
   selectedEvaluationId.value = evaluationPendingList.value[0]?.id ?? evaluationProcessedList.value[0]?.id ?? null
+  if (selectedEvaluationId.value) {
+    await loadEvaluationDetail(selectedEvaluationId.value)
+  }
 }
 
 async function loadCurrentMode() {
   loading.value = true
   error.value = null
   try {
+    await loadAppealCounts()
     if (approvalMode.value === 'appeal') {
       await loadAppeals()
     } else {
@@ -354,7 +425,16 @@ async function loadCurrentMode() {
 
 async function loadAppealDetail(itemId) {
   const appealId = Number(String(itemId).replace('appeal-', ''))
-  if (!appealId || appealDetails.value[appealId]) return
+  if (!appealId) return
+
+  const cachedDetail = appealDetails.value[appealId]
+  if (cachedDetail) {
+    const mergeIntoList = (list) => list.map(item => item.appealId === appealId ? mergeAppealDetail(item, cachedDetail) : item)
+    appealPendingList.value = mergeIntoList(appealPendingList.value)
+    appealHeldList.value = mergeIntoList(appealHeldList.value)
+    appealProcessedList.value = mergeIntoList(appealProcessedList.value)
+    return
+  }
 
   const response = await hrApprovalApi.getAppealById(appealId)
   const detail = response.data?.data
@@ -368,7 +448,15 @@ async function loadAppealDetail(itemId) {
 
 async function loadEvaluationDetail(itemId) {
   const evalId = Number(String(itemId).replace('evaluation-', ''))
-  if (!evalId || evaluationDetails.value[evalId]) return
+  if (!evalId) return
+
+  const cachedDetail = evaluationDetails.value[evalId]
+  if (cachedDetail) {
+    const mergeIntoList = (list) => list.map(item => item.evalId === evalId ? mergeEvaluationDetail(item, cachedDetail) : item)
+    evaluationPendingList.value = mergeIntoList(evaluationPendingList.value)
+    evaluationProcessedList.value = mergeIntoList(evaluationProcessedList.value)
+    return
+  }
 
   const response = await hrApprovalApi.getEvaluationApprovalDetail(evalId)
   const detail = response.data?.data
@@ -406,14 +494,19 @@ function showToast(message) {
 function handleApprove(comment = '') {
   if (!selectedItem.value) return
   const isEvaluation = approvalMode.value === 'evaluation'
+  const isAppealFinalConfirm = approvalMode.value === 'appeal' && selectedItem.value.rawStatus === 'COMPLETED'
   confirmReason.value = ''
   if (isEvaluation) evaluationConfirmComment.value = typeof comment === 'string' ? comment : (comment?.value ?? '')
   confirmModal.value = {
     show: true,
     action: 'approve',
-    title: isEvaluation ? '최종 확정' : '최종 승인',
-    message: `${selectedItem.value.name}님 — ${isEvaluation ? '해당 평가를 최종 확정하시겠습니까?' : '해당 평가를 최종 승인하시겠습니까?'}`,
-    confirmText: isEvaluation ? '확정' : '승인',
+    title: isEvaluation || isAppealFinalConfirm ? '최종 확정' : '접수',
+    message: `${selectedItem.value.name}님 — ${
+      isEvaluation || isAppealFinalConfirm
+        ? '해당 내용을 최종 확정하시겠습니까?'
+        : '해당 이의신청을 접수하시겠습니까?'
+    }`,
+    confirmText: isEvaluation || isAppealFinalConfirm ? '확정' : '접수',
   }
 }
 
@@ -422,9 +515,9 @@ function handleReject() {
   confirmModal.value = {
     show: true,
     action: 'reject',
-    title: '반려',
-    message: `${selectedItem.value.name}님 — 해당 평가를 반려 처리하시겠습니까?`,
-    confirmText: '반려',
+    title: approvalMode.value === 'appeal' ? '거절' : '반려',
+    message: `${selectedItem.value.name}님 — ${approvalMode.value === 'appeal' ? '해당 이의신청을 거절하시겠습니까?' : '해당 평가를 반려 처리하시겠습니까?'}`,
+    confirmText: approvalMode.value === 'appeal' ? '거절' : '반려',
   }
 }
 
@@ -461,26 +554,31 @@ async function handleConfirm() {
     }
 
     const action = confirmModal.value.action
-    const payload = action === 'hold'
-      ? {
-          status: 'REVIEWING',
-          reviewResult: null,
-          modifiedScore: null,
-          reason: confirmReason.value.trim(),
-        }
-      : {
-          status: 'COMPLETED',
-          reviewResult: action === 'reject' ? 'DISMISS' : 'ACKNOWLEDGE',
-          modifiedScore: null,
-          reason: action === 'approve' ? null : confirmReason.value.trim(),
-        }
-
     const targetName = selectedItem.value.name
-    await hrApprovalApi.updateAppealStatus(selectedItem.value.appealId, payload)
+    const wasCompletedAppeal = selectedItem.value.rawStatus === 'COMPLETED'
+    if (action === 'approve') {
+      if (wasCompletedAppeal) {
+        await hrApprovalApi.confirmEvaluation(selectedItem.value.evaluateeId, {
+          evaluationPeriodId: selectedItem.value.evaluationPeriodId,
+          evalComment: selectedItem.value.detail.secondStageComment || selectedItem.value.detail.firstStageComment || selectedItem.value.detail.content,
+          inputMethod: selectedItem.value.detail.inputMethod ?? 'TEXT',
+        })
+      } else {
+        await hrApprovalApi.receiveAppeal(selectedItem.value.appealId)
+      }
+    } else {
+      await hrApprovalApi.rejectAppeal(selectedItem.value.appealId, {
+        reason: confirmReason.value.trim(),
+      })
+    }
     confirmModal.value.show = false
     confirmReason.value = ''
     await loadAppeals()
-    showToast(`${targetName}님의 평가가 ${action === 'approve' ? '승인되었습니다.' : action === 'reject' ? '반려되었습니다.' : '보류되었습니다.'}`)
+    showToast(`${targetName}님의 이의신청이 ${
+      action === 'approve'
+        ? (wasCompletedAppeal ? '최종 확정되었습니다.' : '접수되었습니다.')
+        : '거절되었습니다.'
+    }`)
   } catch (e) {
     console.error(e)
     showToast('처리 중 오류가 발생했습니다.')
