@@ -22,9 +22,17 @@ const tiers = ['전체', 'S', 'A', 'B', 'C']
 
 const totalCount    = computed(() => props.employees.length)
 const tierCount     = (tier) => props.employees.filter(e => e.employee_current_tier === tier).length
+const STATUS_MAP = {
+  ACTIVE:   { label: '재직',  cls: 'status-badge--active' },
+  ON_LEAVE: { label: '휴직',  cls: 'status-badge--leave' },
+  RESIGNED: { label: '퇴직',  cls: 'status-badge--resigned' },
+}
+const statusLabel = (s) => STATUS_MAP[s]?.label ?? s ?? '—'
+const statusClass = (s) => STATUS_MAP[s]?.cls ?? ''
+
 const AVATAR_COLORS = ['#5B4FCF', '#3D35A0', '#1A8060', '#A07000', '#C0103E', '#7A6FA8', '#00BF95', '#EF476F']
 const avatarBgColor = (emp) => AVATAR_COLORS[(emp.id - 1) % AVATAR_COLORS.length]
-const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
+const formatDate    = (d) => d ? d.substring(0, 10).replaceAll('-', '.') : '-'
 </script>
 
 <template>
@@ -50,6 +58,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
       <span class="col col--name">이름</span>
       <span class="col col--code">사번</span>
       <span class="col col--tier">Tier</span>
+      <span class="col col--status">상태</span>
       <span class="col col--line">소속라인</span>
       <span class="col col--equip">배정설비</span>
       <span class="col col--date">입사일</span>
@@ -84,12 +93,15 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
             :style="{ backgroundColor: tierBgColor(emp.employee_current_tier), color: tierTextColor(emp.employee_current_tier) }"
           >{{ emp.employee_current_tier }}</span>
         </span>
+        <span class="col col--status">
+          <span class="status-badge" :class="statusClass(emp.employee_status)">{{ statusLabel(emp.employee_status) }}</span>
+        </span>
         <span class="col col--line">{{ emp.employee_line || '—' }}</span>
         <span class="col col--equip">{{ emp.employee_equipment || '—' }}</span>
         <span class="col col--date">{{ formatDate(emp.created_at) }}</span>
         <div class="col col--action">
           <BaseButton variant="ghost"  size="sm" @click="emit('editClick',   emp)">수정</BaseButton>
-          <BaseButton variant="danger" size="sm" @click="emit('deleteClick', emp.id)">삭제</BaseButton>
+          <BaseButton v-if="emp.employee_status !== 'ON_LEAVE'" variant="danger" size="sm" @click="emit('deleteClick', emp.id)">삭제</BaseButton>
         </div>
       </div>
     </template>
@@ -200,6 +212,7 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
 .col--name   { flex: 1.4; gap: 8px; }
 .col--code   { flex: 1.3; }
 .col--tier   { flex: 0.9; }
+.col--status { flex: 0.9; }
 .col--line   { flex: 1.3; }
 .col--equip  { flex: 1.3; }
 .col--date   { flex: 1.1; }
@@ -225,6 +238,31 @@ const formatDate    = (d) => d ? d.substring(0, 7).replace('-', '.') : '-'
   border-radius: 3px;
   font-size: 10px;
   font-weight: 900;
+}
+
+/* 상태 뱃지 */
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #f4f4fb;
+  color: var(--color-text-muted);
+}
+
+.status-badge--active {
+  background: #e8fbf7;
+  color: #10937f;
+}
+
+.status-badge--leave {
+  background: #fff4d8;
+  color: #9a6a00;
+}
+
+.status-badge--resigned {
+  background: #ffe8ef;
+  color: #db2952;
 }
 
 
