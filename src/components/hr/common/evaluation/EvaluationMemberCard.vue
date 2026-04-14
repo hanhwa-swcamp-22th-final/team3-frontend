@@ -76,7 +76,7 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
 }
 
 .evaluation-member-card:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .evaluation-member-card--submitted {
@@ -86,8 +86,8 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
 
 .evaluation-member-card--in_progress,
 .evaluation-member-card--in-progress {
-  background: #f1ecff;
-  border-color: #d4c8ff;
+  background: #f7f4ff;
+  border-color: #e5dfff;
 }
 
 .evaluation-member-card--not_started,
