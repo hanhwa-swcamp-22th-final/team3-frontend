@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed, onBeforeUnmount, onMounted } from 'vue'
-import { BaseProgressBar } from '@/components/common/base'
+import { BaseFilterTabs, BaseProgressBar } from '@/components/common/base'
 import { BaseToast } from '@/components/common/base/overlay'
+import ReviewerAppealDetailPanel from '@/components/hr/common/appeal/ReviewerAppealDetailPanel.vue'
+import ReviewerAppealListPanel from '@/components/hr/common/appeal/ReviewerAppealListPanel.vue'
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
-import { fetchDlTargets, fetchDlEvaluationDetail, updateDlEvaluation } from '@/services/departmentleader/evaluationApi'
+import { approveDlAppeal, fetchDlAppealDetail, fetchDlAppeals, fetchDlTargets, fetchDlEvaluationDetail, rejectDlAppeal, updateDlEvaluation } from '@/services/departmentleader/evaluationApi'
+import { formatMemberMeta } from '@/utils/hrListFormat'
 import { mapStatus, statusToLabel } from '@/utils/evaluationStatus'
 
 const members = ref([])
@@ -12,6 +15,113 @@ const selectedMember = ref(null)
 const evalPeriodId = ref(null)
 const periodInfo = ref(null)
 const toast = ref({ show: false, message: '', type: 'success' })
+const activeTab = ref('evaluation')
+const modeTabs = [
+  { key: 'evaluation', label: '평가 관리' },
+  { key: 'appeal', label: '이의신청' },
+]
+const appealSummaries = ref([])
+const selectedAppealId = ref(null)
+const selectedAppealDetail = ref(null)
+const appealActionLoading = ref(false)
+const appealReviewing = ref(false)
+const appealDraftMember = ref(null)
+const APPEAL_TYPE_LABEL = {
+  SCORE_ERRORS: '점수 오류',
+  MISSING_ITEMS: '평가 항목 누락',
+  EVALUATION_PROCEDURES: '평가 절차 이의',
+  OTHERS: '기타',
+}
+const APPEAL_STATUS_LABEL = {
+  SUBMITTED: '제출',
+  RECEIVING: '접수',
+  REVIEWING: '검토중',
+  COMPLETED: '완료',
+}
+const REVIEW_RESULT_LABEL = {
+  ACKNOWLEDGE: '인용',
+  ACKNOWLEDGE_IN_PART: '일부 인용',
+  DISMISS: '기각',
+}
+
+function unwrap(response) {
+  return response.data?.data ?? response.data
+}
+
+function formatShortDate(value) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+function formatScore(value) {
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? `${numeric.toFixed(1)}점` : '-'
+}
+
+function formatPeriodText(evalYear, evalSequence) {
+  if (!evalYear) return '평가기간 미지정'
+  const raw = String(evalYear)
+  const year = raw.slice(0, 4)
+  const month = raw.length >= 6 ? String(parseInt(raw.slice(4), 10)) : null
+  return month
+    ? `${year}년 ${month}월 ${evalSequence}차`
+    : `${year}년 ${evalSequence}차`
+}
+
+function mapAppealSummary(appeal) {
+  return {
+    appealId: appeal.appealId,
+    appealEmployeeId: appeal.appealEmployeeId,
+    evaluationPeriodId: appeal.evaluationPeriodId,
+    employeeName: appeal.employeeName ?? '-',
+    employeeCode: appeal.employeeCode ?? '',
+    departmentName: appeal.departmentName ?? '',
+    teamName: appeal.teamName ?? '',
+    title: appeal.title ?? '제목 없음',
+    content: appeal.content ?? '내용이 없습니다.',
+    status: appeal.status ?? 'RECEIVING',
+    statusLabel: APPEAL_STATUS_LABEL[appeal.status] ?? (appeal.status ?? '-'),
+    appealTypeLabel: APPEAL_TYPE_LABEL[appeal.appealType] ?? (appeal.appealType ?? '-'),
+    filedAtLabel: formatShortDate(appeal.filedAt),
+    quantScoreLabel: '-',
+    firstScoreLabel: formatScore(appeal.firstScore),
+    secondScoreLabel: formatScore(appeal.secondScore),
+    averageScoreLabel: formatScore(appeal.averageScore),
+    periodLabel: formatPeriodText(appeal.evalYear, appeal.evalSequence),
+    firstStageComment: '',
+    secondStageComment: '',
+  }
+}
+
+function mapAppealDetail(appeal) {
+  if (!appeal) return null
+  return {
+    appealId: appeal.appealId,
+    appealEmployeeId: appeal.appealEmployeeId,
+    evaluationPeriodId: appeal.evaluationPeriodId,
+    employeeName: appeal.employeeName ?? '-',
+    employeeCode: appeal.employeeCode ?? '',
+    departmentName: appeal.departmentName ?? '',
+    teamName: appeal.teamName ?? '',
+    title: appeal.title ?? '제목 없음',
+    content: appeal.content ?? '내용이 없습니다.',
+    status: appeal.status ?? 'RECEIVING',
+    statusLabel: APPEAL_STATUS_LABEL[appeal.status] ?? (appeal.status ?? '-'),
+    appealTypeLabel: APPEAL_TYPE_LABEL[appeal.appealType] ?? (appeal.appealType ?? '-'),
+    reviewResultLabel: REVIEW_RESULT_LABEL[appeal.reviewResult] ?? '미처리',
+    filedAtLabel: formatShortDate(appeal.filedAt),
+    reviewedAtLabel: formatShortDate(appeal.reviewedAt),
+    quantScoreLabel: '-',
+    firstScoreLabel: formatScore(appeal.firstScore),
+    secondScoreLabel: formatScore(appeal.secondScore),
+    averageScoreLabel: formatScore(appeal.averageScore),
+    periodLabel: formatPeriodText(appeal.evalYear, appeal.evalSequence),
+    firstStageComment: appeal.firstStageComment ?? '',
+    secondStageComment: appeal.secondStageComment ?? '',
+  }
+}
 
 const periodLabel = computed(() => {
   if (!periodInfo.value?.evalYear) return null
@@ -48,7 +158,9 @@ function mapTarget(t) {
     avatarColor: avatarColor(t.employeeName),
     tier: t.employeeTier ?? '—',
     code: t.employeeCode ?? '',
+    departmentName: t.departmentName ?? '',
     team: t.teamName ?? '',
+    meta: formatMemberMeta(t.employeeCode ?? '', t.departmentName ?? '', t.teamName ?? ''),
     experience: '',
     status,
     statusDate: statusToLabel(status, t.status),
@@ -69,7 +181,7 @@ function showToast(message, type = 'success') {
 async function loadTargets() {
   try {
     const res = await fetchDlTargets()
-    const data = res.data.data
+    const data = unwrap(res)
     evalPeriodId.value = data.evalPeriodId
     periodInfo.value = {
       evalYear: data.evalYear,
@@ -83,6 +195,19 @@ async function loadTargets() {
     }
   } catch {
     showToast('평가 대상 목록을 불러오지 못했습니다.', 'error')
+  }
+}
+
+async function loadAppeals() {
+  try {
+    const res = await fetchDlAppeals()
+    const appeals = (unwrap(res) ?? []).map(mapAppealSummary)
+    appealSummaries.value = appeals
+    if (appeals.length) {
+      await handleSelectAppeal(appeals[0].appealId)
+    }
+  } catch {
+    showToast('이의신청 목록을 불러오지 못했습니다.', 'error')
   }
 }
 
@@ -111,6 +236,124 @@ async function handleSelect(member) {
     }
   } catch {
     // 1차 평가 상세가 없으면 summary null 유지 (v-if로 처리)
+  }
+}
+
+async function handleSelectAppeal(appealId) {
+  appealReviewing.value = false
+  appealDraftMember.value = null
+  selectedAppealId.value = appealId
+  const summary = appealSummaries.value.find((item) => item.appealId === appealId)
+  if (summary) {
+    selectedAppealDetail.value = { ...summary }
+  }
+  try {
+    const res = await fetchDlAppealDetail(appealId)
+    selectedAppealDetail.value = {
+      ...(summary ?? {}),
+      ...mapAppealDetail(unwrap(res)),
+    }
+  } catch {
+    selectedAppealDetail.value = null
+    showToast('이의신청 상세를 불러오지 못했습니다.', 'error')
+  }
+}
+
+function buildAppealDraftMember(detail, firstEvaluationSummary) {
+  return {
+    id: detail.appealEmployeeId,
+    evaluationPeriodId: detail.evaluationPeriodId,
+    name: detail.employeeName,
+    code: detail.employeeCode ?? '',
+    departmentName: detail.departmentName ?? '',
+    team: detail.teamName ?? '',
+    secondEvaluationDraft: detail.secondStageComment || '',
+    firstEvaluationSummary,
+    expectedScore: null,
+  }
+}
+
+async function handleStartAppealReview() {
+  const detail = selectedAppealDetail.value
+  if (!detail?.appealEmployeeId || !detail.evaluationPeriodId) return
+  try {
+    const res = await fetchDlEvaluationDetail(detail.appealEmployeeId, detail.evaluationPeriodId)
+    const evaluationDetail = unwrap(res)
+    appealDraftMember.value = buildAppealDraftMember(detail, {
+      quantitativeScore: null,
+      qualitativeScore: evaluationDetail.firstStageScore ?? null,
+      compositeScore: null,
+      qualitativeComment: evaluationDetail.evalComment ?? detail.firstStageComment ?? '',
+    })
+  } catch {
+    appealDraftMember.value = buildAppealDraftMember(detail, {
+      quantitativeScore: null,
+      qualitativeScore: null,
+      compositeScore: null,
+      qualitativeComment: detail.firstStageComment || '',
+    })
+  }
+  appealReviewing.value = true
+}
+
+const selectedAppealInfo = computed(() => {
+  const detail = selectedAppealDetail.value
+  if (!detail) return null
+  return {
+    periodLabel: detail.periodLabel,
+    typeLabel: detail.appealTypeLabel,
+    title: detail.title,
+    content: detail.content,
+  }
+})
+
+async function handleApproveAppeal(payload) {
+  if (!selectedAppealId.value || !appealDraftMember.value) return
+  try {
+    appealActionLoading.value = true
+    await updateDlEvaluation(appealDraftMember.value.id, {
+      status: 'SUBMITTED',
+      evaluationPeriodId: appealDraftMember.value.evaluationPeriodId,
+      evalComment: payload?.draftText ?? appealDraftMember.value.secondEvaluationDraft ?? '',
+      inputMethod: payload?.inputMethod ?? 'TEXT',
+    })
+    await approveDlAppeal(selectedAppealId.value, {})
+    const appeals = (unwrap(await fetchDlAppeals()) ?? []).map(mapAppealSummary)
+    appealSummaries.value = appeals
+    selectedAppealDetail.value = null
+    appealDraftMember.value = null
+    appealReviewing.value = false
+    selectedAppealId.value = appeals[0]?.appealId ?? null
+    if (selectedAppealId.value) {
+      await handleSelectAppeal(selectedAppealId.value)
+    }
+    showToast('이의신청을 인용 완료 처리했습니다.')
+  } catch {
+    showToast('이의신청 처리에 실패했습니다.', 'error')
+  } finally {
+    appealActionLoading.value = false
+  }
+}
+
+async function handleRejectAppeal() {
+  if (!selectedAppealId.value) return
+  try {
+    appealActionLoading.value = true
+    await rejectDlAppeal(selectedAppealId.value, { reason: '부서장 단계에서 일부 인용으로 종료되었습니다.' })
+    const appeals = (unwrap(await fetchDlAppeals()) ?? []).map(mapAppealSummary)
+    appealSummaries.value = appeals
+    selectedAppealDetail.value = null
+    appealDraftMember.value = null
+    appealReviewing.value = false
+    selectedAppealId.value = appeals[0]?.appealId ?? null
+    if (selectedAppealId.value) {
+      await handleSelectAppeal(selectedAppealId.value)
+    }
+    showToast('이의신청을 일부 인용으로 종료했습니다.')
+  } catch {
+    showToast('이의신청 처리에 실패했습니다.', 'error')
+  } finally {
+    appealActionLoading.value = false
   }
 }
 
@@ -165,7 +408,10 @@ async function handleSubmit(payload) {
   }
 }
 
-onMounted(loadTargets)
+onMounted(async () => {
+  await loadTargets()
+  await loadAppeals()
+})
 onBeforeUnmount(() => {
   if (toastTimer) clearTimeout(toastTimer)
 })
@@ -173,32 +419,38 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="dl-eval-view">
-    <!-- Progress card -->
-    <section class="dl-eval-view__progress-card">
-      <div class="dl-eval-view__progress-copy">
-        <div>
-          <p class="dl-eval-view__progress-eyebrow">제출 완료 현황</p>
-          <strong class="dl-eval-view__progress-title">
-            {{ submittedCount }} / {{ totalCount }}명 제출 완료
-          </strong>
-        </div>
-        <div v-if="periodLabel" class="dl-eval-view__period-info">
-          <span class="dl-eval-view__period-badge">{{ periodLabel }}</span>
-          <span class="dl-eval-view__period-dates">
-            {{ periodInfo.startDate }} ~ {{ periodInfo.endDate }}
-          </span>
-        </div>
-      </div>
-      <BaseProgressBar
-        :value="progressPercent"
-        tone="success"
-        size="md"
-        label="평가 제출 진행률"
-      />
-    </section>
+    <BaseFilterTabs
+      v-model="activeTab"
+      :items="modeTabs"
+      variant="chip"
+      size="md"
+      class="dl-eval-view__tabs"
+    />
 
-    <!-- Content -->
-    <div class="dl-eval-view__content">
+    <div v-if="activeTab === 'evaluation'" class="dl-eval-view__content">
+      <section class="dl-eval-view__progress-card dl-eval-view__progress-card--full">
+        <div class="dl-eval-view__progress-copy">
+          <div>
+            <p class="dl-eval-view__progress-eyebrow">제출 완료 현황</p>
+            <strong class="dl-eval-view__progress-title">
+              {{ submittedCount }} / {{ totalCount }}명 제출 완료
+            </strong>
+          </div>
+          <div v-if="periodLabel" class="dl-eval-view__period-info">
+            <span class="dl-eval-view__period-badge">{{ periodLabel }}</span>
+            <span class="dl-eval-view__period-dates">
+              {{ periodInfo.startDate }} ~ {{ periodInfo.endDate }}
+            </span>
+          </div>
+        </div>
+        <BaseProgressBar
+          :value="progressPercent"
+          tone="success"
+          size="md"
+          label="평가 제출 진행률"
+        />
+      </section>
+
       <DepartmentLeaderEvalMemberListPanel
         :members="members"
         :selected-id="selectedMember?.id ?? null"
@@ -209,6 +461,34 @@ onBeforeUnmount(() => {
         :readonly="isSubmitted"
         @save="handleSave"
         @submit="handleSubmit"
+      />
+    </div>
+
+    <div v-else class="dl-eval-view__appeal-content">
+      <ReviewerAppealListPanel
+        :appeals="appealSummaries"
+        :selected-id="selectedAppealId"
+        role-label="DL"
+        @select="handleSelectAppeal"
+      />
+      <DepartmentLeaderEvalFormPanel
+        v-if="appealReviewing"
+        :member="appealDraftMember"
+        :appeal-info="selectedAppealInfo"
+        :readonly="false"
+        progress-label="이의신청 검토 작성 현황"
+        submit-label="검토 제출"
+        @save="handleSaveAppealDraft"
+        @submit="handleApproveAppeal"
+      />
+      <ReviewerAppealDetailPanel
+        v-else
+        :detail="selectedAppealDetail"
+        role-label="DL"
+        action-mode="dl"
+        :loading="appealActionLoading"
+        @review="handleStartAppealReview"
+        @reject="handleRejectAppeal"
       />
     </div>
     <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
@@ -236,10 +516,55 @@ onBeforeUnmount(() => {
   display: grid;
   gap: 10px;
   padding: 14px 18px;
-  margin-bottom: 12px;
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
+}
+
+.dl-eval-view__progress-card--full {
+  grid-column: 1 / -1;
+  margin-bottom: 12px;
+}
+
+.dl-eval-view__tabs {
+  align-self: flex-start;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-bottom: 4px;
+  background: var(--color-bg-app);
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__count) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2)) {
+  border-color: #f3c3cb;
+  color: #c24157;
+  background: #fff5f6;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2) .base-filter-tabs__count) {
+  background: rgba(194, 65, 87, 0.12);
+  color: #c24157;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active) {
+  background: #ffe7eb;
+  border-color: #e88998;
+  color: #a61d38;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: #c24157;
+  color: #fff;
 }
 
 .dl-eval-view__progress-copy {
@@ -297,8 +622,20 @@ onBeforeUnmount(() => {
   min-height: 0;
 }
 
+.dl-eval-view__appeal-content {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.72fr) minmax(0, 1.6fr);
+  gap: 18px;
+  align-items: stretch;
+  min-height: 0;
+}
+
 @media (max-width: 900px) {
   .dl-eval-view__content {
+    grid-template-columns: 1fr;
+  }
+
+  .dl-eval-view__appeal-content {
     grid-template-columns: 1fr;
   }
 }
@@ -317,3 +654,26 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+async function handleSaveAppealDraft(payload) {
+  if (!appealDraftMember.value) return
+  try {
+    await updateDlEvaluation(appealDraftMember.value.id, {
+      status: 'DRAFT',
+      evaluationPeriodId: appealDraftMember.value.evaluationPeriodId,
+      evalComment: payload?.draftText ?? appealDraftMember.value.secondEvaluationDraft ?? '',
+      inputMethod: payload?.inputMethod ?? 'TEXT',
+    })
+    appealDraftMember.value = {
+      ...appealDraftMember.value,
+      secondEvaluationDraft: payload?.draftText ?? '',
+    }
+    showToast('검토 초안을 임시저장했습니다.')
+  } catch {
+    showToast('검토 초안 저장에 실패했습니다.', 'error')
+  }
+}
+
+function handleCloseAppealReview() {
+  appealReviewing.value = false
+  appealDraftMember.value = null
+}
