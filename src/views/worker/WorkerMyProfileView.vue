@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getWorkerProfileDashboard } from '@/services/workerHrApi'
 import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
 import WorkerOverallStatusCard from '@/components/dashboard/worker/WorkerOverallStatusCard.vue'
@@ -14,6 +15,7 @@ const workerTierMilestones = ref([])
 const workerTierChartData = ref([])
 const workerMissions = ref([])
 const workerNotification = ref(null)
+const router = useRouter()
 
 onMounted(async () => {
   try {
@@ -31,6 +33,13 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+function goNoticeBoard() {
+  router.push({
+    name: 'WorkerNoticeBoard',
+    query: workerNotification.value?.id ? { noticeId: workerNotification.value.id } : {},
+  })
+}
 </script>
 
 <template>
@@ -42,6 +51,7 @@ onMounted(async () => {
         v-if="workerNotification"
         :title="workerNotification.title"
         :description="workerNotification.description"
+        @click="goNoticeBoard"
       />
 
       <div class="worker-grid">
@@ -58,7 +68,10 @@ onMounted(async () => {
           />
         </div>
         <div class="worker-grid__missions">
-          <WorkerMissionBoard :missions="workerMissions" />
+          <WorkerMissionBoard
+            :missions="workerMissions"
+            :current-tier="workerData?.tier"
+          />
         </div>
       </div>
     </template>

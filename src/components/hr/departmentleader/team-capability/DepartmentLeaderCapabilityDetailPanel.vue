@@ -40,8 +40,8 @@ defineProps({
                 {{ member.tier }}-TIER
               </span>
             </div>
-            <span class="capability-detail__sub">
-              {{ member.line }} · {{ member.experience }}
+            <span v-if="member.line || member.experience" class="capability-detail__sub">
+              {{ [member.line, member.experience].filter(Boolean).join(' · ') }}
             </span>
           </div>
         </div>
@@ -52,27 +52,31 @@ defineProps({
 
       <!-- Score Summary -->
       <div class="capability-detail__scores">
-        <div class="capability-detail__score-item capability-detail__score-item--primary">
+        <div v-if="member.quantitative != null" class="capability-detail__score-item capability-detail__score-item--primary">
           <span class="capability-detail__score-value">{{ member.quantitative }}</span>
           <span class="capability-detail__score-label">정량</span>
         </div>
         <div class="capability-detail__score-item capability-detail__score-item--mint">
           <span class="capability-detail__score-value">{{ member.qualitative }}</span>
-          <span class="capability-detail__score-label">정성 (AI)</span>
+          <span class="capability-detail__score-label">정성</span>
         </div>
-        <div class="capability-detail__score-item capability-detail__score-item--dark">
+        <div v-if="member.composite != null" class="capability-detail__score-item capability-detail__score-item--dark">
           <span class="capability-detail__score-value">{{ member.composite }}</span>
           <span class="capability-detail__score-label">종합</span>
+        </div>
+        <div class="capability-detail__score-item">
+          <span class="capability-detail__score-value">{{ member.grade }}</span>
+          <span class="capability-detail__score-label">평가 등급</span>
         </div>
       </div>
 
       <div class="capability-detail__divider" />
 
       <!-- Radar + Skill Bars -->
-      <WorkerSkillsRadarChart :skills="member.skills" />
+      <WorkerSkillsRadarChart v-if="member.skills && member.skills.length > 0" :skills="member.skills" />
 
       <!-- Tier Timeline -->
-      <DepartmentLeaderTierTimeline :history="member.tierHistory" />
+      <DepartmentLeaderTierTimeline v-if="member.tierHistory && member.tierHistory.length > 0" :history="member.tierHistory" />
     </template>
   </section>
 </template>

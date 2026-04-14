@@ -278,10 +278,11 @@ export async function getWorkerProfileDashboard() {
 }
 
 export async function getWorkerPointMission() {
-  const [summaryResponse, historyResponse, missionsResponse] = await Promise.all([
+  const [summaryResponse, historyResponse, missionsResponse, profile] = await Promise.all([
     hrApi.get('/api/v1/hr/workers/me/point-summary'),
     hrApi.get('/api/v1/hr/workers/me/point-history'),
     hrApi.get('/api/v1/hr/workers/me/missions/upgrade'),
+    optionalGet('/api/v1/hr/workers/me/profile', {}, {}),
   ])
 
   const summary = unwrap(summaryResponse) ?? {}
@@ -298,6 +299,7 @@ export async function getWorkerPointMission() {
     },
     history,
     missions,
+    currentTier: normalizeTier(profile.currentTier),
   }
 }
 

@@ -4,7 +4,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const emit = defineEmits(['select'])
 
 function cardValue(value) {
   if (value == null) return '-'
@@ -18,7 +24,15 @@ function progressWidth(value) {
 </script>
 
 <template>
-  <article class="facility-card" :class="`facility-card--${card.tone}`">
+  <article
+    class="facility-card"
+    :class="[`facility-card--${card.tone}`, { 'facility-card--selected': selected }]"
+    role="button"
+    tabindex="0"
+    @click="emit('select', card.id)"
+    @keydown.enter.prevent="emit('select', card.id)"
+    @keydown.space.prevent="emit('select', card.id)"
+  >
     <div class="facility-card__top">
       <div class="facility-card__heading">
         <p class="facility-card__code">{{ card.code }}</p>
@@ -63,6 +77,22 @@ function progressWidth(value) {
   border: 1px solid var(--color-border-default);
   border-radius: 18px;
   background: var(--color-bg-surface);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.facility-card:hover,
+.facility-card:focus-visible {
+  border-color: var(--color-primary-300);
+  box-shadow: 0 10px 24px rgba(73, 57, 157, 0.12);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.facility-card--selected {
+  border-color: var(--color-primary-700);
+  background: linear-gradient(135deg, #f3f0ff 0%, #ffffff 62%, #e8fbf7 100%);
+  box-shadow: 0 14px 32px rgba(73, 57, 157, 0.22);
 }
 
 .facility-card__top,

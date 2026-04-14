@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { BaseFilterTabs, BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderTaskMatchingDashboardPanel from '@/components/scm/teamleader/task-matching/TeamLeaderTaskMatchingDashboardPanel.vue'
 import TeamLeaderTaskMatchingAssignmentPanel from '@/components/scm/teamleader/task-matching/TeamLeaderTaskMatchingAssignmentPanel.vue'
@@ -8,16 +8,31 @@ import {
   getAssignmentCandidates,
   getAssignmentSummary,
   getAssignmentTimeline,
+  getLineWorkers,
+  getLinesSummary,
   getMyTeamLinesSummary,
-  getOrders,
-  getUrgentOrders,
+  getUnassignedOrders,
 } from '@/services/teamLeaderScmApi'
 
 const GRADE_LABELS = { D5: 'D5 최고난도', D4: 'D4', D3: 'D3', D2: 'D2', D1: 'D1' }
 const TIER_TONES   = { S: 'mint', A: 'primary', B: 'warning', C: 'danger' }
 const MATCH_TONES  = { INPROGRESS: 'primary', COMPLETE: 'mint', CONFIRM: 'soft', REJECT: 'danger' }
+const MATCHING_MODE_LABELS = {
+  EFFICIENCY_TYPE: '최적형 배정',
+  GROWTH_TYPE: '도전형 배정',
+}
+const UNASSIGNED_LINE_ID = 'unassigned-line'
 const DAY_START    = 8 * 60   // 08:00 in minutes from midnight
 const DAY_SPAN     = 12 * 60  // 12-hour work day
+
+function toLocalDateKey(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const taskMatchingTabs = [
   { key: 'dashboard',  label: '운영 현황' },
@@ -29,11 +44,17 @@ const activeTab          = ref('dashboard')
 const assignmentSummary  = ref(null)
 const linesSummary       = ref([])
 const timeline           = ref([])
+const lineWorkers        = ref({})
 const allOrders          = ref([])
-const urgentOrders       = ref([])
 const rawCandidates      = ref([])
 const selectedOrderId    = ref(null)
 const assignedCandidateId = ref(null)
+
+function formatLineTitle(line) {
+  return line.factoryLineCode
+    ? `${line.factoryLineName} (${line.factoryLineCode})`
+    : line.factoryLineName
+}
 
 // ── Summary cards ─────────────────────────────────────────────────
 const summaryCards = computed(() => {
@@ -43,7 +64,7 @@ const summaryCards = computed(() => {
   const unassigned = assignmentSummary.value?.unassignedCount ?? 0
   return [
     { label: '실시간 생산 인원', value: `${assignmentSummary.value?.activeWorkerCount ?? 0}명`, helper: '활동중', tone: 'success' },
-    { label: '오늘 완료 작업',   value: `${assignmentSummary.value?.todayAssignedCount ?? 0}건`, tone: 'primary' },
+    { label: '오늘 완료 작업',   value: `${assignmentSummary.value?.todayCompletedCount ?? 0}건`, tone: 'primary' },
     { label: '라인 평균 가동률', value: `${avgRate}%`, tone: 'primary' },
     {
       label: '미배정 오더',
@@ -56,13 +77,14 @@ const summaryCards = computed(() => {
 
 // ── Dashboard: line status cards ───────────────────────────────────
 const lineStatuses = computed(() => {
-  const today = new Date().toISOString().split('T')[0]
+  const today = toLocalDateKey()
   return linesSummary.value.map((line) => {
     const lineItems = timeline.value.filter((t) => t.factoryLineId === line.factoryLineId)
     const todayItems = lineItems.filter((t) => t.assignedDate === today)
+    const visibleItems = todayItems.length > 0 ? todayItems : lineItems
 
     const seen = new Set()
-    const assignments = todayItems
+    let assignments = visibleItems
       .filter((t) => { if (seen.has(t.employeeId)) return false; seen.add(t.employeeId); return true })
       .slice(0, 3)
       .map((t) => ({
@@ -74,12 +96,21 @@ const lineStatuses = computed(() => {
                    t.matchingStatus === 'INPROGRESS'  ? '진행중' :
                    t.orderStatus    === 'COMPLETED'   ? '100%'  : '-',
       }))
+    if (assignments.length === 0) {
+      assignments = (lineWorkers.value[line.factoryLineId] ?? []).slice(0, 3).map((w) => ({
+        techId:    w.employeeId,
+        techName:  w.employeeName ?? `#${w.employeeId}`,
+        tier:      w.employeeTier ?? '-',
+        orderCode: w.equipmentName ?? '배치 설비',
+        progress:  '대기',
+      }))
+    }
 
     const rate = line.achievementRate ?? 0
     const tone = rate >= 85 ? 'mint' : rate >= 60 ? 'primary' : rate >= 40 ? 'warning' : 'danger'
     return {
       id:          `line-${line.factoryLineId}`,
-      title:       line.factoryLineName,
+      title:       formatLineTitle(line),
       percent:     `${rate}%`,
       tone,
       assignments,
@@ -89,36 +120,53 @@ const lineStatuses = computed(() => {
 
 // ── Dashboard: timeline rows ───────────────────────────────────────
 const timelineRows = computed(() => {
-  const today = new Date().toISOString().split('T')[0]
-  return linesSummary.value.map((line) => {
-    const items = timeline.value.filter(
+  const today = toLocalDateKey()
+  const rows = linesSummary.value.map((line) => {
+    const lineItems = timeline.value.filter((t) => t.factoryLineId === line.factoryLineId)
+    const todayItems = lineItems.filter(
       (t) => t.factoryLineId === line.factoryLineId && t.assignedDate === today
     )
-    const bars = items.slice(0, 3).map((t, idx) => {
-      let left, width
-      if (t.workStartAt && t.workEndAt) {
-        const s = new Date(t.workStartAt)
-        const e = new Date(t.workEndAt)
-        const sMin = s.getHours() * 60 + s.getMinutes()
-        const eMin = e.getHours() * 60 + e.getMinutes()
-        left  = `${(((sMin - DAY_START) / DAY_SPAN) * 100).toFixed(1)}%`
-        width = `${(((eMin - sMin)       / DAY_SPAN) * 100).toFixed(1)}%`
-      } else {
-        // Evenly distribute when no time data
-        const seg = 100 / (items.length + 1)
-        left  = `${(seg * (idx + 1) - seg * 0.4).toFixed(1)}%`
-        width = `${(seg * 0.7).toFixed(1)}%`
-      }
-      return { left, width, tone: MATCH_TONES[t.matchingStatus] ?? 'primary', label: t.orderNo }
-    })
-    return { id: line.factoryLineId, label: line.factoryLineName, bars }
+    const items = todayItems.length > 0 ? todayItems : lineItems
+    const bars = items.slice(0, 3).map((t, idx) => makeTimelineBar(t, idx, items.length))
+    return { id: line.factoryLineId, label: formatLineTitle(line), bars }
   })
+  const unassignedItems = timeline.value.filter((t) => !t.factoryLineId)
+  const todayUnassignedItems = unassignedItems.filter((t) => t.assignedDate === today)
+  const visibleUnassignedItems = todayUnassignedItems.length > 0 ? todayUnassignedItems : unassignedItems
+  if (visibleUnassignedItems.length > 0) {
+    rows.unshift(
+      ...visibleUnassignedItems.slice(0, 3).map((t, idx) => ({
+        id: `${UNASSIGNED_LINE_ID}-${t.orderNo ?? idx}`,
+        label: `배치 라인 미지정 ${idx + 1}`,
+        bars: [makeTimelineBar(t, idx, visibleUnassignedItems.length)],
+      }))
+    )
+  }
+  return rows
 })
+
+function makeTimelineBar(t, idx, itemCount) {
+  let left, width
+  if (t.workStartAt) {
+    const s = new Date(t.workStartAt)
+    const e = t.workEndAt ? new Date(t.workEndAt) : new Date()
+    const sMin = s.getHours() * 60 + s.getMinutes()
+    const eMin = e.getHours() * 60 + e.getMinutes()
+    const start = Math.max(sMin, DAY_START)
+    const end = Math.min(Math.max(eMin, start + 15), DAY_START + DAY_SPAN)
+    left  = `${(((start - DAY_START) / DAY_SPAN) * 100).toFixed(1)}%`
+    width = `${(((end - start) / DAY_SPAN) * 100).toFixed(1)}%`
+  } else {
+    const seg = 100 / (itemCount + 1)
+    left  = `${(seg * (idx + 1) - seg * 0.4).toFixed(1)}%`
+    width = `${(seg * 0.7).toFixed(1)}%`
+  }
+  return { left, width, tone: MATCH_TONES[t.matchingStatus] ?? 'primary', label: t.orderNo }
+}
 
 // ── Dashboard: alerts (urgent unassigned) ─────────────────────────
 const alerts = computed(() =>
-  urgentOrders.value
-    .filter((o) => o.status === 'ANALYZED')
+  allOrders.value
     .map((o) => {
       const diff    = o.dueDate ? Math.ceil((new Date(`${o.dueDate}T00:00:00`) - new Date()) / 86400000) : null
       const deadline = diff == null ? '납기 미정' : diff <= 0 ? '남기 D-DAY' : `남기 D-${diff}`
@@ -136,7 +184,6 @@ const alerts = computed(() =>
 // ── Assignment: pending orders ────────────────────────────────────
 const pendingOrders = computed(() =>
   allOrders.value
-    .filter((o) => o.status === 'ANALYZED')
     .map((o) => {
       const diff    = o.dueDate ? Math.ceil((new Date(`${o.dueDate}T00:00:00`) - new Date()) / 86400000) : null
       const deadline = diff == null ? '납기 미정' : diff <= 0 ? '남기 D-DAY' : `남기 D-${diff}`
@@ -171,6 +218,9 @@ const candidates = computed(() =>
     score:   c.score != null ? Number(c.score) : 0,
     fit:     c.suitabilityScore != null ? `${(Number(c.suitabilityScore) * 100).toFixed(1)}%` : '0.0%',
     tone:    TIER_TONES[c.tier] ?? 'soft',
+    matchingMode: c.matchingMode,
+    matchingModeLabel: MATCHING_MODE_LABELS[c.matchingMode] ?? '배정 유형 미정',
+    assignmentType: c.matchingMode === 'GROWTH_TYPE' ? 'challenge' : 'optimal',
   }))
 )
 
@@ -218,25 +268,47 @@ async function confirmAssignment({ orderId, candidateId }) {
 
 // ── Data loading ──────────────────────────────────────────────────
 async function loadData() {
-  const [summary, lines, tl, orders, urgent, cands] = await Promise.all([
+  const [summary, teamLines, allLines, tl, orders] = await Promise.all([
     getAssignmentSummary().catch(() => null),
     getMyTeamLinesSummary().catch(() => []),
+    getLinesSummary().catch(() => []),
     getAssignmentTimeline().catch(() => []),
-    getOrders().catch(() => []),
-    getUrgentOrders().catch(() => []),
-    getAssignmentCandidates().catch(() => []),
+    getUnassignedOrders().catch(() => []),
   ])
+  const lines = Array.isArray(teamLines) && teamLines.length > 0 ? teamLines : allLines
   assignmentSummary.value  = summary
   linesSummary.value       = Array.isArray(lines)  ? lines  : []
   timeline.value           = Array.isArray(tl)     ? tl     : []
   allOrders.value          = Array.isArray(orders) ? orders : []
-  urgentOrders.value       = Array.isArray(urgent) ? urgent : []
+  await loadLineWorkers(linesSummary.value)
+}
+
+async function loadLineWorkers(lines = []) {
+  const entries = await Promise.all(
+    lines.map(async (line) => {
+      const workers = await getLineWorkers(line.factoryLineId).catch(() => [])
+      return [line.factoryLineId, Array.isArray(workers) ? workers : []]
+    })
+  )
+  lineWorkers.value = Object.fromEntries(entries)
+}
+
+async function loadCandidates(orderId) {
+  if (!orderId) {
+    rawCandidates.value = []
+    return
+  }
+  const cands = await getAssignmentCandidates({ orderId }).catch(() => [])
   rawCandidates.value      = Array.isArray(cands)  ? cands  : []
 }
 
 onMounted(async () => {
   await loadData()
   selectedOrderId.value = pendingOrders.value[0]?.id ?? null
+})
+
+watch(selectedOrderId, async (orderId) => {
+  await loadCandidates(orderId)
 })
 </script>
 

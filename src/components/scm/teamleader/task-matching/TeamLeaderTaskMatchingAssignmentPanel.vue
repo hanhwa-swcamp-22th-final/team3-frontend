@@ -36,12 +36,12 @@ function candidateToneClass(tone) {
 }
 
 const displayedCandidates = computed(() => {
-  const list = [...props.candidates]
+  const list = props.candidates.filter((candidate) => candidate.assignmentType === strategy.value)
   if (strategy.value === 'optimal') {
-    return list.sort((a, b) => Number(b.fit.replace('%', '')) - Number(a.fit.replace('%', '')))
+    return [...list].sort((a, b) => Number(b.fit.replace('%', '')) - Number(a.fit.replace('%', '')))
   }
 
-  return list.sort((a, b) => {
+  return [...list].sort((a, b) => {
     const fitGap = Number(a.fit.replace('%', '')) - Number(b.fit.replace('%', ''))
     if (Math.abs(fitGap) > 12) return fitGap
     return a.score - b.score
@@ -180,7 +180,7 @@ function confirmAssignment() {
                     <strong>{{ candidate.name }}</strong>
                     <span>{{ candidate.tier }}</span>
                   </div>
-                  <p>{{ candidate.line }}</p>
+                  <p>{{ candidate.line }} · {{ candidate.matchingModeLabel }}</p>
                 </div>
               </div>
               <div class="candidate-card__action">
@@ -219,7 +219,7 @@ function confirmAssignment() {
       <p class="assignment-panel__eyebrow">배정 확인</p>
       <h3>{{ selectedOrder.code }} 주문을 배정하시겠습니까?</h3>
       <p class="assignment-confirm-modal__copy">
-        {{ confirmTarget.name }} · {{ confirmTarget.tier }} · 적합도 {{ confirmTarget.fit }}
+        {{ confirmTarget.name }} · {{ confirmTarget.tier }} · {{ confirmTarget.matchingModeLabel }} · 적합도 {{ confirmTarget.fit }}
       </p>
       <div class="assignment-confirm-modal__actions">
         <button type="button" class="assignment-confirm-modal__button assignment-confirm-modal__button--ghost" @click="closeConfirm">취소</button>

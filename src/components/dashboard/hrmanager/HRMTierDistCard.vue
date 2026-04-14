@@ -3,6 +3,7 @@ defineProps({
   tierS: { type: Number, default: 0 },
   tierA: { type: Number, default: 0 },
   tierB: { type: Number, default: 0 },
+  tierC: { type: Number, default: 0 },
   processLabel: { type: String, default: '' },
   processPercent: { type: Number, default: 0 },
 })
@@ -24,6 +25,10 @@ defineProps({
       <div class="tier-num tier-num--b">
         <span class="tier-num__value">{{ tierB }}</span>
         <span class="tier-num__label">B</span>
+      </div>
+      <div class="tier-num tier-num--c">
+        <span class="tier-num__value">{{ tierC }}</span>
+        <span class="tier-num__label">C</span>
       </div>
     </div>
 
@@ -82,6 +87,7 @@ defineProps({
 .tier-num--s .tier-num__value { color: var(--tier-s); }
 .tier-num--a .tier-num__value { color: var(--tier-a); }
 .tier-num--b .tier-num__value { color: var(--tier-b); }
+.tier-num--c .tier-num__value { color: var(--tier-c); }
 
 .tier-dist-card__process {
   display: flex;

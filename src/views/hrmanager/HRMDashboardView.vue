@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { API_BASE } from '@/constants'
+import { useRouter } from 'vue-router'
 import BaseNoticeBanner from '@/components/common/base/display/BaseNoticeBanner.vue'
 import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
 import HRMTierDonutChart from '@/components/dashboard/hrmanager/HRMTierDonutChart.vue'
 import HRMTierTrendChart from '@/components/dashboard/hrmanager/HRMTierTrendChart.vue'
 import HRMTeamStatsTable from '@/components/dashboard/hrmanager/HRMTeamStatsTable.vue'
 import HRMTierDistCard from '@/components/dashboard/hrmanager/HRMTierDistCard.vue'
+import { getHrmDashboard } from '@/services/hrDashboardApi'
 
 const loading = ref(true)
 const dashboard = ref(null)
@@ -15,29 +16,17 @@ const tierTrend = ref([])
 const teamStats = ref([])
 const tierSummary = ref(null)
 const notification = ref(null)
-
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
+const router = useRouter()
 
 onMounted(async () => {
   try {
-    const [dash, dist, trend, stats, summary, notifs] = await Promise.all([
-      fetchJson(`${API_BASE}/hrmDashboard`),
-      fetchJson(`${API_BASE}/tierDistribution`),
-      fetchJson(`${API_BASE}/tierTrend`),
-      fetchJson(`${API_BASE}/teamStats`),
-      fetchJson(`${API_BASE}/tierSummary`),
-      fetchJson(`${API_BASE}/notifications?active=true`),
-    ])
-
-    dashboard.value = dash[0] ?? null
-    tierDistribution.value = dist
-    tierTrend.value = trend
-    teamStats.value = stats
-    tierSummary.value = summary[0] ?? null
-    notification.value = notifs[0] ?? null
+    const data = await getHrmDashboard()
+    dashboard.value = data.dashboard
+    tierDistribution.value = data.tierDistribution
+    tierTrend.value = data.tierTrend
+    teamStats.value = data.teamStats
+    tierSummary.value = data.tierSummary
+    notification.value = data.notification
   } catch (e) {
     console.error('Failed to load HRM dashboard data:', e)
   } finally {
@@ -56,6 +45,13 @@ function metricValue(key, suffix) {
   if (!dashboard.value) return '-'
   return `${dashboard.value[key]}${suffix ?? ''}`
 }
+
+function goNoticeBoard() {
+  router.push({
+    name: 'HRMNoticeBoard',
+    query: notification.value?.id ? { noticeId: notification.value.id } : {},
+  })
+}
 </script>
 
 <template>
@@ -65,10 +61,16 @@ function metricValue(key, suffix) {
     <template v-else>
       <BaseNoticeBanner
         badge="📌 중요 공지"
-        :title="notification?.notification_title ?? ''"
-        :description="notification?.notification_content ?? ''"
+        :title="notification?.title ?? ''"
+        :description="notification?.description ?? ''"
         tone="success"
         variant="soft"
+        class="hrm-dashboard__notice"
+        role="button"
+        tabindex="0"
+        @click="goNoticeBoard"
+        @keydown.enter="goNoticeBoard"
+        @keydown.space.prevent="goNoticeBoard"
       />
 
       <section class="hrm-dashboard__metrics">
@@ -99,6 +101,7 @@ function metricValue(key, suffix) {
           :tier-s="tierSummary.S"
           :tier-a="tierSummary.A"
           :tier-b="tierSummary.B"
+          :tier-c="tierSummary.C"
           :process-label="tierSummary.processLabel"
           :process-percent="tierSummary.processPercent"
         />
@@ -152,5 +155,9 @@ function metricValue(key, suffix) {
 
 :deep(.base-stat-card) {
   align-items: center;
+}
+
+.hrm-dashboard__notice {
+  cursor: pointer;
 }
 </style>

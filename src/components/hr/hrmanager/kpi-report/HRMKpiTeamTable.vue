@@ -10,12 +10,12 @@ function rateColor(rate) {
 
 <template>
   <section class="kpi-team-table">
-    <p class="kpi-team-table__title">🧑‍💼 팀장별 평가 현황</p>
+    <p class="kpi-team-table__title">🧑‍💼 부서별 평가 현황</p>
     <table class="kpi-table">
       <thead>
         <tr>
-          <th>팀장</th>
-          <th>소속라인</th>
+          <th>부서</th>
+          <th>구분</th>
           <th>담당인원</th>
           <th>평가완료</th>
           <th>평균점수</th>

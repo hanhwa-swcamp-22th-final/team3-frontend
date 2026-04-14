@@ -1,39 +1,67 @@
-﻿<script setup>
-import { ref, computed } from 'vue'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import DepartmentLeaderPerformanceSummary from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceSummary.vue'
 import DepartmentLeaderPerformanceTable from '@/components/hr/departmentleader/perfomance/DepartmentLeaderPerformanceTable.vue'
-import {
-  performanceSummary,
-  performanceMembers,
-  teamOptions,
-  gradeOptions,
-  periodOptions,
-} from '@/mocks/departmentleader/performance.js'
+import { fetchDlPerformance } from '@/services/departmentleader/performanceApi'
 
 const router = useRouter()
 
+const loading = ref(true)
+const performanceSummary = ref({
+  deptName: '',
+  totalMembers: 0,
+  totalTeams: 0,
+  evalCompleted: 0,
+  evalTotal: 0,
+  deptAvg: 0,
+  deptAvgDelta: 0,
+  period: '',
+})
+const performanceMembers = ref([])
+const teamOptions  = ref(['전체'])
+const gradeOptions = ref(['전체', 'S', 'A', 'B', 'C'])
+const periodOptions = ref(['현재 기간'])
+const rawTeams = ref([])
+
 const selectedTeam = ref('전체')
-const teamTabs = teamOptions
 
+onMounted(async () => {
+  try {
+    const data = await fetchDlPerformance()
+    performanceSummary.value  = data.performanceSummary
+    performanceMembers.value  = data.members
+    teamOptions.value         = data.teamOptions
+    gradeOptions.value        = data.gradeOptions
+    periodOptions.value       = data.periodOptions
+    rawTeams.value            = data.teams
+  } catch (error) {
+    console.error('Failed to load performance data:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+// 팀 탭 선택 시 해당 팀 이름 기준으로 팀 요약 계산
 const activeSummary = computed(() => {
-  if (selectedTeam.value === '전체') return performanceSummary
+  if (selectedTeam.value === '전체') return performanceSummary.value
 
-  const members = performanceMembers.filter((member) => member.team === selectedTeam.value)
-  const completed = members.filter((member) => member.status === '완료').length
-  const avg = members.length
-    ? +(members.reduce((sum, member) => sum + member.total, 0) / members.length).toFixed(1)
-    : 0
-  const delta = +(avg - performanceSummary.deptAvg).toFixed(1)
+  const teamData = rawTeams.value.find((t) => t.teamName === selectedTeam.value)
+  if (!teamData) return performanceSummary.value
+
+  const memberCount = Number(teamData.memberCount) || 0
+  const avg = Number(teamData.teamAvgScore) || 0
+  const delta = +(avg - performanceSummary.value.deptAvg).toFixed(1)
+  const completed = teamData.evaluationStatus === '평가완료' ? memberCount : 0
 
   return {
-    totalMembers: members.length,
+    totalMembers: memberCount,
     totalTeams: 1,
     evalCompleted: completed,
-    evalTotal: members.length,
+    evalTotal: memberCount,
     deptAvg: avg,
     deptAvgDelta: delta,
-    period: performanceSummary.period,
+    period: performanceSummary.value.period,
   }
 })
 
@@ -50,24 +78,32 @@ function handleGoEvaluation() {
   <div class="dl-performance">
     <header class="dl-performance__header">
       <h2 class="dl-performance__title">부서 성과 현황</h2>
-      <span class="dl-performance__dept-name">{{ performanceSummary.deptName }}</span>
-      <span class="dl-performance__period">{{ performanceSummary.period }}</span>
+      <span v-if="performanceSummary.deptName" class="dl-performance__dept-name">
+        {{ performanceSummary.deptName }}
+      </span>
+      <span v-if="performanceSummary.period" class="dl-performance__period">
+        {{ performanceSummary.period }}
+      </span>
     </header>
 
-    <DepartmentLeaderPerformanceSummary
-      :summary="activeSummary"
-      :team-tabs="teamTabs"
-      v-model:selectedTeam="selectedTeam"
-    />
+    <div v-if="loading" class="dl-performance__loading">데이터를 불러오는 중...</div>
 
-    <DepartmentLeaderPerformanceTable
-      :members="performanceMembers"
-      :team-options="teamOptions"
-      :grade-options="gradeOptions"
-      :period-options="periodOptions"
-      @view-capability="handleViewCapability"
-      @go-evaluation="handleGoEvaluation"
-    />
+    <template v-else>
+      <DepartmentLeaderPerformanceSummary
+        :summary="activeSummary"
+        :team-tabs="teamOptions"
+        v-model:selectedTeam="selectedTeam"
+      />
+
+      <DepartmentLeaderPerformanceTable
+        :members="performanceMembers"
+        :team-options="teamOptions"
+        :grade-options="gradeOptions"
+        :period-options="periodOptions"
+        @view-capability="handleViewCapability"
+        @go-evaluation="handleGoEvaluation"
+      />
+    </template>
   </div>
 </template>
 
@@ -115,6 +151,13 @@ function handleGoEvaluation() {
   border: 1px solid var(--color-border-default);
   border-radius: 99px;
   padding: 3px 12px;
+}
+
+.dl-performance__loading {
+  padding: 60px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
 }
 
 @media (max-width: 960px) {
