@@ -1,23 +1,12 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
 import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
 import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModalWrapper.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
-import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModalWrapper.vue'
-import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModalWrapper.vue'
-
-// 백엔드 미구현 항목만 mock 유지
-import {
-  knowledgeHubMentoring,
-  knowledgeHubMentoringRequestDefaults,
-  knowledgeWriteModalOptions,
-} from '@/mocks/teamleader'
-
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 
@@ -101,12 +90,6 @@ const hubStats         = ref({
   averageViewCount: 0,
   newThisMonthChange: 0,
   averageViewCountChange: 0,
-})
-
-// ── 통계 / 멘토링 (백엔드 미구현 → mock 유지) ─────────────────────
-const mentoringState = reactive({
-  ongoing: [...knowledgeHubMentoring.ongoing],
-  pending: [...knowledgeHubMentoring.pending],
 })
 
 const summaryCards = computed(() => [
@@ -315,23 +298,6 @@ async function toggleBookmark(article) {
   }
 }
 
-// ── 멘토링 모달 (백엔드 미구현 → mock 유지) ───────────────────────
-const selectedMentoringRequest = ref(null)
-const showMentoringRequestModal = ref(false)
-
-function openMentoringReview(request)  { selectedMentoringRequest.value = request }
-function closeMentoringReview()        { selectedMentoringRequest.value = null }
-function confirmMentoringReview(request) {
-  mentoringState.pending = mentoringState.pending.filter((i) => i.id !== request.id)
-  closeMentoringReview()
-}
-function openMentoringRequestModal()   { showMentoringRequestModal.value = true }
-function closeMentoringRequestModal()  { showMentoringRequestModal.value = false }
-function submitMentoringRequest(payload) {
-  const nextId = Math.max(...mentoringState.pending.map((i) => i.id), 0) + 1
-  mentoringState.pending.unshift({ id: nextId, name: payload.field, requester: 'TL-REQ', summary: payload.purpose, requestedBy: '최민정', requestedAt: formatDate(new Date().toISOString()), priority: '중간', reason: payload.purpose, details: payload.requestDetails })
-  showMentoringRequestModal.value = false
-}
 </script>
 
 <template>
@@ -349,11 +315,6 @@ function submitMentoringRequest(payload) {
 
       <div class="teamleader-knowledge-view__sidebar">
         <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
-        <TeamLeaderKnowledgeHubMentoring
-          :mentoring="mentoringState"
-          @review-request="openMentoringReview"
-          @open-request="openMentoringRequestModal"
-        />
         <TeamLeaderKnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
@@ -374,20 +335,6 @@ function submitMentoringRequest(payload) {
       :article="selectedArticle"
       @close="closeDetailModal"
       @toggle-bookmark="toggleBookmark"
-    />
-
-    <TeamLeaderKnowledgeMentoringReviewModal
-      v-if="selectedMentoringRequest"
-      :request="selectedMentoringRequest"
-      @close="closeMentoringReview"
-      @confirm="confirmMentoringReview"
-    />
-
-    <TeamLeaderKnowledgeMentoringRequestModal
-      v-if="showMentoringRequestModal"
-      :defaults="knowledgeHubMentoringRequestDefaults"
-      @close="closeMentoringRequestModal"
-      @submit="submitMentoringRequest"
     />
   </section>
 </template>
