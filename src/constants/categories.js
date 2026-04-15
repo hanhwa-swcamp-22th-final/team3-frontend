@@ -5,10 +5,6 @@ export const CATEGORY_CLASS_MAP = {
   'CNC가공': 'cat--cnc',
 }
 
-export const KMS_CATEGORY_OPTIONS = ['정밀가공', '설비점검', '품질관리', 'CNC가공']
-
-export const KMS_EQUIPMENT_OPTIONS = ['MCH-01', 'MCH-02', 'MCH-03', 'WLD-01', 'INS-01', 'HP-02', 'CNC-05']
-
 // ── 백엔드 ArticleCategory enum 기준 ──────────────────────────────
 
 // enum → 한국어 라벨 (화면 표시용)
@@ -18,15 +14,6 @@ export const ARTICLE_CATEGORY_LABEL = {
   EQUIPMENT_OPERATION: '설비운영',
   SAFETY: '안전',
   ETC: '기타',
-}
-
-// enum → CSS 클래스 (스타일 적용용)
-export const ARTICLE_CATEGORY_CLASS = {
-  TROUBLESHOOTING: 'cat--troubleshooting',
-  PROCESS_IMPROVEMENT: 'cat--improvement',
-  EQUIPMENT_OPERATION: 'cat--operation',
-  SAFETY: 'cat--safety',
-  ETC: 'cat--etc',
 }
 
 // 폼 드롭다운 옵션 (백엔드 enum 기준)

@@ -10,9 +10,3 @@ export const AUTH_ERROR_CODE_MAP = {
   AUTH_002: 'EMPLOYEE_ON_LEAVE',
 }
 
-export const EVAL_MESSAGES = {
-  DRAFT_SAVED: '임시 저장되었습니다.',
-  WEIGHT_SUM_ERROR: '정량 세부 항목 합계가 100%여야 합니다.',
-  CHANGES_APPLIED: '변경사항이 적용되었습니다.',
-  DATA_LOAD_ERROR: '데이터를 불러오는 중 오류가 발생했습니다.',
-}
