@@ -124,6 +124,14 @@ function toMissionViewModel(mission) {
   }
 }
 
+function resolveAiEvaluationScore(missions = []) {
+  const aiMission = missions.find((mission) => mission.missionType === 'AI_SCORE')
+  if (!aiMission) return '-'
+
+  const score = toNumber(aiMission.currentValue)
+  return Number.isFinite(score) ? Number(score.toFixed(1)) : '-'
+}
+
 function toNoticeBannerViewModel(notice) {
   if (!notice) return null
   return {
@@ -267,6 +275,7 @@ export async function getWorkerProfileDashboard() {
 
   const tier = normalizeTier(profile.currentTier)
   const skillGrid = skills.map(toSkillViewModel).slice(0, 6)
+  const aiEval = resolveAiEvaluationScore(missions)
 
   return {
     worker: {
@@ -278,9 +287,9 @@ export async function getWorkerProfileDashboard() {
       tier,
       skillGrid,
       historyPeriod: formatCareerPeriod(profile.hireDate),
-      worksDone: '-',
-      finishRate: 0,
-      aiEval: '-',
+      worksDone: toNumber(profile.completedTaskCount),
+      finishRate: toNumber(profile.taskCompletionRate),
+      aiEval,
       departmentName: profile.departmentName,
       teamName: profile.teamName,
     },

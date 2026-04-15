@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import BaseNoticeBanner from '@/components/common/base/display/BaseNoticeBanner.vue'
 import BaseStatCard from '@/components/common/base/display/BaseStatCard.vue'
+import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
 import HRMTierDonutChart from '@/components/dashboard/hrmanager/HRMTierDonutChart.vue'
 import HRMTierTrendChart from '@/components/dashboard/hrmanager/HRMTierTrendChart.vue'
 import HRMTeamStatsTable from '@/components/dashboard/hrmanager/HRMTeamStatsTable.vue'
@@ -59,18 +59,12 @@ function goNoticeBoard() {
     <div v-if="loading" class="hrm-dashboard__loading">로딩 중...</div>
 
     <template v-else>
-      <BaseNoticeBanner
-        badge="📌 중요 공지"
+      <WorkerNotificationBanner
+        v-if="notification"
         :title="notification?.title ?? ''"
         :description="notification?.description ?? ''"
-        tone="success"
-        variant="soft"
         class="hrm-dashboard__notice"
-        role="button"
-        tabindex="0"
         @click="goNoticeBoard"
-        @keydown.enter="goNoticeBoard"
-        @keydown.space.prevent="goNoticeBoard"
       />
 
       <section class="hrm-dashboard__metrics">
@@ -147,7 +141,6 @@ function goNoticeBoard() {
   gap: 20px;
 }
 
-:deep(.base-notice-banner),
 :deep(.base-stat-card) {
   width: 100%;
   box-sizing: border-box;
