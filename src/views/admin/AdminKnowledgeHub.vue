@@ -3,12 +3,31 @@ import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const tagFilters = ref([])
+
+const knowledgeCategories = [
+  { key: 'all', label: '전체' },
+  { key: 'popular', label: '인기' },
+  { key: 'bookmarked', label: '내 북마크' },
+  { key: '장애조치', label: '장애조치' },
+  { key: '공정개선', label: '공정개선' },
+  { key: '설비운영', label: '설비운영' },
+  { key: '안전', label: '안전' },
+  { key: '기타', label: '기타' },
+]
+
+function normalizeTags(tags = []) {
+  return [...new Set(
+    (tags ?? [])
+      .map((tag) => tag?.tagName)
+      .filter(Boolean),
+  )]
+}
 
 function formatTrend(value, digits = 0) {
   const numeric = Number(value ?? 0)
@@ -35,7 +54,9 @@ function formatDate(isoString) {
 function mapToFeedCard(dto) {
   return {
     id:        dto.articleId,
-    tags:      (dto.tags ?? []).map((tag) => tag.tagName).filter(Boolean),
+    category:  ARTICLE_CATEGORY_LABEL[dto.articleCategory] ?? dto.articleCategory ?? '기타',
+    equipment: dto.equipmentName ?? '',
+    tags:      normalizeTags(dto.tags),
     date:      formatDate(dto.createdAt),
     rawDate:   dto.createdAt ?? '',
     title:     dto.articleTitle,
@@ -81,7 +102,7 @@ const hubStats       = ref({
 })
 const selectedArticle = ref(null)
 
-const selectedFilter    = ref('전체')
+const selectedFilter    = ref('all')
 const selectedTagFilter = ref(null)
 
 // ── 통계 카드 ─────────────────────────────────────────────────
@@ -113,6 +134,14 @@ const visibleArticles = computed(() => {
     merged.set(article.id, existing ? { ...existing, ...article, bookmarked: true } : article)
   }
   return [...merged.values()]
+})
+
+const visibleTagFilters = computed(() => {
+  const usedTags = new Set(
+    visibleArticles.value.flatMap((article) => article.tags ?? []),
+  )
+
+  return tagFilters.value.filter((tag) => usedTags.has(tag.key))
 })
 
 async function loadHubStats() {
@@ -177,9 +206,11 @@ async function loadRecommendations() {
 async function loadTags() {
   try {
     const res = await knowledgeArticleApi.getTags()
-    tagFilters.value = (res.data.data ?? [])
+    tagFilters.value = [...new Set((res.data.data ?? [])
       .map((tag) => tag.tagName)
       .filter(Boolean)
+    )]
+      .sort((left, right) => left.localeCompare(right, 'ko'))
       .map((tagName) => ({ key: tagName }))
   } catch (e) {
     console.error('[KMS] 태그 목록 로드 실패:', e)
@@ -322,17 +353,18 @@ async function handleRestore(articleId) {
 
 <template>
   <div class="kms-view">
-    <TeamLeaderKnowledgeHubHeader :cards="statCards" />
+    <KnowledgeHubHeader :cards="statCards" />
 
     <!-- 메인 2열 레이아웃 -->
     <div class="kms-layout">
       <!-- 좌: 피드 -->
       <div class="kms-feed-col">
         <KmsFeed
+          :categories="knowledgeCategories"
           :articles="visibleArticles"
           :selectedFilter="selectedFilter"
           :selectedTagFilter="selectedTagFilter"
-          :tagFilters="tagFilters"
+          :tagFilters="visibleTagFilters"
           @filterChange="selectedFilter = $event"
           @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"
@@ -347,14 +379,14 @@ async function handleRestore(articleId) {
         <KmsSidePanel
           :contributors="contributors"
         />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubAiPanel
           :recommendations="recommendations"
           @open-detail="openRecommendedArticle"
         />
       </div>
     </div>
 
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

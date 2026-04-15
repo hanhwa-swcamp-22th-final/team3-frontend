@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 export function fetchDlTargets(periodId) {
   return hrApi.get('/api/v1/hr/department-leader/evaluations/targets', {

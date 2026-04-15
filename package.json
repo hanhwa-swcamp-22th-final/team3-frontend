@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "server": "json-server --watch db.json --port 3001"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "^12.1.0",
@@ -19,7 +18,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
-    "json-server": "^1.0.0-beta.13",
     "vite": "^7.3.1",
     "vite-plugin-vue-devtools": "^8.0.6"
   },

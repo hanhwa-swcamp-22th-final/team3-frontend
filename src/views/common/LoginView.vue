@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ROLE_ROUTE_MAP, LOGIN_MESSAGES, AUTH_ERROR_CODE_MAP } from '@/constants'
-import authApi from '@/services/authApi'
+import { authApi } from '@/services/apiClient'
 
 const router = useRouter()
 const authStore = useAuthStore()

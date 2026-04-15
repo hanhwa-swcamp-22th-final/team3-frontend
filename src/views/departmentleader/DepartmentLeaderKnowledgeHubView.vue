@@ -1,23 +1,11 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModal.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
-import TeamLeaderKnowledgeMentoringReviewModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringReviewModal.vue'
-import TeamLeaderKnowledgeMentoringRequestModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeMentoringRequestModal.vue'
-
-// 백엔드 미구현 항목만 mock 유지
-import {
-  knowledgeHubMentoring,
-  knowledgeHubMentoringRequestDefaults,
-  knowledgeWriteModalOptions,
-} from '@/mocks/teamleader'
-
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
+import KnowledgeHubContributors from "@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue";
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 
@@ -101,12 +89,6 @@ const hubStats          = ref({
   averageViewCount: 0,
   newThisMonthChange: 0,
   averageViewCountChange: 0,
-})
-
-// ── 통계 / 멘토링 (백엔드 미구현 → mock 유지) ─────────────────────
-const mentoringState = reactive({
-  ongoing: [...knowledgeHubMentoring.ongoing],
-  pending: [...knowledgeHubMentoring.pending],
 })
 
 const summaryCards = computed(() => [
@@ -315,31 +297,14 @@ async function toggleBookmark(article) {
   }
 }
 
-// ── 멘토링 모달 (백엔드 미구현 → mock 유지) ───────────────────────
-const selectedMentoringRequest  = ref(null)
-const showMentoringRequestModal = ref(false)
-
-function openMentoringReview(request)  { selectedMentoringRequest.value = request }
-function closeMentoringReview()        { selectedMentoringRequest.value = null }
-function confirmMentoringReview(request) {
-  mentoringState.pending = mentoringState.pending.filter((i) => i.id !== request.id)
-  closeMentoringReview()
-}
-function openMentoringRequestModal()   { showMentoringRequestModal.value = true }
-function closeMentoringRequestModal()  { showMentoringRequestModal.value = false }
-function submitMentoringRequest(payload) {
-  const nextId = Math.max(...mentoringState.pending.map((i) => i.id), 0) + 1
-  mentoringState.pending.unshift({ id: nextId, name: payload.field, requester: 'DL-REQ', summary: payload.purpose, requestedBy: '이수연', requestedAt: formatDate(new Date().toISOString()), priority: '중간', reason: payload.purpose, details: payload.requestDetails })
-  showMentoringRequestModal.value = false
-}
 </script>
 
 <template>
   <section class="dl-knowledge-view">
-    <TeamLeaderKnowledgeHubHeader :cards="summaryCards" />
+    <KnowledgeHubHeader :cards="summaryCards" />
 
     <section class="dl-knowledge-view__grid">
-      <TeamLeaderKnowledgeHubFeed
+      <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
         @open-write="showWriteModal = true"
@@ -348,71 +313,56 @@ function submitMentoringRequest(payload) {
       />
 
       <div class="dl-knowledge-view__sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
-        <TeamLeaderKnowledgeHubMentoring
-          :mentoring="mentoringState"
-          @review-request="openMentoringReview"
-          @open-request="openMentoringRequestModal"
-        />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubContributors :ranking="contributors" />
+        <KnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
         />
       </div>
     </section>
 
-    <TeamLeaderKnowledgeWriteModal
-      v-if="showWriteModal"
-      :options="knowledgeWriteModalOptions"
-      @close="showWriteModal = false"
-      @draft="handleSaveDraft"
-      @submit="handleAddArticle"
-    />
-
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"
       @toggle-bookmark="toggleBookmark"
-    />
-
-    <TeamLeaderKnowledgeMentoringReviewModal
-      v-if="selectedMentoringRequest"
-      :request="selectedMentoringRequest"
-      @close="closeMentoringReview"
-      @confirm="confirmMentoringReview"
-    />
-
-    <TeamLeaderKnowledgeMentoringRequestModal
-      v-if="showMentoringRequestModal"
-      :defaults="knowledgeHubMentoringRequestDefaults"
-      @close="closeMentoringRequestModal"
-      @submit="submitMentoringRequest"
     />
   </section>
 </template>
 
 <style scoped>
 .dl-knowledge-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  height: calc(100vh - 80px);
   padding: 12px 10px 18px;
   box-sizing: border-box;
   background: var(--color-bg-app);
-  display: grid;
-  gap: 16px;
+  overflow: hidden;
 }
 
 .dl-knowledge-view__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  overflow: visible;
 }
 
 .dl-knowledge-view__sidebar {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow: visible;
 }
 
 @media (max-width: 1180px) {

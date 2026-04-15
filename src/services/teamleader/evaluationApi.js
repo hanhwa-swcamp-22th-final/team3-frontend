@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 /** TL 평가 대상 목록 조회 */
 export function fetchTlTargets(periodId) {

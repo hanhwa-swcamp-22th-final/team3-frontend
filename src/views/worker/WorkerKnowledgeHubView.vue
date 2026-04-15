@@ -1,24 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
-import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
+import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
-
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-
-// 백엔드 미구현 항목만 mock 유지
-import {
-  ongoingMentoring,
-  mentoringRequests,
-  mentoringRequestFormDefaults,
-} from '@/mocks/worker/workerKnowledgeHubData'
-
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 
@@ -106,6 +94,7 @@ const hubStats          = ref({
   newThisMonthChange: 0,
   averageViewCountChange: 0,
 })
+const isArticleSubmitting = ref(false)
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
@@ -214,48 +203,15 @@ const headerCards = computed(() => [
   },
 ])
 
-// ── 멘토링 데이터 (백엔드 미구현, mock 유지) ───────────────────
-const mentoringData = computed(() => ({
-  ongoing: ongoingMentoring.map((m) => ({
-    id: m.id,
-    mentor: m.mentorInitial,
-    mentee: m.menteeInitial,
-    field: m.field,
-    status: m.status,
-  })),
-  pending: mentoringRequests.map((r) => ({
-    id: r.id,
-    name: r.field,
-    requester: r.name,
-    summary: r.message,
-  })),
-}))
-
 // ── 모달 상태 ──────────────────────────────────────────────────
-const showAcceptModal  = ref(false)
-const showRequestModal = ref(false)
-const showAddModal     = ref(false)
-const selectedRequest  = ref(null)
+const showAddModal = ref(false)
 
-function handleAcceptClick(request) {
-  selectedRequest.value = request
-  showAcceptModal.value = true
-}
-
-function handleRequestClick() {
-  showRequestModal.value = true
-}
-
-function confirmAccept() {
-  showAcceptModal.value = false
-  selectedRequest.value = null
-}
-
-function submitRequest() {
-  showRequestModal.value = false
-}
 
 async function handleAddArticle(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.createArticle({
       title:       data.title,
@@ -267,10 +223,17 @@ async function handleAddArticle(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 문서 등록 실패:', e)
+    window.alert(e.response?.data?.message ?? '문서 등록에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
 async function handleSaveDraft(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.saveDraft({
       title:       data.title,
@@ -282,6 +245,9 @@ async function handleSaveDraft(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 임시저장 실패:', e)
+    window.alert(e.response?.data?.message ?? '임시 저장에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
@@ -363,21 +329,18 @@ async function toggleBookmark(article) {
 }
 
 function closeModal() {
-  showAcceptModal.value  = false
-  showRequestModal.value = false
-  showAddModal.value     = false
-  selectedRequest.value  = null
+  showAddModal.value = false
 }
 </script>
 
 <template>
   <div class="kh-content">
     <!-- Header Stats -->
-    <TeamLeaderKnowledgeHubHeader :cards="headerCards" />
+    <KnowledgeHubHeader :cards="headerCards" />
 
     <!-- Main Grid: Feed (left) + Sidebar (right) -->
     <div class="kh-grid">
-      <TeamLeaderKnowledgeHubFeed
+      <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
         @open-write="showAddModal = true"
@@ -386,13 +349,8 @@ function closeModal() {
       />
 
       <div class="kh-sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="monthlyRanking" />
-        <TeamLeaderKnowledgeHubMentoring
-          :mentoring="mentoringData"
-          @review-request="handleAcceptClick"
-          @open-request="handleRequestClick"
-        />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubContributors :ranking="monthlyRanking" />
+        <KnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
         />
@@ -400,27 +358,16 @@ function closeModal() {
     </div>
 
     <!-- Modals -->
-    <WorkerMentoringAcceptModal
-      v-if="showAcceptModal && selectedRequest"
-      :request="selectedRequest"
-      @close="closeModal"
-      @accept="confirmAccept"
-    />
-    <WorkerMentoringRequestModal
-      v-if="showRequestModal"
-      :defaults="mentoringRequestFormDefaults"
-      @close="closeModal"
-      @submit="submitRequest"
-    />
     <WorkerKnowledgeAddModal
       v-if="showAddModal"
+      :submitting="isArticleSubmitting"
       @close="closeModal"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"
     />
 
     <!-- 지식 상세 모달 -->
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

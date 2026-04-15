@@ -36,16 +36,6 @@ const routes = [
                 component: () => import('@/views/admin/AdminEquipmentManage.vue'),
             },
             {
-                path: 'logs',
-                name: 'AdminLogs',
-                component: () => import('@/views/admin/AdminLogs.vue'),
-            },
-            {
-                path: 'permissions',
-                name: 'AdminPermissions',
-                component: () => import('@/views/admin/AdminSystemAccessManage.vue'),
-            },
-            {
                 path: 'algorithm',
                 name: 'AdminAlgorithm',
                 component: () => import('@/views/admin/AdminAlgorithmConfig.vue'),

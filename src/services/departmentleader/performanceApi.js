@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 function toNumber(v, fallback = 0) {
   const n = Number(v)

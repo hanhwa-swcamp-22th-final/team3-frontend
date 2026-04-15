@@ -1,12 +1,19 @@
 <script setup>
-import { STATUS_STYLE } from '@/mocks/hrmanager/noticeboard.js'
-
 defineProps({
   notice:   { type: Object,  default: null },
   readonly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['edit', 'delete'])
+
+function statusClass(status) {
+  return {
+    게시중: 'hrm-detail__badge--published',
+    중요: 'hrm-detail__badge--important',
+    예약: 'hrm-detail__badge--scheduled',
+    임시: 'hrm-detail__badge--draft',
+  }[status] ?? ''
+}
 </script>
 
 <template>
@@ -15,7 +22,7 @@ const emit = defineEmits(['edit', 'delete'])
       <span v-if="notice.isImportant" class="hrm-detail__badge hrm-detail__badge--pin">중요</span>
       <span
         class="hrm-detail__badge"
-        :style="{ background: STATUS_STYLE[notice.status]?.bg, color: STATUS_STYLE[notice.status]?.color }"
+        :class="statusClass(notice.status)"
       >{{ notice.status }}</span>
     </div>
 
@@ -64,6 +71,22 @@ const emit = defineEmits(['edit', 'delete'])
   font-weight: var(--font-weight-bold);
   padding: 3px 10px;
   border-radius: 4px;
+}
+.hrm-detail__badge--published {
+  background: #e3fbef;
+  color: #007a60;
+}
+.hrm-detail__badge--important {
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+}
+.hrm-detail__badge--scheduled {
+  background: #fff8e1;
+  color: #b45309;
+}
+.hrm-detail__badge--draft {
+  background: #ffecf1;
+  color: #c0103e;
 }
 
 .hrm-detail__badge--pin {

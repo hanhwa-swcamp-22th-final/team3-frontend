@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import HRMGroupAddModal from '@/components/hr/hrmanager/organization-management/HRMGroupAddModal.vue'
 import HRMTeamAddModal  from '@/components/hr/hrmanager/organization-management/HRMTeamAddModalForm.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 const ROLE_LABELS = { WORKER: '사원', TL: '팀장', DL: '부서장', HRM: 'HR 매니저', ADMIN: '관리자' }
 const DEPT_COLORS = [
