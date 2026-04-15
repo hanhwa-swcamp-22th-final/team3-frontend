@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
+import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
@@ -336,11 +336,11 @@ function closeModal() {
 <template>
   <div class="kh-content">
     <!-- Header Stats -->
-    <TeamLeaderKnowledgeHubHeader :cards="headerCards" />
+    <KnowledgeHubHeader :cards="headerCards" />
 
     <!-- Main Grid: Feed (left) + Sidebar (right) -->
     <div class="kh-grid">
-      <TeamLeaderKnowledgeHubFeed
+      <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
         @open-write="showAddModal = true"
@@ -349,8 +349,8 @@ function closeModal() {
       />
 
       <div class="kh-sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="monthlyRanking" />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubContributors :ranking="monthlyRanking" />
+        <KnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
         />
@@ -367,7 +367,7 @@ function closeModal() {
     />
 
     <!-- 지식 상세 모달 -->
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

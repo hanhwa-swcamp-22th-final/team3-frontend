@@ -3,9 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const tagFilters = ref([])
@@ -353,7 +353,7 @@ async function handleRestore(articleId) {
 
 <template>
   <div class="kms-view">
-    <TeamLeaderKnowledgeHubHeader :cards="statCards" />
+    <KnowledgeHubHeader :cards="statCards" />
 
     <!-- 메인 2열 레이아웃 -->
     <div class="kms-layout">
@@ -379,14 +379,14 @@ async function handleRestore(articleId) {
         <KmsSidePanel
           :contributors="contributors"
         />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubAiPanel
           :recommendations="recommendations"
           @open-detail="openRecommendedArticle"
         />
       </div>
     </div>
 
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

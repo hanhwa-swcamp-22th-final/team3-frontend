@@ -1,15 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModal.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
-import TeamLeaderKnowledgeHubContributors from "@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue";
-
-import { knowledgeWriteModalOptions } from '@/mocks/teamleader'
-
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
+import KnowledgeHubContributors from "@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue";
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 
@@ -305,10 +301,10 @@ async function toggleBookmark(article) {
 
 <template>
   <section class="dl-knowledge-view">
-    <TeamLeaderKnowledgeHubHeader :cards="summaryCards" />
+    <KnowledgeHubHeader :cards="summaryCards" />
 
     <section class="dl-knowledge-view__grid">
-      <TeamLeaderKnowledgeHubFeed
+      <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
         @open-write="showWriteModal = true"
@@ -317,23 +313,15 @@ async function toggleBookmark(article) {
       />
 
       <div class="dl-knowledge-view__sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubContributors :ranking="contributors" />
+        <KnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
         />
       </div>
     </section>
 
-    <TeamLeaderKnowledgeWriteModal
-      v-if="showWriteModal"
-      :options="knowledgeWriteModalOptions"
-      @close="showWriteModal = false"
-      @draft="handleSaveDraft"
-      @submit="handleAddArticle"
-    />
-
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

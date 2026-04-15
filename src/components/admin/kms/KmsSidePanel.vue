@@ -1,5 +1,5 @@
 <script setup>
-import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
+import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/KnowledgeHubContributors.vue'
 
 defineProps({
   contributors: { type: Array, default: () => [] },
@@ -8,7 +8,7 @@ defineProps({
 
 <template>
   <div class="side-panel">
-    <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
+    <KnowledgeHubContributors :ranking="contributors" />
   </div>
 </template>
 
