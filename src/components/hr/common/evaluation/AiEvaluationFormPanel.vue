@@ -52,6 +52,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  showToolbar: {
+    type: Boolean,
+    default: true,
+  },
+  showEditor: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits([
@@ -88,7 +96,7 @@ function handleFileChange(event) {
 
     <slot name="summary" />
 
-    <div class="evaluation-form-panel__toolbar">
+    <div v-if="showToolbar" class="evaluation-form-panel__toolbar">
       <div class="evaluation-form-panel__toolbar-left">
         <button
           type="button"
@@ -128,6 +136,7 @@ function handleFileChange(event) {
     </div>
 
     <textarea
+      v-if="showEditor"
       class="evaluation-form-panel__editor"
       :class="{ 'evaluation-form-panel__editor--readonly': readonly }"
       :value="modelValue"
@@ -270,16 +279,16 @@ function handleFileChange(event) {
 }
 
 .evaluation-form-panel__editor--readonly {
-  background: linear-gradient(135deg, #f8f7ff 0%, #f1effe 100%);
-  border-color: #e0dbff;
-  color: #6e68b2;
+  background: #faf8ff;
+  border-color: #dcd6ff;
+  color: var(--color-primary-800);
   cursor: default;
   resize: none;
   outline: none;
 }
 
 .evaluation-form-panel__editor--readonly:focus {
-  border-color: #e0dbff;
+  border-color: #dcd6ff;
   outline: none;
   box-shadow: none;
 }

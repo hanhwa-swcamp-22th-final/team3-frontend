@@ -1,12 +1,15 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import AiEvaluationFormPanel from '@/components/hr/common/evaluation/AiEvaluationFormPanel.vue'
 import EvaluationGuideModal from '@/components/hr/common/evaluation/EvaluationGuideModal.vue'
 import DepartmentLeaderFirstEvaluationSummary from './DepartmentLeaderFirstEvaluationSummary.vue'
+import EvalDetailLayout from '@/components/hr/common/evaluation/EvalDetailLayout.vue'
 
 const props = defineProps({
   member: { type: Object, default: null },
   readonly: { type: Boolean, default: false },
+  appealInfo: { type: Object, default: null },
+  progressLabel: { type: String, default: '2차 평가 작성 현황' },
+  submitLabel: { type: String, default: '최종 제출' },
 })
 
 const emit = defineEmits(['save', 'submit'])
@@ -145,20 +148,21 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <AiEvaluationFormPanel
+  <EvalDetailLayout
     v-if="member"
-    class="department-evaluation-form-panel"
-    :title="`${member.name} 2차 평가 작성`"
-    :description="`${member.name} (${member.code}) 2차 평가 내용을 음성으로 작성하고 텍스트로 변환할 수 있습니다.`"
-    :model-value="draftText"
-    :notice-text="'팀리더 1차 평가 내용과 AI 권고 점수는 참고 자료입니다. 음성 입력 또는 파일 업로드로 초안을 만든 뒤 아래 편집 영역에서 2차 평가 문장을 직접 완성하세요.'"
-    :editor-placeholder="'2차 평가 의견을 입력하세요. 1차 평가 내용 검토, 종합 판단, 보완 의견이 드러나도록 작성합니다.'"
-    :recording-state="recordingState"
-    :uploaded-file-name="uploadedFileName"
-    :show-guide-button="true"
-    :guide-button-label="'작성 가이드'"
-    :guide-active="guideOpen"
-    :readonly="readonly"
+    :panel-props="{
+      title: `${member.name} 2차 평가 작성`,
+      description: `${member.name} (${member.code}) 2차 평가 내용을 음성으로 작성하고 텍스트로 변환할 수 있습니다.`,
+      modelValue: draftText,
+      noticeText: '팀리더 1차 평가 내용과 AI 권고 점수는 참고 자료입니다. 음성 입력 또는 파일 업로드로 초안을 만든 뒤 아래 편집 영역에서 2차 평가 문장을 직접 완성하세요.',
+      editorPlaceholder: '2차 평가 의견을 입력하세요. 1차 평가 내용 검토, 종합 판단, 보완 의견이 드러나도록 작성합니다.',
+      recordingState,
+      uploadedFileName,
+      showGuideButton: true,
+      guideButtonLabel: '작성 가이드',
+      guideActive: guideOpen,
+      readonly,
+    }"
     @update:model-value="draftText = $event"
     @voice-input="handleVoiceInput"
     @file-selected="handleFileChange"
@@ -166,7 +170,26 @@ onBeforeUnmount(() => {
     @toggle-guide="guideOpen = !guideOpen"
   >
     <template #summary>
-      <DepartmentLeaderFirstEvaluationSummary :summary="member.firstEvaluationSummary" />
+      <div class="eval-form__summary-stack">
+        <DepartmentLeaderFirstEvaluationSummary :summary="member.firstEvaluationSummary" />
+        <section v-if="appealInfo" class="eval-form__appeal-card">
+          <div class="eval-form__appeal-meta">
+            <div class="eval-form__appeal-meta-item">
+              <p class="eval-form__appeal-eyebrow">대상 평가기간</p>
+              <strong>{{ appealInfo.periodLabel }}</strong>
+            </div>
+            <div class="eval-form__appeal-meta-item">
+              <p class="eval-form__appeal-eyebrow">이의 유형</p>
+              <strong>{{ appealInfo.typeLabel }}</strong>
+            </div>
+          </div>
+          <div class="eval-form__appeal-body">
+            <p class="eval-form__appeal-eyebrow">이의신청 내용</p>
+            <strong>{{ appealInfo.title }}</strong>
+            <p class="eval-form__appeal-copy">{{ appealInfo.content }}</p>
+          </div>
+        </section>
+      </div>
     </template>
 
     <template #footer>
@@ -175,7 +198,7 @@ onBeforeUnmount(() => {
           class="eval-form__submit-hint"
           :class="{ 'eval-form__submit-hint--submitted': readonly }"
         >
-          <strong>2차 평가 작성 현황</strong>
+          <strong>{{ progressLabel }}</strong>
           <span>{{ `${draftText.trim().length}자 입력 완료` }}</span>
           <span v-if="member.expectedScore != null" class="eval-form__score-hint">
             예상 점수: {{ member.expectedScore }}점
@@ -190,46 +213,24 @@ onBeforeUnmount(() => {
             :disabled="!canSubmit"
             @click="emit('submit', { draftText, inputMethod })"
           >
-            최종 제출
+            {{ submitLabel }}
           </button>
         </template>
       </div>
     </template>
-  </AiEvaluationFormPanel>
+  </EvalDetailLayout>
 
   <EvaluationGuideModal :open="guideOpen" @close="guideOpen = false" />
 
-  <section v-if="!member" class="eval-form eval-form--empty">
-    <p>좌측 목록에서 팀원을 선택하세요.</p>
-  </section>
+  <EvalDetailLayout
+    v-if="!member"
+    :empty="true"
+    empty-title="팀원을 선택하세요."
+    empty-description="좌측 목록에서 팀원을 선택하면 2차 평가 상세가 표시됩니다."
+  />
 </template>
 
 <style scoped>
-.eval-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 24px;
-  background: var(--color-bg-surface);
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-}
-
-.eval-form--empty {
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-base);
-}
-
-.department-evaluation-form-panel {
-  overflow-y: auto;
-  min-height: 600px;
-  max-height: calc(100vh - 200px);
-}
-
 .eval-form__actions {
   display: flex;
   align-items: center;
@@ -237,6 +238,58 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   padding-top: 4px;
   flex-wrap: wrap;
+}
+
+.eval-form__summary-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.eval-form__appeal-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid #e8e2ff;
+  background: #faf8ff;
+}
+
+.eval-form__appeal-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eval-form__appeal-meta-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border-soft);
+}
+
+.eval-form__appeal-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.eval-form__appeal-body {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border-soft);
+}
+
+.eval-form__appeal-copy {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--color-primary-800);
+  white-space: pre-wrap;
 }
 
 .eval-form__submit-hint {
@@ -295,5 +348,11 @@ onBeforeUnmount(() => {
   color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .eval-form__appeal-meta {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

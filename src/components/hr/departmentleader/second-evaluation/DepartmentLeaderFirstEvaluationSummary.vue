@@ -47,7 +47,7 @@ defineProps({
   padding: 18px;
   border: 1px solid #dcd6ff;
   border-radius: 20px;
-  background: linear-gradient(180deg, #faf8ff 0%, #f4f1ff 100%);
+  background: #faf8ff;
 }
 
 .first-evaluation-summary__header {

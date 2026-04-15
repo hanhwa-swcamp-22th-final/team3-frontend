@@ -49,12 +49,15 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
           </span>
         </div>
         <p v-if="meta" class="evaluation-member-card__meta">{{ meta }}</p>
-        <span v-if="statusLabel" class="evaluation-member-card__status" :class="`evaluation-member-card__status--${status}`">
-          {{ statusLabel }}
-        </span>
       </div>
     </div>
-    <span v-if="statusDate" class="evaluation-member-card__date">{{ statusDate }}</span>
+    <span
+      v-if="statusDate"
+      class="evaluation-member-card__date"
+      :class="`evaluation-member-card__date--${status}`"
+    >
+      {{ statusDate }}
+    </span>
   </article>
 </template>
 
@@ -76,7 +79,7 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
 }
 
 .evaluation-member-card:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .evaluation-member-card--submitted {
@@ -86,8 +89,8 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
 
 .evaluation-member-card--in_progress,
 .evaluation-member-card--in-progress {
-  background: #f1ecff;
-  border-color: #d4c8ff;
+  background: #f7f4ff;
+  border-color: #e5dfff;
 }
 
 .evaluation-member-card--not_started,
@@ -185,28 +188,6 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
   word-break: keep-all;
 }
 
-.evaluation-member-card__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.evaluation-member-card__status--submitted {
-  color: #168765;
-}
-
-.evaluation-member-card__status--in_progress,
-.evaluation-member-card__status--in-progress {
-  color: #6a57d3;
-}
-
-.evaluation-member-card__status--not_started,
-.evaluation-member-card__status--not-started {
-  color: #7c8397;
-}
-
 .evaluation-member-card__date {
   display: inline-flex;
   align-items: center;
@@ -221,6 +202,23 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.evaluation-member-card__date--submitted {
+  background: #e8faf4;
+  color: #1d7f5b;
+}
+
+.evaluation-member-card__date--in_progress,
+.evaluation-member-card__date--in-progress {
+  background: #f1edff;
+  color: #5f50d6;
+}
+
+.evaluation-member-card__date--not_started,
+.evaluation-member-card__date--not-started {
+  background: #eef1f6;
+  color: #7c8798;
 }
 
 @media (max-width: 720px) {
