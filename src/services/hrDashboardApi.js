@@ -29,6 +29,10 @@ function formatPercent(value) {
   return `${formatScore(value)}%`
 }
 
+function formatOptionalPercent(value) {
+  return value == null ? '-' : formatPercent(value)
+}
+
 function tierTone(tier) {
   return tier === 'B' ? 'gold' : 'purple'
 }
@@ -86,11 +90,11 @@ function mapTlDashboardMember(member) {
     code: member.employeeCode ?? '',
     tier,
     tierTone: tierTone(tier),
-    quantitative: '-',
-    qualitative: formatPercent(qualitative),
+    quantitative: formatOptionalPercent(member.quantitativeScore),
+    qualitative: formatOptionalPercent(member.qualitativeScore),
     tasks: member.evalStatus ?? '-',
     score: Math.round(qualitative),
-    delta: member.grade ?? '',
+    delta: member.grade ?? tier,
     statusTone: statusTone(member.evalStatus),
   }
 }
@@ -99,18 +103,25 @@ function formatDecimal(value) {
   return toNumber(value).toFixed(2)
 }
 
+function formatOptionalDecimal(value) {
+  return value == null ? '-' : formatDecimal(value)
+}
+
+function formatOptionalScore(value) {
+  return value == null ? '-' : formatScore(value)
+}
+
 function mapTlKpiRow(item) {
-  const score = toNumber(item.tScore)
   return {
     id: item.employeeId,
     avatar: item.employeeName?.charAt(0) ?? '?',
     avatarTone: 'purple',
     name: item.employeeName ?? '-',
     tier: item.employeeTier ?? '-',
-    actualOutput: formatDecimal(item.uphScore),
-    eIdx: formatDecimal(item.yieldScore),
-    adjustedRate: `${formatDecimal(item.leadTimeScore)}%`,
-    score: formatScore(score),
+    actualOutput: formatOptionalDecimal(item.uphScore),
+    eIdx: formatOptionalDecimal(item.yieldScore),
+    adjustedRate: item.leadTimeScore == null ? '-' : `${formatDecimal(item.leadTimeScore)}%`,
+    score: formatOptionalScore(item.tScore),
     trend: '-',
     trendTone: 'success',
     detailLabel: '보기',
@@ -371,12 +382,13 @@ function mapHrmKpiLeaderRow(item, index) {
   }
 }
 
-function mapHrmTeamStatsReportRow(item, index, completionRate = 0) {
+function mapHrmTeamStatsReportRow(item, index, completionRate = 0, quarter = '') {
   const total = toNumber(item.count)
   const evaluated = Math.round((total * toNumber(completionRate)) / 100)
   return {
     id: item.id,
     name: item.team,
+    quarter,
     line: '부서',
     members: total,
     evaluated,
@@ -490,7 +502,9 @@ export async function getHrmKpiReport(period = {}) {
       quarter: `${year}년 ${evalSequence}분기`,
     })),
     tierTrend: trends.map(mapHrmTrend),
-    teamLeaders: teamStats.map((item, index) => mapHrmTeamStatsReportRow(item, index, completionRate)),
+    teamLeaders: teamStats.map((item, index) =>
+      mapHrmTeamStatsReportRow(item, index, completionRate, `${year}년 ${evalSequence}분기`)
+    ),
   }
 }
 

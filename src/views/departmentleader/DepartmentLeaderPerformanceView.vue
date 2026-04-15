@@ -46,18 +46,21 @@ onMounted(async () => {
 const activeSummary = computed(() => {
   if (selectedTeam.value === '전체') return performanceSummary.value
 
-  const teamData = rawTeams.value.find((t) => t.teamName === selectedTeam.value)
-  if (!teamData) return performanceSummary.value
+  const selectedMembers = performanceMembers.value.filter((member) => member.team === selectedTeam.value)
+  if (selectedMembers.length === 0) return performanceSummary.value
 
-  const memberCount = Number(teamData.memberCount) || 0
-  const avg = Number(teamData.teamAvgScore) || 0
+  const memberCount = selectedMembers.length
+  const evaluatedCount = selectedMembers.filter((member) => member._evalStatus && member._evalStatus !== 'NO_INPUT').length
+  const scoredMembers = selectedMembers.filter((member) => member.qualitative != null && Number.isFinite(Number(member.qualitative)))
+  const avg = scoredMembers.length
+    ? +(scoredMembers.reduce((sum, member) => sum + Number(member.qualitative), 0) / scoredMembers.length).toFixed(1)
+    : 0
   const delta = +(avg - performanceSummary.value.deptAvg).toFixed(1)
-  const completed = teamData.evaluationStatus === '평가완료' ? memberCount : 0
 
   return {
     totalMembers: memberCount,
     totalTeams: 1,
-    evalCompleted: completed,
+    evalCompleted: evaluatedCount,
     evalTotal: memberCount,
     deptAvg: avg,
     deptAvgDelta: delta,

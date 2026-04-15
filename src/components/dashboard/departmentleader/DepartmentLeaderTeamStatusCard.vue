@@ -20,7 +20,6 @@ const statusConfig = {
         <span class="dl-team-card__dot">●</span>
         <span class="dl-team-card__title">팀 현황</span>
       </div>
-      <button class="dl-team-card__all-btn">전체 →</button>
     </header>
 
     <ul class="dl-team-card__list">
@@ -73,18 +72,6 @@ const statusConfig = {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
-}
-
-.dl-team-card__all-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary-500);
-}
-.dl-team-card__all-btn:hover {
-  color: var(--color-primary-700);
 }
 
 .dl-team-card__list {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
 
 const props = defineProps({
@@ -9,6 +9,37 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save-draft', 'submit'])
 
 const memo = ref('')
+const now = ref(Date.now())
+let timerId = null
+
+onMounted(() => {
+  timerId = window.setInterval(() => {
+    now.value = Date.now()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (timerId) {
+    window.clearInterval(timerId)
+  }
+})
+
+const displayElapsedTime = computed(() => {
+  if (!props.job.workStartAt) {
+    return props.job.elapsedTime || '—'
+  }
+
+  const start = new Date(props.job.workStartAt)
+  const end = props.job.workEndAt ? new Date(props.job.workEndAt) : new Date(now.value)
+  const diffMinutes = Math.max(0, Math.floor((end - start) / 60000))
+  const hours = Math.floor(diffMinutes / 60)
+  const minutes = diffMinutes % 60
+
+  if (hours > 0) {
+    return `${hours}시간 ${minutes}분`
+  }
+  return `${minutes}분`
+})
 
 function handleSubmit() {
   emit('submit', {
@@ -56,7 +87,7 @@ function handleDraft() {
       <div class="fm__info-divider"></div>
       <div class="fm__info-col">
         <span class="fm__info-label">진행 시간</span>
-        <span class="fm__info-value">{{ job.elapsedTime || '—' }}</span>
+        <span class="fm__info-value">{{ displayElapsedTime }}</span>
       </div>
       <div class="fm__info-divider"></div>
       <div class="fm__info-col">

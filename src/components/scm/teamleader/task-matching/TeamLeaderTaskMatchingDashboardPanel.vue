@@ -1,4 +1,6 @@
 ﻿<script setup>
+import { computed, ref, watch } from 'vue'
+
 const props = defineProps({
   lines: { type: Array, default: () => [] },
   timelineRows: { type: Array, default: () => [] },
@@ -9,6 +11,46 @@ const props = defineProps({
 const emit = defineEmits(['select-order', 'assign-order'])
 
 const timelineHours = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']
+const LINES_PER_PAGE = 4
+const DAY_START = 8 * 60
+const DAY_SPAN = 12 * 60
+const linePage = ref(1)
+
+const totalLinePages = computed(() => Math.max(1, Math.ceil(props.lines.length / LINES_PER_PAGE)))
+const pagedLines = computed(() => {
+  const start = (linePage.value - 1) * LINES_PER_PAGE
+  return props.lines.slice(start, start + LINES_PER_PAGE)
+})
+const linePageNumbers = computed(() => {
+  const maxVisible = 5
+  const total = totalLinePages.value
+  const half = Math.floor(maxVisible / 2)
+  let start = Math.max(1, linePage.value - half)
+  const end = Math.min(total, start + maxVisible - 1)
+
+  start = Math.max(1, end - maxVisible + 1)
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+})
+const nowPosition = computed(() => {
+  const now = new Date()
+  const minutes = now.getHours() * 60 + now.getMinutes()
+  const rate = Math.min(1, Math.max(0, (minutes - DAY_START) / DAY_SPAN))
+  return `${(rate * 100).toFixed(1)}%`
+})
+
+watch(
+  () => props.lines.length,
+  () => {
+    if (linePage.value > totalLinePages.value) {
+      linePage.value = totalLinePages.value
+    }
+  }
+)
+
+function setLinePage(page) {
+  linePage.value = Math.min(Math.max(page, 1), totalLinePages.value)
+}
 
 function tierClass(tier) {
   if (tier === 'S') return 'dashboard__tier--mint'
@@ -20,32 +62,56 @@ function tierClass(tier) {
 
 <template>
   <section class="dashboard-panel">
-    <section class="dashboard-panel__lines">
-      <article v-for="line in lines" :key="line.id" class="line-card">
-        <div class="line-card__head">
-          <h3>{{ line.title }}</h3>
-          <strong :class="`line-card__percent line-card__percent--${line.tone}`">{{ line.percent }}</strong>
+    <section class="dashboard-panel__line-section">
+      <header class="dashboard-panel__line-head">
+        <div>
+          <p class="dashboard-panel__eyebrow">라인 운영 현황</p>
+          <strong>{{ lines.length }}개 라인</strong>
         </div>
-        <div class="line-card__progress">
-          <div class="line-card__progress-fill" :class="`line-card__progress-fill--${line.tone}`" :style="{ width: line.percent }"></div>
-        </div>
-        <div class="line-card__list">
-          <article v-for="item in line.assignments" :key="item.techId + item.orderCode" class="line-card__row">
-            <div class="line-card__person">
-              <span class="line-card__avatar">{{ item.techName.slice(0, 1) }}</span>
-              <div>
-                <div class="line-card__name-row">
-                  <strong>{{ item.techName }}</strong>
-                  <span class="dashboard__tier" :class="tierClass(item.tier)">{{ item.tier }}</span>
-                  <span class="line-card__order">{{ item.orderCode }}</span>
+      </header>
+
+      <section class="dashboard-panel__lines">
+        <article v-for="line in pagedLines" :key="line.id" class="line-card">
+          <div class="line-card__head">
+            <h3>{{ line.title }}</h3>
+            <strong :class="`line-card__percent line-card__percent--${line.tone}`">{{ line.percent }}</strong>
+          </div>
+          <div class="line-card__progress">
+            <div class="line-card__progress-fill" :class="`line-card__progress-fill--${line.tone}`" :style="{ width: line.percent }"></div>
+          </div>
+          <div class="line-card__list">
+            <article v-for="item in line.assignments" :key="item.techId + item.orderCode" class="line-card__row">
+              <div class="line-card__person">
+                <span class="line-card__avatar">{{ item.techName.slice(0, 1) }}</span>
+                <div>
+                  <div class="line-card__name-row">
+                    <strong>{{ item.techName }}</strong>
+                    <span class="dashboard__tier" :class="tierClass(item.tier)">{{ item.tier }}</span>
+                    <span class="line-card__order">{{ item.orderCode }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <span class="line-card__value">{{ item.progress }}</span>
-          </article>
-        </div>
-        <div v-if="line.warning" class="line-card__warning">{{ line.warning }}</div>
-      </article>
+              <span class="line-card__value">{{ item.progress }}</span>
+            </article>
+          </div>
+          <div v-if="line.warning" class="line-card__warning">{{ line.warning }}</div>
+        </article>
+      </section>
+
+      <nav v-if="totalLinePages > 1" class="line-pagination" aria-label="라인 운영 현황 페이지">
+        <button type="button" :disabled="linePage === 1" @click="setLinePage(linePage - 1)">이전</button>
+        <button
+          v-for="page in linePageNumbers"
+          :key="page"
+          type="button"
+          class="line-pagination__number"
+          :class="{ 'line-pagination__number--active': linePage === page }"
+          @click="setLinePage(page)"
+        >
+          {{ page }}
+        </button>
+        <button type="button" :disabled="linePage === totalLinePages" @click="setLinePage(linePage + 1)">다음</button>
+      </nav>
     </section>
 
     <section class="dashboard-panel__bottom">
@@ -70,7 +136,9 @@ function tierClass(tier) {
           <div class="timeline-card__grid">
             <span v-for="hour in timelineHours" :key="`grid-${hour}`"></span>
           </div>
-          <div class="timeline-card__now">지금</div>
+          <div class="timeline-card__now-track">
+            <div class="timeline-card__now" :style="{ left: nowPosition }">지금</div>
+          </div>
 
           <div v-for="row in timelineRows" :key="row.id" class="timeline-card__track-row">
             <span class="timeline-card__label">{{ row.label }}</span>
@@ -119,13 +187,85 @@ function tierClass(tier) {
   min-height: 0;
 }
 
-.dashboard-panel__lines,
+.dashboard-panel__line-section {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 0;
+}
+
+.dashboard-panel__line-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.dashboard-panel__line-head div {
+  display: grid;
+  gap: 3px;
+}
+
+.dashboard-panel__line-head strong {
+  color: var(--color-primary-800);
+  font-size: 15px;
+}
+
+.dashboard-panel__eyebrow {
+  color: var(--color-primary-500);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .dashboard-panel__bottom {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   height: 100%;
   min-height: 0;
+}
+
+.dashboard-panel__lines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+
+.line-pagination {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.line-pagination button {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-primary-700);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.line-pagination button:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.line-pagination__number--active {
+  border-color: var(--color-primary-600) !important;
+  background: var(--color-primary-600) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(83, 61, 174, 0.2);
 }
 
 .line-card,
@@ -459,11 +599,20 @@ function tierClass(tier) {
 .timeline-card__now {
   position: absolute;
   top: 0;
-  right: 18%;
   z-index: 2;
+  transform: translateX(-50%);
   color: #ef4f74;
   font-size: 12px;
   font-weight: 700;
+}
+
+.timeline-card__now-track {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 8px;
+  left: 104px;
+  pointer-events: none;
 }
 
 .timeline-card__now::after {
@@ -515,6 +664,11 @@ function tierClass(tier) {
 }
 
 @media (max-width: 720px) {
+  .dashboard-panel__line-head {
+    display: grid;
+    align-items: start;
+  }
+
   .timeline-card__head {
     display: grid;
     gap: 8px;

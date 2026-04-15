@@ -97,6 +97,8 @@ function mapTaskToJob(task) {
     title: task.productName,
     equipment: task.matchingMode ?? '배정 정보 없음',
     estimatedTime: task.dueDate ?? '-',
+    workStartAt: task.workStartAt ?? null,
+    workEndAt: task.workEndAt ?? null,
     elapsedTime: formatElapsedTime(task.workStartAt, task.workEndAt),
     deadlineDays: calcDeadlineDays(task.dueDate),
     difficulty,

@@ -25,14 +25,15 @@ function evalStatusToKo(status) {
 
 function mapMember(item) {
   const tier = item.employeeTier ?? '-'
+  const qualitativeScore = item.qualitativeScore == null ? null : toNumber(item.qualitativeScore)
   return {
     empId: String(item.employeeCode ?? item.employeeId ?? '-'),
     name: item.employeeName ?? '-',
     position: '',
     team: item.teamName ?? '',
     quantitative: null,
-    qualitative: toNumber(item.qualitativeScore),
-    total: toNumber(item.qualitativeScore),
+    qualitative: qualitativeScore,
+    total: qualitativeScore,
     grade: item.grade ?? tier,
     status: evalStatusToKo(item.evalStatus),
     _evalStatus: item.evalStatus,
