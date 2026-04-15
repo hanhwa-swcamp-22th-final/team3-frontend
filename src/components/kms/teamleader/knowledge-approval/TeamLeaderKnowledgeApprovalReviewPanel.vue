@@ -35,7 +35,7 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
       </div>
 
       <section v-if="item.isHeld" class="review__held-banner">
-        현재 이 문서는 보류 상태입니다.
+        현재 이 문서는 임시저장 상태입니다.
       </section>
 
       <div class="review__author">
@@ -69,7 +69,7 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
         ></textarea>
         <p v-if="errorMessage" class="review__comment-error">{{ errorMessage }}</p>
         <p v-else class="review__comment-help">
-          `반려`는 10자 이상, `보류`는 비어 있지 않은 코멘트가 필요합니다.
+          `반려`는 10자 이상, `임시저장`은 비어 있지 않은 코멘트가 필요합니다.
         </p>
       </label>
 
@@ -77,7 +77,7 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
         v-if="item.approverName && item.reviewComment"
         class="review__hold-info"
       >
-        <p class="review__section-title">최근 보류 정보</p>
+        <p class="review__section-title">최근 임시저장 정보</p>
         <div class="review__hold-meta">
           <strong>{{ item.approverName }}</strong>
           <span v-if="item.updatedAt">{{ item.updatedAt }}</span>
@@ -87,7 +87,7 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
 
       <div class="review__actions">
         <BaseButton variant="danger" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('reject', item)">반려</BaseButton>
-        <BaseButton variant="secondary" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('hold', item)">보류</BaseButton>
+        <BaseButton variant="secondary" :disabled="isSubmitting" :loading="isSubmitting" @click="emit('hold', item)">임시저장</BaseButton>
         <BaseButton :disabled="isSubmitting" :loading="isSubmitting" @click="emit('approve', item)">승인</BaseButton>
       </div>
     </div>

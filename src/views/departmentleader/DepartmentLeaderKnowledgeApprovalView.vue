@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+import { BaseStatCardGrid } from '@/components/common/base'
 import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
@@ -34,7 +35,7 @@ function mapToQueueItem(dto) {
     author:    dto.authorName ?? '',
     date:      formatDate(dto.createdAt),
     isHeld:    Boolean(dto.approverId),
-    holdLabel: dto.approverName ? `${dto.approverName} 보류` : '보류 중',
+    holdLabel: dto.approverName ? `${dto.approverName} 임시저장` : '임시저장됨',
   }
 }
 
@@ -71,6 +72,12 @@ const reviewError    = ref('')
 const isSubmitting   = ref(false)
 const toast          = ref({ show: false, message: '', type: 'success' })
 let toastTimer = null
+
+const statCards = computed(() => [
+  { label: '승인 대기', value: `${statsData.value.pendingCount ?? 0}건`, tone: 'danger' },
+  { label: '이번달 승인', value: `${statsData.value.approvedThisMonth ?? 0}건`, tone: 'success' },
+  { label: '반려율', value: `${Number(statsData.value.rejectionRate ?? 0).toFixed(1)}%`, tone: 'warning' },
+])
 
 // ── 데이터 로드 ───────────────────────────────────────────────
 onMounted(async () => {
@@ -135,7 +142,7 @@ function validateReviewNote(action) {
     return false
   }
   if (action === 'PENDING' && note.length === 0) {
-    reviewError.value = '보류 처리에는 심사 코멘트를 입력해야 합니다.'
+    reviewError.value = '임시저장 처리에는 심사 코멘트를 입력해야 합니다.'
     return false
   }
   reviewError.value = ''
@@ -171,10 +178,10 @@ async function handleHold() {
       reviewComment: reviewNote.value,
     })
     await Promise.allSettled([loadStats(), loadList()])
-    showToast('보류 처리되었습니다.')
+    showToast('임시저장 처리되었습니다.')
   } catch (e) {
-    console.error('[KMS] 보류 처리 실패:', e)
-    showToast(normalizeErrorMessage(e, '보류 처리에 실패했습니다.'), 'error')
+    console.error('[KMS] 임시저장 처리 실패:', e)
+    showToast(normalizeErrorMessage(e, '임시저장 처리에 실패했습니다.'), 'error')
   } finally {
     isSubmitting.value = false
   }
@@ -201,20 +208,7 @@ async function handleReject() {
 
 <template>
   <section class="dl-knowledge-approval-view">
-    <section class="dl-knowledge-approval-view__stats">
-      <article class="approval-stat-card">
-        <p>승인 대기</p>
-        <strong>{{ statsData.pendingCount ?? 0 }}건</strong>
-      </article>
-      <article class="approval-stat-card">
-        <p>이번달 승인</p>
-        <strong class="approval-stat-card__value--mint">{{ statsData.approvedThisMonth ?? 0 }}건</strong>
-      </article>
-      <article class="approval-stat-card">
-        <p>반려율</p>
-        <strong class="approval-stat-card__value--amber">{{ Number(statsData.rejectionRate ?? 0).toFixed(1) }}%</strong>
-      </article>
-    </section>
+    <BaseStatCardGrid class="dl-knowledge-approval-view__stats" :cards="statCards" />
 
     <section class="dl-knowledge-approval-view__grid">
       <TeamLeaderKnowledgeApprovalQueue
@@ -241,50 +235,34 @@ async function handleReject() {
 
 <style scoped>
 .dl-knowledge-approval-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  flex: 1;
   width: 100%;
   min-width: 0;
-  padding: 12px 10px 18px;
+  min-height: 0;
+  height: calc(100vh - 80px);
+  padding: 10px 10px 16px;
   box-sizing: border-box;
   background: var(--color-bg-app);
-  display: grid;
-  gap: 16px;
+  overflow: hidden;
 }
 
 .dl-knowledge-approval-view__stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
-
-.approval-stat-card {
-  border: 1px solid var(--color-border-default);
-  border-radius: 18px;
-  background: var(--color-bg-surface);
-  padding: 18px 20px;
-  display: grid;
-  gap: 10px;
-}
-
-.approval-stat-card p {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-300);
-}
-
-.approval-stat-card strong {
-  font-size: var(--font-size-display);
-  line-height: 1;
-  color: #e7395f;
-}
-
-.approval-stat-card__value--mint  { color: #18b9a7; }
-.approval-stat-card__value--amber { color: #f0b539; }
 
 .dl-knowledge-approval-view__grid {
   display: grid;
   grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.25fr);
-  gap: 16px;
-  align-items: start;
+  gap: 14px;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1180px) {

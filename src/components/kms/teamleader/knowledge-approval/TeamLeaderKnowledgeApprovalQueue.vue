@@ -56,7 +56,7 @@ function setPage(page) {
       >
         <div class="queue__item-top">
           <strong>{{ item.title }}</strong>
-          <span v-if="item.isHeld" class="queue__badge">보류중</span>
+          <span v-if="item.isHeld" class="queue__badge">임시저장</span>
         </div>
         <p>{{ item.author }} · {{ item.date }}</p>
         <p v-if="item.isHeld" class="queue__hold-meta">{{ item.holdLabel }}</p>
