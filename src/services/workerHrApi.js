@@ -8,8 +8,7 @@ async function optionalGet(url, config = {}, fallback = null) {
   try {
     const response = await hrApi.get(url, config)
     return unwrap(response) ?? fallback
-  } catch (error) {
-    console.warn(`Optional HR request failed: ${url}`, error)
+  } catch {
     return fallback
   }
 }
