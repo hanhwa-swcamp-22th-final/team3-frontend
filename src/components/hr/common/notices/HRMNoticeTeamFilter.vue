@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { MOCK_TEAMS } from '@/mocks/hrmanager/noticeboard.js'
+import { NOTICE_TARGET_TEAMS } from '@/constants'
 
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
@@ -13,9 +13,9 @@ watch(() => props.modelValue, v => { local.value = [...v] })
 
 function toggle(team) {
   if (team === '전체') {
-    local.value = local.value.length === MOCK_TEAMS.length - 1
+    local.value = local.value.length === NOTICE_TARGET_TEAMS.length - 1
       ? []
-      : MOCK_TEAMS.slice(1)
+      : NOTICE_TARGET_TEAMS.slice(1)
     return
   }
   const idx = local.value.indexOf(team)
@@ -24,7 +24,7 @@ function toggle(team) {
 }
 
 function isChecked(team) {
-  if (team === '전체') return local.value.length === MOCK_TEAMS.length - 1
+  if (team === '전체') return local.value.length === NOTICE_TARGET_TEAMS.length - 1
   return local.value.includes(team)
 }
 
@@ -44,7 +44,7 @@ function apply() {
   <div class="team-filter">
     <ul class="team-filter__list">
       <li
-        v-for="team in MOCK_TEAMS"
+        v-for="team in NOTICE_TARGET_TEAMS"
         :key="team"
         class="team-filter__item"
         @click="toggle(team)"
