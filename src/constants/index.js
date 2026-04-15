@@ -1,4 +1,4 @@
-export { API_BASE, ADMIN_API_BASE, HR_API_BASE, SCM_API_BASE, KMS_API_BASE } from './api'
+export { ADMIN_API_BASE, HR_API_BASE, SCM_API_BASE, KMS_API_BASE } from './api'
 
 export {
   TIERS,

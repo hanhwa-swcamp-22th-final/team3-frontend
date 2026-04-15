@@ -9,7 +9,6 @@ S.E.T.O는 등급 기반 직원 평가(S/A/B/C) 시스템을 갖춘 HR 및 AI �
 - **라우팅:** Vue Router 5.x (중첩 라우트 및 역할 기반 경로 구성)
 - **HTTP 클라이언트:** Axios 1.x 및 Fetch API
 - **차트:** Chart.js 4.x (애니메이션이 포함된 다양한 데이터 시각화)
-- **Mock API:** json-server (포트 3001, `db.json` 사용)
 - **Node.js 버전:** ^20.19.0 또는 >=22.12.0
 - **패키지 매니저:** npm
 
@@ -63,13 +62,6 @@ Vite 개발 서버를 실행합니다.
 ```bash
 npm run dev
 # 기본 접속 주소: http://localhost:5173
-```
-
-### Mock API 서버 실행
-데이터 통신을 위해 `json-server`를 별도의 터미널에서 실행해야 합니다.
-```bash
-npm run server
-# 기본 접속 주소: http://localhost:3001
 ```
 
 ### 프로젝트 빌드 및 미리보기
