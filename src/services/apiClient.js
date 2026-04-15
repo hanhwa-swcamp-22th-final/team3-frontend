@@ -16,7 +16,7 @@ function processQueue(error, token) {
 function createApiClient(baseURL) {
   const instance = axios.create({
     baseURL,
-    timeout: 5000,
+    timeout: 15000,
     withCredentials: true,
   })
 

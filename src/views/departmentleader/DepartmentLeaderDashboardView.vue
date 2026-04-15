@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { BaseNoticeBanner, BaseStatCard } from '@/components/common/base'
+import { BaseStatCard } from '@/components/common/base'
+import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
 import DepartmentLeaderGroupKpiCard  from '@/components/dashboard/departmentleader/DepartmentLeaderGroupKpiCard.vue'
 import DepartmentLeaderTeamStatusCard from '@/components/dashboard/departmentleader/DepartmentLeaderTeamStatusCard.vue'
 import DepartmentLeaderMemberTable   from '@/components/dashboard/departmentleader/DepartmentLeaderMemberTable.vue'
@@ -43,19 +44,12 @@ function goNoticeBoard() {
     <div v-if="loading" class="department-leader-dashboard__loading">데이터를 불러오는 중...</div>
 
     <template v-else>
-      <BaseNoticeBanner
+      <WorkerNotificationBanner
         v-if="notice"
-        :badge="notice.badge"
         :title="notice.title"
         :description="notice.description"
-        tone="success"
-        variant="soft"
         class="department-leader-dashboard__notice"
-        role="button"
-        tabindex="0"
         @click="goNoticeBoard"
-        @keydown.enter="goNoticeBoard"
-        @keydown.space.prevent="goNoticeBoard"
       />
 
       <section class="department-leader-dashboard__metrics">

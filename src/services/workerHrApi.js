@@ -8,8 +8,7 @@ async function optionalGet(url, config = {}, fallback = null) {
   try {
     const response = await hrApi.get(url, config)
     return unwrap(response) ?? fallback
-  } catch (error) {
-    console.warn(`Optional HR request failed: ${url}`, error)
+  } catch {
     return fallback
   }
 }
@@ -126,6 +125,14 @@ function toMissionViewModel(mission) {
     completed: mission.status === 'COMPLETED',
     barColor: mission.status === 'COMPLETED' ? '#00BF95' : '#5B4FCF',
   }
+}
+
+function resolveAiEvaluationScore(missions = []) {
+  const aiMission = missions.find((mission) => mission.missionType === 'AI_SCORE')
+  if (!aiMission) return '-'
+
+  const score = toNumber(aiMission.currentValue)
+  return Number.isFinite(score) ? Number(score.toFixed(1)) : '-'
 }
 
 function toNoticeBannerViewModel(notice) {
@@ -271,6 +278,7 @@ export async function getWorkerProfileDashboard() {
 
   const tier = normalizeTier(profile.currentTier)
   const skillGrid = skills.map(toSkillViewModel).slice(0, 6)
+  const aiEval = resolveAiEvaluationScore(missions)
 
   return {
     worker: {
@@ -282,9 +290,9 @@ export async function getWorkerProfileDashboard() {
       tier,
       skillGrid,
       historyPeriod: formatCareerPeriod(profile.hireDate),
-      worksDone: '-',
-      finishRate: 0,
-      aiEval: '-',
+      worksDone: toNumber(profile.completedTaskCount),
+      finishRate: toNumber(profile.taskCompletionRate),
+      aiEval,
       departmentName: profile.departmentName,
       teamName: profile.teamName,
     },

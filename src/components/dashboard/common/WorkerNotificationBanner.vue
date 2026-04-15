@@ -64,5 +64,9 @@ const emit = defineEmits(['click'])
   color: #7a72a0;
   margin: 0;
   line-height: 1.5;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 </style>

@@ -43,7 +43,7 @@ const authStore = useAuthStore()
 let toastTimer = null
 
 function fetchEvaluationCriteria() {
-  return axios.get(`${HR_API_BASE}/api/v1/hr/evaluation/criteria`, {
+  return axios.get(`${HR_API_BASE}/api/v1/hr/evaluation/criteria/detail`, {
     headers: { Authorization: `Bearer ${authStore.accessToken}` },
   })
 }

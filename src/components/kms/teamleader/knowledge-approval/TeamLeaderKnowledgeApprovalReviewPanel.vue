@@ -34,6 +34,10 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
         <span class="review__date">{{ item.date }}</span>
       </div>
 
+      <section v-if="item.isHeld" class="review__held-banner">
+        현재 이 문서는 보류 상태입니다.
+      </section>
+
       <div class="review__author">
         <span class="review__avatar">{{ item.authorInitial }}</span>
         <div>
@@ -255,6 +259,15 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
 
 .review__comment-error {
   color: var(--color-danger);
+}
+
+.review__held-banner {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff7e6;
+  color: #a96b00;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .review__actions {
