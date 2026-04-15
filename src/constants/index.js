@@ -40,3 +40,10 @@ export {
 } from './evaluation'
 
 export { LOGIN_MESSAGES, AUTH_ERROR_CODE_MAP, EVAL_MESSAGES } from './messages'
+
+export {
+  NOTICE_FILTER_TABS,
+  NOTICE_TARGET_TEAMS,
+} from './hrNotices'
+
+export { DEPARTMENT_GROUP_COLORS } from './hrOrganization'

@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
-import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
-import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import TeamLeaderKnowledgeWriteModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeWriteModalWrapper.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
+import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
+import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue'
+import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
+import KnowledgeWriteModalWrapper from '@/components/kms/common/knowledge-hub/KnowledgeWriteModalWrapper.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 
@@ -302,10 +302,10 @@ async function toggleBookmark(article) {
 
 <template>
   <section class="teamleader-knowledge-view">
-    <TeamLeaderKnowledgeHubHeader :cards="summaryCards" />
+    <KnowledgeHubHeader :cards="summaryCards" />
 
     <section class="teamleader-knowledge-view__grid">
-      <TeamLeaderKnowledgeHubFeed
+      <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
         @open-write="showWriteModal = true"
@@ -314,15 +314,15 @@ async function toggleBookmark(article) {
       />
 
       <div class="teamleader-knowledge-view__sidebar">
-        <TeamLeaderKnowledgeHubContributors :ranking="contributors" />
-        <TeamLeaderKnowledgeHubAiPanel
+        <KnowledgeHubContributors :ranking="contributors" />
+        <KnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
         />
       </div>
     </section>
 
-    <TeamLeaderKnowledgeWriteModal
+    <KnowledgeWriteModalWrapper
       v-if="showWriteModal"
       :options="knowledgeWriteModalOptions"
       @close="showWriteModal = false"
@@ -330,7 +330,7 @@ async function toggleBookmark(article) {
       @submit="handleAddArticle"
     />
 
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeDetailModal"

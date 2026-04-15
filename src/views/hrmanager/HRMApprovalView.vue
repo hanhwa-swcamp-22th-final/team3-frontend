@@ -341,9 +341,20 @@ const modeTabs = computed(() => [
 ])
 
 const isConfirmDisabled = computed(() => {
+  if (requiresEvaluationComment.value) {
+    return evaluationConfirmComment.value.trim().length < 20
+  }
   if (approvalMode.value === 'evaluation') return false
   return confirmModal.value.action !== 'approve' && confirmReason.value.trim().length < 10
 })
+
+const requiresEvaluationComment = computed(() => {
+  if (!selectedItem.value || confirmModal.value.action !== 'approve') return false
+  if (approvalMode.value === 'evaluation') return true
+  return approvalMode.value === 'appeal' && selectedItem.value.rawStatus === 'COMPLETED'
+})
+
+const evaluationCommentLength = computed(() => evaluationConfirmComment.value.trim().length)
 
 async function loadAppeals() {
   const [pendingResponse, receivingResponse, reviewingResponse, processedResponse] = await Promise.all([
@@ -527,6 +538,7 @@ function handleApprove(comment = '') {
 
 function handleReject() {
   confirmReason.value = ''
+  evaluationConfirmComment.value = ''
   confirmModal.value = {
     show: true,
     action: 'reject',
@@ -538,6 +550,7 @@ function handleReject() {
 
 function handleHold() {
   confirmReason.value = ''
+  evaluationConfirmComment.value = ''
   confirmModal.value = {
     show: true,
     action: 'hold',
@@ -559,10 +572,11 @@ async function handleConfirm() {
     if (approvalMode.value === 'evaluation') {
       await hrApprovalApi.confirmEvaluation(selectedItem.value.evaluateeId, {
         evaluationPeriodId: selectedItem.value.evaluationPeriodId,
-        evalComment: evaluationConfirmComment.value || selectedItem.value.detail.content,
+        evalComment: evaluationConfirmComment.value.trim(),
         inputMethod: selectedItem.value.detail.inputMethod ?? 'TEXT',
       })
       confirmModal.value.show = false
+      evaluationConfirmComment.value = ''
       await loadEvaluations()
       showToast(`${selectedItem.value.name}님의 평가가 최종 확정되었습니다.`)
       return
@@ -575,7 +589,7 @@ async function handleConfirm() {
       if (wasCompletedAppeal) {
         await hrApprovalApi.confirmEvaluation(selectedItem.value.evaluateeId, {
           evaluationPeriodId: selectedItem.value.evaluationPeriodId,
-          evalComment: selectedItem.value.detail.secondStageComment || selectedItem.value.detail.firstStageComment || selectedItem.value.detail.content,
+          evalComment: evaluationConfirmComment.value.trim(),
           inputMethod: selectedItem.value.detail.inputMethod ?? 'TEXT',
         })
       } else {
@@ -588,6 +602,7 @@ async function handleConfirm() {
     }
     confirmModal.value.show = false
     confirmReason.value = ''
+    evaluationConfirmComment.value = ''
     await loadAppeals()
     showToast(`${targetName}님의 이의신청이 ${
       action === 'approve'
@@ -704,6 +719,23 @@ async function handleConfirm() {
     @confirm="handleConfirm"
   >
     <p class="hrm-confirm-message">{{ confirmModal.message }}</p>
+    <div v-if="requiresEvaluationComment" class="hrm-confirm-reason">
+      <label class="hrm-confirm-reason__label">
+        최종 확정 코멘트 <span class="hrm-confirm-reason__required">*필수</span>
+      </label>
+      <textarea
+        v-model="evaluationConfirmComment"
+        class="hrm-confirm-reason__input"
+        placeholder="최종 확정 코멘트를 20자 이상 입력해주세요"
+        rows="4"
+      />
+      <p
+        class="hrm-confirm-reason__hint"
+        :class="{ 'hrm-confirm-reason__hint--invalid': evaluationCommentLength < 20 }"
+      >
+        {{ evaluationCommentLength }}/20자 이상
+      </p>
+    </div>
     <div v-if="approvalMode === 'appeal' && confirmModal.action !== 'approve'" class="hrm-confirm-reason">
       <label class="hrm-confirm-reason__label">
         처리 사유 <span class="hrm-confirm-reason__required">*필수</span>
@@ -929,5 +961,14 @@ async function handleConfirm() {
 .hrm-confirm-reason__input:focus {
   outline: none;
   border-color: var(--color-primary-600);
+}
+.hrm-confirm-reason__hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+.hrm-confirm-reason__hint--invalid {
+  color: var(--color-danger);
 }
 </style>

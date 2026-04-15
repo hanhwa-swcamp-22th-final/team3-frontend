@@ -18,6 +18,10 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(number) ? number : fallback
 }
 
+function roundToOne(value) {
+  return Math.round(toNumber(value) * 10) / 10
+}
+
 function normalizeTier(tier) {
   return tier || 'C'
 }
@@ -541,18 +545,65 @@ export async function updateAppeal(appealId, payload) {
   return unwrap(response)
 }
 
-function toEvalStatusViewModel(status) {
-  if (!status) return null
+function toEvalStatusViewModel(
+  status,
+  quantitative = null,
+  qualitative = null,
+  pointSummary = null,
+  profile = null,
+  history = [],
+  tierChart = [],
+) {
+  const totalPoints = toNumber(pointSummary?.totalPoints)
+  const tier = normalizeTier(profile?.currentTier ?? profile?.employeeTier ?? '-')
+  const quantitativeScore = roundToOne(quantitative?.tScore)
+  const qualitativeScore = roundToOne(qualitative?.score)
+  const compositeScore = roundToOne(profile?.totalScore)
+  const previousHistory = history.find((item) => item?.evalPeriodId !== status?.evalPeriodId) ?? null
+  const previousCompositePoint = [...(tierChart ?? [])]
+    .sort((a, b) => {
+      const yearDiff = toNumber(b?.year) - toNumber(a?.year)
+      if (yearDiff !== 0) return yearDiff
+      return toNumber(b?.evalSequence) - toNumber(a?.evalSequence)
+    })
+    .find((item) =>
+      !status?.evalYear ||
+      !status?.evalSequence ||
+      toNumber(item?.year) !== toNumber(status.evalYear) ||
+      toNumber(item?.evalSequence) !== toNumber(status.evalSequence),
+    )
+
+  const quantitativeDiff = previousHistory ? roundToOne(quantitativeScore - toNumber(previousHistory.quantScore)) : 0
+  const qualitativeDiff = previousHistory ? roundToOne(qualitativeScore - toNumber(previousHistory.score)) : 0
+  const compositeDiff = previousCompositePoint
+    ? roundToOne(compositeScore - toNumber(previousCompositePoint.totalScore))
+    : 0
+
+  if (!status) {
+    return {
+      evalPeriodId: null,
+      periodLabel: '-',
+      overallScore: totalPoints,
+      tier,
+      quantitative: { score: 0, diff: 0 },
+      qualitative: { score: 0, diff: 0, weight: 0.6 },
+      equipmentCorrection: { label: '-', sub: '-' },
+      composite: { score: 0, diff: 0, sub: '-' },
+      rank: '-',
+      rankTotal: '-',
+      rankDiff: 0,
+    }
+  }
 
   return {
     evalPeriodId: status.evalPeriodId,
     periodLabel: status.evalYear ? `${status.evalYear}-Q${status.evalSequence}` : '-',
-    overallScore: 0, // Missing in backend
-    tier: '-', // Missing in backend
-    quantitative: { score: 0, diff: 0 },
-    qualitative: { score: 0, diff: 0, weight: 0.6 },
+    overallScore: totalPoints,
+    tier,
+    quantitative: { score: quantitativeScore, diff: quantitativeDiff },
+    qualitative: { score: qualitativeScore, diff: qualitativeDiff, weight: 0.6 },
     equipmentCorrection: { label: '-', sub: '-' },
-    composite: { score: 0, diff: 0, sub: '-' },
+    composite: { score: compositeScore, diff: compositeDiff, sub: '전분기 대비' },
     rank: '-',
     rankTotal: '-',
     rankDiff: 0,
@@ -560,14 +611,20 @@ function toEvalStatusViewModel(status) {
 }
 
 function toQuantitativeViewModel(quant) {
-  if (!quant) return null
+  if (!quant) {
+    return {
+      steps: [],
+      eidxChart: { title: '설비 가동 효율(E_idx) 추이', data: [], avg: '-', min: '-', max: '-' },
+      aiSummary: '정량 평가 데이터가 없습니다.',
+    }
+  }
 
   // Map raw scores to steps
   const steps = [
-    { label: '01 UPH Score', value: quant.uphScore != null ? `${quant.uphScore}점` : '-' },
-    { label: '02 Yield Score', value: quant.yieldScore != null ? `${quant.yieldScore}점` : '-' },
-    { label: '03 Lead Time Score', value: quant.leadTimeScore != null ? `${quant.leadTimeScore}점` : '-' },
-    { label: '04 Actual Error', value: quant.actualError != null ? `${quant.actualError}%` : '-' },
+    { label: 'UPH 점수', value: quant.uphScore != null ? `${quant.uphScore}점` : '-' },
+    { label: '수율 점수', value: quant.yieldScore != null ? `${quant.yieldScore}점` : '-' },
+    { label: '리드타임 점수', value: quant.leadTimeScore != null ? `${quant.leadTimeScore}점` : '-' },
+    { label: '실제 에러율', value: quant.actualError != null ? `${quant.actualError}%` : '-' },
   ]
 
   return {
@@ -578,7 +635,17 @@ function toQuantitativeViewModel(quant) {
 }
 
 function toQualitativeViewModel(qual) {
-  if (!qual) return null
+  if (!qual) {
+    return {
+      evaluator: '-',
+      evaluatorRole: 'Evaluator',
+      nlpConfidence: '0.00',
+      grade: '-',
+      score: 0,
+      categories: [],
+      aiAnalysis: '정성 평가 데이터가 없습니다.',
+    }
+  }
 
   let categories = []
   try {
@@ -606,14 +673,68 @@ function toQualitativeViewModel(qual) {
   }
 }
 
-function toFeedbackViewModel(fb) {
-  if (!fb) return null
+function buildGrowthChartData(tierChart = [], pointSummary = null, profile = null) {
+  const sortedPoints = [...(tierChart ?? [])]
+    .filter((item) => item?.year && item?.evalSequence)
+    .sort((a, b) => {
+      const yearDiff = toNumber(a.year) - toNumber(b.year)
+      if (yearDiff !== 0) return yearDiff
+      return toNumber(a.evalSequence) - toNumber(b.evalSequence)
+    })
+    .map((item) => ({
+      label: `${item.year}.Q${item.evalSequence}`,
+      overall: roundToOne(item.totalScore),
+      team: null,
+    }))
+
+  if (sortedPoints.length) {
+    return sortedPoints
+  }
+
+  const fallbackScore = roundToOne(profile?.totalScore || pointSummary?.totalPoints)
+  if (!fallbackScore) {
+    return []
+  }
+
+  return [
+    {
+      label: '현재',
+      overall: fallbackScore,
+      team: null,
+    },
+  ]
+}
+
+function toFeedbackViewModel(fb, growthTrend = [], tierChart = [], pointSummary = null, profile = null) {
+  const chartData = growthTrend.length
+    ? growthTrend.map((point) => ({
+      label: `${point.evalYear}.Q${point.evalSequence}`,
+      overall: roundToOne(point.myScore),
+      team: Number.isFinite(point.teamAverageScore) ? roundToOne(point.teamAverageScore) : null,
+      company: Number.isFinite(point.companyAverageScore) ? roundToOne(point.companyAverageScore) : null,
+    }))
+    : buildGrowthChartData(tierChart, pointSummary, profile)
+
+  if (!fb) {
+    return {
+      chartData,
+      feedback: {
+        content: '등록된 피드백이 없습니다.',
+        author: 'Team Leader',
+        date: '-',
+      },
+      nextQuarterGoals: [
+        { label: '생산성 향상', current: '-', target: '-' },
+        { label: '품질 관리', current: '-', target: '-' },
+      ],
+    }
+  }
 
   const items = fb.feedbackItems || []
   const tlFeedback = items.find(i => i.evaluationLevel === 1) || {}
 
   return {
-    chartData: [],
+    chartData,
     feedback: {
       content: tlFeedback.evalComment ?? '등록된 피드백이 없습니다.',
       author: 'Team Leader',
@@ -628,17 +749,32 @@ function toFeedbackViewModel(fb) {
 
 export async function getWorkerEvaluationData(periodId = null) {
   const params = periodId ? { periodId } : {}
-  const [status, quantitative, qualitative, feedback] = await Promise.all([
+  const [status, quantitative, qualitative, feedback, pointSummary, profile, history, tierChart, growthTrend] = await Promise.all([
     optionalGet('/api/v1/hr/workers/me/evaluations/status', {}, null),
     optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', { params }, null),
     optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', { params }, null),
     optionalGet('/api/v1/hr/workers/me/evaluations/feedback', { params }, null),
+    optionalGet('/api/v1/hr/workers/me/point-summary', {}, null),
+    optionalGet('/api/v1/hr/workers/me/profile', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/history', { params: { page: 0, size: 20 } }, null),
+    optionalGet('/api/v1/hr/workers/me/tier-chart', {}, []),
+    optionalGet('/api/v1/hr/workers/me/evaluations/growth-trend', {}, []),
   ])
 
+  const historyItems = history?.content?.map(toEvalHistoryViewModel) ?? []
+
   return {
-    status: toEvalStatusViewModel(status),
+    status: toEvalStatusViewModel(
+      status,
+      quantitative,
+      qualitative,
+      pointSummary,
+      profile,
+      historyItems,
+      tierChart ?? [],
+    ),
     quantitative: toQuantitativeViewModel(quantitative),
     qualitative: toQualitativeViewModel(qualitative),
-    feedback: toFeedbackViewModel(feedback),
+    feedback: toFeedbackViewModel(feedback, growthTrend ?? [], tierChart ?? [], pointSummary, profile),
   }
 }

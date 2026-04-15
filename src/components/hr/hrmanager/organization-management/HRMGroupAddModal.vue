@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { GROUP_COLORS } from '@/mocks/hrmanager/organization.js'
+import { DEPARTMENT_GROUP_COLORS } from '@/constants'
 import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit'])
 
 const name        = ref(props.initialName)
-const color       = ref(props.initialColor || GROUP_COLORS[0])
+const color       = ref(props.initialColor || DEPARTMENT_GROUP_COLORS[0])
 const selected    = ref([...props.initialMemberIds])
 const tierFilter  = ref('')
 const posFilter   = ref('')
@@ -115,7 +115,7 @@ function handleSubmit() {
         <label class="modal__label">그룹 색상</label>
         <div class="modal__colors">
           <button
-            v-for="c in GROUP_COLORS"
+            v-for="c in DEPARTMENT_GROUP_COLORS"
             :key="c"
             class="color-dot"
             :class="{ 'color-dot--active': color === c }"

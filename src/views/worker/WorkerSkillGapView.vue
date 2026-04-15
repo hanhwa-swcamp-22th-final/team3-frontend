@@ -4,7 +4,7 @@ import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 import WorkerSkillGapChartAndStatus from '@/components/kms/worker/skill-gap/WorkerSkillGapChartAndStatus.vue'
 import WorkerSkillGapAiAnalysisReport from '@/components/kms/worker/skill-gap/WorkerSkillGapAiAnalysisReport.vue'
 import WorkerCustomizedLearningRecommendations from '@/components/kms/worker/skill-gap/WorkerCustomizedLearningRecommendations.vue'
-import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
+import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 
@@ -131,7 +131,7 @@ async function toggleBookmark(article) {
       />
     </div>
 
-    <TeamLeaderKnowledgeDetailModal
+    <KnowledgeDetailModal
       v-if="selectedArticle"
       :article="selectedArticle"
       @close="closeArticleDetail"

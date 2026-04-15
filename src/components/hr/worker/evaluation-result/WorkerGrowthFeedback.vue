@@ -1,41 +1,147 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import Chart from 'chart.js/auto'
 
 const props = defineProps({
   data: { type: Object, required: true },
 })
 
-const animated = ref(false)
-onMounted(() => {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => { animated.value = true })
+const chartRef = ref(null)
+let chartInstance = null
+
+const chartRows = computed(() => props.data?.chartData || [])
+const hasTeamSeries = computed(() =>
+  chartRows.value.some((point) => Number.isFinite(point?.team)),
+)
+const hasCompanySeries = computed(() =>
+  chartRows.value.some((point) => Number.isFinite(point?.company)),
+)
+
+function renderChart() {
+  if (!chartRef.value) return
+
+  chartInstance?.destroy()
+
+  const labels = chartRows.value.map((point) => point.label ?? '-')
+  const overallData = chartRows.value.map((point) =>
+    Number.isFinite(point?.overall) ? point.overall : null,
+  )
+  const teamData = chartRows.value.map((point) =>
+    Number.isFinite(point?.team) ? point.team : null,
+  )
+
+  chartInstance = new Chart(chartRef.value, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '내 종합 점수',
+          data: overallData,
+          borderColor: '#5B4FCF',
+          backgroundColor: '#5B4FCF',
+          borderWidth: 2.5,
+          pointRadius: 3.5,
+          pointHoverRadius: 4,
+          tension: 0.35,
+          spanGaps: true,
+        },
+        {
+          label: '팀 평균',
+          data: teamData,
+          borderColor: '#00BF95',
+          backgroundColor: '#00BF95',
+          borderWidth: 2,
+          borderDash: [6, 3],
+          pointRadius: 3,
+          pointHoverRadius: 3.5,
+          tension: 0.35,
+          spanGaps: true,
+          hidden: !hasTeamSeries.value,
+        },
+        {
+          label: '전사 평균',
+          data: chartRows.value.map((point) =>
+            Number.isFinite(point?.company) ? point.company : null,
+          ),
+          borderColor: '#F59E0B',
+          backgroundColor: '#F59E0B',
+          borderWidth: 2,
+          borderDash: [4, 4],
+          pointRadius: 3,
+          pointHoverRadius: 3.5,
+          tension: 0.35,
+          spanGaps: true,
+          hidden: !hasCompanySeries.value,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 900,
+        easing: 'easeOutCubic',
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: '#7B7796',
+            font: {
+              size: 11,
+            },
+          },
+          border: {
+            display: false,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#7B7796',
+            font: {
+              size: 11,
+            },
+          },
+          grid: {
+            color: '#E0DCFF',
+            borderDash: [4, 3],
+          },
+          border: {
+            display: false,
+          },
+        },
+      },
+    },
   })
+}
+
+onMounted(() => {
+  renderChart()
 })
 
-const chartPoints = computed(() => {
-  const pts = props.data?.chartData || []
-  const len = pts.length
-  if (!len) return { overall: '', team: '' }
+watch(chartRows, () => {
+  renderChart()
+}, { deep: true })
 
-  const w = 260
-  const h = 110
-  const maxVal = 90
-  const minVal = 60
-
-  function toCoords(series) {
-    return pts
-      .map((p, i) => {
-        const x = (i / (len - 1)) * w + 10
-        const y = h - ((p[series] - minVal) / (maxVal - minVal)) * (h - 10) + 5
-        return `${x},${y}`
-      })
-      .join(' ')
-  }
-
-  return {
-    overall: toCoords('overall'),
-    team: toCoords('team'),
-  }
+onBeforeUnmount(() => {
+  chartInstance?.destroy()
 })
 </script>
 
@@ -48,50 +154,24 @@ const chartPoints = computed(() => {
 
     <!-- Line chart -->
     <div class="gf__chart">
-      <svg viewBox="0 0 280 120" class="gf__chart-svg">
-        <!-- Grid lines -->
-        <line x1="10" y1="5" x2="270" y2="5" stroke="#E0DCFF" stroke-width="0.5" stroke-dasharray="4 3" />
-        <line x1="10" y1="57" x2="270" y2="57" stroke="#E0DCFF" stroke-width="0.5" stroke-dasharray="4 3" />
-        <line x1="10" y1="115" x2="270" y2="115" stroke="#E0DCFF" stroke-width="0.5" stroke-dasharray="4 3" />
-
-        <!-- Team avg (dashed) -->
-        <polyline
-          :points="chartPoints.team"
-          fill="none"
-          stroke="var(--tier-s)"
-          stroke-width="2"
-          stroke-dasharray="6 3"
-          class="gf__line--team"
-          :class="{ 'gf__line--team--visible': animated }"
-        />
-        <!-- Overall (solid) -->
-        <polyline
-          :points="chartPoints.overall"
-          fill="none"
-          stroke="var(--color-primary-800)"
-          stroke-width="2.5"
-          class="gf__line gf__line--overall"
-          :class="{ 'gf__line--drawn': animated }"
-        />
-      </svg>
+      <div class="gf__chart-frame">
+        <canvas ref="chartRef" class="gf__chart-canvas"></canvas>
+      </div>
       <div v-if="!data?.chartData?.length" class="gf__chart-empty">성장 추이 데이터가 없습니다.</div>
       <div class="gf__chart-legend">
         <span class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--overall"></span>
           내 종합 점수
         </span>
-        <span class="gf__chart-legend-item">
+        <span v-if="hasTeamSeries" class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--team"></span>
           팀 평균
         </span>
+        <span v-if="hasCompanySeries" class="gf__chart-legend-item">
+          <span class="gf__chart-legend-line gf__chart-legend-line--company"></span>
+          전사 평균
+        </span>
       </div>
-    </div>
-
-    <!-- TL Feedback -->
-    <div class="gf__feedback">
-      <span class="gf__feedback-label">TEAM LEADER 피드백</span>
-      <p class="gf__feedback-text">{{ data?.feedback?.content ?? '등록된 피드백이 없습니다.' }}</p>
-      <span class="gf__feedback-meta">{{ data?.feedback?.author ?? '-' }} · {{ data?.feedback?.date ?? '-' }}</span>
     </div>
 
     <!-- Next quarter goals -->
@@ -141,30 +221,19 @@ const chartPoints = computed(() => {
 
 .gf__chart {
   padding: 12px 0 8px;
+  position: relative;
 }
 
-.gf__chart-svg {
+.gf__chart-frame {
+  position: relative;
   width: 100%;
-  height: 120px;
+  height: 220px;
 }
 
-.gf__line {
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  transition: stroke-dashoffset 1.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.gf__line--team {
-  opacity: 0;
-  transition: opacity 1s ease 0.15s;
-}
-
-.gf__line--team--visible {
-  opacity: 1;
-}
-
-.gf__line--drawn {
-  stroke-dashoffset: 0;
+.gf__chart-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .gf__chart-legend {
@@ -205,30 +274,16 @@ const chartPoints = computed(() => {
   background-color: transparent;
 }
 
-.gf__feedback {
-  border: 2px solid var(--color-primary-700);
-  border-radius: var(--radius-base);
-  padding: 16px 18px;
-}
-
-.gf__feedback-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  letter-spacing: 0.02em;
-}
-
-.gf__feedback-text {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-strong);
-  line-height: 1.7;
-  margin: 10px 0 8px;
-}
-
-.gf__feedback-meta {
-  font-size: 12px;
-  color: var(--color-text-muted);
+.gf__chart-legend-line--company {
+  background: #F59E0B;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #F59E0B 0px,
+    #F59E0B 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  background-color: transparent;
 }
 
 .gf__goals {
