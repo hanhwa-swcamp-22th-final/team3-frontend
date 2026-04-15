@@ -204,19 +204,7 @@ const headerCards = computed(() => [
 ])
 
 // ── 모달 상태 ──────────────────────────────────────────────────
-const showAcceptModal  = ref(false)
-const showRequestModal = ref(false)
-const showAddModal     = ref(false)
-const selectedRequest  = ref(null)
-
-function handleAcceptClick(request) {
-  selectedRequest.value = request
-  showAcceptModal.value = true
-}
-
-function handleRequestClick() {
-  showRequestModal.value = true
-}
+const showAddModal = ref(false)
 
 
 async function handleAddArticle(data) {
@@ -341,10 +329,7 @@ async function toggleBookmark(article) {
 }
 
 function closeModal() {
-  showAcceptModal.value  = false
-  showRequestModal.value = false
-  showAddModal.value     = false
-  selectedRequest.value  = null
+  showAddModal.value = false
 }
 </script>
 
