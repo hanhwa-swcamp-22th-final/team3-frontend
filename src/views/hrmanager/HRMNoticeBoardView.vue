@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
 import HRMNoticeFormModal   from '@/components/hr/common/notices/HRMNoticeFormModal.vue'

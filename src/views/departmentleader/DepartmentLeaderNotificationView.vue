@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 import { BaseStatCard, BaseFilterTabs, BaseNotificationList } from '@/components/common/base'
 
 // ── 상수 ──────────────────────────────────────────

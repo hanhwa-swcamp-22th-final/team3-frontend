@@ -1,6 +1,6 @@
 ﻿<script setup>
 import { computed, ref, onMounted } from 'vue'
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 import TeamLeaderNotificationFilterBar from '@/components/hr/teamleader/notification/TeamLeaderNotificationFilterBarWrapper.vue'
 import TeamLeaderNotificationList from '@/components/hr/teamleader/notification/TeamLeaderNotificationListWrapper.vue'
 

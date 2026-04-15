@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 function unwrap(response) {
   return response.data?.data ?? response.data
