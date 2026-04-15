@@ -6,7 +6,6 @@ import { BaseToast } from '@/components/common/base/overlay'
 import TeamLeaderKnowledgeApprovalQueue from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalQueue.vue'
 import TeamLeaderKnowledgeApprovalReviewPanel from '@/components/kms/teamleader/knowledge-approval/TeamLeaderKnowledgeApprovalReviewPanel.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
-import { filterVisibleKmsAuthors } from '@/utils/kmsAuthorFilter'
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -85,7 +84,7 @@ onMounted(async () => {
 
 async function loadStats() {
   try {
-    const res = await knowledgeArticleApi.getApprovalStats()
+    const res = await knowledgeArticleApi.getPendingStats()
     statsData.value = res.data.data ?? {}
   } catch (e) {
     console.error('[KMS] 승인 통계 로드 실패:', e)
@@ -94,11 +93,8 @@ async function loadStats() {
 
 async function loadList() {
   try {
-    const res = await knowledgeArticleApi.getApprovalList({ page: 0, size: 50 })
-    items.value = filterVisibleKmsAuthors(
-      (res.data.data ?? []).map(mapToQueueItem),
-      (item) => item.author,
-    )
+    const res = await knowledgeArticleApi.getPendingList({ page: 0, size: 50 })
+    items.value = (res.data.data ?? []).map(mapToQueueItem)
     if (items.value.length > 0) {
       const keepId = selectedId.value && items.value.some((i) => i.id === selectedId.value)
         ? selectedId.value
@@ -119,7 +115,7 @@ async function selectItem(id) {
   selectedDetail.value = null
   reviewError.value = ''
   try {
-    const res = await knowledgeArticleApi.getApprovalDetail(id)
+    const res = await knowledgeArticleApi.getPendingDetail(id)
     selectedDetail.value = mapToReviewItem(res.data.data ?? {})
     reviewNote.value = selectedDetail.value.reviewComment ?? ''
   } catch (e) {
