@@ -131,6 +131,7 @@ const statusConfig = {
           :name="item.name"
           :avatar="item.avatar"
           :avatar-tone="item.avatarTone"
+          :previous-tier="item.currentTier"
           :tier="item.tierBadge"
           :meta="item.meta"
           :status="statusConfig[item.rawStatus]?.cardStatus ?? 'not_started'"

@@ -1,13 +1,12 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   item: { type: Object, required: true },
+  missions: { type: Array, default: () => [] },
+  missionsLoading: { type: Boolean, default: false },
 })
 const emit = defineEmits(['hold', 'confirm'])
-
-const comment = ref('')
-watch(() => props.item?.id, () => { comment.value = '' })
 
 const pointPercent = computed(() => {
   const acc = props.item?.tierAccumulatedPoint ?? 0
@@ -20,7 +19,25 @@ const isProcessed = computed(() =>
   ['CONFIRMATION_OF_PROMOTION', 'TIER_APPLIED', 'SUSPENSION'].includes(props.item?.rawStatus)
 )
 
+const missionSummary = computed(() => {
+  const missions = props.missions ?? []
+  const completedCount = missions.filter((mission) => mission.completed).length
+
+  return {
+    totalCount: missions.length,
+    completedCount,
+    rewardPointTotal: missions.reduce((sum, mission) => sum + (mission.rewardPoint ?? 0), 0),
+  }
+})
+
 const TIER_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
+
+function missionStatusLabel(status) {
+  return {
+    COMPLETED: '완료',
+    IN_PROGRESS: '진행중',
+  }[status] ?? status ?? '-'
+}
 </script>
 
 <template>
@@ -69,20 +86,73 @@ const TIER_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
       <p class="promo-points-summary__bar-label">달성률 {{ pointPercent }}%</p>
     </section>
 
-    <!-- 심사 의견 -->
-    <div class="promo-detail__section">
-      <p class="promo-detail__section-label">심사 의견</p>
-      <textarea
-        v-if="!isProcessed"
-        v-model="comment"
-        class="promo-detail__textarea"
-        placeholder="심사 의견을 입력하세요."
-        rows="4"
-      />
-      <div v-else class="promo-detail__comment-readonly">
-        {{ item.reviewComment || '(의견 없음)' }}
+    <section class="promo-detail__mission">
+      <div class="promo-detail__section-head">
+        <div>
+          <p class="promo-detail__section-label">승급 미션 진행 현황</p>
+          <p class="promo-detail__section-caption">현재 승급 포인트에 연결되는 미션 진행 상황입니다.</p>
+        </div>
       </div>
-    </div>
+
+      <div class="promo-mission-summary">
+        <div class="promo-mission-summary__card">
+          <span>총 미션</span>
+          <strong>{{ missionSummary.totalCount }}</strong>
+        </div>
+        <div class="promo-mission-summary__card promo-mission-summary__card--success">
+          <span>완료</span>
+          <strong>{{ missionSummary.completedCount }}</strong>
+        </div>
+        <div class="promo-mission-summary__card">
+          <span>보상 합계</span>
+          <strong>{{ missionSummary.rewardPointTotal }}pt</strong>
+        </div>
+      </div>
+
+      <div v-if="missionsLoading" class="promo-mission-state">
+        미션 정보를 불러오는 중입니다.
+      </div>
+      <div v-else-if="!missions.length" class="promo-mission-state promo-mission-state--empty">
+        현재 연결된 승급 미션이 없습니다.
+      </div>
+      <div v-else class="promo-mission-list">
+        <article
+          v-for="mission in missions"
+          :key="mission.id"
+          class="promo-mission-card"
+          :class="{ 'promo-mission-card--completed': mission.completed }"
+        >
+          <div class="promo-mission-card__head">
+            <div>
+              <p class="promo-mission-card__title">{{ mission.title }}</p>
+              <p class="promo-mission-card__meta">
+                {{ mission.missionTypeLabel }} · {{ mission.upgradeToTier }}-Tier 미션
+              </p>
+            </div>
+            <div class="promo-mission-card__badges">
+              <span class="promo-mission-card__point">{{ mission.rewardPoint }}pt</span>
+              <span
+                class="promo-mission-card__status"
+                :class="{ 'promo-mission-card__status--completed': mission.completed }"
+              >
+                {{ missionStatusLabel(mission.status) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="promo-mission-card__progress-row">
+            <span>{{ mission.currentValue }} / {{ mission.conditionValue }}</span>
+            <span>{{ mission.progressRate }}%</span>
+          </div>
+          <div class="promo-mission-card__progress-track">
+            <div
+              class="promo-mission-card__progress-bar"
+              :style="{ width: `${mission.progressRate}%` }"
+            />
+          </div>
+        </article>
+      </div>
+    </section>
 
     <!-- 심사일 -->
     <p v-if="item.tierReviewedAt" class="promo-detail__reviewed-at">
@@ -91,12 +161,12 @@ const TIER_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
 
     <!-- 액션 / 처리 결과 -->
     <div v-if="!isProcessed" class="promo-detail__actions">
-      <button class="promo-detail__btn promo-detail__btn--hold" @click="emit('hold', { id: item.id, comment: comment.trim() })">
+      <button class="promo-detail__btn promo-detail__btn--hold" @click="emit('hold', { id: item.id })">
         보류
       </button>
       <button
         class="promo-detail__btn promo-detail__btn--confirm"
-        @click="emit('confirm', { id: item.id, comment: comment.trim() })"
+        @click="emit('confirm', { id: item.id })"
       >
         승급 확정
       </button>
@@ -273,11 +343,17 @@ const TIER_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
   text-align: right;
 }
 
-/* 심사 의견 */
-.promo-detail__section {
+/* 미션 섹션 */
+.promo-detail__mission {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.promo-detail__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .promo-detail__section-label {
@@ -285,35 +361,137 @@ const TIER_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
 }
-
-.promo-detail__textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 12px;
-  font-size: var(--font-size-sm);
-  font-family: inherit;
-  color: var(--color-primary-800);
-  background: var(--color-bg-app);
-  resize: vertical;
-  line-height: 1.6;
-  box-sizing: border-box;
+.promo-detail__section-caption {
+  margin: 2px 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
-.promo-detail__textarea:focus {
-  outline: none;
-  border-color: var(--color-primary-500);
+.promo-mission-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
-
-.promo-detail__comment-readonly {
+.promo-mission-summary__card {
+  display: grid;
+  gap: 6px;
   padding: 14px 16px;
-  border-radius: 12px;
-  background: #faf8ff;
-  border: 1px solid #dcd6ff;
-  font-size: var(--font-size-sm);
+  border-radius: 16px;
+  background: var(--color-bg-app);
+  border: 1px solid var(--color-border-default);
+}
+.promo-mission-summary__card span {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.promo-mission-summary__card strong {
+  font-size: var(--font-size-lg);
   color: var(--color-primary-800);
-  line-height: 1.7;
-  min-height: 56px;
+}
+.promo-mission-summary__card--success {
+  background: #eefcf6;
+  border-color: #c6f6de;
+}
+
+.promo-mission-state {
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: var(--color-bg-app);
+  border: 1px dashed var(--color-border-default);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.promo-mission-state--empty {
+  text-align: center;
+}
+
+.promo-mission-list {
+  display: grid;
+  gap: 10px;
+}
+.promo-mission-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #ddd8fb;
+  background: #f7f5ff;
+}
+.promo-mission-card--completed {
+  border-color: #c6f6de;
+  background: #eefcf6;
+}
+.promo-mission-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.promo-mission-card__title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
+}
+.promo-mission-card__meta {
+  margin: 4px 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.promo-mission-card__badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.promo-mission-card__point,
+.promo-mission-card__status {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+.promo-mission-card__point {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.promo-mission-card__status {
+  background: #fff3d6;
+  color: #a16207;
+}
+.promo-mission-card__status--completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+.promo-mission-card__progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.promo-mission-card__progress-track {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e7e2ff;
+}
+.promo-mission-card__progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: #5f50d6;
+}
+.promo-mission-card--completed .promo-mission-card__progress-track {
+  background: #d8f5e6;
+}
+.promo-mission-card--completed .promo-mission-card__progress-bar {
+  background: #0f9f7b;
 }
 
 .promo-detail__reviewed-at {
