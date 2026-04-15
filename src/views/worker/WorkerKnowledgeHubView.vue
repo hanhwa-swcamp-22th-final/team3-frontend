@@ -3,21 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import TeamLeaderKnowledgeHubHeader from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubHeader.vue'
 import TeamLeaderKnowledgeHubFeed from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubFeed.vue'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import TeamLeaderKnowledgeHubMentoring from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubMentoring.vue'
 import TeamLeaderKnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubAiPanel.vue'
-import WorkerMentoringAcceptModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringAcceptModal.vue'
-import WorkerMentoringRequestModal from '@/components/kms/common/knowledge-hub/worker/WorkerMentoringRequestModal.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 import TeamLeaderKnowledgeDetailModal from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeDetailModal.vue'
 
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
-
-// 백엔드 미구현 항목만 mock 유지
-import {
-  ongoingMentoring,
-  mentoringRequests,
-  mentoringRequestFormDefaults,
-} from '@/mocks/worker/workerKnowledgeHubData'
 
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
@@ -214,46 +204,7 @@ const headerCards = computed(() => [
   },
 ])
 
-// ── 멘토링 데이터 (백엔드 미구현, mock 유지) ───────────────────
-const mentoringData = computed(() => ({
-  ongoing: ongoingMentoring.map((m) => ({
-    id: m.id,
-    mentor: m.mentorInitial,
-    mentee: m.menteeInitial,
-    field: m.field,
-    status: m.status,
-  })),
-  pending: mentoringRequests.map((r) => ({
-    id: r.id,
-    name: r.field,
-    requester: r.name,
-    summary: r.message,
-  })),
-}))
-
-// ── 모달 상태 ──────────────────────────────────────────────────
-const showAcceptModal  = ref(false)
-const showRequestModal = ref(false)
 const showAddModal     = ref(false)
-const selectedRequest  = ref(null)
-
-function handleAcceptClick(request) {
-  selectedRequest.value = request
-  showAcceptModal.value = true
-}
-
-function handleRequestClick() {
-  showRequestModal.value = true
-}
-
-function confirmAccept() {
-  showAcceptModal.value = false
-  selectedRequest.value = null
-}
-
-function submitRequest() {
-  showRequestModal.value = false
-}
 
 async function handleAddArticle(data) {
   try {
@@ -363,10 +314,7 @@ async function toggleBookmark(article) {
 }
 
 function closeModal() {
-  showAcceptModal.value  = false
-  showRequestModal.value = false
   showAddModal.value     = false
-  selectedRequest.value  = null
 }
 </script>
 
@@ -387,11 +335,6 @@ function closeModal() {
 
       <div class="kh-sidebar">
         <TeamLeaderKnowledgeHubContributors :ranking="monthlyRanking" />
-        <TeamLeaderKnowledgeHubMentoring
-          :mentoring="mentoringData"
-          @review-request="handleAcceptClick"
-          @open-request="handleRequestClick"
-        />
         <TeamLeaderKnowledgeHubAiPanel
           :recommendations="aiRecommendations"
           @open-detail="openRecommendedArticle"
@@ -400,18 +343,6 @@ function closeModal() {
     </div>
 
     <!-- Modals -->
-    <WorkerMentoringAcceptModal
-      v-if="showAcceptModal && selectedRequest"
-      :request="selectedRequest"
-      @close="closeModal"
-      @accept="confirmAccept"
-    />
-    <WorkerMentoringRequestModal
-      v-if="showRequestModal"
-      :defaults="mentoringRequestFormDefaults"
-      @close="closeModal"
-      @submit="submitRequest"
-    />
     <WorkerKnowledgeAddModal
       v-if="showAddModal"
       @close="closeModal"
