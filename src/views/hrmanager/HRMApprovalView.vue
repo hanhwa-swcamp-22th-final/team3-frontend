@@ -95,6 +95,7 @@ function getAppealTypeLabel(type) {
 }
 
 function defaultAppealDetail(summary) {
+  const finalScore = summary.secondScore ?? summary.firstScore
   return {
     avatar: summary.employeeName?.[0] ?? '?',
     dept: '-',
@@ -105,8 +106,8 @@ function defaultAppealDetail(summary) {
     appealTitle: summary.title || '제목 없음',
     attachments: [],
     quantScore: '-',
-    qualScore: '-',
-    totalScore: '-',
+    qualScore: finalScore != null ? finalScore.toFixed(1) : '-',
+    totalScore: finalScore != null ? finalScore.toFixed(1) : '-',
     quantDiff: '',
     qualDiff: '',
     totalDiff: '',
@@ -234,6 +235,7 @@ function mapEvaluationSummaryToItem(summary, index) {
 }
 
 function mergeAppealDetail(item, detail) {
+  const finalScore = detail.secondScore ?? detail.firstScore
   return {
     ...item,
     detail: {
@@ -244,8 +246,8 @@ function mergeAppealDetail(item, detail) {
       appealTitle: detail.title || '제목 없음',
       content: detail.content || '내용 없음',
       quantScore: '-',
-      qualScore: detail.averageScore != null ? detail.averageScore.toFixed(1) : '-',
-      totalScore: detail.averageScore != null ? detail.averageScore.toFixed(1) : '-',
+      qualScore: finalScore != null ? finalScore.toFixed(1) : '-',
+      totalScore: finalScore != null ? finalScore.toFixed(1) : '-',
       firstStageScore: detail.firstScore != null ? detail.firstScore.toFixed(1) : '-',
       firstStageComment: detail.firstStageComment || '',
       secondStageScore: detail.secondScore != null ? detail.secondScore.toFixed(1) : '-',

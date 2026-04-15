@@ -44,7 +44,10 @@ watch(
   { immediate: true },
 )
 
-const canSubmit = computed(() => draftText.value.trim().length >= 20)
+const canSubmit = computed(() => {
+  const length = draftText.value.trim().length
+  return length === 0 || length >= 20
+})
 
 function handleVoiceInput() {
   if (props.readonly) return
@@ -154,8 +157,8 @@ onBeforeUnmount(() => {
       title: `${member.name} 2차 평가 작성`,
       description: `${member.name} (${member.code}) 2차 평가 내용을 음성으로 작성하고 텍스트로 변환할 수 있습니다.`,
       modelValue: draftText,
-      noticeText: '팀리더 1차 평가 내용과 AI 권고 점수는 참고 자료입니다. 음성 입력 또는 파일 업로드로 초안을 만든 뒤 아래 편집 영역에서 2차 평가 문장을 직접 완성하세요.',
-      editorPlaceholder: '2차 평가 의견을 입력하세요. 1차 평가 내용 검토, 종합 판단, 보완 의견이 드러나도록 작성합니다.',
+      noticeText: '팀리더 1차 평가 내용은 참고 자료입니다. 추가 보완 의견이 있을 때만 2차 평가 문장을 입력하고, 없으면 비워둔 채 제출할 수 있습니다.',
+      editorPlaceholder: '추가 보완 의견이 있을 때만 입력하세요. 비워 두면 1차 점수를 그대로 유지합니다.',
       recordingState,
       uploadedFileName,
       showGuideButton: true,

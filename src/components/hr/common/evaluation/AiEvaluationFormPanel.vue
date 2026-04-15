@@ -4,6 +4,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  headerBadge: {
+    type: Object,
+    default: null,
+  },
   description: {
     type: String,
     default: '',
@@ -83,7 +87,16 @@ function handleFileChange(event) {
   <section class="evaluation-form-panel">
     <header class="evaluation-form-panel__header">
       <div>
-        <h2 class="evaluation-form-panel__title">{{ title }}</h2>
+        <div class="evaluation-form-panel__title-row">
+          <h2 class="evaluation-form-panel__title">{{ title }}</h2>
+          <span
+            v-if="headerBadge?.label"
+            class="evaluation-form-panel__header-badge"
+            :class="headerBadge.className"
+          >
+            {{ headerBadge.label }}
+          </span>
+        </div>
         <p v-if="description" class="evaluation-form-panel__description">
           {{ description }}
         </p>
@@ -172,6 +185,22 @@ function handleFileChange(event) {
   margin: 0;
   font-size: 26px;
   color: var(--color-primary-800);
+}
+
+.evaluation-form-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.evaluation-form-panel__header-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .evaluation-form-panel__description {
