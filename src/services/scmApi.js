@@ -6,7 +6,7 @@ const SCM_API_BASE = import.meta.env.VITE_SCM_API_BASE ?? 'http://localhost:8082
 
 const scmApi = axios.create({
   baseURL: SCM_API_BASE,
-  timeout: 5000,
+  timeout: 15000,
   withCredentials: true,
 })
 

@@ -16,7 +16,9 @@ const BUCKET_INTERVAL = 4 * 3600 * 1000  // 4 h → 7 buckets span 24 h
 
 const facilities      = ref([])
 const facilityTrends  = ref({})   // { [equipmentId]: FacilityTrendsDto[] }
-const facilityHistories = ref([]) // flat merged array with .facilityName added
+const facilityHistories = ref({}) // { [equipmentId]: FacilityHistoryDto[] }
+const loadedTrendIds    = ref(new Set())
+const loadedHistoryIds  = ref(new Set())
 const activeFilter    = ref('all')
 const activeTrendFilter = ref('all')
 const selectedFacilityId = ref(null)
@@ -103,6 +105,12 @@ const pageNumbers = computed(() => {
   return Array.from({ length: visiblePageCount }, (_, i) => start + i)
 })
 
+const visibleFacilityIds = computed(() => {
+  const ids = pagedCards.value.map((card) => Number(card.id))
+  if (selectedFacilityId.value) ids.push(Number(selectedFacilityId.value))
+  return [...new Set(ids.filter(Boolean))]
+})
+
 watch(activeFilter,   () => { currentPage.value = 1 })
 watch(filteredCards,  () => { if (currentPage.value > totalPages.value) currentPage.value = totalPages.value })
 watch(filteredCards,  (cards) => {
@@ -163,7 +171,8 @@ const selectedFacility = computed(() =>
 )
 
 const historyItems = computed(() =>
-  facilityHistories.value
+  Object.values(facilityHistories.value)
+    .flat()
     .filter((history) => !selectedFacilityId.value || String(history.equipmentId) === selectedFacilityId.value)
     .slice()
     .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt))
@@ -176,34 +185,61 @@ const historyItems = computed(() =>
 )
 
 // ── Data loading ──────────────────────────────────────────────────
+async function loadInBatches(ids, loader, batchSize = 4) {
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize)
+    await Promise.all(batch.map(loader))
+  }
+}
+
+async function ensureFacilityDetails(ids) {
+  const targetIds = [...new Set(ids.map(Number).filter(Boolean))]
+  if (targetIds.length === 0) return
+
+  const trendIds = targetIds.filter((id) => !loadedTrendIds.value.has(id))
+  await loadInBatches(trendIds, async (id) => {
+    try {
+      const data = await getFacilityTrends(id)
+      facilityTrends.value = {
+        ...facilityTrends.value,
+        [id]: Array.isArray(data) ? data : [],
+      }
+      loadedTrendIds.value.add(id)
+    } catch {
+      facilityTrends.value = { ...facilityTrends.value, [id]: [] }
+    }
+  })
+
+  const historyIds = targetIds.filter((id) => !loadedHistoryIds.value.has(id))
+  await loadInBatches(historyIds, async (id) => {
+    const facility = facilities.value.find((item) => item.equipmentId === id)
+    try {
+      const data = await getFacilityHistory(id)
+      facilityHistories.value = {
+        ...facilityHistories.value,
+        [id]: (Array.isArray(data) ? data : []).map((history) => ({
+          ...history,
+          equipmentId: id,
+          facilityName: facility?.equipmentName ?? '',
+        })),
+      }
+      loadedHistoryIds.value.add(id)
+    } catch {
+      facilityHistories.value = { ...facilityHistories.value, [id]: [] }
+    }
+  })
+}
+
 onMounted(async () => {
   const raw = await getFacilities().catch(() => [])
   facilities.value = Array.isArray(raw) ? raw : []
   if (facilities.value.length === 0) return
   selectedFacilityId.value = String(facilities.value[0].equipmentId)
+  await ensureFacilityDetails(visibleFacilityIds.value)
+})
 
-  const ids = facilities.value.map((f) => f.equipmentId)
-
-  const [trendsResults, historiesResults] = await Promise.all([
-    Promise.all(
-      ids.map((id) =>
-        getFacilityTrends(id)
-          .then((data) => ({ id, data: Array.isArray(data) ? data : [] }))
-          .catch(() => ({ id, data: [] }))
-      )
-    ),
-    Promise.all(
-      ids.map((id) => {
-        const f = facilities.value.find((f) => f.equipmentId === id)
-        return getFacilityHistory(id)
-          .then((data) => (Array.isArray(data) ? data : []).map((h) => ({ ...h, equipmentId: id, facilityName: f?.equipmentName ?? '' })))
-          .catch(() => [])
-      })
-    ),
-  ])
-
-  facilityTrends.value    = Object.fromEntries(trendsResults.map((r) => [r.id, r.data]))
-  facilityHistories.value = historiesResults.flat()
+watch(visibleFacilityIds, (ids) => {
+  void ensureFacilityDetails(ids)
 })
 </script>
 
