@@ -24,6 +24,7 @@ const MATCHING_MODE_LABELS = {
 const UNASSIGNED_LINE_ID = 'unassigned-line'
 const DAY_START    = 8 * 60   // 08:00 in minutes from midnight
 const DAY_SPAN     = 12 * 60  // 12-hour work day
+const MIN_BAR_MINUTES = 15
 
 function toLocalDateKey(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value)
@@ -59,7 +60,7 @@ function formatLineTitle(line) {
 // ── Summary cards ─────────────────────────────────────────────────
 const summaryCards = computed(() => {
   const avgRate = linesSummary.value.length > 0
-    ? (linesSummary.value.reduce((s, l) => s + (l.achievementRate ?? 0), 0) / linesSummary.value.length).toFixed(1)
+    ? (linesSummary.value.reduce((s, l) => s + (l.operationRate ?? l.achievementRate ?? 0), 0) / linesSummary.value.length).toFixed(1)
     : 0
   const unassigned = assignmentSummary.value?.unassignedCount ?? 0
   return [
@@ -106,7 +107,7 @@ const lineStatuses = computed(() => {
       }))
     }
 
-    const rate = line.achievementRate ?? 0
+    const rate = line.operationRate ?? line.achievementRate ?? 0
     const tone = rate >= 85 ? 'mint' : rate >= 60 ? 'primary' : rate >= 40 ? 'warning' : 'danger'
     return {
       id:          `line-${line.factoryLineId}`,
@@ -148,14 +149,24 @@ const timelineRows = computed(() => {
 function makeTimelineBar(t, idx, itemCount) {
   let left, width
   if (t.workStartAt) {
-    const s = new Date(t.workStartAt)
-    const e = t.workEndAt ? new Date(t.workEndAt) : new Date()
-    const sMin = s.getHours() * 60 + s.getMinutes()
-    const eMin = e.getHours() * 60 + e.getMinutes()
-    const start = Math.max(sMin, DAY_START)
-    const end = Math.min(Math.max(eMin, start + 15), DAY_START + DAY_SPAN)
-    left  = `${(((start - DAY_START) / DAY_SPAN) * 100).toFixed(1)}%`
-    width = `${(((end - start) / DAY_SPAN) * 100).toFixed(1)}%`
+    const startedAt = new Date(t.workStartAt)
+    const endedAt = t.workEndAt ? new Date(t.workEndAt) : new Date()
+    const baseDate = t.assignedDate ? new Date(`${t.assignedDate}T00:00:00`) : startedAt
+    const timelineStart = new Date(baseDate)
+    timelineStart.setHours(Math.floor(DAY_START / 60), DAY_START % 60, 0, 0)
+    const timelineEnd = new Date(timelineStart.getTime() + DAY_SPAN * 60 * 1000)
+
+    const visibleStartAt = startedAt < timelineStart ? timelineStart : startedAt
+    const visibleEndAt = endedAt > timelineEnd ? timelineEnd : endedAt
+    const minEndAt = new Date(visibleStartAt.getTime() + MIN_BAR_MINUTES * 60 * 1000)
+    const adjustedEndAt = visibleEndAt < minEndAt ? minEndAt : visibleEndAt
+    const boundedEndAt = adjustedEndAt > timelineEnd ? timelineEnd : adjustedEndAt
+
+    const startOffset = Math.max(0, (visibleStartAt - timelineStart) / 60000)
+    const endOffset = Math.max(startOffset, (boundedEndAt - timelineStart) / 60000)
+
+    left  = `${((startOffset / DAY_SPAN) * 100).toFixed(1)}%`
+    width = `${(((endOffset - startOffset) / DAY_SPAN) * 100).toFixed(1)}%`
   } else {
     const seg = 100 / (itemCount + 1)
     left  = `${(seg * (idx + 1) - seg * 0.4).toFixed(1)}%`

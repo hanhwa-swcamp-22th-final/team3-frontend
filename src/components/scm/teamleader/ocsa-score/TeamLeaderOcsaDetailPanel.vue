@@ -81,11 +81,14 @@ const metricMap = computed(() => {
 <style scoped>
 .ocsa-detail-panel {
   display: grid;
-  gap: 14px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  min-height: 0;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
   background: var(--color-bg-surface);
+  overflow: hidden;
 }
 
 .ocsa-detail-panel__header {
@@ -173,14 +176,16 @@ const metricMap = computed(() => {
 
 .ocsa-detail-panel__metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
 }
 
 .ocsa-detail-panel__metric {
   display: grid;
-  gap: 8px;
-  padding: 16px;
+  gap: 7px;
+  padding: 12px;
   border: 1px solid var(--color-border-default);
   border-radius: 16px;
 }
@@ -192,7 +197,7 @@ const metricMap = computed(() => {
 }
 
 .ocsa-detail-panel__metric-value {
-  font-size: 40px;
+  font-size: 32px;
   line-height: 1;
 }
 
@@ -221,8 +226,8 @@ const metricMap = computed(() => {
 
 .ocsa-detail-panel__formula {
   display: grid;
-  gap: 16px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px 18px;
   border-radius: 18px;
   background: var(--color-primary-800);
   color: #fff;
@@ -252,9 +257,15 @@ const metricMap = computed(() => {
 }
 
 .ocsa-detail-panel__result strong {
-  font-size: 42px;
+  font-size: 38px;
   line-height: 1;
   color: #ffd84f;
+}
+
+@media (max-width: 1500px) {
+  .ocsa-detail-panel__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {

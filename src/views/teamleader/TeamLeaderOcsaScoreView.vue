@@ -4,7 +4,7 @@ import { BaseStatCardGrid } from '@/components/common/base'
 import TeamLeaderOcsaOrderList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaOrderList.vue'
 import TeamLeaderOcsaDetailPanel from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaDetailPanel.vue'
 import TeamLeaderOcsaTechnicianList from '@/components/scm/teamleader/ocsa-score/TeamLeaderOcsaTechnicianList.vue'
-import { getOrders, getOcsaSummary, getOrderOcsa, getTechnicians } from '@/services/teamLeaderScmApi'
+import { getAssignmentCandidates, getOrders, getOcsaSummary, getOrderOcsa } from '@/services/teamLeaderScmApi'
 
 const FILTER_CONFIGS = [
   { key: 'all', label: '전체' },
@@ -14,22 +14,36 @@ const FILTER_CONFIGS = [
   { key: 'D2',  label: 'D2 이하' },
 ]
 
+const STATUS_FILTER_CONFIGS = [
+  { key: 'all', label: '전체 상태' },
+  { key: 'ANALYZED', label: '배정대기' },
+  { key: 'INPROGRESS', label: '생산중' },
+  { key: 'COMPLETED', label: '완료' },
+]
+
 const GRADE_TONE = { D5: 'danger', D4: 'warning', D3: 'primary', D2: 'success', D1: 'success' }
+const STATUS_LABELS = { ANALYZED: '배정대기', INPROGRESS: '생산중', COMPLETED: '완료' }
+const MATCHING_MODE_LABELS = {
+  EFFICIENCY_TYPE: '최적형 배정',
+  GROWTH_TYPE: '도전형 배정',
+}
 
 const activeFilter    = ref('all')
+const activeStatusFilter = ref('all')
 const orders          = ref([])
 const ocsaSummary     = ref(null)
 const selectedOrderId = ref(null)
 const ocsa            = ref(null)
-const technicians     = ref([])
+const candidates      = ref([])
 const ocsaLoading     = ref(false)
+const candidateLoading = ref(false)
 
 // ── 요약 카드 ──────────────────────────────────────────────────────────
 const summaryCards = computed(() => [
   { label: '분석 주문 수', value: `${ocsaSummary.value?.analyzedOrderCount ?? 0}건`, tone: 'primary' },
   { label: '평균 난이도',  value: avgGradeLabel.value,                               tone: 'primary' },
   { label: '최고 난이도',  value: ocsaSummary.value?.maxDifficultyGrade ?? '-',      tone: 'danger'  },
-  { label: '기술자 수',    value: `${technicians.value.length}명`,                   tone: 'success' },
+  { label: '추천 후보',    value: `${candidates.value.length}명`,                    tone: 'success' },
 ])
 
 const avgGradeLabel = computed(() => {
@@ -47,10 +61,16 @@ const analyzedOrders = computed(() =>
 )
 
 const filteredOrders = computed(() => {
-  const list = analyzedOrders.value
-  if (activeFilter.value === 'all') return list
-  if (activeFilter.value === 'D2')  return list.filter((o) => ['D1', 'D2'].includes(o.difficultyGrade))
-  return list.filter((o) => o.difficultyGrade === activeFilter.value)
+  let list = analyzedOrders.value
+  if (activeFilter.value === 'D2') {
+    list = list.filter((o) => ['D1', 'D2'].includes(o.difficultyGrade))
+  } else if (activeFilter.value !== 'all') {
+    list = list.filter((o) => o.difficultyGrade === activeFilter.value)
+  }
+  if (activeStatusFilter.value !== 'all') {
+    list = list.filter((o) => o.status === activeStatusFilter.value)
+  }
+  return list
 })
 
 const filters = computed(() =>
@@ -60,6 +80,15 @@ const filters = computed(() =>
       : f.key === 'D2'
         ? analyzedOrders.value.filter((o) => ['D1', 'D2'].includes(o.difficultyGrade)).length
         : analyzedOrders.value.filter((o) => o.difficultyGrade === f.key).length
+    return { ...f, label: `${f.label}(${count})` }
+  })
+)
+
+const statusFilters = computed(() =>
+  STATUS_FILTER_CONFIGS.map((f) => {
+    const count = f.key === 'all'
+      ? analyzedOrders.value.length
+      : analyzedOrders.value.filter((o) => o.status === f.key).length
     return { ...f, label: `${f.label}(${count})` }
   })
 )
@@ -75,6 +104,7 @@ function mapOrder(o) {
     code:      o.orderNumber,
     title:     o.itemName,
     grade:     o.difficultyGrade,
+    status:    STATUS_LABELS[o.status] ?? o.status,
     deadline,
     gradeTone: GRADE_TONE[o.difficultyGrade] ?? 'primary',
   }
@@ -118,16 +148,17 @@ const detailPanel = computed(() => {
 
 // ── 기술자 추천 목록 ──────────────────────────────────────────────────
 const technicianItems = computed(() =>
-  technicians.value
+  candidates.value
     .slice()
-    .sort((a, b) => Number(b.suitability ?? 0) - Number(a.suitability ?? 0))
+    .sort((a, b) => Number(b.suitabilityScore ?? 0) - Number(a.suitabilityScore ?? 0))
     .map((t) => ({
       id:         t.employeeId,
       name:       t.employeeName,
       tier:       t.tier,
       avatar:     t.employeeName?.[0] ?? '?',
       avatarTone: { S: 'purple', A: 'purple', B: 'gold', C: 'slate' }[t.tier] ?? 'slate',
-      score:      t.suitability != null ? `${(Number(t.suitability) * 100).toFixed(1)}%` : '-',
+      score:      t.suitabilityScore != null ? `${(Number(t.suitabilityScore) * 100).toFixed(1)}%` : '-',
+      meta:       `${MATCHING_MODE_LABELS[t.matchingMode] ?? '배정 유형 미정'} · OCSA ${t.score ?? '-'}`,
     }))
 )
 
@@ -135,7 +166,13 @@ const technicianItems = computed(() =>
 function handleFilterChange(filterKey) {
   activeFilter.value = filterKey
   const first = filteredOrders.value[0]
-  if (first) selectedOrderId.value = first.orderId
+  selectedOrderId.value = first?.orderId ?? null
+}
+
+function handleStatusFilterChange(filterKey) {
+  activeStatusFilter.value = filterKey
+  const first = filteredOrders.value[0]
+  selectedOrderId.value = first?.orderId ?? null
 }
 
 function handleSelectOrder(orderId) {
@@ -144,27 +181,37 @@ function handleSelectOrder(orderId) {
 
 // ── OCSA 상세 로드 (선택 주문 변경 시) ────────────────────────────────
 watch(selectedOrderId, async (id) => {
-  if (!id) { ocsa.value = null; return }
+  if (!id) {
+    ocsa.value = null
+    candidates.value = []
+    return
+  }
   ocsaLoading.value = true
+  candidateLoading.value = true
   try {
-    ocsa.value = await getOrderOcsa(id)
+    const [ocsaResult, candidateResult] = await Promise.all([
+      getOrderOcsa(id),
+      getAssignmentCandidates({ orderId: id }),
+    ])
+    ocsa.value = ocsaResult
+    candidates.value = Array.isArray(candidateResult) ? candidateResult : []
   } catch {
     ocsa.value = null
+    candidates.value = []
   } finally {
     ocsaLoading.value = false
+    candidateLoading.value = false
   }
 })
 
 // ── 초기 데이터 로드 ─────────────────────────────────────────────────
 onMounted(async () => {
-  const [allOrders, summary, techs] = await Promise.all([
+  const [allOrders, summary] = await Promise.all([
     getOrders(),
     getOcsaSummary(),
-    getTechnicians(),
   ])
   orders.value      = Array.isArray(allOrders) ? allOrders : []
   ocsaSummary.value = summary
-  technicians.value = Array.isArray(techs) ? techs : []
 
   const first = orders.value.find((o) => OCSA_STATUSES.includes(o.status) && o.difficultyGrade != null)
   if (first) selectedOrderId.value = first.orderId
@@ -178,11 +225,14 @@ onMounted(async () => {
     <section class="teamleader-ocsa-view__content">
       <TeamLeaderOcsaOrderList
         :filters="filters"
+        :status-filters="statusFilters"
         :active-filter="activeFilter"
+        :active-status-filter="activeStatusFilter"
         :orders="mappedOrders"
         :selected-id="selectedOrderId"
-        :page-size="6"
+        :page-size="3"
         @change-filter="handleFilterChange"
+        @change-status-filter="handleStatusFilterChange"
         @select-order="handleSelectOrder"
       />
 
@@ -190,7 +240,7 @@ onMounted(async () => {
         <TeamLeaderOcsaDetailPanel v-if="detailPanel" :panel="detailPanel" />
         <div v-else-if="ocsaLoading" class="teamleader-ocsa-view__placeholder">OCSA 분석 데이터를 불러오는 중...</div>
         <div v-else class="teamleader-ocsa-view__placeholder">주문을 선택하면 OCSA 분석 결과가 표시됩니다.</div>
-        <TeamLeaderOcsaTechnicianList :items="technicianItems" :page-size="3" />
+        <TeamLeaderOcsaTechnicianList :items="technicianItems" :loading="candidateLoading" />
       </div>
     </section>
   </section>
@@ -227,6 +277,7 @@ onMounted(async () => {
 
 .teamleader-ocsa-view__right {
   display: grid;
+  grid-template-rows: minmax(430px, 1.15fr) minmax(220px, 0.85fr);
   gap: 16px;
   min-height: 0;
 }

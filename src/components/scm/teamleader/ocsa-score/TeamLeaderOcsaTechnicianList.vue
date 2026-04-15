@@ -1,5 +1,4 @@
 ﻿<script setup>
-import { computed, ref, watch } from 'vue'
 import { getTierColors } from '@/utils/tierColors'
 
 const tierColors = getTierColors()
@@ -9,25 +8,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  pageSize: {
-    type: Number,
-    default: 3,
+  loading: {
+    type: Boolean,
+    default: false,
   },
 })
-
-const currentPage = ref(1)
-const totalPages = computed(() => Math.max(1, Math.ceil(props.items.length / props.pageSize)))
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * props.pageSize
-  return props.items.slice(start, start + props.pageSize)
-})
-
-watch(
-  () => [props.items.length, props.pageSize],
-  () => {
-    currentPage.value = 1
-  }
-)
 
 function tierBadgeStyle(tier) {
   const background = tierColors[tier] || '#6b5de0'
@@ -46,45 +31,38 @@ function tierBadgeStyle(tier) {
 
     <div class="ocsa-tech-list__body">
       <article
-        v-for="(item, index) in paginatedItems"
+        v-for="(item, index) in items"
         :key="item.id"
         class="ocsa-tech-list__item"
       >
         <div class="ocsa-tech-list__left">
-          <span class="ocsa-tech-list__rank">{{ (currentPage - 1) * pageSize + index + 1 }}</span>
+          <span class="ocsa-tech-list__rank">{{ index + 1 }}</span>
           <span class="ocsa-tech-list__avatar" :class="`ocsa-tech-list__avatar--${item.avatarTone}`">{{ item.avatar }}</span>
           <strong>{{ item.name }}</strong>
           <span class="ocsa-tech-list__tier" :style="tierBadgeStyle(item.tier)">{{ item.tier }}</span>
         </div>
-        <strong class="ocsa-tech-list__score">{{ item.score }}</strong>
+        <div class="ocsa-tech-list__right">
+          <strong class="ocsa-tech-list__score">{{ item.score }}</strong>
+          <span v-if="item.meta" class="ocsa-tech-list__meta">{{ item.meta }}</span>
+        </div>
       </article>
 
-      <div v-if="!paginatedItems.length" class="ocsa-tech-list__empty">
+      <div v-if="loading" class="ocsa-tech-list__empty">
+        추천 테크니션을 계산하는 중입니다.
+      </div>
+      <div v-else-if="!items.length" class="ocsa-tech-list__empty">
         추천 가능한 테크니션이 없습니다.
       </div>
     </div>
-
-    <footer class="ocsa-tech-list__pagination">
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        type="button"
-        class="ocsa-tech-list__page"
-        :class="{ 'ocsa-tech-list__page--active': page === currentPage }"
-        @click="currentPage = page"
-      >
-        {{ page }}
-      </button>
-    </footer>
   </section>
 </template>
 
 <style scoped>
 .ocsa-tech-list {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 14px;
-  min-height: 0;
+  min-height: 220px;
   padding: 18px;
   border: 1px solid var(--color-border-default);
   border-radius: 22px;
@@ -103,6 +81,7 @@ function tierBadgeStyle(tier) {
   align-content: start;
   gap: 10px;
   min-height: 0;
+  max-height: 100%;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -171,6 +150,18 @@ function tierBadgeStyle(tier) {
   color: var(--color-primary-700);
 }
 
+.ocsa-tech-list__right {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.ocsa-tech-list__meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
 .ocsa-tech-list__empty {
   display: grid;
   place-items: center;
@@ -180,28 +171,4 @@ function tierBadgeStyle(tier) {
   color: var(--color-text-muted);
 }
 
-.ocsa-tech-list__pagination {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: auto;
-  flex-shrink: 0;
-}
-
-.ocsa-tech-list__page {
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--color-border-default);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--color-primary-500);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.ocsa-tech-list__page--active {
-  background: var(--color-primary-600);
-  border-color: var(--color-primary-600);
-  color: #fff;
-}
 </style>

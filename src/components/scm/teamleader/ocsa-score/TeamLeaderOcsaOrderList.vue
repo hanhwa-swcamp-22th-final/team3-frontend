@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { BaseFilterTabs } from '@/components/common/base'
 
-const emit = defineEmits(['select-order', 'change-filter'])
+const emit = defineEmits(['select-order', 'change-filter', 'change-status-filter'])
 
 const props = defineProps({
   filters: {
@@ -10,6 +10,14 @@ const props = defineProps({
     default: () => [],
   },
   activeFilter: {
+    type: String,
+    default: 'all',
+  },
+  statusFilters: {
+    type: Array,
+    default: () => [],
+  },
+  activeStatusFilter: {
     type: String,
     default: 'all',
   },
@@ -39,6 +47,30 @@ const searchedOrders = computed(() => {
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(searchedOrders.value.length / props.pageSize)))
+const visiblePages = computed(() => {
+  const maxVisiblePages = 5
+  const total = totalPages.value
+
+  if (total <= maxVisiblePages) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  const half = Math.floor(maxVisiblePages / 2)
+  let start = currentPage.value - half
+  let end = currentPage.value + half
+
+  if (start < 1) {
+    start = 1
+    end = maxVisiblePages
+  }
+
+  if (end > total) {
+    end = total
+    start = total - maxVisiblePages + 1
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+})
 const paginatedOrders = computed(() => {
   const start = (currentPage.value - 1) * props.pageSize
   return searchedOrders.value.slice(start, start + props.pageSize)
@@ -64,6 +96,7 @@ watch(
 )
 
 function changePage(page) {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) return
   currentPage.value = page
   const firstOrder = paginatedOrders.value[0]
   if (firstOrder) {
@@ -83,6 +116,21 @@ function changePage(page) {
         size="sm"
         @change="emit('change-filter', $event)"
       />
+      <div class="ocsa-order-list__status-filter">
+        <span class="ocsa-order-list__status-filter-label">상태</span>
+        <div class="ocsa-order-list__status-chips">
+          <button
+            v-for="item in statusFilters"
+            :key="item.key"
+            type="button"
+            class="ocsa-order-list__status-chip"
+            :class="{ 'ocsa-order-list__status-chip--active': item.key === activeStatusFilter }"
+            @click="emit('change-status-filter', item.key)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
       <input
         v-model="searchKeyword"
         class="ocsa-order-list__search"
@@ -111,6 +159,7 @@ function changePage(page) {
           </div>
         </div>
         <strong class="ocsa-order-list__title">{{ order.title }}</strong>
+        <span class="ocsa-order-list__status">{{ order.status }}</span>
       </button>
 
       <div v-if="!paginatedOrders.length" class="ocsa-order-list__empty">
@@ -120,7 +169,15 @@ function changePage(page) {
 
     <footer class="ocsa-order-list__pagination">
       <button
-        v-for="page in totalPages"
+        type="button"
+        class="ocsa-order-list__page ocsa-order-list__page--nav"
+        :disabled="currentPage === 1"
+        @click="changePage(currentPage - 1)"
+      >
+        이전
+      </button>
+      <button
+        v-for="page in visiblePages"
         :key="page"
         type="button"
         class="ocsa-order-list__page"
@@ -128,6 +185,14 @@ function changePage(page) {
         @click="changePage(page)"
       >
         {{ page }}
+      </button>
+      <button
+        type="button"
+        class="ocsa-order-list__page ocsa-order-list__page--nav"
+        :disabled="currentPage === totalPages"
+        @click="changePage(currentPage + 1)"
+      >
+        다음
       </button>
     </footer>
   </section>
@@ -156,6 +221,42 @@ function changePage(page) {
   margin-top: 12px;
 }
 
+.ocsa-order-list__status-filter {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ocsa-order-list__status-filter-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+.ocsa-order-list__status-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ocsa-order-list__status-chip {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-primary-500);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ocsa-order-list__status-chip--active {
+  border-color: var(--color-primary-600);
+  background: #f2f0ff;
+  color: var(--color-primary-700);
+}
+
 .ocsa-order-list__search {
   width: 100%;
   height: 40px;
@@ -171,20 +272,19 @@ function changePage(page) {
   align-content: start;
   gap: 10px;
   min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
+  overflow: hidden;
 }
 
 .ocsa-order-list__card {
   display: grid;
   gap: 10px;
-  min-height: 72px;
-  padding: 14px 16px;
+  padding: 14px 16px 16px;
   border: 1px solid var(--color-border-default);
   border-radius: 14px;
   background: #fff;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .ocsa-order-list__card--selected {
@@ -209,6 +309,7 @@ function changePage(page) {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .ocsa-order-list__grade,
@@ -240,6 +341,28 @@ function changePage(page) {
 .ocsa-order-list__title {
   font-size: var(--font-size-base-plus);
   color: var(--color-primary-800);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.45;
+  padding-bottom: 2px;
+}
+
+.ocsa-order-list__status {
+  justify-self: start;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f2f0ff;
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ocsa-order-list__empty {
@@ -260,8 +383,9 @@ function changePage(page) {
 }
 
 .ocsa-order-list__page {
-  width: 34px;
+  min-width: 34px;
   height: 34px;
+  padding: 0 10px;
   border: 1px solid var(--color-border-default);
   border-radius: 10px;
   background: #fff;
@@ -274,6 +398,15 @@ function changePage(page) {
   background: var(--color-primary-600);
   border-color: var(--color-primary-600);
   color: #fff;
+}
+
+.ocsa-order-list__page--nav {
+  min-width: 52px;
+}
+
+.ocsa-order-list__page:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 </style>
 
