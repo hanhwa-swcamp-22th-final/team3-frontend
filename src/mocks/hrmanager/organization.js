@@ -28,7 +28,7 @@ export const mockOrganization = [
 /** 직위 목록 (필터 드롭다운용) */
 export const POSITIONS = ['팀장', '선임연구원', '대리', '주임', '사원', '과장']
 
-/** employee_id → 직위·부서 (db.json에 없는 필드 보완) */
+/** employee_id → 직위·부서 */
 export const POSITION_MAP = {
   1:  { position: '팀장',      dept: '생산' },
   2:  { position: '과장',      dept: 'HR'   },
