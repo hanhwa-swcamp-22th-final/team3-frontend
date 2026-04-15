@@ -53,11 +53,6 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- AI analysis -->
-    <div class="ql__ai">
-      <h4 class="ql__ai-title">🤖 AI 분석 원문 요약</h4>
-      <p class="ql__ai-text">{{ evaluation?.aiAnalysis ?? '정성 평가 데이터 분석 중입니다.' }}</p>
-    </div>
   </div>
 </template>
 
@@ -192,23 +187,4 @@ onMounted(() => {
   border-radius: var(--radius-2xs);
 }
 
-.ql__ai {
-  background: var(--color-primary-100);
-  border-radius: var(--radius-base);
-  padding: 16px 18px;
-}
-
-.ql__ai-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary-800);
-  margin: 0 0 6px;
-}
-
-.ql__ai-text {
-  font-size: 14px;
-  color: var(--color-text-default);
-  line-height: 1.6;
-  margin: 0;
-}
 </style>

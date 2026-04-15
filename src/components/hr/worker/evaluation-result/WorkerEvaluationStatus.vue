@@ -18,9 +18,10 @@ onMounted(() => {
   requestAnimationFrame(step)
 })
 
-const scoreAngle = computed(() => ((props.status?.overallScore ?? 0) / 100) * 360)
+const gaugeProgress = computed(() => Math.min(Math.max(Number(props.status?.overallScore ?? 0), 0), 100))
+const scoreAngle = computed(() => (gaugeProgress.value / 100) * 360)
 const circumference = 2 * Math.PI * 46
-const dashLen = computed(() => ((props.status?.overallScore ?? 0) / 100) * circumference)
+const dashLen = computed(() => (gaugeProgress.value / 100) * circumference)
 
 function diffClass(val) {
   return val > 0 ? 'diff--up' : val < 0 ? 'diff--down' : ''
@@ -51,9 +52,8 @@ function diffText(val) {
       </svg>
       <div class="es__gauge-text">
         <span class="es__gauge-score">{{ status?.overallScore ?? '-' }}</span>
-        <span class="es__gauge-max">/ 100</span>
+        <span class="es__gauge-max">total points</span>
       </div>
-      <span class="es__gauge-tier">{{ status?.tier ?? '-' }}-Tier</span>
     </div>
 
     <!-- Metric columns -->
@@ -159,16 +159,6 @@ function diffText(val) {
 .es__gauge-max {
   font-size: 12px;
   color: var(--color-text-muted);
-}
-
-.es__gauge-tier {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-primary-800);
-  background: var(--color-primary-100);
-  padding: 3px 12px;
-  border-radius: 4px;
 }
 
 .es__metric {
