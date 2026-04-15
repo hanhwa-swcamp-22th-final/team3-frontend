@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 /** active 알고리즘 버전 ID 조회 (HR 서버 경유) */
 export async function fetchActiveAlgorithmVersionId() {

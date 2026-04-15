@@ -1,4 +1,4 @@
-import hrApi from '@/services/hrApi'
+import { hrApi } from '@/services/apiClient'
 
 const AVATAR_COLORS = ['#5f50d6', '#269063', '#c08b00', '#d04060', '#2288cc']
 

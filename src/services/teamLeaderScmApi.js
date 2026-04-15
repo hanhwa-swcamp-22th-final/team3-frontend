@@ -1,4 +1,4 @@
-import scmApi from '@/services/scmApi'
+import { scmApi } from '@/services/apiClient'
 
 function unwrap(response) {
   return response.data?.data ?? response.data

@@ -1,4 +1,4 @@
-import hrApi from './hrApi.js'
+import { hrApi } from './apiClient'
 
 const hrApprovalApi = {
   getAppeals(params = {}) {
