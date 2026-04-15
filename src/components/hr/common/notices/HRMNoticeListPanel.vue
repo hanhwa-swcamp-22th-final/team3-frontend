@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { STATUS_STYLE, FILTER_TABS } from '@/mocks/hrmanager/noticeboard.js'
+import { NOTICE_FILTER_TABS } from '@/constants'
 
 const props = defineProps({
   notices:          { type: Array, required: true },
   selectedId:       { type: [Number, null], default: null },
   showCreateButton: { type: Boolean, default: false },
-  filterTabs:       { type: Array, default: () => FILTER_TABS },
+  filterTabs:       { type: Array, default: () => NOTICE_FILTER_TABS },
   allowHideImportant: { type: Boolean, default: false },
 })
 
@@ -40,6 +40,15 @@ const paginated  = computed(() => {
 function setTab(tab) {
   activeTab.value = tab === '전체' ? '' : (activeTab.value === tab ? '' : tab)
   currentPage.value = 1
+}
+
+function statusClass(status) {
+  return {
+    게시중: 'notice-badge--published',
+    중요: 'notice-badge--important',
+    예약: 'notice-badge--scheduled',
+    임시: 'notice-badge--draft',
+  }[status] ?? ''
 }
 </script>
 
@@ -107,7 +116,7 @@ function setTab(tab) {
         <div class="notice-col--title notice-row__title-wrap">
           <span
             class="notice-badge"
-            :style="{ background: STATUS_STYLE[n.status]?.bg, color: STATUS_STYLE[n.status]?.color }"
+            :class="statusClass(n.status)"
           >{{ n.status }}</span>
           <p class="notice-row__title">{{ n.title }}</p>
         </div>
@@ -249,6 +258,22 @@ function setTab(tab) {
   padding: 2px 8px; border-radius: 20px;
   font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   white-space: nowrap;
+}
+.notice-badge--published {
+  background: #e3fbef;
+  color: #007a60;
+}
+.notice-badge--important {
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+}
+.notice-badge--scheduled {
+  background: #fff8e1;
+  color: #b45309;
+}
+.notice-badge--draft {
+  background: #ffecf1;
+  color: #c0103e;
 }
 .notice-row__title {
   font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);

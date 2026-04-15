@@ -61,34 +61,6 @@ function parseLabel(label) {
       </div>
     </div>
 
-    <!-- E_idx chart -->
-    <div class="qn__chart-card">
-      <h4 class="qn__chart-title">📈 {{ evaluation?.eidxChart?.title ?? '설비 가동 효율 추이' }}</h4>
-      <div class="qn__chart">
-        <svg viewBox="0 0 280 80" class="qn__chart-svg">
-          <line
-            v-for="(_, i) in (evaluation?.eidxChart?.data || []).slice(0, -1)"
-            :key="'l' + i"
-            :x1="i * (260 / (evaluation.eidxChart.data.length - 1)) + 10"
-            :y1="70 - ((evaluation.eidxChart.data[i] - 0.85) / 0.15) * 60"
-            :x2="(i + 1) * (260 / (evaluation.eidxChart.data.length - 1)) + 10"
-            :y2="70 - ((evaluation.eidxChart.data[i + 1] - 0.85) / 0.15) * 60"
-            stroke="var(--tier-s)"
-            stroke-width="3"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-      <span class="qn__chart-meta">
-        평균 E_idx: {{ evaluation?.eidxChart?.avg ?? '-' }} · 최저: {{ evaluation?.eidxChart?.min ?? '-' }}({{ evaluation?.eidxChart?.minDate ?? '-' }}) · 최고: {{ evaluation?.eidxChart?.max ?? '-' }}
-      </span>
-    </div>
-
-    <!-- AI Summary -->
-    <div class="qn__ai">
-      <h4 class="qn__ai-title">AI 요약</h4>
-      <p class="qn__ai-text">{{ evaluation?.aiSummary ?? '정량 평가 분석 데이터가 없습니다.' }}</p>
-    </div>
   </div>
 </template>
 
@@ -196,52 +168,4 @@ function parseLabel(label) {
   color: var(--tier-s);
 }
 
-.qn__chart-card {
-  background: var(--color-primary-100);
-  border-left: 4px solid var(--color-primary-300);
-  border-radius: var(--radius-base);
-  padding: 18px 20px;
-}
-
-.qn__chart-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary-800);
-  margin: 0 0 10px;
-}
-
-.qn__chart {
-  margin-bottom: 10px;
-}
-
-.qn__chart-svg {
-  width: 100%;
-  height: 80px;
-}
-
-.qn__chart-meta {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.qn__ai {
-  background: var(--color-bg-surface-muted);
-  border-left: 4px solid var(--color-primary-300);
-  border-radius: var(--radius-base);
-  padding: 18px 20px;
-}
-
-.qn__ai-title {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--color-primary-800);
-  margin: 0 0 8px;
-}
-
-.qn__ai-text {
-  font-size: 14px;
-  color: var(--color-text-default);
-  line-height: 1.7;
-  margin: 0;
-}
 </style>

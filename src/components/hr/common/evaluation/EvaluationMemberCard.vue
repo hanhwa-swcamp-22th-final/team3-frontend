@@ -8,6 +8,7 @@ const props = defineProps({
   avatar: { type: String, default: '?' },
   avatarTone: { type: String, default: '' },
   avatarColor: { type: String, default: '' },
+  previousTier: { type: String, default: '' },
   tier: { type: String, default: '' },
   meta: { type: String, default: '' },
   status: { type: String, default: 'not_started' },
@@ -40,6 +41,14 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
       <div class="evaluation-member-card__copy">
         <div class="evaluation-member-card__name-row">
           <strong class="evaluation-member-card__name">{{ name }}</strong>
+          <span
+            v-if="previousTier"
+            class="evaluation-member-card__tier"
+            :style="{ background: tierColors[previousTier]?.bg, color: tierColors[previousTier]?.text }"
+          >
+            {{ previousTier }}
+          </span>
+          <span class="evaluation-member-card__tier-arrow" v-if="previousTier && tier">→</span>
           <span
             v-if="tier"
             class="evaluation-member-card__tier"
@@ -171,11 +180,19 @@ const avatarStyle = computed(() => (props.avatarColor ? { background: props.avat
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  min-width: 24px;
   height: 24px;
+  padding: 0 8px;
   border-radius: 7px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
+  flex-shrink: 0;
+}
+
+.evaluation-member-card__tier-arrow {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
 

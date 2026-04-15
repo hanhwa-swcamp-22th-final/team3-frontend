@@ -13,8 +13,16 @@ const promotionApi = {
     return hrApi.get(`/api/v1/hr/promotions/${candidateId}`)
   },
 
+  getCandidateUpgradeMissions(employeeId) {
+    return hrApi.get(`/api/v1/hr/promotions/employees/${employeeId}/missions/upgrade`)
+  },
+
   updateStatus(candidateId, status) {
     return hrApi.patch(`/api/v1/hr/promotions/${candidateId}`, { status })
+  },
+
+  applyTier() {
+    return hrApi.post('/api/v1/hr/promotions/apply-tier')
   },
 }
 
