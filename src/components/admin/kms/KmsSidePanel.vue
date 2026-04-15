@@ -1,5 +1,5 @@
 <script setup>
-import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/KnowledgeHubContributors.vue'
+import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue'
 
 defineProps({
   contributors: { type: Array, default: () => [] },
