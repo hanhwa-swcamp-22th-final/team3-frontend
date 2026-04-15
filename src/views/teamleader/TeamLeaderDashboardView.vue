@@ -1,7 +1,7 @@
 ﻿<script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import TeamLeaderDashboardNotice from '@/components/dashboard/common/TeamLeaderDashboardNoticeWrapper.vue'
+import WorkerNotificationBanner from '@/components/dashboard/common/WorkerNotificationBanner.vue'
 import TeamLeaderMetricCard from '@/components/dashboard/teamleader/TeamLeaderMetricCardWrapper.vue'
 import TeamLeaderMemberGrid from '@/components/dashboard/teamleader/TeamLeaderMemberGrid.vue'
 import { getTeamLeaderDashboard } from '@/services/hrDashboardApi'
@@ -43,11 +43,11 @@ function goNoticeBoard() {
     <div v-if="loading" class="teamleader-dashboard-view__loading">데이터를 불러오는 중...</div>
 
     <template v-else>
-      <TeamLeaderDashboardNotice
+      <WorkerNotificationBanner
         v-if="notice"
-        :badge="notice.badge"
         :title="notice.title"
         :description="notice.description"
+        class="teamleader-dashboard-view__notice"
         @click="goNoticeBoard"
       />
 
@@ -93,8 +93,12 @@ function goNoticeBoard() {
   gap: 14px;
 }
 
-:deep(.member-grid-section),
-:deep(.notice) {
+:deep(.member-grid-section) {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.teamleader-dashboard-view__notice {
   width: 100%;
   box-sizing: border-box;
 }
