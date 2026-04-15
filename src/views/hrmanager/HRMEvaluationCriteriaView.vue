@@ -6,9 +6,12 @@ import HRMEvalTierPanel from '@/components/hr/hrmanager/evaluation-criteria/HRME
 import HRMEvalWeightHistoryGroupPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalWeightHistoryGroupPanel.vue'
 import HRMEvalTierHistoryGroupPanel from '@/components/hr/hrmanager/evaluation-criteria/HRMEvalTierHistoryGroupPanel.vue'
 import { BaseToast } from '@/components/common/base/overlay'
+import { BasePagination } from '@/components/common/base'
 import { HR_API_BASE } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
 
+const WEIGHT_HISTORY_PAGE_SIZE = 1
+const TIER_HISTORY_PAGE_SIZE = 2
 const DEFAULT_TIER_CONFIGS = [
   { tier: 'S', tierConfigPromotionPoint: 100 },
   { tier: 'A', tierConfigPromotionPoint: 80 },
@@ -31,6 +34,8 @@ const tierConfigs = ref(DEFAULT_TIER_CONFIGS.map((item) => ({ ...item })))
 const categoryWeights = ref(DEFAULT_CATEGORY_WEIGHTS.map((item) => ({ ...item })))
 const tierConfigHistoryGroups = ref([])
 const categoryWeightHistoryGroups = ref([])
+const tierHistoryPage = ref(1)
+const weightHistoryPage = ref(1)
 const loading = ref(false)
 const toast = ref({ show: false, message: '', type: 'success' })
 const authStore = useAuthStore()
@@ -93,6 +98,24 @@ const weightTotals = computed(() =>
   }, {}),
 )
 
+const tierHistoryPageCount = computed(() =>
+  Math.max(1, Math.ceil(tierConfigHistoryGroups.value.length / TIER_HISTORY_PAGE_SIZE)),
+)
+
+const weightHistoryPageCount = computed(() =>
+  Math.max(1, Math.ceil(categoryWeightHistoryGroups.value.length / WEIGHT_HISTORY_PAGE_SIZE)),
+)
+
+const pagedTierHistoryGroups = computed(() => {
+  const start = (tierHistoryPage.value - 1) * TIER_HISTORY_PAGE_SIZE
+  return tierConfigHistoryGroups.value.slice(start, start + TIER_HISTORY_PAGE_SIZE)
+})
+
+const pagedWeightHistoryGroups = computed(() => {
+  const start = (weightHistoryPage.value - 1) * WEIGHT_HISTORY_PAGE_SIZE
+  return categoryWeightHistoryGroups.value.slice(start, start + WEIGHT_HISTORY_PAGE_SIZE)
+})
+
 function handleReset() {
   tierConfigs.value = DEFAULT_TIER_CONFIGS.map((item) => ({ ...item }))
   categoryWeights.value = DEFAULT_CATEGORY_WEIGHTS.map((item) => ({ ...item }))
@@ -108,11 +131,15 @@ async function loadCriteria() {
     categoryWeights.value = mergeCategoryWeights(payload.categoryWeights)
     tierConfigHistoryGroups.value = payload.tierConfigHistoryGroups ?? []
     categoryWeightHistoryGroups.value = payload.categoryWeightHistoryGroups ?? []
+    tierHistoryPage.value = 1
+    weightHistoryPage.value = 1
   } catch (error) {
     tierConfigs.value = DEFAULT_TIER_CONFIGS.map((item) => ({ ...item }))
     categoryWeights.value = DEFAULT_CATEGORY_WEIGHTS.map((item) => ({ ...item }))
     tierConfigHistoryGroups.value = []
     categoryWeightHistoryGroups.value = []
+    tierHistoryPage.value = 1
+    weightHistoryPage.value = 1
     showToast('평가 기준 조회에 실패해 기본값으로 표시합니다.', 'error')
   } finally {
     loading.value = false
@@ -178,8 +205,23 @@ onMounted(() => {
     </div>
 
     <div class="eval-view__history">
-      <HRMEvalWeightHistoryGroupPanel :groups="categoryWeightHistoryGroups" />
-      <HRMEvalTierHistoryGroupPanel :groups="tierConfigHistoryGroups" />
+      <div class="eval-view__history-panel">
+        <HRMEvalWeightHistoryGroupPanel :groups="pagedWeightHistoryGroups" />
+        <BasePagination
+          v-if="categoryWeightHistoryGroups.length"
+          v-model:current-page="weightHistoryPage"
+          :total-pages="weightHistoryPageCount"
+        />
+      </div>
+
+      <div class="eval-view__history-panel">
+        <HRMEvalTierHistoryGroupPanel :groups="pagedTierHistoryGroups" />
+        <BasePagination
+          v-if="tierConfigHistoryGroups.length"
+          v-model:current-page="tierHistoryPage"
+          :total-pages="tierHistoryPageCount"
+        />
+      </div>
     </div>
   </section>
 
@@ -221,7 +263,17 @@ onMounted(() => {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+}
+.eval-view__history-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  height: 100%;
+}
+.eval-view__history-panel :deep(.eval-history-card) {
+  flex: 1;
 }
 .eval-view__btn {
   height: 40px;
@@ -244,7 +296,6 @@ onMounted(() => {
   background: var(--color-primary-600);
   color: var(--color-white);
 }
-
 @media (max-width: 1200px) {
   .eval-view__panels {
     grid-template-columns: 1fr;
