@@ -1,6 +1,4 @@
 <script setup>
-import { ref } from 'vue'
-
 defineProps({
   recommendations: {
     type: Array,
@@ -9,29 +7,26 @@ defineProps({
 })
 
 const emit = defineEmits(['open-detail'])
-const isCollapsed = ref(true)
 </script>
 
 <template>
   <section class="ai-panel">
-    <button type="button" class="ai-panel__head" @click="isCollapsed = !isCollapsed">
+    <div class="ai-panel__head">
       <p class="ai-panel__eyebrow">추천 학습</p>
-      <span class="ai-panel__toggle" :class="{ 'ai-panel__toggle--collapsed': isCollapsed }">v</span>
-    </button>
+    </div>
 
-    <div v-if="!isCollapsed" class="ai-panel__list">
-      <article v-for="item in recommendations" :key="item.id" class="ai-panel__item">
+    <div class="ai-panel__list">
+      <button
+        v-for="item in recommendations"
+        :key="item.id"
+        type="button"
+        class="ai-panel__item"
+        @click="emit('open-detail', item)"
+      >
         <div>
           <strong>{{ item.title }}</strong>
         </div>
-        <button
-          type="button"
-          class="ai-panel__action"
-          @click="emit('open-detail', item)"
-        >
-          →
-        </button>
-      </article>
+      </button>
     </div>
   </section>
 </template>
@@ -50,13 +45,8 @@ const isCollapsed = ref(true)
 .ai-panel__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0;
-  border: none;
-  background: transparent;
+  gap: 8px;
   text-align: left;
-  cursor: pointer;
 }
 
 .ai-panel__eyebrow {
@@ -65,55 +55,32 @@ const isCollapsed = ref(true)
   color: rgba(255, 255, 255, 0.72);
 }
 
-.ai-panel__toggle {
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 16px;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
-.ai-panel__toggle--collapsed {
-  transform: rotate(-90deg);
-}
-
 .ai-panel__list {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(100% + 10px);
   display: grid;
   gap: 10px;
-  padding: 16px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #34227e 0%, #28195f 100%);
-  box-shadow: 0 18px 36px rgba(20, 10, 56, 0.28);
+  margin-top: 8px;
 }
 
 .ai-panel__item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
   padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .ai-panel__item strong {
   color: #fff;
 }
 
-.ai-panel__action {
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 15px;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.ai-panel__action:hover {
-  color: #fff;
-  transform: translateX(2px);
+.ai-panel__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
 }
 </style>

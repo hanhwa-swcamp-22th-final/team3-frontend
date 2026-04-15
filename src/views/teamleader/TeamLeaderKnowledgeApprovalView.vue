@@ -35,7 +35,7 @@ function mapToQueueItem(dto) {
     author:    dto.authorName ?? '',
     date:      formatDate(dto.createdAt),
     isHeld:    Boolean(dto.approverId),
-    holdLabel: dto.approverName ? `${dto.approverName} 보류` : '보류 중',
+    holdLabel: dto.approverName ? `${dto.approverName} 임시저장` : '임시저장됨',
   }
 }
 
@@ -143,7 +143,7 @@ function validateReviewNote(action) {
     return false
   }
   if (action === 'PENDING' && note.length === 0) {
-    reviewError.value = '보류 처리에는 심사 코멘트를 입력해야 합니다.'
+    reviewError.value = '임시저장 처리에는 심사 코멘트를 입력해야 합니다.'
     return false
   }
   reviewError.value = ''
@@ -179,10 +179,10 @@ async function handleHold() {
       reviewComment: reviewNote.value,
     })
     await Promise.allSettled([loadStats(), loadList()])
-    showToast('보류 처리되었습니다.')
+    showToast('임시저장 처리되었습니다.')
   } catch (e) {
-    console.error('[KMS] 보류 처리 실패:', e)
-    showToast(normalizeErrorMessage(e, '보류 처리에 실패했습니다.'), 'error')
+    console.error('[KMS] 임시저장 처리 실패:', e)
+    showToast(normalizeErrorMessage(e, '임시저장 처리에 실패했습니다.'), 'error')
   } finally {
     isSubmitting.value = false
   }
