@@ -94,6 +94,7 @@ const hubStats          = ref({
   newThisMonthChange: 0,
   averageViewCountChange: 0,
 })
+const isArticleSubmitting = ref(false)
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
@@ -203,22 +204,14 @@ const headerCards = computed(() => [
 ])
 
 // ── 모달 상태 ──────────────────────────────────────────────────
-const showAcceptModal  = ref(false)
-const showRequestModal = ref(false)
-const showAddModal     = ref(false)
-const selectedRequest  = ref(null)
-
-function handleAcceptClick(request) {
-  selectedRequest.value = request
-  showAcceptModal.value = true
-}
-
-function handleRequestClick() {
-  showRequestModal.value = true
-}
+const showAddModal = ref(false)
 
 
 async function handleAddArticle(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.createArticle({
       title:       data.title,
@@ -230,10 +223,17 @@ async function handleAddArticle(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 문서 등록 실패:', e)
+    window.alert(e.response?.data?.message ?? '문서 등록에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
 async function handleSaveDraft(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.saveDraft({
       title:       data.title,
@@ -245,6 +245,9 @@ async function handleSaveDraft(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 임시저장 실패:', e)
+    window.alert(e.response?.data?.message ?? '임시 저장에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
@@ -326,10 +329,7 @@ async function toggleBookmark(article) {
 }
 
 function closeModal() {
-  showAcceptModal.value  = false
-  showRequestModal.value = false
-  showAddModal.value     = false
-  selectedRequest.value  = null
+  showAddModal.value = false
 }
 </script>
 
@@ -360,6 +360,7 @@ function closeModal() {
     <!-- Modals -->
     <WorkerKnowledgeAddModal
       v-if="showAddModal"
+      :submitting="isArticleSubmitting"
       @close="closeModal"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"

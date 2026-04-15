@@ -5,6 +5,12 @@ import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
 const emit = defineEmits(['close', 'submit', 'saveDraft'])
+const props = defineProps({
+  submitting: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const title       = ref('')
 const category    = ref('')
@@ -40,6 +46,9 @@ function getData() {
 }
 
 function handleSubmit() {
+  if (props.submitting) {
+    return
+  }
   if (!equipmentId.value) {
     errorMessage.value = '설비를 선택해야 등록할 수 있습니다.'
     return
@@ -49,6 +58,9 @@ function handleSubmit() {
 }
 
 function handleSaveDraft() {
+  if (props.submitting) {
+    return
+  }
   errorMessage.value = ''
   emit('saveDraft', getData())
 }
@@ -61,7 +73,8 @@ function handleSaveDraft() {
     width="560px"
     cancelText="취소"
     draftText="임시 저장"
-    confirmText="등록"
+    :confirmText="submitting ? '등록 중...' : '등록'"
+    :confirmDisabled="submitting"
     showDraftButton
     @close="emit('close')"
     @cancel="emit('close')"
@@ -113,7 +126,7 @@ function handleSaveDraft() {
         <div class="ka__field">
           <div class="ka__label-row">
             <label class="ka__label">본문</label>
-            <button class="ka__voice-btn">음성으로 작성</button>
+            <button class="ka__voice-btn" type="button" :disabled="submitting">음성으로 작성</button>
           </div>
           <p class="ka__hint">음성 인식으로 본문을 빠르게 작성할 수 있습니다.</p>
           <textarea

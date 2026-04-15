@@ -14,7 +14,7 @@ const activeCategory = ref('all')
 const searchQuery = ref('')
 const showAllCategories = ref(false)
 const currentPage = ref(1)
-const defaultVisibleCategoryCount = 4
+const defaultVisibleCategoryCount = 3
 const pageSize = 4
 const isWorker = computed(() => authStore.role() === 'worker')
 
