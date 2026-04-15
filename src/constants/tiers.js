@@ -7,18 +7,11 @@ export const TIER_COLORS = {
   C: '#EF476F',
 }
 
-export const TIER_BG_COLORS = {
+const TIER_BG_COLORS = {
   S: '#E3FBEF',
   A: '#F0EEFF',
   B: '#FFF8E1',
   C: '#FDE8ED',
-}
-
-export const TIER_TEXT_COLORS = {
-  S: '#fff',
-  A: '#fff',
-  B: '#855900',
-  C: '#fff',
 }
 
 export const TIER_BADGE_STYLES = {
@@ -28,7 +21,7 @@ export const TIER_BADGE_STYLES = {
   C: { bg: '#EF476F', text: '#fff' },
 }
 
-export const TIER_BAR_COLORS = {
+const TIER_BAR_COLORS = {
   S: '#00BF95',
   A: '#5B4FCF',
   B: '#5B4FCF',

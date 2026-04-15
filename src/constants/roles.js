@@ -6,4 +6,3 @@ export const ROLE_ROUTE_MAP = {
   worker: 'WorkerDashboard',
 }
 
-export const ROLE_KEYS = ['Admin', 'HR', 'TL', 'DL', 'Worker']
