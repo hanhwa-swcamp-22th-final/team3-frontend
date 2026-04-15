@@ -106,6 +106,7 @@ const hubStats          = ref({
   newThisMonthChange: 0,
   averageViewCountChange: 0,
 })
+const isArticleSubmitting = ref(false)
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
@@ -256,6 +257,10 @@ function submitRequest() {
 }
 
 async function handleAddArticle(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.createArticle({
       title:       data.title,
@@ -267,10 +272,17 @@ async function handleAddArticle(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 문서 등록 실패:', e)
+    window.alert(e.response?.data?.message ?? '문서 등록에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
 async function handleSaveDraft(data) {
+  if (isArticleSubmitting.value) {
+    return
+  }
+  isArticleSubmitting.value = true
   try {
     await knowledgeArticleApi.saveDraft({
       title:       data.title,
@@ -282,6 +294,9 @@ async function handleSaveDraft(data) {
     await loadArticles()
   } catch (e) {
     console.error('[KMS] 임시저장 실패:', e)
+    window.alert(e.response?.data?.message ?? '임시 저장에 실패했습니다.')
+  } finally {
+    isArticleSubmitting.value = false
   }
 }
 
@@ -414,6 +429,7 @@ function closeModal() {
     />
     <WorkerKnowledgeAddModal
       v-if="showAddModal"
+      :submitting="isArticleSubmitting"
       @close="closeModal"
       @submit="handleAddArticle"
       @saveDraft="handleSaveDraft"

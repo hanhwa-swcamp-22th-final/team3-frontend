@@ -29,10 +29,12 @@ function formatDateTime(isoString) {
 // ── 백엔드 DTO → 대기 큐 아이템 ─────────────────────────────────
 function mapToQueueItem(dto) {
   return {
-    id:     dto.articleId,
-    title:  dto.articleTitle,
-    author: dto.authorName ?? '',
-    date:   formatDate(dto.createdAt),
+    id:        dto.articleId,
+    title:     dto.articleTitle,
+    author:    dto.authorName ?? '',
+    date:      formatDate(dto.createdAt),
+    isHeld:    Boolean(dto.approverId),
+    holdLabel: dto.approverName ? `${dto.approverName} 보류` : '보류 중',
   }
 }
 
@@ -55,6 +57,7 @@ function mapToReviewItem(dto) {
     approverName:  dto.approverName ?? '',
     updatedAt:     formatDateTime(dto.updatedAt),
     reviewComment: dto.articleApprovalOpinion ?? '',
+    isHeld:        Boolean(dto.approverId),
   }
 }
 

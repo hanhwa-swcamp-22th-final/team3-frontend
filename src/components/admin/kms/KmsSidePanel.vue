@@ -2,11 +2,7 @@
 import { ref } from 'vue'
 import { BaseButton, BaseTextarea } from '@/components/common/base'
 import TeamLeaderKnowledgeHubContributors from '@/components/kms/common/knowledge-hub/teamleader/TeamLeaderKnowledgeHubContributors.vue'
-import {
-  MENTORING_ACTIVE,
-  MENTORING_REQUEST,
-  TIER_BADGE,
-} from '@/mocks/admin/kms/kmsData.js'
+import { knowledgeHubMentoring } from '@/mocks/teamleader/knowledgeHub'
 
 const props = defineProps({
   contributors:    { type: Array, default: () => [] },
@@ -19,6 +15,36 @@ const handleAccept = () => {
   accepted.value = true
   showAcceptModal.value = false
 }
+
+function buildAvatar(name, color) {
+  return {
+    name,
+    initial: name?.[0] ?? '?',
+    color,
+  }
+}
+
+const mentoringActive = knowledgeHubMentoring.ongoing.map((item) => ({
+  tag: item.field,
+  status: item.status,
+  tagBg: '#f6f3ff',
+  tagColor: '#5d50d7',
+  mentor: buildAvatar(item.mentor, '#5d50d7'),
+  mentee: buildAvatar(item.mentee, '#18b9a7'),
+}))
+
+const mentoringRequest = (() => {
+  const request = knowledgeHubMentoring.pending[0]
+  return {
+    applicant: buildAvatar(request.requestedBy, '#f0b539'),
+    text: `${request.name} · ${request.summary}`,
+    subText: `${request.requester} · ${request.requestedAt}`,
+    field: request.name,
+    duration: '2주',
+    priority: request.priority,
+    reason: request.reason,
+  }
+})()
 </script>
 
 <template>
@@ -30,7 +56,7 @@ const handleAccept = () => {
       <span class="section-title">🤝 멘토링 매칭 현황</span>
 
       <!-- 진행중 -->
-      <div v-for="m in MENTORING_ACTIVE" :key="m.tag" class="mentoring-row">
+      <div v-for="m in mentoringActive" :key="m.tag" class="mentoring-row">
         <div class="mentor-pair">
           <div class="pair-avatar" :style="{ background: m.mentor.color }">{{ m.mentor.initial }}</div>
           <span class="pair-arrow">→</span>
@@ -42,10 +68,10 @@ const handleAccept = () => {
 
       <!-- 신청 대기 -->
       <div class="mentoring-request">
-        <div class="request-avatar" :style="{ background: MENTORING_REQUEST.applicant.color }">
-          {{ MENTORING_REQUEST.applicant.initial }}
+        <div class="request-avatar" :style="{ background: mentoringRequest.applicant.color }">
+          {{ mentoringRequest.applicant.initial }}
         </div>
-        <span class="request-text">{{ MENTORING_REQUEST.text }}</span>
+        <span class="request-text">{{ mentoringRequest.text }}</span>
         <button v-if="!accepted" class="btn-match" @click="showAcceptModal = true">수락</button>
         <span v-else class="request-accepted">✓ 수락됨</span>
       </div>
@@ -65,12 +91,12 @@ const handleAccept = () => {
 
         <!-- 신청자 카드 -->
         <div class="am-applicant">
-          <div class="am-avatar" :style="{ background: MENTORING_REQUEST.applicant.color }">
-            {{ MENTORING_REQUEST.applicant.initial }}
+          <div class="am-avatar" :style="{ background: mentoringRequest.applicant.color }">
+            {{ mentoringRequest.applicant.initial }}
           </div>
           <div class="am-applicant-info">
-            <span class="am-applicant-name">{{ MENTORING_REQUEST.applicant.name }}</span>
-            <span class="am-applicant-sub">{{ MENTORING_REQUEST.subText }}</span>
+            <span class="am-applicant-name">{{ mentoringRequest.applicant.name }}</span>
+            <span class="am-applicant-sub">{{ mentoringRequest.subText }}</span>
           </div>
           <span class="am-badge">매칭 신청</span>
         </div>
@@ -79,22 +105,22 @@ const handleAccept = () => {
         <div class="am-info-row">
           <div class="am-info-card">
             <span class="am-info-label">요청 분야</span>
-            <span class="am-info-value">{{ MENTORING_REQUEST.field }}</span>
+            <span class="am-info-value">{{ mentoringRequest.field }}</span>
           </div>
           <div class="am-info-card">
             <span class="am-info-label">희망 기간</span>
-            <span class="am-info-value">{{ MENTORING_REQUEST.duration }}</span>
+            <span class="am-info-value">{{ mentoringRequest.duration }}</span>
           </div>
           <div class="am-info-card">
             <span class="am-info-label">우선도</span>
-            <span class="am-info-value am-info-value--high">{{ MENTORING_REQUEST.priority }}</span>
+            <span class="am-info-value am-info-value--high">{{ mentoringRequest.priority }}</span>
           </div>
         </div>
 
         <!-- 신청 사유 -->
         <div class="am-box">
           <span class="am-box-label">신청 사유</span>
-          <p class="am-box-text">{{ MENTORING_REQUEST.reason }}</p>
+          <p class="am-box-text">{{ mentoringRequest.reason }}</p>
         </div>
 
         <!-- 관리 메모 -->

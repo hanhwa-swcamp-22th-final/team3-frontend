@@ -56,8 +56,10 @@ function setPage(page) {
       >
         <div class="queue__item-top">
           <strong>{{ item.title }}</strong>
+          <span v-if="item.isHeld" class="queue__badge">보류중</span>
         </div>
         <p>{{ item.author }} · {{ item.date }}</p>
+        <p v-if="item.isHeld" class="queue__hold-meta">{{ item.holdLabel }}</p>
       </button>
 
       <div v-if="items.length === 0" class="queue__empty">현재 조건에 맞는 승인 문서가 없습니다.</div>
@@ -167,6 +169,23 @@ function setPage(page) {
   margin-top: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.queue__badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff5dd;
+  color: #b77900;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.queue__hold-meta {
+  margin-top: 6px;
+  color: #b77900;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .queue__empty {
