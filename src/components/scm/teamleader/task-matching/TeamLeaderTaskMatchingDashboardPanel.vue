@@ -164,10 +164,18 @@ function tierClass(tier) {
   gap: 10px;
 }
 
-.line-card__head h3,
-.alerts-card strong {
+.line-card__head h3 {
   font-size: 18px;
   color: var(--color-primary-800);
+}
+
+.alerts-card strong {
+  overflow: hidden;
+  color: var(--color-primary-800);
+  font-size: 14px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .line-card__percent {
@@ -471,7 +479,8 @@ function tierClass(tier) {
 
 .alerts-card__list {
   display: grid;
-  gap: 12px;
+  align-content: start;
+  gap: 8px;
   min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
@@ -479,11 +488,11 @@ function tierClass(tier) {
 
 .alerts-card__item {
   display: grid;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 9px 12px;
   border: 1px solid #ff9db0;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fff7f9;
   cursor: pointer;
   text-align: left;

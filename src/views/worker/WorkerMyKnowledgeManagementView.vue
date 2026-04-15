@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import { ARTICLE_CATEGORY_LABEL, ARTICLE_STATUS_LABEL } from '@/constants'
 import WorkerKnowledgeManagementHeader from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementHeader.vue'
 import WorkerKnowledgeManagementOverallCount from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeManagementOverallCount.vue'
@@ -11,8 +10,6 @@ import WorkerKnowledgeDetailModal from '@/components/kms/worker/my-knowledge-man
 import WorkerKnowledgeEditModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeEditModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
-const authStore = useAuthStore()
-const authorId = computed(() => Number(authStore.userInfo?.employeeId))
 
 // ── 날짜 포맷 헬퍼 ─────────────────────────────────────────────
 function formatDate(isoString) {
@@ -110,7 +107,7 @@ onMounted(async () => {
 
 async function loadStats() {
   try {
-    const res = await knowledgeArticleApi.getMyArticleStats(authorId.value)
+    const res = await knowledgeArticleApi.getMyArticleStats()
     const dto = res.data.data ?? {}
     overallCount.value = mapToOverallCount(dto)
   } catch (e) {
@@ -120,7 +117,7 @@ async function loadStats() {
 
 async function loadArticles() {
   try {
-    const res = await knowledgeArticleApi.getMyArticles({ authorId: authorId.value, page: 0, size: 50 })
+    const res = await knowledgeArticleApi.getMyArticles({ page: 0, size: 50 })
     myArticles.value = (res.data.data ?? []).map(mapToMyArticle)
   } catch (e) {
     console.error('[KMS] 내 문서 목록 로드 실패:', e)
@@ -129,7 +126,7 @@ async function loadArticles() {
 
 async function loadHistory() {
   try {
-    const res = await knowledgeArticleApi.getMyArticleHistory(authorId.value)
+    const res = await knowledgeArticleApi.getMyArticleHistory()
     editHistory.value = (res.data.data ?? []).map(mapToHistoryItem)
   } catch (e) {
     console.error('[KMS] 수정 이력 로드 실패:', e)
@@ -155,10 +152,10 @@ function openHistoryDetail(historyItem) {
 async function openEditModal(article) {
   if (article.status === '승인완료') {
     try {
-      const revRes = await knowledgeArticleApi.startRevision(article.id, authorId.value)
+      const revRes = await knowledgeArticleApi.startRevision(article.id)
       const revisionId = revRes.data.data   // Long revisionArticleId
 
-      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId, { requesterId: authorId.value })
+      const detailRes = await knowledgeArticleApi.getArticleDetail(revisionId)
       const dto = detailRes.data.data ?? {}
 
       selectedArticle.value = {
@@ -187,7 +184,6 @@ async function openEditModal(article) {
 async function handleAddArticle(data) {
   try {
     await knowledgeArticleApi.createArticle({
-      authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
       equipmentId: data.equipmentId,
@@ -203,7 +199,6 @@ async function handleAddArticle(data) {
 async function handleSaveDraft(data) {
   try {
     await knowledgeArticleApi.saveDraft({
-      authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
       equipmentId: data.equipmentId,
@@ -220,7 +215,6 @@ async function handleSaveDraft(data) {
 async function handleEditSubmit(data) {
   try {
     const submitPayload = {
-      authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
       equipmentId: data.equipmentId,
@@ -244,7 +238,6 @@ async function handleEditSubmit(data) {
 async function handleEditSaveDraft(data) {
   try {
     await knowledgeArticleApi.saveArticleAsDraft(data.id, {
-      authorId:    authorId.value,
       title:       data.title,
       category:    data.category,
       equipmentId: data.equipmentId,
@@ -262,7 +255,7 @@ async function handleDeleteArticle(article) {
   if (!confirmed) return
 
   try {
-    await knowledgeArticleApi.deleteArticle(article.id, { requesterId: authorId.value })
+    await knowledgeArticleApi.deleteArticle(article.id)
     if (selectedArticle.value?.id === article.id) {
       showDetailModal.value = false
       selectedArticle.value = null
@@ -279,7 +272,7 @@ async function handleRestoreArticle(article) {
   if (!confirmed) return
 
   try {
-    await knowledgeArticleApi.restoreArticle(article.id, { requesterId: authorId.value })
+    await knowledgeArticleApi.restoreArticle(article.id)
     if (selectedArticle.value?.id === article.id) {
       showDetailModal.value = false
       selectedArticle.value = null

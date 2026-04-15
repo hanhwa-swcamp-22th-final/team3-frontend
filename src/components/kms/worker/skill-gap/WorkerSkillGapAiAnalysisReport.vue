@@ -45,16 +45,6 @@ function barPercent(current, target) {
       </div>
     </div>
 
-    <!-- S+ Prediction -->
-    <div class="ar__prediction">
-      <span class="ar__prediction-title">📅 예상 S+ 달성</span>
-      <p class="ar__prediction-normal">
-        현재 성장률 유지 시: <strong>{{ report.prediction.normalDate }}</strong>
-      </p>
-      <p class="ar__prediction-fast">
-        가속 훈련 시: {{ report.prediction.acceleratedDate }}
-      </p>
-    </div>
   </div>
 </template>
 
@@ -67,6 +57,7 @@ function barPercent(current, target) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
 }
 
 .ar__label {
@@ -157,29 +148,4 @@ function barPercent(current, target) {
 }
 
 /* ── Prediction ────────────────────────────────────────── */
-.ar__prediction {
-  background: var(--color-success-soft);
-  border: 1px solid var(--color-status-approved-border);
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-}
-
-.ar__prediction-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #166534;
-}
-
-.ar__prediction-normal {
-  font-size: 16px;
-  color: #14532d;
-  margin: 8px 0 4px;
-  line-height: 1.5;
-}
-
-.ar__prediction-fast {
-  font-size: 13px;
-  color: #16a34a;
-  margin: 0;
-}
 </style>

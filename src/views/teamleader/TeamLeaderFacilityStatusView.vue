@@ -4,7 +4,7 @@ import { BaseFilterTabs } from '@/components/common/base'
 import TeamLeaderFacilityStatusCard from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityStatusCard.vue'
 import TeamLeaderFacilityTrendPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityTrendPanel.vue'
 import TeamLeaderFacilityHistoryPanel from '@/components/scm/teamleader/facility-status/TeamLeaderFacilityHistoryPanel.vue'
-import { getMyTeamFacilities, getFacilityHistory, getFacilityTrends } from '@/services/teamLeaderScmApi'
+import { getFacilities, getFacilityHistory, getFacilityTrends } from '@/services/teamLeaderScmApi'
 
 const STATUS_TONE  = { OPERATING: 'mint', UNDER_INSPECTION: 'warning', STOPPED: 'danger', DISPOSED: 'soft' }
 const STATUS_LABEL = { OPERATING: '가동중', UNDER_INSPECTION: '점검중', STOPPED: '정지', DISPOSED: '폐기' }
@@ -19,8 +19,10 @@ const facilityTrends  = ref({})   // { [equipmentId]: FacilityTrendsDto[] }
 const facilityHistories = ref([]) // flat merged array with .facilityName added
 const activeFilter    = ref('all')
 const activeTrendFilter = ref('all')
+const selectedFacilityId = ref(null)
 const currentPage     = ref(1)
 const pageSize        = 4
+const visiblePageCount = 5
 
 // ── Filter tabs (derived from real category data) ─────────────────
 const facilityFilters = computed(() => {
@@ -88,10 +90,31 @@ const filteredCards = computed(() =>
 
 const totalPages  = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
 const pagedCards  = computed(() => filteredCards.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize))
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
+const pageNumbers = computed(() => {
+  if (totalPages.value <= visiblePageCount) {
+    return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+  }
+
+  const half = Math.floor(visiblePageCount / 2)
+  let start = Math.max(1, currentPage.value - half)
+  const endLimit = totalPages.value - visiblePageCount + 1
+  start = Math.min(start, endLimit)
+
+  return Array.from({ length: visiblePageCount }, (_, i) => start + i)
+})
 
 watch(activeFilter,   () => { currentPage.value = 1 })
 watch(filteredCards,  () => { if (currentPage.value > totalPages.value) currentPage.value = totalPages.value })
+watch(filteredCards,  (cards) => {
+  if (cards.length === 0) {
+    selectedFacilityId.value = null
+    return
+  }
+
+  if (!cards.some((card) => card.id === selectedFacilityId.value)) {
+    selectedFacilityId.value = cards[0].id
+  }
+})
 
 // ── Trend panel ───────────────────────────────────────────────────
 const trendChartData = computed(() => {
@@ -135,8 +158,13 @@ const filteredTrend = computed(() => {
 })
 
 // ── History panel ─────────────────────────────────────────────────
+const selectedFacility = computed(() =>
+  facilities.value.find((facility) => String(facility.equipmentId) === selectedFacilityId.value)
+)
+
 const historyItems = computed(() =>
   facilityHistories.value
+    .filter((history) => !selectedFacilityId.value || String(history.equipmentId) === selectedFacilityId.value)
     .slice()
     .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt))
     .slice(0, 6)
@@ -149,9 +177,10 @@ const historyItems = computed(() =>
 
 // ── Data loading ──────────────────────────────────────────────────
 onMounted(async () => {
-  const raw = await getMyTeamFacilities().catch(() => [])
+  const raw = await getFacilities().catch(() => [])
   facilities.value = Array.isArray(raw) ? raw : []
   if (facilities.value.length === 0) return
+  selectedFacilityId.value = String(facilities.value[0].equipmentId)
 
   const ids = facilities.value.map((f) => f.equipmentId)
 
@@ -167,7 +196,7 @@ onMounted(async () => {
       ids.map((id) => {
         const f = facilities.value.find((f) => f.equipmentId === id)
         return getFacilityHistory(id)
-          .then((data) => (Array.isArray(data) ? data : []).map((h) => ({ ...h, facilityName: f?.equipmentName ?? '' })))
+          .then((data) => (Array.isArray(data) ? data : []).map((h) => ({ ...h, equipmentId: id, facilityName: f?.equipmentName ?? '' })))
           .catch(() => [])
       })
     ),
@@ -196,11 +225,21 @@ onMounted(async () => {
             v-for="card in pagedCards"
             :key="card.id"
             :card="card"
+            :selected="card.id === selectedFacilityId"
+            @select="selectedFacilityId = $event"
           />
         </div>
 
         <div class="teamleader-facility-view__pagination-slot">
           <div v-if="filteredCards.length > 0" class="teamleader-facility-view__pagination">
+            <button
+              type="button"
+              class="teamleader-facility-view__page-button"
+              :disabled="currentPage === 1"
+              @click="currentPage = Math.max(1, currentPage - 1)"
+            >
+              이전
+            </button>
             <button
               v-for="page in pageNumbers"
               :key="page"
@@ -210,6 +249,14 @@ onMounted(async () => {
               @click="currentPage = page"
             >
               {{ page }}
+            </button>
+            <button
+              type="button"
+              class="teamleader-facility-view__page-button"
+              :disabled="currentPage === totalPages"
+              @click="currentPage = Math.min(totalPages, currentPage + 1)"
+            >
+              다음
             </button>
           </div>
         </div>
@@ -223,7 +270,10 @@ onMounted(async () => {
           @change-filter="activeTrendFilter = $event"
         />
 
-        <TeamLeaderFacilityHistoryPanel :items="historyItems" />
+        <TeamLeaderFacilityHistoryPanel
+          :items="historyItems"
+          :facility-name="selectedFacility?.equipmentName ?? ''"
+        />
       </section>
     </section>
   </section>
@@ -283,14 +333,18 @@ onMounted(async () => {
 
 .teamleader-facility-view__pagination-slot {
   display: grid;
-  align-items: end;
+  place-items: end center;
+  min-width: 0;
 }
 
 .teamleader-facility-view__pagination {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
+  max-width: 100%;
   min-height: 34px;
+  overflow: hidden;
 }
 
 .teamleader-facility-view__page-button {
@@ -303,6 +357,11 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.teamleader-facility-view__page-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .teamleader-facility-view__page-button--active {

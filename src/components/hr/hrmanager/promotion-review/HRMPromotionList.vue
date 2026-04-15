@@ -1,270 +1,344 @@
 <script setup>
-import BaseFilterTabs from '@/components/common/base/navigation/BaseFilterTabs.vue'
+import { ref, computed, watch } from 'vue'
+import { BaseEmptyState } from '@/components/common/base'
+import EvaluationMemberCard from '@/components/hr/common/evaluation/EvaluationMemberCard.vue'
 
-defineProps({
+const props = defineProps({
   list:       { type: Array,  required: true },
-  tabs:       { type: Array,  required: true },
-  activeTab:  { type: String, required: true },
   selectedId: { default: null },
+  pageSize:   { type: Number, default: 6 },
 })
-defineEmits(['tab-change', 'select', 'confirm'])
+const emit = defineEmits(['select'])
 
-const RESULT_STYLE = {
-  '보류':     { bg: '#f0eeff', color: '#7468e2' },
-  '승급 권장': { bg: '#fff3cd', color: '#b07800' },
-  '승급 가능': { bg: '#e3fbef', color: '#007a60' },
-  '승급 확정': { bg: '#00bf95', color: '#fff' },
-}
+const search       = ref('')
+const currentPage  = ref(1)
+const tierFilter   = ref('전체')
+const statusFilter = ref('전체')
+const tierDropdownOpen   = ref(false)
+const statusDropdownOpen = ref(false)
 
-function resultStyle(result) {
-  return RESULT_STYLE[result] ?? RESULT_STYLE['보류']
+const tierOptions = [
+  { value: '전체', label: '전체' },
+  { value: 'S',    label: 'S-Tier' },
+  { value: 'A',    label: 'A-Tier' },
+]
+
+const statusOptions = [
+  { value: '전체',                    label: '전체' },
+  { value: 'UNDER_REVIEW',            label: '검토 대기' },
+  { value: 'CONFIRMATION_OF_PROMOTION', label: '승급 확정' },
+  { value: 'TIER_APPLIED',            label: '적용 완료' },
+  { value: 'SUSPENSION',              label: '보류' },
+]
+
+const tierFilterLabel   = computed(() => tierOptions.find(o => o.value === tierFilter.value)?.label   ?? '전체')
+const statusFilterLabel = computed(() => statusOptions.find(o => o.value === statusFilter.value)?.label ?? '전체')
+
+function selectTier(v)   { tierFilter.value   = v; tierDropdownOpen.value   = false }
+function selectStatus(v) { statusFilter.value = v; statusDropdownOpen.value = false }
+function closeAll()      { tierDropdownOpen.value = false; statusDropdownOpen.value = false }
+
+const filteredList = computed(() => {
+  const keyword = search.value.trim().toLowerCase()
+  return props.list.filter(item => {
+    const matchTier   = tierFilter.value   === '전체' || item.targetTier === tierFilter.value
+    const matchStatus = statusFilter.value === '전체' || item.rawStatus  === statusFilter.value
+    const matchSearch = !keyword || item.name?.toLowerCase().includes(keyword)
+    return matchTier && matchStatus && matchSearch
+  })
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredList.value.length / props.pageSize)))
+const pagedList  = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize
+  return filteredList.value.slice(start, start + props.pageSize)
+})
+
+watch([search, tierFilter, statusFilter], () => { currentPage.value = 1 })
+watch(totalPages, (n) => { if (currentPage.value > n) currentPage.value = n })
+
+const statusConfig = {
+  UNDER_REVIEW:              { label: '검토 대기', cardStatus: 'in_progress' },
+  CONFIRMATION_OF_PROMOTION: { label: '승급 확정', cardStatus: 'submitted' },
+  TIER_APPLIED:              { label: '적용 완료', cardStatus: 'submitted' },
+  SUSPENSION:                { label: '보류',      cardStatus: 'not_started' },
 }
 </script>
 
 <template>
-  <article class="promo-list">
-    <p class="promo-list__title">🏆 승급 심사 대상자 ({{ list.length }}명)</p>
-
-    <BaseFilterTabs
-      :items="tabs"
-      :modelValue="activeTab"
-      variant="chip"
-      show-count
-      @change="$emit('tab-change', $event)"
-    />
-
-    <table class="promo-table">
-      <thead>
-        <tr>
-          <th>이름</th>
-          <th>현재Tier</th>
-          <th>종합점수</th>
-          <th>요건충족</th>
-          <th>미달항목</th>
-          <th>성장추이</th>
-          <th>예상결과</th>
-          <th>처리결과</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="item in list"
-          :key="item.id"
-          :class="{ 'promo-table__row--selected': selectedId === item.id }"
-          @click="$emit('select', item.id)"
-        >
-          <td>
-            <div class="promo-table__name">
-              <span class="promo-table__avatar" :style="{ background: item.avatarColor }">
-                {{ item.name[0] }}
-              </span>
-              {{ item.name }}
-            </div>
-          </td>
-          <td>
-            <span class="promo-table__tier">{{ item.currentTier }}→{{ item.targetTier }}</span>
-          </td>
-          <td class="promo-table__score">{{ item.totalScore }}</td>
-          <td>
-            <div class="promo-table__bar-wrap">
-              <div
-                class="promo-table__bar"
-                :class="item.fulfillRate === 100 ? 'promo-table__bar--full' : item.fulfillRate >= 70 ? 'promo-table__bar--high' : 'promo-table__bar--low'"
-                :style="{ width: item.fulfillRate + '%' }"
-              />
-            </div>
-          </td>
-          <td :class="{ 'promo-table__missing--red': item.missingCount > 0 }">
-            {{ item.missingCount }}개
-          </td>
-          <td class="promo-table__trend">
-            ▲{{ item.growthTrend }} {{ item.growthArrows }}
-          </td>
-          <td>
-            <span class="promo-table__result" :style="{ background: resultStyle(item.result).bg, color: resultStyle(item.result).color }">
-              {{ item.result }}
-            </span>
-          </td>
-          <td>
-            <span
-              class="promo-table__process"
-              :class="{
-                'promo-table__process--confirm': item.processedStatus === 'confirm',
-                'promo-table__process--hold':    item.processedStatus === 'hold',
-                'promo-table__process--none':    !item.processedStatus,
-              }"
-            >
-              {{ item.processedStatus === 'confirm' ? '승급확정' : item.processedStatus === 'hold' ? '보류' : '미처리' }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="promo-list__actions">
-      <button class="promo-list__btn promo-list__btn--excel">Excel 내보내기</button>
+  <article class="promo-panel">
+    <div class="promo-panel__header">
+      <div>
+        <p class="promo-panel__eyebrow">승급 심사 현황</p>
+        <h3 class="promo-panel__title">대상자 목록</h3>
+      </div>
+      <span class="promo-panel__total">총 {{ list.length }}명</span>
     </div>
+
+    <div class="promo-panel__filters">
+      <!-- Tier 필터 -->
+      <div class="promo-panel__dropdown-wrap">
+        <button class="promo-panel__filter-btn" @click="tierDropdownOpen = !tierDropdownOpen; statusDropdownOpen = false">
+          <span class="promo-panel__filter-label">Tier: {{ tierFilterLabel }}</span>
+          <span class="promo-panel__filter-chevron">▾</span>
+        </button>
+        <ul v-if="tierDropdownOpen" class="promo-panel__dropdown" @click.stop>
+          <li
+            v-for="o in tierOptions"
+            :key="o.value"
+            class="promo-panel__dropdown-item"
+            :class="{ 'promo-panel__dropdown-item--active': tierFilter === o.value }"
+            @click="selectTier(o.value)"
+          >{{ o.label }}</li>
+        </ul>
+      </div>
+
+      <!-- 상태 필터 -->
+      <div class="promo-panel__dropdown-wrap">
+        <button class="promo-panel__filter-btn" @click="statusDropdownOpen = !statusDropdownOpen; tierDropdownOpen = false">
+          <span class="promo-panel__filter-label">상태: {{ statusFilterLabel }}</span>
+          <span class="promo-panel__filter-chevron">▾</span>
+        </button>
+        <ul v-if="statusDropdownOpen" class="promo-panel__dropdown" @click.stop>
+          <li
+            v-for="o in statusOptions"
+            :key="o.value"
+            class="promo-panel__dropdown-item"
+            :class="{ 'promo-panel__dropdown-item--active': statusFilter === o.value }"
+            @click="selectStatus(o.value)"
+          >{{ o.label }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <label class="promo-panel__search" aria-label="대상자 검색">
+      <span class="promo-panel__search-icon" aria-hidden="true">⌕</span>
+      <input
+        v-model="search"
+        type="text"
+        class="promo-panel__search-input"
+        placeholder="이름으로 검색"
+        @focus="closeAll"
+      />
+    </label>
+
+    <template v-if="filteredList.length">
+      <div class="promo-eval-list">
+        <EvaluationMemberCard
+          v-for="item in pagedList"
+          :key="item.id"
+          :member-id="item.id"
+          :name="item.name"
+          :avatar="item.avatar"
+          :avatar-tone="item.avatarTone"
+          :tier="item.tierBadge"
+          :meta="item.meta"
+          :status="statusConfig[item.rawStatus]?.cardStatus ?? 'not_started'"
+          :status-label="statusConfig[item.rawStatus]?.label"
+          :status-date="item.statusDate"
+          :selected="selectedId === item.id"
+          @select="emit('select', item.id)"
+        />
+      </div>
+
+      <div v-if="totalPages > 1" class="promo-panel__pagination">
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          type="button"
+          class="promo-panel__page"
+          :class="{ 'promo-panel__page--active': page === currentPage }"
+          @click="currentPage = page"
+        >{{ page }}</button>
+      </div>
+    </template>
+
+    <BaseEmptyState
+      v-else
+      icon="⌕"
+      title="조건에 맞는 대상자가 없습니다."
+      description="검색어나 필터를 조정해보세요."
+      class="promo-panel__empty"
+    />
   </article>
 </template>
 
 <style scoped>
-.promo-list {
-  flex: 1;
+.promo-panel {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: 12px;
   background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: 16px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 24px;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
-.promo-list__title {
-  font-size: var(--font-size-sm);
+
+.promo-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.promo-panel__eyebrow {
+  margin: 0 0 4px;
+  font-size: var(--font-size-xs-plus);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-500);
 }
 
-/* 테이블 */
-.promo-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-.promo-table th {
-  text-align: left;
-  padding: 8px 10px;
-  font-size: var(--font-size-sm);
+.promo-panel__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-muted);
-  border-bottom: 1.5px solid var(--color-border-default);
+  color: var(--color-primary-800);
 }
-.promo-table td {
-  padding: 10px 10px;
-  border-bottom: 1px solid var(--color-border-default);
-  vertical-align: middle;
-}
-.promo-table tbody tr {
-  cursor: pointer;
-}
-.promo-table tbody tr:hover { background: var(--color-primary-100); }
-.promo-table__row--selected { background: var(--color-primary-100); }
 
-.promo-table__name {
+.promo-panel__total {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.promo-panel__filters {
+  display: flex;
+  gap: 8px;
+}
+
+.promo-panel__dropdown-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.promo-panel__filter-btn {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 14px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-700);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.promo-panel__filter-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo-panel__filter-chevron {
+  position: absolute;
+  right: 10px;
+  color: var(--color-text-muted);
+}
+
+.promo-panel__dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  list-style: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.promo-panel__dropdown-item {
+  padding: 10px 14px;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  color: var(--color-text-default);
+}
+
+.promo-panel__dropdown-item:hover { background: var(--color-primary-100); }
+.promo-panel__dropdown-item--active { font-weight: var(--font-weight-bold); color: var(--color-primary-700); }
+
+.promo-panel__search {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-800);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  background: var(--color-bg-surface-muted);
 }
-.promo-table__avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-xs);
-  font-weight: 900;
-  color: #fff;
+
+.promo-panel__search-icon {
   flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base-plus);
 }
-.promo-table__tier {
+
+.promo-panel__search-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-600);
-}
-.promo-table__score {
-  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
-.promo-table__bar-wrap {
-  width: 80px;
-  height: 6px;
-  background: var(--color-border-default);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.promo-table__bar {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s;
-}
-.promo-table__bar--full  { background: var(--color-mint-500); }
-.promo-table__bar--high  { background: var(--color-mint-500); }
-.promo-table__bar--low   { background: #ffd166; }
 
-.promo-table__missing--red { color: var(--color-danger); font-weight: var(--font-weight-bold); }
-.promo-table__trend { color: var(--color-mint-500); font-weight: var(--font-weight-bold); }
+.promo-panel__search-input::placeholder { color: var(--color-text-muted); }
 
-.promo-table__result {
-  display: inline-flex;
-  align-items: center;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: 10px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
+.promo-eval-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
-.promo-table__process {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 10px;
-  border-radius: 6px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-}
-.promo-table__process--none    { background: var(--color-bg-app);  color: #a89ed8; border: 1px solid var(--color-border-default); }
-.promo-table__process--confirm { background: #e3fbef; color: #007a60; border: 1px solid var(--color-mint-500); }
-.promo-table__process--hold    { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
 
-/* 필터 탭 */
-:deep(.base-filter-tabs--chip .base-filter-tabs__item) {
-  height: 30px;
-  padding: 0 12px;
-  font-size: var(--font-size-xs-plus);
-}
-:deep(.base-filter-tabs__count) {
-  display: inline-flex;
+.promo-panel__pagination {
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--color-primary-200);
-  color: var(--color-primary-700);
-  font-size: 11px;
-  font-weight: var(--font-weight-bold);
-  line-height: 1;
-}
-:deep(.base-filter-tabs__item--active .base-filter-tabs__count) {
-  background: var(--color-primary-600);
-  color: var(--color-white);
+  gap: 8px;
+  min-height: 34px;
 }
 
-/* 하단 액션 */
-.promo-list__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 4px;
-}
-.promo-list__btn {
-  height: 38px;
-  padding: 0 20px;
-  border-radius: 8px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+.promo-panel__page {
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-primary-700);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
 }
-.promo-list__btn--excel {
-  background: var(--color-bg-app);
-  color: var(--color-primary-600);
-  border: 1.5px solid var(--color-border-default);
+
+.promo-panel__page--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
 }
+
+.promo-panel__empty { align-self: center; }
 </style>

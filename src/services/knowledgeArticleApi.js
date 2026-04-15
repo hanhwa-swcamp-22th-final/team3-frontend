@@ -91,8 +91,8 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles', { params })
   },
 
-  getArticleDetail(articleId, params = {}) {
-    return kmsApi.get(`/api/kms/articles/${articleId}`, { params })
+  getArticleDetail(articleId) {
+    return kmsApi.get(`/api/kms/articles/${articleId}`)
   },
 
   getHubStats() {
@@ -108,6 +108,10 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles/recommendations')
   },
 
+  getWorkerSkillGap() {
+    return kmsApi.get('/api/kms/workers/me/skill-gap')
+  },
+
   getTags() {
     return kmsApi.get('/api/kms/tags')
   },
@@ -117,46 +121,43 @@ const knowledgeArticleApi = {
   },
 
   // ── 내 지식 관리 ────────────────────────────────────────────────
-  getMyArticleStats(authorId) {
-    return kmsApi.get('/api/kms/my/articles/stats', { params: { authorId } })
+  getMyArticleStats() {
+    return kmsApi.get('/api/kms/my/articles/stats')
   },
 
-  // params: { authorId, status, page, size }
+  // params: { status, page, size }
   getMyArticles(params = {}) {
     return kmsApi.get('/api/kms/my/articles', { params })
   },
 
-  getMyArticleHistory(authorId) {
-    return kmsApi.get('/api/kms/my/articles/history', { params: { authorId } })
+  getMyArticleHistory() {
+    return kmsApi.get('/api/kms/my/articles/history')
   },
 
-  getMyBookmarks(employeeId) {
-    return kmsApi.get('/api/kms/my/bookmarks', { params: { employeeId } })
+  getMyBookmarks() {
+    return kmsApi.get('/api/kms/my/bookmarks')
   },
 
   // ── 승인 조회 ───────────────────────────────────────────────────
-  getApprovalStats() {
+  getPendingStats() {
     return kmsApi.get('/api/kms/stats', { params: { status: 'pending' } })
   },
 
   // params: { page, size }
-  getApprovalList(params = {}) {
+  getPendingList(params = {}) {
     return kmsApi.get('/api/kms/articles', {
-      params: {
-        ...params,
-        status: 'pending',
-      },
+      params: { ...params, status: 'pending' },
     })
   },
 
-  getApprovalDetail(articleId) {
+  getPendingDetail(articleId) {
     return kmsApi.get(`/api/kms/articles/${articleId}`, {
       params: { status: 'pending' },
     })
   },
 
   // ── Worker Command ────────────────────────────────────────────
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   createArticle(data) {
     return kmsApi.post('/api/kms/articles', data)
   },
@@ -165,7 +166,7 @@ const knowledgeArticleApi = {
     return kmsApi.post('/api/kms/articles/drafts', data)
   },
 
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   // DRAFT / PENDING / REJECTED 상태 문서만 허용 (임시저장용)
   updateArticle(articleId, data) {
     return kmsApi.put(`/api/kms/articles/${articleId}`, data)
@@ -177,24 +178,22 @@ const knowledgeArticleApi = {
   },
 
   // APPROVED 문서 수정 시작: 복사본(DRAFT) 생성 또는 기존 복사본 반환
-  // requesterId: Long
-  startRevision(articleId, requesterId) {
-    return kmsApi.put(`/api/kms/articles/${articleId}/revision`, { requesterId })
+  startRevision(articleId) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/revision`, {})
   },
 
   // DRAFT / REJECTED → PENDING 제출
-  // data: { authorId, title, category, equipmentId, content }
+  // data: { title, category, equipmentId, content }
   submitDraft(articleId, data) {
     return kmsApi.put(`/api/kms/articles/${articleId}/submit`, data)
   },
 
-  // data: { requesterId }
-  deleteArticle(articleId, data) {
-    return kmsApi.delete(`/api/kms/articles/${articleId}`, { data })
+  deleteArticle(articleId) {
+    return kmsApi.delete(`/api/kms/articles/${articleId}`)
   },
 
-  restoreArticle(articleId, data) {
-    return kmsApi.put(`/api/kms/articles/${articleId}/restore`, data)
+  restoreArticle(articleId) {
+    return kmsApi.put(`/api/kms/articles/${articleId}/restore`, {})
   },
 
   // tagIds: Long[]
@@ -202,23 +201,20 @@ const knowledgeArticleApi = {
     return kmsApi.put(`/api/kms/articles/${articleId}/tags`, { tagIds })
   },
 
-  addBookmark(articleId, employeeId) {
-    return kmsApi.post('/api/kms/bookmarks', { articleId, employeeId })
+  addBookmark(articleId) {
+    return kmsApi.post('/api/kms/bookmarks', { articleId })
   },
 
-  removeBookmark(articleId, employeeId) {
-    return kmsApi.delete('/api/kms/bookmarks', { params: { articleId, employeeId } })
+  removeBookmark(articleId) {
+    return kmsApi.delete('/api/kms/bookmarks', { params: { articleId } })
   },
 
   // ── 승인 처리 (TL / DL) ─────────────────────────────────────────
   // role   : 'TL' | 'DL'
   // data   : { status: 'APPROVE'|'REJECT'|'PENDING', reviewComment }
   processApproval(role, articleId, data) {
-    const authStore = useAuthStore()
     const prefix = role === 'TL' ? 'tl' : 'dl'
-    return kmsApi.post(`/api/kms/${prefix}/articles/${articleId}/approval`, data, {
-      headers: { 'X-Employee-Id': authStore.userInfo?.employeeId },
-    })
+    return kmsApi.post(`/api/kms/${prefix}/articles/${articleId}/approval`, data)
   },
 
   // ── Admin Command ─────────────────────────────────────────────

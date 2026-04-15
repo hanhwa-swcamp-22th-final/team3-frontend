@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const animated = ref(false)
 onMounted(() => {
@@ -8,18 +8,38 @@ onMounted(() => {
   })
 })
 
-defineProps({
+const props = defineProps({
   missions: {
     type: Array,
     default: () => [],
     // [{ title, points, current, target, icon }]
   },
+  currentTier: {
+    type: String,
+    default: '',
+  },
 })
+
+const tierOrder = ['C', 'B', 'A', 'S', 'S+']
+
+const nextTier = computed(() => {
+  const missionTargetTier = props.missions.find((mission) => mission.targetTier)?.targetTier
+  if (missionTargetTier) return missionTargetTier
+
+  const currentIndex = tierOrder.indexOf(props.currentTier)
+  return currentIndex >= 0 && currentIndex < tierOrder.length - 1
+    ? tierOrder[currentIndex + 1]
+    : ''
+})
+
+const title = computed(() =>
+  nextTier.value ? `${nextTier.value} 승급 미션 리스트` : '승급 미션 리스트'
+)
 </script>
 
 <template>
   <div class="missions">
-    <h3 class="missions__title">S+ 승급 미션 리스트</h3>
+    <h3 class="missions__title">{{ title }}</h3>
 
     <div class="missions__list">
       <div v-for="(m, i) in missions" :key="i" class="missions__card">

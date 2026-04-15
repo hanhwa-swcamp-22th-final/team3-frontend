@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { API_BASE } from '@/constants'
 import BaseStatCard         from '@/components/common/base/display/BaseStatCard.vue'
 import HRMKpiTeamBarChart   from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamBarChart.vue'
 import HRMKpiTierTrendChart from '@/components/hr/hrmanager/kpi-report/HRMKpiTierTrendChart.vue'
 import HRMKpiCompletionDonut from '@/components/hr/hrmanager/kpi-report/HRMKpiCompletionDonut.vue'
 import HRMKpiTeamTable      from '@/components/hr/hrmanager/kpi-report/HRMKpiTeamTable.vue'
+import { downloadHrmKpiReport, getHrmKpiReport } from '@/services/hrDashboardApi'
 
 const loading         = ref(true)
 const allReports      = ref([])
@@ -17,30 +17,34 @@ const selectedQuarter = ref('2026년 1분기')
 const report      = computed(() => allReports.value.find(r => r.quarter === selectedQuarter.value) ?? null)
 const teamScores  = computed(() => allTeamScores.value.filter(s => s.quarter === selectedQuarter.value))
 const teamLeaders = computed(() => allTeamLeaders.value.filter(l => l.quarter === selectedQuarter.value))
-
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
-}
+const quarterOptions = computed(() => {
+  const defaults = ['2026년 1분기', '2025년 4분기', '2025년 3분기']
+  return [...new Set([selectedQuarter.value, ...defaults].filter(Boolean))]
+})
 
 onMounted(async () => {
   try {
-    const [kpi, scores, trend, leaders] = await Promise.all([
-      fetchJson(`${API_BASE}/kpiReport`),
-      fetchJson(`${API_BASE}/kpiTeamScores`),
-      fetchJson(`${API_BASE}/kpiTierTrend`),
-      fetchJson(`${API_BASE}/kpiTeamLeaders`),
-    ])
-    allReports.value     = kpi
-    allTeamScores.value  = scores
-    tierTrend.value      = trend
-    allTeamLeaders.value = leaders
+    const data = await getHrmKpiReport()
+    allReports.value = [data.report]
+    selectedQuarter.value = data.report.quarter
+    allTeamScores.value = data.teamScores
+    tierTrend.value = data.tierTrend
+    allTeamLeaders.value = data.teamLeaders
   } catch (e) {
     console.error('KPI 데이터 로딩 실패:', e)
   } finally {
     loading.value = false
   }
 })
+
+async function handleDownloadReport() {
+  try {
+    await downloadHrmKpiReport()
+  } catch (e) {
+    console.error('KPI 보고서 다운로드 실패:', e)
+    alert('보고서 다운로드에 실패했습니다.')
+  }
+}
 </script>
 
 <template>
@@ -51,12 +55,10 @@ onMounted(async () => {
       <!-- 툴바 -->
       <div class="kpi-view__toolbar">
         <select class="kpi-view__quarter-select" v-model="selectedQuarter">
-          <option>2026년 1분기</option>
-          <option>2025년 4분기</option>
-          <option>2025년 3분기</option>
+          <option v-for="quarter in quarterOptions" :key="quarter">{{ quarter }}</option>
         </select>
         <div class="kpi-view__toolbar-actions">
-          <button class="kpi-view__btn kpi-view__btn--primary">📥 전체 보고서 다운로드</button>
+          <button class="kpi-view__btn kpi-view__btn--primary" @click="handleDownloadReport">📥 전체 보고서 다운로드</button>
         </div>
       </div>
 

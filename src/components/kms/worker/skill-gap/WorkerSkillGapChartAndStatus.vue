@@ -3,6 +3,8 @@ import { computed, ref, onMounted } from 'vue'
 import BaseProgressBar from '@/components/common/base/data-display/BaseProgressBar.vue'
 
 const props = defineProps({
+  currentTier: { type: String, required: true },
+  targetTier: { type: String, required: true },
   skills: { type: Array, required: true },
   summary: { type: Object, required: true },
 })
@@ -84,13 +86,23 @@ const labelPositions = computed(() => {
 })
 
 const overallPercent = computed(() => {
+  if (!props.summary.targetOverall) return 0
   return Math.round((props.summary.currentOverall / props.summary.targetOverall) * 100)
+})
+
+const targetLabel = computed(() => `${props.targetTier} 등급 목표`)
+const comparisonLabel = computed(() => `현재 ${props.currentTier} 등급 VS ${props.targetTier} 등급 목표`)
+const gapSummaryLabel = computed(() => {
+  if (props.currentTier === props.targetTier) {
+    return '현재 최고 등급 유지 중'
+  }
+  return `평균 기준 ▲ ${props.summary.totalGap}점 필요`
 })
 </script>
 
 <template>
   <div class="sg">
-    <span class="sg__label">📊 현재 역량 VS S+ 목표</span>
+    <span class="sg__label">📊 {{ comparisonLabel }}</span>
 
     <!-- Radar Chart -->
     <div class="sg__chart-wrap">
@@ -110,7 +122,7 @@ const overallPercent = computed(() => {
           stroke="#E0DCFF"
           stroke-width="1"
         />
-        <!-- Target (S+) -->
+        <!-- Target -->
         <path
           :d="targetPath"
           fill="rgba(0, 191, 149, 0.08)"
@@ -144,21 +156,21 @@ const overallPercent = computed(() => {
         <span class="sg__legend-dot" style="background: #5B4FCF"></span> 현재 ● #5B4FCF
       </span>
       <span class="sg__legend-item">
-        <span class="sg__legend-line"></span> S+ 목표 -- #00BF95
+        <span class="sg__legend-line"></span> {{ targetLabel }} -- #00BF95
       </span>
     </div>
 
     <!-- Gap Summary -->
     <div class="sg__gap">
       <span class="sg__gap-label">종합 Gap</span>
-      <span class="sg__gap-value">▲ {{ summary.totalGap }}점 필요</span>
+      <span class="sg__gap-value">{{ gapSummaryLabel }}</span>
     </div>
 
     <!-- Overall Progress Bar -->
     <div class="sg__progress">
       <BaseProgressBar :value="animated ? overallPercent : 0" :show-percent="true" size="md" />
       <span class="sg__progress-text">
-        현재 {{ summary.currentOverall }}점 → 목표 {{ summary.targetOverall }}점
+        평균 현재 {{ summary.currentOverall }}점 → 평균 목표 {{ summary.targetOverall }}점
       </span>
     </div>
 
@@ -187,6 +199,7 @@ const overallPercent = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
 }
 
 .sg__label {

@@ -13,6 +13,10 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit'])
 
 const selectedTechnicianId = ref(null)
+const MATCHING_MODE_LABELS = {
+  EFFICIENCY_TYPE: '최적형 배정',
+  GROWTH_TYPE: '도전형 배정',
+}
 
 watch(
   () => props.open,
@@ -36,6 +40,10 @@ watch(
 const selectedCandidate = computed(() =>
   props.candidates.find((candidate) => candidate.employeeId === selectedTechnicianId.value) ?? null
 )
+
+function matchingModeLabel(candidate) {
+  return MATCHING_MODE_LABELS[candidate?.matchingMode] ?? '배정 유형 미정'
+}
 
 function handleSubmit() {
   if (!props.order?.orderId || !selectedTechnicianId.value) return
@@ -103,6 +111,7 @@ function handleSubmit() {
           <div class="assignment-modal__candidate-row assignment-modal__candidate-row--meta">
             <span>OCSA {{ candidate.score ?? '-' }}</span>
             <span>적합도 {{ candidate.suitabilityScore ?? '-' }}</span>
+            <span class="assignment-modal__mode">{{ matchingModeLabel(candidate) }}</span>
           </div>
         </div>
       </label>
@@ -172,6 +181,14 @@ function handleSubmit() {
   color: var(--color-primary-700);
   font-size: 12px;
   font-weight: 700;
+}
+.assignment-modal__mode {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f6f3ff;
+  color: var(--color-primary-700);
+  font-weight: 800;
 }
 .assignment-modal__summary {
   display: flex;

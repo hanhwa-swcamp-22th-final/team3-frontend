@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import hrApi from '@/services/hrApi'
 import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
@@ -12,6 +13,7 @@ const selectedId     = ref(null)
 const selectedNotice = ref(null)
 const showFormModal  = ref(false)
 const editTarget     = ref(null)
+const route = useRoute()
 
 // ── 필드 변환 헬퍼 ────────────────────────────────
 const STATUS_MAP = { POSTING: '게시중', RESERVATION: '예약', TEMPORARY: '임시' }
@@ -62,6 +64,11 @@ async function fetchNotices() {
     const res = await hrApi.get('/api/v1/hr/notices')
     const list = res.data?.success ? res.data.data : res.data
     notices.value = (Array.isArray(list) ? list : []).map(normalizeList)
+    const queryNoticeId = route.query.noticeId ? Number(route.query.noticeId) : null
+    if (queryNoticeId && notices.value.some(notice => notice.id === queryNoticeId)) {
+      selectedId.value = queryNoticeId
+      return
+    }
     if (!selectedId.value && notices.value.length) {
       selectedId.value = notices.value[0].id
     }

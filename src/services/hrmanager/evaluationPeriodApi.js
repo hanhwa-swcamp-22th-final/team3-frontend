@@ -14,12 +14,11 @@ export function fetchEvaluationPeriods(params = {}) {
 }
 
 /** 평가기간 생성 */
-export function createEvaluationPeriod({ algorithmVersionId, evalYear, evalSequence, evalType, startDate, endDate }) {
+export function createEvaluationPeriod({ algorithmVersionId, evalYear, evalSequence, startDate, endDate }) {
   return hrApi.post('/api/v1/hr/evaluation-periods', {
     algorithmVersionId,
     evalYear,
     evalSequence,
-    evalType,
     startDate,
     endDate,
   })

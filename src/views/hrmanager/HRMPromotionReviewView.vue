@@ -1,86 +1,109 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { API_BASE } from '@/constants'
 import BaseStatCard        from '@/components/common/base/display/BaseStatCard.vue'
 import HRMPromotionList    from '@/components/hr/hrmanager/promotion-review/HRMPromotionList.vue'
 import HRMPromotionDetail  from '@/components/hr/hrmanager/promotion-review/HRMPromotionDetail.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
+import promotionApi from '@/services/hrmanager/promotionApi.js'
 
-const loading    = ref(true)
-const summary    = ref(null)
-const candidates = ref([])
-const activeTab  = ref('전체')
-const selectedId = ref(null)
+const AVATAR_TONE = { S: 'gold', A: 'purple', B: 'green', C: 'green' }
 
-const tabs = computed(() => {
-  const sTierCount = candidates.value.filter(c => c.targetTier === 'S').length
-  const aTierCount = candidates.value.filter(c => c.targetTier === 'A').length
-  return [
-    { key: '전체',   label: '전체',   count: candidates.value.length },
-    { key: 'S-Tier', label: 'S-Tier', count: sTierCount },
-    { key: 'A-Tier', label: 'A-Tier', count: aTierCount },
-  ]
-})
-
-const filteredList = computed(() => {
-  if (activeTab.value.startsWith('전체')) return candidates.value
-  if (activeTab.value.startsWith('S-Tier')) return candidates.value.filter(c => c.targetTier === 'S')
-  if (activeTab.value.startsWith('A-Tier')) return candidates.value.filter(c => c.targetTier === 'A')
-  return candidates.value
-})
-
-const selectedItem = computed(() =>
-  candidates.value.find(c => c.id === selectedId.value)
-)
-
-async function fetchJson(url) {
-  const res = await fetch(url)
-  return res.json()
+const STATUS_LABEL = {
+  UNDER_REVIEW:              '검토 대기',
+  CONFIRMATION_OF_PROMOTION: '승급 확정',
+  TIER_APPLIED:              '적용 완료',
+  SUSPENSION:                '보류',
 }
 
-onMounted(async () => {
+function mapCandidate(item) {
+  return {
+    id:                   item.tierPromotionId,
+    employeeId:           item.employeeId,
+    name:                 item.employeeName,
+    avatar:               (item.employeeName ?? '?')[0],
+    avatarTone:           AVATAR_TONE[item.targetTier] ?? 'purple',
+    currentTier:          item.currentTier,
+    targetTier:           item.targetTier,
+    tierBadge:            item.targetTier,
+    tierAccumulatedPoint: item.tierAccumulatedPoint,
+    targetPromotionPoint: item.targetPromotionPoint,
+    rawStatus:            item.tierPromoStatus,
+    statusLabel:          STATUS_LABEL[item.tierPromoStatus] ?? item.tierPromoStatus,
+    meta:                 `${item.tierAccumulatedPoint ?? 0} / ${item.targetPromotionPoint ?? 0} pt`,
+    statusDate:           item.tierPromoStatus === 'UNDER_REVIEW' ? '검토 대기' : STATUS_LABEL[item.tierPromoStatus],
+    tierReviewedAt:       item.tierReviewedAt ?? null,
+    reviewComment:        '',
+  }
+}
+
+const loading    = ref(true)
+const error      = ref(null)
+const summary    = ref(null)
+const candidates = ref([])
+const selectedId = ref(null)
+const details    = ref({})
+
+const selectedItem = computed(() => {
+  const base = candidates.value.find(c => c.id === selectedId.value)
+  if (!base) return null
+  const detail = details.value[base.id]
+  return detail ? { ...base, ...detail } : base
+})
+
+const sTierCount = computed(() => candidates.value.filter(c => c.targetTier === 'S').length)
+const aTierCount = computed(() => candidates.value.filter(c => c.targetTier === 'A').length)
+
+async function load() {
+  loading.value = true
+  error.value = null
   try {
-    const [summaryData, candidatesData] = await Promise.all([
-      fetchJson(`${API_BASE}/promotionSummary`),
-      fetchJson(`${API_BASE}/promotionCandidates`),
+    const [summaryRes, candidatesRes] = await Promise.all([
+      promotionApi.getSummary(),
+      promotionApi.getCandidates({ page: 0, size: 200 }),
     ])
-    summary.value    = summaryData[0] ?? null
-    candidates.value = candidatesData
-    if (candidatesData.length > 0) selectedId.value = candidatesData[0].id
+    summary.value    = summaryRes.data?.data ?? null
+    const items      = candidatesRes.data?.data?.items ?? []
+    candidates.value = items.map(mapCandidate)
+    selectedId.value = candidates.value[0]?.id ?? null
   } catch (e) {
-    console.error('승급심사 데이터 로딩 실패:', e)
+    console.error(e)
+    error.value = '데이터를 불러오는 중 오류가 발생했습니다.'
   } finally {
     loading.value = false
   }
-})
+}
 
-// ── 확인 모달 / 토스트 ────────────────────────────────────────────
-const confirmModal = ref({ show: false, action: null, targetId: null, title: '', message: '', confirmText: '', comment: '' })
+async function loadDetail(id) {
+  if (!id || details.value[id]) return
+  try {
+    const res = await promotionApi.getCandidateDetail(id)
+    const d = res.data?.data
+    if (!d) return
+    details.value = {
+      ...details.value,
+      [id]: {
+        tierAccumulatedPoint: d.tierAccumulatedPoint,
+        targetPromotionPoint: d.targetPromotionPoint,
+        tierReviewedAt:       d.tierReviewedAt,
+      },
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+onMounted(load)
+
+// 선택 변경 시 상세 로드
+function handleSelect(id) {
+  selectedId.value = id
+  loadDetail(id)
+}
+
+// ── 확인 모달 / 토스트 ─────────────────────────────────────────────
+const confirmModal = ref({ show: false, action: null, targetId: null, title: '', message: '', confirmText: '' })
 const toast        = ref({ show: false, message: '' })
 let toastTimer = null
-
-function openConfirm(action, id, comment = '') {
-  const candidate = candidates.value.find(c => c.id === id)
-  const { name, currentTier, targetTier } = candidate
-  const config = {
-    hold:    { title: '보류',     message: `${name}님의 승급 심사를 보류하시겠습니까?`,  confirmText: '보류' },
-    confirm: { title: '승급 확정', message: `${name}님을 ${currentTier}-Tier에서 ${targetTier}-Tier로 승급 확정하시겠습니까?`, confirmText: '확정' },
-  }[action]
-  confirmModal.value = { show: true, action, targetId: id, comment, ...config }
-}
-
-function handleModalConfirm() {
-  const { action, targetId, comment } = confirmModal.value
-  const candidate = candidates.value.find(c => c.id === targetId)
-  const name = candidate?.name
-  if (candidate) {
-    candidate.processedStatus = action
-    candidate.comment = comment
-  }
-  confirmModal.value.show = false
-  const msg = action === 'confirm' ? `${name}님 승급이 확정되었습니다.` : `${name}님이 보류 처리되었습니다.`
-  showToast(msg)
-}
 
 function showToast(message) {
   if (toastTimer) clearTimeout(toastTimer)
@@ -88,38 +111,80 @@ function showToast(message) {
   toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
 }
 
-function handleHold({ id, comment })    { openConfirm('hold',    id, comment) }
-function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
+function handleHold({ id }) {
+  const candidate = candidates.value.find(c => c.id === id)
+  confirmModal.value = {
+    show: true,
+    action: 'hold',
+    targetId: id,
+    title: '보류',
+    message: `${candidate?.name}님의 승급 심사를 보류하시겠습니까?`,
+    confirmText: '보류',
+  }
+}
+
+function handleConfirm({ id }) {
+  const candidate = candidates.value.find(c => c.id === id)
+  confirmModal.value = {
+    show: true,
+    action: 'confirm',
+    targetId: id,
+    title: '승급 확정',
+    message: `${candidate?.name}님을 ${candidate?.currentTier}-Tier에서 ${candidate?.targetTier}-Tier로 승급 확정하시겠습니까?`,
+    confirmText: '확정',
+  }
+}
+
+async function handleModalConfirm() {
+  const { action, targetId } = confirmModal.value
+  const candidate = candidates.value.find(c => c.id === targetId)
+  const status = action === 'confirm' ? 'CONFIRMATION_OF_PROMOTION' : 'SUSPENSION'
+  try {
+    await promotionApi.updateStatus(targetId, status)
+    confirmModal.value.show = false
+    // 로컬 상태 업데이트
+    candidates.value = candidates.value.map(c =>
+      c.id === targetId ? { ...c, rawStatus: status, statusLabel: STATUS_LABEL[status] } : c
+    )
+    details.value = { ...details.value, [targetId]: undefined }
+    showToast(action === 'confirm'
+      ? `${candidate?.name}님 승급이 확정되었습니다.`
+      : `${candidate?.name}님이 보류 처리되었습니다.`
+    )
+  } catch (e) {
+    console.error(e)
+    showToast('처리 중 오류가 발생했습니다.')
+  }
+}
 </script>
 
 <template>
   <section class="promo-view">
     <div v-if="loading" class="promo-view__loading">불러오는 중...</div>
+    <div v-else-if="error" class="promo-view__error">{{ error }}</div>
 
     <template v-else>
       <!-- 지표 카드 -->
-      <section class="promo-view__metrics" v-if="summary">
+      <section class="promo-view__metrics">
         <BaseStatCard
-          label="S-TIER 심사대상"
-          :value="`${summary.sTierCount}명`"
-          :delta="`▲${summary.sTierDelta} 전분기비`"
+          label="전체 심사 대상"
+          :value="`${summary?.totalCandidates ?? 0}명`"
           tone="primary"
         />
         <BaseStatCard
-          label="A-TIER 심사대상"
-          :value="`${summary.aTierCount}명`"
-          :delta="`▲${summary.aTierDelta}`"
+          label="S-Tier 대상"
+          :value="`${sTierCount}명`"
           tone="primary"
         />
         <BaseStatCard
-          label="이번분기 승급확정"
-          :value="`${summary.confirmedCount}명`"
-          tone="success"
+          label="A-Tier 대상"
+          :value="`${aTierCount}명`"
+          tone="primary"
         />
         <BaseStatCard
-          label="승급률"
-          :value="`${summary.promotionRate}%`"
-          :delta="`전분기 ${summary.prevPromotionRate}%`"
+          label="승급 확정"
+          :value="`${summary?.confirmedCount ?? 0}명`"
+          :delta="`승급률 ${summary?.promotionRate?.toFixed(1) ?? 0}%`"
           tone="success"
         />
       </section>
@@ -127,13 +192,9 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
       <!-- 목록 + 상세 -->
       <div class="promo-view__content">
         <HRMPromotionList
-          :list="filteredList"
-          :tabs="tabs"
-          :active-tab="activeTab"
+          :list="candidates"
           :selected-id="selectedId"
-          @tab-change="activeTab = $event"
-          @select="selectedId = $event"
-          @confirm="handleConfirm"
+          @select="handleSelect"
         />
         <HRMPromotionDetail
           v-if="selectedItem"
@@ -141,6 +202,7 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
           @hold="handleHold"
           @confirm="handleConfirm"
         />
+        <div v-else class="promo-view__empty">대상자를 선택하세요.</div>
       </div>
     </template>
   </section>
@@ -172,23 +234,41 @@ function handleConfirm({ id, comment }) { openConfirm('confirm', id, comment) }
   overflow: auto;
   min-height: 0;
 }
-.promo-view__loading {
+
+.promo-view__loading,
+.promo-view__error {
   padding: 60px;
   text-align: center;
-  color: var(--color-text-muted);
   font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }
+
+.promo-view__error { color: var(--color-danger); }
+
 .promo-view__metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
+
 .promo-view__content {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(270px, 0.72fr) minmax(0, 1.6fr);
+  gap: 18px;
+  align-items: stretch;
   flex: 1;
   min-height: 0;
+}
+
+.promo-view__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 24px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
 }
 
 .promo-confirm-message {

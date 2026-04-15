@@ -6,6 +6,8 @@ const props = defineProps({
   articles: { type: Array, required: true },
 })
 
+const emit = defineEmits(['open-article'])
+
 const localCourses = ref([])
 
 // Initialize or update local copy when prop changes
@@ -18,6 +20,18 @@ const startCourse = (id) => {
   if (course && course.status === '시작하기') {
     course.status = '진행중'
   }
+}
+
+const openArticle = (article) => {
+  emit('open-article', article)
+}
+
+const tierClass = (tier) => {
+  if (tier === 'S') return 'lr__article-bullet--s'
+  if (tier === 'A') return 'lr__article-bullet--a'
+  if (tier === 'B') return 'lr__article-bullet--b'
+  if (tier === 'C') return 'lr__article-bullet--c'
+  return ''
 }
 </script>
 
@@ -59,10 +73,20 @@ const startCourse = (id) => {
     <div class="lr__articles">
       <span class="lr__articles-label">📘 관련 KMS 지식</span>
       <div class="lr__articles-list">
-        <div v-for="article in articles" :key="article.id" class="lr__article">
-          <span class="lr__article-title">{{ article.title }}</span>
+        <button
+          v-for="article in articles"
+          :key="article.id"
+          type="button"
+          class="lr__article"
+          @click="openArticle(article)"
+        >
+          <div class="lr__article-head">
+            <span class="lr__article-bullet" :class="tierClass(article.authorTier)">{{ article.authorTier || '?' }}</span>
+            <span class="lr__article-title">{{ article.title }}</span>
+          </div>
+          <p v-if="article.preview" class="lr__article-preview">{{ article.preview }}</p>
           <span class="lr__article-likes">👍{{ article.likes }}</span>
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -77,6 +101,7 @@ const startCourse = (id) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
 }
 
 .lr__label {
@@ -192,50 +217,119 @@ const startCourse = (id) => {
 
 /* ── Related Articles ──────────────────────────────────── */
 .lr__articles {
-  background: var(--color-primary-800);
+  background: linear-gradient(180deg, #312376 0%, #24195e 100%);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
 .lr__articles-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-white);
+  letter-spacing: 0.02em;
 }
 
 .lr__articles-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
 .lr__article {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-sm);
+  border-radius: 16px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  text-align: left;
 }
 
 .lr__article:hover {
   background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.lr__article-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lr__article-bullet {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-white);
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lr__article-bullet--s {
+  background: #00bf95;
+  color: #fff;
+}
+
+.lr__article-bullet--a {
+  background: var(--color-primary-500);
+  color: #fff;
+}
+
+.lr__article-bullet--b {
+  background: #ffd166;
+  color: #2d237c;
+}
+
+.lr__article-bullet--c {
+  background: #ef476f;
+  color: #fff;
 }
 
 .lr__article-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-white);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lr__article-preview {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.74);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .lr__article-likes {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.72);
   flex-shrink: 0;
+  justify-self: end;
 }
 </style>

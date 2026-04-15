@@ -3,10 +3,19 @@ defineProps({
   title: { type: String, required: true },
   description: { type: String, default: '' },
 })
+
+const emit = defineEmits(['click'])
 </script>
 
 <template>
-  <div class="notification">
+  <div
+    class="notification"
+    role="button"
+    tabindex="0"
+    @click="emit('click')"
+    @keydown.enter="emit('click')"
+    @keydown.space.prevent="emit('click')"
+  >
     <div class="notification__header">
       <span class="notification__icon">🔥</span>
       <span class="notification__badge">중요 공지</span>
@@ -23,6 +32,7 @@ defineProps({
   border-left: 4px solid var(--tier-c);
   border-radius: var(--radius-base);
   padding: 16px 20px;
+  cursor: pointer;
 }
 
 .notification__header {

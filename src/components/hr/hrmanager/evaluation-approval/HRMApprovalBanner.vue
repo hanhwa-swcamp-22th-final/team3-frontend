@@ -2,6 +2,7 @@
 defineProps({
   count: { type: Number, required: true },
   daysLeft: { type: Number, default: 3 },
+  label: { type: String, default: '이의신청' },
 })
 
 </script>
@@ -9,7 +10,7 @@ defineProps({
 <template>
   <div class="hrm-banner">
     <p class="hrm-banner__text">
-      ⏰ 검토 대기 중인 이의신청이 {{ count }}건 있습니다 — 월말 고과 확정까지 D-{{ daysLeft }}
+      ⏰ 검토 대기 중인 {{ label }}이 {{ count }}건 있습니다 — 월말 고과 확정까지 D-{{ daysLeft }}
     </p>
   </div>
 </template>

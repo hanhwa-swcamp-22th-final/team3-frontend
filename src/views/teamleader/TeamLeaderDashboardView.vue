@@ -1,39 +1,72 @@
 ﻿<script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import TeamLeaderDashboardNotice from '@/components/dashboard/common/TeamLeaderDashboardNoticeWrapper.vue'
 import TeamLeaderMetricCard from '@/components/dashboard/teamleader/TeamLeaderMetricCardWrapper.vue'
 import TeamLeaderMemberGrid from '@/components/dashboard/teamleader/TeamLeaderMemberGrid.vue'
-import { dashboardNotice, dashboardMetrics, dashboardMembers } from '@/mocks/teamleader/dashboard'
+import { getTeamLeaderDashboard } from '@/services/hrDashboardApi'
+
+const loading = ref(true)
+const router = useRouter()
+const notice = ref(null)
+const metrics = ref([])
+const members = ref([])
 
 const evaluationRate = computed(() => {
-  const rateMetric = dashboardMetrics.find((metric) => metric.label === '평가율')
+  const rateMetric = metrics.value.find((metric) => metric.label === '평가율')
   return Number.parseFloat(String(rateMetric?.value ?? '0').replace('%', '')) || 0
 })
+
+onMounted(async () => {
+  try {
+    const dashboard = await getTeamLeaderDashboard()
+    notice.value = dashboard.notice
+    metrics.value = dashboard.metrics
+    members.value = dashboard.members
+  } catch (error) {
+    console.error('Failed to load team leader dashboard:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+function goNoticeBoard() {
+  router.push({
+    name: 'TLNoticeBoard',
+    query: notice.value?.id ? { noticeId: notice.value.id } : {},
+  })
+}
 </script>
 
 <template>
   <section class="teamleader-dashboard-view">
-    <TeamLeaderDashboardNotice
-      :badge="dashboardNotice.badge"
-      :title="dashboardNotice.title"
-      :description="dashboardNotice.description"
-    />
+    <div v-if="loading" class="teamleader-dashboard-view__loading">데이터를 불러오는 중...</div>
 
-    <section class="teamleader-dashboard-view__metrics">
-      <TeamLeaderMetricCard
-        v-for="metric in dashboardMetrics"
-        :key="metric.label"
-        :label="metric.label"
-        :value="metric.value"
-        :delta="metric.delta"
-        :helper="metric.helper"
-        :tone="metric.tone"
-        :progress-value="metric.label === '평가율' ? evaluationRate : null"
-        progress-tone="success"
+    <template v-else>
+      <TeamLeaderDashboardNotice
+        v-if="notice"
+        :badge="notice.badge"
+        :title="notice.title"
+        :description="notice.description"
+        @click="goNoticeBoard"
       />
-    </section>
 
-    <TeamLeaderMemberGrid :members="dashboardMembers" />
+      <section class="teamleader-dashboard-view__metrics">
+        <TeamLeaderMetricCard
+          v-for="metric in metrics"
+          :key="metric.label"
+          :label="metric.label"
+          :value="metric.value"
+          :delta="metric.delta"
+          :helper="metric.helper"
+          :tone="metric.tone"
+          :progress-value="metric.label === '평가율' ? evaluationRate : null"
+          progress-tone="success"
+        />
+      </section>
+
+      <TeamLeaderMemberGrid :members="members" />
+    </template>
   </section>
 </template>
 
@@ -64,5 +97,12 @@ const evaluationRate = computed(() => {
 :deep(.notice) {
   width: 100%;
   box-sizing: border-box;
+}
+
+.teamleader-dashboard-view__loading {
+  padding: 60px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
 }
 </style>

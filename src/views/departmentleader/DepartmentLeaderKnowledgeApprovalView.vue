@@ -76,7 +76,7 @@ onMounted(async () => {
 
 async function loadStats() {
   try {
-    const res = await knowledgeArticleApi.getApprovalStats()
+    const res = await knowledgeArticleApi.getPendingStats()
     statsData.value = res.data.data ?? {}
   } catch (e) {
     console.error('[KMS] 승인 통계 로드 실패:', e)
@@ -85,7 +85,7 @@ async function loadStats() {
 
 async function loadList() {
   try {
-    const res = await knowledgeArticleApi.getApprovalList({ page: 0, size: 50 })
+    const res = await knowledgeArticleApi.getPendingList({ page: 0, size: 50 })
     items.value = (res.data.data ?? []).map(mapToQueueItem)
     if (items.value.length > 0) {
       const keepId = selectedId.value && items.value.some((i) => i.id === selectedId.value)
@@ -107,7 +107,7 @@ async function selectItem(id) {
   selectedDetail.value = null
   reviewError.value = ''
   try {
-    const res = await knowledgeArticleApi.getApprovalDetail(id)
+    const res = await knowledgeArticleApi.getPendingDetail(id)
     selectedDetail.value = mapToReviewItem(res.data.data ?? {})
     reviewNote.value = selectedDetail.value.reviewComment ?? ''
   } catch (e) {

@@ -19,8 +19,13 @@ export async function getUrgentOrders() {
   return unwrap(response)
 }
 
-export async function getAssignmentCandidates() {
-  const response = await scmApi.get('/api/v1/scm/assignments/candidates')
+export async function getUnassignedOrders() {
+  const response = await scmApi.get('/api/v1/scm/orders/unassigned')
+  return unwrap(response)
+}
+
+export async function getAssignmentCandidates(params = {}) {
+  const response = await scmApi.get('/api/v1/scm/assignments/candidates', { params })
   return unwrap(response)
 }
 
@@ -84,5 +89,10 @@ export async function getLinesSummary() {
 
 export async function getMyTeamLinesSummary() {
   const response = await scmApi.get('/api/v1/scm/lines/my-team/summary')
+  return unwrap(response)
+}
+
+export async function getLineWorkers(lineId) {
+  const response = await scmApi.get(`/api/v1/scm/lines/${lineId}/workers`)
   return unwrap(response)
 }

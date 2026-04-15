@@ -20,7 +20,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['click-item', 'click-action', 'change-page'])
+const emit = defineEmits(['click-item', 'click-action', 'dismiss-item', 'change-page'])
 
 const currentPage = ref(1)
 
@@ -49,6 +49,10 @@ function handleClickItem(item) {
 function handleClickAction(item) {
   emit('click-action', item)
 }
+
+function handleDismiss(item) {
+  emit('dismiss-item', item)
+}
 </script>
 
 <template>
@@ -73,6 +77,14 @@ function handleClickAction(item) {
       </div>
 
       <div class="base-notification-list__side">
+        <button
+          type="button"
+          class="base-notification-list__dismiss"
+          aria-label="알림 숨기기"
+          @click.stop="handleDismiss(item)"
+        >
+          ×
+        </button>
         <span class="base-notification-list__time">{{ item.time }}</span>
         <button
           type="button"
@@ -209,10 +221,32 @@ function handleClickAction(item) {
 }
 
 .base-notification-list__side {
+  position: relative;
   display: grid;
   justify-items: end;
   gap: 10px;
   flex-shrink: 0;
+  padding-top: 22px;
+}
+
+.base-notification-list__dismiss {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #b1abd9;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.base-notification-list__dismiss:hover {
+  background: #f5f2ff;
+  color: var(--color-primary-700);
 }
 
 .base-notification-list__time {
