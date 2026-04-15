@@ -29,7 +29,6 @@ const emptyForm = () => ({
   _year: CURRENT_YEAR,
   _month: CURRENT_MONTH,
   evalSequence: 1,
-  evalType: 'QUALITATIVE',
   startDate: '',
   endDate: '',
 })
@@ -91,7 +90,6 @@ function openEdit(period) {
     algorithmVersionId: period.algorithmVersionId ?? 1,
     evalYear: period.evalYear,
     evalSequence: period.evalSequence,
-    evalType: period.evalType,
     startDate: period.startDate,
     endDate: period.endDate,
   }
@@ -298,7 +296,7 @@ function getDurationDays(period) {
             <tr v-for="p in periods" :key="p.evalPeriodId" class="period-table__row">
               <td class="period-table__period-cell">
                 <strong class="period-table__period-title">{{ formatPeriodLabel(p) }}</strong>
-                <span class="period-table__period-subtitle">{{ p.evalType === 'QUALITATIVE' ? '정성 평가' : p.evalType }}</span>
+                <span class="period-table__period-subtitle">평가 기간</span>
               </td>
               <td class="period-table__range">{{ formatDateRange(p) }}</td>
               <td>{{ getDurationDays(p) }}</td>
@@ -368,15 +366,6 @@ function getDurationDays(period) {
             <label class="period-modal__label">차수</label>
             <select class="period-modal__input" v-model.number="form.evalSequence">
               <option v-for="w in 5" :key="w" :value="w">{{ w }}차</option>
-            </select>
-          </div>
-
-          <div class="period-modal__row" v-if="modalMode === 'create'">
-            <label class="period-modal__label">평가 유형</label>
-            <select class="period-modal__input" v-model="form.evalType">
-              <option value="QUALITATIVE">정성 평가</option>
-              <option value="QUANTITATIVE">정량 평가</option>
-              <option value="COMPREHENSIVE">종합 평가</option>
             </select>
           </div>
 
