@@ -37,14 +37,10 @@ watch(() => props.item?.id, () => {
             <p class="hrm-eval-summary__eyebrow">평가 요약</p>
             <h3 class="hrm-eval-summary__title">평가 내용 및 점수</h3>
           </div>
-          <div class="hrm-eval-summary__scores">
-            <div class="hrm-eval-summary__score hrm-eval-summary__score--quant">
-              <strong>{{ item.detail?.quantScore ?? '-' }}</strong>
-              <span>정량</span>
-            </div>
-            <div class="hrm-eval-summary__score">
-              <strong>{{ item.detail?.firstStageScore ?? '-' }}</strong>
-              <span>1차</span>
+            <div class="hrm-eval-summary__scores">
+              <div class="hrm-eval-summary__score">
+                <strong>{{ item.detail?.firstStageScore ?? '-' }}</strong>
+                <span>1차</span>
             </div>
             <div class="hrm-eval-summary__score hrm-eval-summary__score--second">
               <strong>{{ item.detail?.secondStageScore ?? '-' }}</strong>
@@ -106,14 +102,10 @@ watch(() => props.item?.id, () => {
             <p class="hrm-eval-summary__eyebrow">평가 요약</p>
             <h3 class="hrm-eval-summary__title">평가 내용 및 점수</h3>
           </div>
-          <div class="hrm-eval-summary__scores">
-            <div class="hrm-eval-summary__score hrm-eval-summary__score--quant">
-              <strong>{{ item.detail.quantScore ?? '-' }}</strong>
-              <span>정량</span>
-            </div>
-            <div class="hrm-eval-summary__score">
-              <strong>{{ item.detail.firstStageScore ?? '-' }}</strong>
-              <span>1차</span>
+            <div class="hrm-eval-summary__scores">
+              <div class="hrm-eval-summary__score">
+                <strong>{{ item.detail.firstStageScore ?? '-' }}</strong>
+                <span>1차</span>
             </div>
             <div class="hrm-eval-summary__score hrm-eval-summary__score--second">
               <strong>{{ item.detail.secondStageScore ?? '-' }}</strong>
@@ -230,14 +222,6 @@ watch(() => props.item?.id, () => {
 .hrm-eval-summary__score span {
   font-size: 12px;
   color: var(--color-text-muted);
-}
-
-.hrm-eval-summary__score--quant {
-  border-color: #b9f0df;
-}
-
-.hrm-eval-summary__score--quant strong {
-  color: #0d7f63;
 }
 
 .hrm-eval-summary__score--second {

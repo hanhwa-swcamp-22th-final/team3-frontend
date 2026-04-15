@@ -33,6 +33,10 @@ function canReview(detail, actionMode) {
     :empty="!detail"
     :panel-props="detail ? {
       title: `${detail.employeeName} 신청 내역`,
+      headerBadge: {
+        label: detail.statusLabel,
+        className: `reviewer-appeal-detail__status reviewer-appeal-detail__status--${detail.status.toLowerCase()}`,
+      },
       description: `${roleLabel} 이의신청 검토`,
       showToolbar: false,
       showEditor: false,
@@ -48,26 +52,15 @@ function canReview(detail, actionMode) {
             <p class="reviewer-appeal-detail__eyebrow">평가 요약</p>
             <h3 class="reviewer-appeal-detail__title">평가 내용 및 점수</h3>
           </div>
-          <span
-            class="reviewer-appeal-detail__status"
-            :class="`reviewer-appeal-detail__status--${detail.status.toLowerCase()}`"
-          >
-            {{ detail.statusLabel }}
-          </span>
-        </div>
-
-        <div class="reviewer-appeal-detail__scores">
-          <div class="reviewer-appeal-detail__score reviewer-appeal-detail__score--quant">
-            <strong>{{ detail.quantScoreLabel ?? '-' }}</strong>
-            <span>정량</span>
-          </div>
-          <div class="reviewer-appeal-detail__score">
-            <strong>{{ detail.firstScoreLabel }}</strong>
-            <span>1차</span>
-          </div>
-          <div class="reviewer-appeal-detail__score reviewer-appeal-detail__score--second">
-            <strong>{{ detail.secondScoreLabel }}</strong>
-            <span>2차</span>
+          <div class="reviewer-appeal-detail__scores">
+            <div class="reviewer-appeal-detail__score">
+              <strong>{{ detail.firstScoreLabel }}</strong>
+              <span>1차</span>
+            </div>
+            <div class="reviewer-appeal-detail__score reviewer-appeal-detail__score--second">
+              <strong>{{ detail.secondScoreLabel }}</strong>
+              <span>2차</span>
+            </div>
           </div>
         </div>
 
@@ -152,7 +145,7 @@ function canReview(detail, actionMode) {
 
 .reviewer-appeal-detail__header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
 }
@@ -174,6 +167,7 @@ function canReview(detail, actionMode) {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .reviewer-appeal-detail__score {
@@ -194,14 +188,6 @@ function canReview(detail, actionMode) {
 .reviewer-appeal-detail__score span {
   font-size: 12px;
   color: var(--color-text-muted);
-}
-
-.reviewer-appeal-detail__score--quant {
-  border-color: #b9f0df;
-}
-
-.reviewer-appeal-detail__score--quant strong {
-  color: #0d7f63;
 }
 
 .reviewer-appeal-detail__score--second {
