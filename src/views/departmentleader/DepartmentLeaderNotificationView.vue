@@ -8,7 +8,6 @@ const TYPE_MAP = {
   RESULTS:        { label: '평가결과', category: 'results',     tone: 'info' },
   OBJECTIONS:     { label: '이의신청', category: 'objections',  tone: 'warn' },
   PROMOTION:      { label: '승급',    category: 'promotion',   tone: 'success' },
-  ARRANGEMENT:    { label: '배정',    category: 'arrangement', tone: 'info' },
   BIAS_DETECTION: { label: '편향감지', category: 'bias',        tone: 'fault' },
 }
 
@@ -17,7 +16,6 @@ const notificationFilters = [
   { key: 'results',     label: '평가결과', categoryKey: 'results' },
   { key: 'objections',  label: '이의신청', categoryKey: 'objections' },
   { key: 'promotion',   label: '승급',    categoryKey: 'promotion' },
-  { key: 'arrangement', label: '배정',    categoryKey: 'arrangement' },
   { key: 'bias',        label: '편향감지', categoryKey: 'bias' },
 ]
 
@@ -62,8 +60,14 @@ async function fetchNotifications() {
       hrApi.get('/api/v1/hr/notifications/summary'),
     ])
     const list = listRes.data?.success ? listRes.data.data : listRes.data
-    notifications.value = (Array.isArray(list) ? list : []).map(normalize)
-    summary.value = summaryRes.data?.success ? summaryRes.data.data : summaryRes.data
+    notifications.value = (Array.isArray(list) ? list : [])
+      .filter((item) => item.notificationType !== 'ARRANGEMENT')
+      .map(normalize)
+    summary.value = {
+      ...(summaryRes.data?.success ? summaryRes.data.data : summaryRes.data),
+      totalCount: notifications.value.length,
+      unreadCount: notifications.value.filter((item) => item.unread).length,
+    }
   } catch (err) {
     console.error('알림 조회 실패:', err)
   }
@@ -78,6 +82,17 @@ async function ackNotification(item) {
     if (summary.value.unreadCount > 0) summary.value.unreadCount--
   } catch (err) {
     console.error('알림 확인 실패:', err)
+  }
+}
+
+async function hideNotification(item) {
+  try {
+    await hrApi.patch(`/api/v1/hr/notifications/${item.notificationId}/hide`)
+    notifications.value = notifications.value.filter((n) => n.id !== item.id)
+    if (summary.value.totalCount > 0) summary.value.totalCount--
+    if (item.unread && summary.value.unreadCount > 0) summary.value.unreadCount--
+  } catch (err) {
+    console.error('알림 숨김 실패:', err)
   }
 }
 
@@ -136,6 +151,7 @@ function handleClickAction(item) {
       :page-size="6"
       @click-item="handleClickAction"
       @click-action="handleClickAction"
+      @dismiss-item="hideNotification"
     />
   </section>
 </template>

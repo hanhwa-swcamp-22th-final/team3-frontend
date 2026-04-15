@@ -15,6 +15,8 @@ defineProps({
     default: '',
   },
 })
+
+const emit = defineEmits(['click'])
 </script>
 
 <template>
@@ -25,5 +27,16 @@ defineProps({
     :description="description"
     tone="success"
     variant="soft"
+    role="button"
+    tabindex="0"
+    @click="emit('click')"
+    @keydown.enter.prevent="emit('click')"
+    @keydown.space.prevent="emit('click')"
   />
 </template>
+
+<style scoped>
+.notice {
+  cursor: pointer;
+}
+</style>

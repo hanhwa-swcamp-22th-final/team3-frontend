@@ -3,13 +3,11 @@ import { computed, ref, onMounted } from 'vue'
 import hrApi from '@/services/hrApi'
 import TeamLeaderNotificationFilterBar from '@/components/hr/teamleader/notification/TeamLeaderNotificationFilterBarWrapper.vue'
 import TeamLeaderNotificationList from '@/components/hr/teamleader/notification/TeamLeaderNotificationListWrapper.vue'
-import TeamLeaderNotificationAssistPanel from '@/components/hr/teamleader/notification/TeamLeaderNotificationAssistPanel.vue'
-import { notificationAssistPanels } from '@/mocks/teamleader/notification'
 
 // ── 상수 ──────────────────────────────────────────
 const notificationFilters = [
   { key: 'all',     label: '전체' },
-  { key: 'info',    label: '평가/배정' },
+  { key: 'info',    label: '평가' },
   { key: 'warn',    label: '이의신청' },
   { key: 'success', label: '승급' },
   { key: 'fault',   label: '편향감지' },
@@ -19,7 +17,6 @@ const TYPE_MAP = {
   RESULTS:        { label: '평가결과', tone: 'info' },
   OBJECTIONS:     { label: '이의신청', tone: 'warn' },
   PROMOTION:      { label: '승급',    tone: 'success' },
-  ARRANGEMENT:    { label: '배정',    tone: 'info' },
   BIAS_DETECTION: { label: '편향감지', tone: 'fault' },
 }
 
@@ -54,24 +51,16 @@ function normalize(n) {
 const activeFilter           = ref('all')
 const notifications          = ref([])
 const selectedNotificationId = ref(null)
-const activeAssistPanelId    = ref(null)
 const headlineFeedback       = ref('')
-
-// assistPanels는 SCM API 연동 전까지 mock 유지
-const assistPanels = ref(
-  notificationAssistPanels.map((panel) => ({
-    ...panel,
-    equipment:  { ...panel.equipment },
-    candidates: panel.candidates.map((c) => ({ ...c })),
-  }))
-)
 
 // ── API ───────────────────────────────────────────
 async function fetchNotifications() {
   try {
     const res = await hrApi.get('/api/v1/hr/notifications')
     const list = res.data?.success ? res.data.data : res.data
-    notifications.value = (Array.isArray(list) ? list : []).map(normalize)
+    notifications.value = (Array.isArray(list) ? list : [])
+      .filter((item) => item.notificationType !== 'ARRANGEMENT')
+      .map(normalize)
   } catch (err) {
     console.error('알림 조회 실패:', err)
   }
@@ -85,6 +74,18 @@ async function ackNotification(item) {
     )
   } catch (err) {
     console.error('알림 확인 실패:', err)
+  }
+}
+
+async function hideNotification(item) {
+  try {
+    await hrApi.patch(`/api/v1/hr/notifications/${item.notificationId}/hide`)
+    notifications.value = notifications.value.filter((n) => n.id !== item.id)
+    if (selectedNotificationId.value === item.id) {
+      selectedNotificationId.value = null
+    }
+  } catch (err) {
+    console.error('알림 숨김 실패:', err)
   }
 }
 
@@ -107,7 +108,6 @@ function handleFilterChange(filterKey) {
 
 function selectNotification(item) {
   selectedNotificationId.value = item.id
-  activeAssistPanelId.value = null
   if (item.unread) ackNotification(item)
 }
 
@@ -115,20 +115,6 @@ function handleHeadlineAction() {
   if (!headlineNotification.value) return
   selectNotification(headlineNotification.value)
   headlineFeedback.value = '선택된 알림으로 이동했습니다.'
-}
-
-function handleQuickAssign({ panel, candidate }) {
-  if (!panel || !candidate) return
-  assistPanels.value = assistPanels.value.map((entry) =>
-    entry.id === panel.id
-      ? {
-          ...entry,
-          equipment:  { ...entry.equipment, assignee: `현재 담당: ${candidate.name} (${candidate.tier}-Tier)`, status: '배정 완료' },
-          actionLabel: '배정 완료',
-        }
-      : entry
-  )
-  headlineFeedback.value = `${panel.equipment.code} 설비를 ${candidate.name}에게 즉시 배정했습니다.`
 }
 </script>
 
@@ -158,15 +144,9 @@ function handleQuickAssign({ panel, candidate }) {
           :page-size="4"
           @click-item="selectNotification"
           @click-action="selectNotification"
+          @dismiss-item="hideNotification"
         />
       </div>
-
-      <TeamLeaderNotificationAssistPanel
-        :panels="assistPanels"
-        :active-panel-id="activeAssistPanelId"
-        :page-size="1"
-        @quick-assign="handleQuickAssign"
-      />
     </section>
   </section>
 </template>
@@ -233,23 +213,14 @@ function handleQuickAssign({ panel, candidate }) {
 }
 
 .teamleader-notification-view__content {
-  display: grid;
-  grid-template-columns: minmax(0, 1.95fr) minmax(300px, 1fr);
-  gap: 16px;
-  align-items: stretch;
   min-height: 0;
+  align-items: stretch;
 }
 
 .teamleader-notification-view__main {
   display: grid;
   gap: 0px;
   min-height: 0;
-}
-
-@media (max-width: 1180px) {
-  .teamleader-notification-view__content {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 720px) {

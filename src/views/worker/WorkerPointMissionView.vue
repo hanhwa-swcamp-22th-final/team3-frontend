@@ -9,6 +9,7 @@ const loading = ref(true)
 const pointSummary = ref(null)
 const pointHistory = ref([])
 const upgradeMissions = ref([])
+const currentTier = ref('')
 
 onMounted(async () => {
   try {
@@ -16,6 +17,7 @@ onMounted(async () => {
     pointSummary.value = data.summary
     pointHistory.value = data.history
     upgradeMissions.value = data.missions
+    currentTier.value = data.currentTier
   } catch (e) {
     console.error('Failed to load point/mission data:', e)
   } finally {
@@ -33,7 +35,10 @@ onMounted(async () => {
 
       <div class="pm-grid">
         <WorkerPointAccrualHistory :history="pointHistory" />
-        <WorkerPointPerMission :missions="upgradeMissions" />
+        <WorkerPointPerMission
+          :missions="upgradeMissions"
+          :current-tier="currentTier"
+        />
       </div>
     </template>
   </div>

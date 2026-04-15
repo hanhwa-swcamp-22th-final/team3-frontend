@@ -102,9 +102,6 @@ function handlePageChange(page) {
       </template>
   </BaseDataTable>
 
-    <div class="kpi-table-panel__warning">
-      정미래 팀원의 낮은 점수는 WLD-01 FAULT(E_idx 0.71) 영향입니다. 설비 보정 적용 중.
-    </div>
   </section>
 </template>
 
@@ -196,17 +193,6 @@ function handlePageChange(page) {
   color: #6b5de0;
   font-weight: 800;
   cursor: pointer;
-}
-
-.kpi-table-panel__warning {
-  margin-top: 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #fff1f4;
-  color: #e05373;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
 }
 
 :deep(.base-data-table) {

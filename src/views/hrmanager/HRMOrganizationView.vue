@@ -12,14 +12,17 @@ const DEPT_COLORS = [
 ]
 
 // ── 상태 ─────────────────────────────────────────────────────────
-const groups      = ref([])   // [{id, name, color, description, teams:[{id, name, memberCount, leader}]}]
+const groups      = ref([])   // [{id, name, color, teams:[{id, name, memberCount, leader}]}]
 const employees   = ref([])   // 전체 직원 목록 (모달 인력풀용)
 const teamMembers = ref([])   // 선택된 팀의 멤버 목록
+const departmentMembers = ref([]) // 선택된 그룹의 부서원 목록
+const departmentDirectMembers = ref([]) // 선택된 그룹에 직접 소속된 부서원 목록
 
 const treeSearch   = ref('')
 const selectedTeam = ref(null)        // { groupId, team }
 const selectedGroup = ref(null)       // 팀 추가 모달용 그룹
 const selectedGroupDetail = ref(null) // 그룹 상세 패널
+const selectedDepartmentLeaderId = ref(null)
 
 const showGroupModal      = ref(false)
 const showGroupEditModal  = ref(false)
@@ -76,7 +79,6 @@ async function loadOrgTree() {
       id:          dept.unitId,
       name:        dept.unitName,
       color:       DEPT_COLORS[i % DEPT_COLORS.length],
-      description: '',
       teams: (dept.children ?? []).map(team => ({
         id:          team.unitId,
         name:        team.unitName,
@@ -87,9 +89,24 @@ async function loadOrgTree() {
         memberIds:   [],
       })),
     }))
+    await hydrateGroupDetails(groups.value)
   } catch (e) {
     console.error('조직도 로딩 실패', e)
   }
+}
+
+async function hydrateGroupDetails(targetGroups) {
+  await Promise.all(targetGroups.map(async (group) => {
+    try {
+      const res = await hrApi.get(`/api/v1/hr/org/departments/${group.id}`)
+      const detail = res.data?.data
+      if (!detail?.teams) return
+      detail.teams.forEach(t => {
+        const team = group.teams.find(gt => gt.id === t.teamId)
+        if (team) team.memberCount = t.memberCount
+      })
+    } catch { /* ignore */ }
+  }))
 }
 
 async function loadEmployees() {
@@ -103,6 +120,9 @@ async function loadEmployees() {
 
 onMounted(async () => {
   await Promise.all([loadOrgTree(), loadEmployees()])
+  if (!selectedGroupDetail.value && groups.value.length > 0) {
+    await selectGroup(groups.value[0])
+  }
 })
 
 // ── 유틸 ─────────────────────────────────────────────────────────
@@ -114,13 +134,22 @@ function tierTextColor(tier) {
   return tier === 'B' ? '#1a1000' : 'var(--color-white)'
 }
 function positionOf(emp) {
-  return { position: ROLE_LABELS[emp.role] ?? emp.role ?? '사원', dept: emp.departmentName ?? '기타' }
+  return { position: ROLE_LABELS[emp.role] ?? emp.role ?? '사원', dept: departmentPath(emp) }
 }
 function isLeader(team, emp) {
   return emp.role === 'TL'
 }
 function leaderOf(team) {
   return team?.leader ?? null
+}
+
+function departmentPath(emp) {
+  const departmentName = emp.departmentName ?? emp.department_name ?? ''
+  const teamName = emp.teamName ?? emp.team_name ?? ''
+  if (departmentName && teamName && departmentName !== teamName) {
+    return `${departmentName} · ${teamName}`
+  }
+  return departmentName || teamName || '기타'
 }
 
 const COLOR_NAMES = {
@@ -165,23 +194,37 @@ const selectedGroup$ = computed(() =>
 // ── 그룹 전체 인원 수 ─────────────────────────────────────────────
 const groupTotalMemberCount = computed(() => {
   if (!selectedGroupDetail.value) return 0
-  return selectedGroupDetail.value.teams.reduce((s, t) => s + (t.memberCount ?? 0), 0)
+  return departmentMembers.value.length
 })
+
+const departmentLeader = computed(() =>
+  departmentMembers.value.find(emp => emp.role === 'DL') ?? null
+)
+
+const sortedDepartmentDirectMembers = computed(() =>
+  [...departmentDirectMembers.value].sort((a, b) => {
+    if (a.role === 'DL' && b.role !== 'DL') return -1
+    if (a.role !== 'DL' && b.role === 'DL') return 1
+    return String(a.name ?? '').localeCompare(String(b.name ?? ''), 'ko')
+  })
+)
+
+const departmentLeaderCandidates = computed(() =>
+  employees.value.filter(emp => emp.role === 'DL')
+)
 
 // ── 인력풀 (모달용) ───────────────────────────────────────────────
 const availableEmployees = computed(() => {
-  const currentTeamId = isEditMode.value ? selectedTeam.value?.team?.id : null
-  const usedIds = new Set()
-  groups.value.forEach(g => g.teams.forEach(t => {
-    if (t.id !== currentTeamId) (t.memberIds ?? []).forEach(id => usedIds.add(id))
-  }))
-  return employees.value.filter(e => e.employeeId && !usedIds.has(e.employeeId))
+  return employees.value.filter(e => e.employeeId)
 })
 
 // ── 이벤트 핸들러 ─────────────────────────────────────────────────
 async function selectGroup(group) {
   selectedGroupDetail.value = group
   selectedTeam.value = null
+  departmentMembers.value = []
+  departmentDirectMembers.value = []
+  selectedDepartmentLeaderId.value = null
   // 팀별 멤버 수 갱신
   try {
     const res = await hrApi.get(`/api/v1/hr/org/departments/${group.id}`)
@@ -193,6 +236,25 @@ async function selectGroup(group) {
       })
     }
   } catch { /* ignore */ }
+
+  try {
+    const res = await hrApi.get('/api/v1/hr/org/employees', {
+      params: { departmentId: group.id, page: 0, size: 200 },
+    })
+    departmentMembers.value = res.data?.data ?? []
+    selectedDepartmentLeaderId.value = departmentLeader.value?.employeeId ?? null
+  } catch {
+    departmentMembers.value = []
+  }
+
+  try {
+    const res = await hrApi.get('/api/v1/hr/org/employees', {
+      params: { teamId: group.id, page: 0, size: 200 },
+    })
+    departmentDirectMembers.value = res.data?.data ?? []
+  } catch {
+    departmentDirectMembers.value = []
+  }
 }
 
 async function selectTeam(group, team) {
@@ -247,11 +309,11 @@ async function handleGroupSubmit(data) {
   try {
     const res = await hrApi.post('/api/v1/hr/org/departments', {
       departmentName: data.name,
-      depth: 'DEPARTMENT',
+      depth: 'L0',
     })
     const newId = res.data?.data
     const color = DEPT_COLORS[groups.value.length % DEPT_COLORS.length]
-    groups.value.push({ id: newId, name: data.name, color, description: data.description ?? '', teams: [] })
+    groups.value.push({ id: newId, name: data.name, color, teams: [] })
     showGroupModal.value = false
     showToast(`'${data.name}' 그룹이 추가되었습니다.`)
   } catch {
@@ -264,11 +326,20 @@ async function handleGroupEditSubmit(data) {
   try {
     await hrApi.put(`/api/v1/hr/org/departments/${group.id}`, {
       departmentName: data.name,
-      depth: 'DEPARTMENT',
+      depth: 'L0',
     })
+    if (data.memberIds?.length > 0) {
+      const currentIds = new Set(departmentDirectMembers.value.map(emp => emp.employeeId))
+      const toAdd = data.memberIds.filter(id => !currentIds.has(id))
+      if (toAdd.length > 0) {
+        await hrApi.post(`/api/v1/hr/org/teams/${group.id}/members`, {
+          employeeIds: toAdd,
+        })
+      }
+    }
     group.name        = data.name
-    group.description = data.description ?? ''
     group.color       = data.color
+    await Promise.all([loadEmployees(), selectGroup(group)])
     showGroupEditModal.value = false
     showToast(`'${data.name}' 그룹이 수정되었습니다.`)
   } catch {
@@ -294,7 +365,12 @@ async function handleTeamSubmit(data) {
 
       team.name = data.name
       // 팀원 목록 재로딩
-      await selectTeam(selectedGroup$?.value ?? groups.value.find(g => g.id === selectedTeam.value.groupId), team)
+      await Promise.all([loadOrgTree(), loadEmployees()])
+      const refreshedGroup = groups.value.find(g => g.id === selectedTeam.value.groupId)
+      const refreshedTeam = refreshedGroup?.teams.find(t => t.id === team.id) ?? team
+      if (refreshedGroup) {
+        await selectTeam(refreshedGroup, refreshedTeam)
+      }
       showToast(`'${data.name}' 팀 정보가 수정되었습니다.`)
     } catch {
       showToast('팀 수정에 실패했습니다.', 'error')
@@ -320,6 +396,7 @@ async function handleTeamSubmit(data) {
         leaderId:    null,
         memberIds:   data.memberIds ?? [],
       })
+      await Promise.all([loadOrgTree(), loadEmployees()])
       showToast(`'${data.name}' 팀이 추가되었습니다.`)
     } catch {
       showToast('팀 추가에 실패했습니다.', 'error')
@@ -330,6 +407,29 @@ async function handleTeamSubmit(data) {
 
 function setLeader(team, emp) {
   showToast('팀장 지정은 역할 변경 메뉴에서 처리합니다.')
+}
+
+async function assignDepartmentLeader() {
+  if (!selectedGroupDetail.value || !selectedDepartmentLeaderId.value) return
+  const selectedLeader = employees.value.find(emp => emp.employeeId === selectedDepartmentLeaderId.value)
+  if (isDifferentDepartmentDl(selectedLeader)) {
+    const confirmed = window.confirm('다른 부서의 부서장입니다. 변경하시겠습니까?')
+    if (!confirmed) return
+  }
+  try {
+    await hrApi.patch(`/api/v1/hr/org/departments/${selectedGroupDetail.value.id}/leader`, {
+      employeeId: selectedDepartmentLeaderId.value,
+    })
+    await Promise.all([loadEmployees(), selectGroup(selectedGroupDetail.value)])
+    showToast('부서장이 지정되었습니다.')
+  } catch {
+    showToast('부서장 지정에 실패했습니다.', 'error')
+  }
+}
+
+function isDifferentDepartmentDl(emp) {
+  if (!emp || emp.role !== 'DL' || !selectedGroupDetail.value) return false
+  return emp.departmentName && emp.departmentName !== selectedGroupDetail.value.name
 }
 
 function removeMember(team, emp) {
@@ -561,8 +661,6 @@ function deleteGroup(group) {
           <button class="team-detail__delete-btn" @click="deleteGroup(selectedGroupDetail); selectedGroupDetail = null">삭제</button>
         </div>
       </div>
-      <p class="team-detail__desc">{{ selectedGroupDetail.description || '설명 없음' }}</p>
-
       <!-- 통계 카드 -->
       <div class="group-detail__stats">
         <div class="group-detail__stat-card">
@@ -591,6 +689,60 @@ function deleteGroup(group) {
               <span class="group-detail__stat-num">{{ groupTotalMemberCount }}</span>
               <span class="group-detail__stat-unit">명</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="department-leader-card">
+        <div class="department-leader-card__info">
+          <span class="team-detail__member-title">부서장</span>
+          <p class="department-leader-card__desc">
+            {{ departmentLeader ? `${departmentLeader.name}님이 현재 부서장입니다.` : '지정된 부서장이 없습니다.' }}
+          </p>
+        </div>
+        <div class="department-leader-card__actions">
+          <select v-model="selectedDepartmentLeaderId" class="team-detail__select">
+            <option :value="null">부서장 선택</option>
+            <option
+              v-for="emp in departmentLeaderCandidates"
+              :key="emp.employeeId"
+              :value="emp.employeeId"
+            >
+              {{ emp.name }} · {{ emp.departmentName ?? '소속 없음' }} · Tier {{ emp.currentTier ?? '-' }}
+            </option>
+          </select>
+          <button
+            class="team-detail__edit-btn"
+            :disabled="!selectedDepartmentLeaderId"
+            @click="assignDepartmentLeader"
+          >
+            부서장 지정
+          </button>
+        </div>
+      </div>
+
+      <div class="team-detail__member-header">
+        <span class="team-detail__member-title">부서원 목록</span>
+      </div>
+      <div class="member-list">
+        <div v-if="departmentDirectMembers.length === 0" class="member-list__empty">
+          직접 소속된 부서원이 없습니다.
+        </div>
+        <div v-for="emp in sortedDepartmentDirectMembers" :key="emp.employeeId" class="member-card">
+          <div class="member-card__avatar"
+            :style="{ background: tierColor(emp.currentTier) }"
+          >{{ emp.name[0] }}</div>
+          <div class="member-card__info">
+            <div class="member-card__row1">
+              <span class="member-card__name">{{ emp.name }}</span>
+              <span class="member-card__tier"
+                :style="{ background: tierColor(emp.currentTier), color: tierTextColor(emp.currentTier) }"
+              >{{ emp.currentTier }}</span>
+              <span v-if="emp.role === 'DL'" class="member-card__leader-badge">부서장</span>
+            </div>
+            <p class="member-card__sub">
+              {{ positionOf(emp).position }}·{{ positionOf(emp).dept }}
+            </p>
           </div>
         </div>
       </div>
@@ -653,8 +805,9 @@ function deleteGroup(group) {
       v-if="showGroupEditModal && selectedGroupDetail"
       :edit-mode="true"
       :initial-name="selectedGroupDetail.name"
-      :initial-description="selectedGroupDetail.description"
       :initial-color="selectedGroupDetail.color"
+      :all-employees="availableEmployees"
+      :initial-member-ids="departmentDirectMembers.map(emp => emp.employeeId)"
       @close="showGroupEditModal = false"
       @submit="handleGroupEditSubmit"
     />
@@ -663,7 +816,6 @@ function deleteGroup(group) {
       :all-employees="availableEmployees"
       :edit-mode="isEditMode"
       :initial-name="isEditMode ? selectedTeam?.team?.name : ''"
-      :initial-description="isEditMode ? selectedTeam?.team?.description : ''"
       :initial-member-ids="isEditMode ? [...(selectedTeam?.team?.memberIds ?? [])] : []"
       @close="showTeamModal = false"
       @submit="handleTeamSubmit"
@@ -1002,6 +1154,32 @@ function deleteGroup(group) {
   background: var(--color-danger); color: var(--color-white);
   border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer;
+}
+
+.department-leader-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 18px 20px;
+  background: var(--color-bg-app);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 12px;
+}
+.department-leader-card__info {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.department-leader-card__desc {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.department-leader-card__actions {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+}
+.department-leader-card__actions .team-detail__select {
+  min-width: 240px;
+}
+.department-leader-card__actions .team-detail__edit-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 /* ── 그룹 상세 ── */

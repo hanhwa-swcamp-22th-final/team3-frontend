@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import hrApi from '@/services/hrApi'
 import HRMNoticeListPanel  from '@/components/hr/common/notices/HRMNoticeListPanel.vue'
 import HRMNoticeDetailPanel from '@/components/hr/common/notices/HRMNoticeDetailPanel.vue'
@@ -36,12 +37,18 @@ function normalizeDetail(n) {
 const notices        = ref([])
 const selectedId     = ref(null)
 const selectedNotice = ref(null)
+const route = useRoute()
 
 async function fetchNotices() {
   try {
     const res = await hrApi.get('/api/v1/hr/notices')
     const list = res.data?.success ? res.data.data : res.data
     notices.value = (Array.isArray(list) ? list : []).map(normalizeList)
+    const queryNoticeId = route.query.noticeId ? Number(route.query.noticeId) : null
+    if (queryNoticeId && notices.value.some(notice => notice.id === queryNoticeId)) {
+      selectedId.value = queryNoticeId
+      return
+    }
     if (!selectedId.value && notices.value.length) {
       selectedId.value = notices.value[0].id
     }

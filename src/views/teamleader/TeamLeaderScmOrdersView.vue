@@ -90,7 +90,7 @@ function getStatusMeta(order) {
       return {
         columnKey: 'producing',
         line: `납기 ${formatDeadlineLabel(order.dueDate)}`,
-        daysLabel: order.technicianId ? `작업자 #${order.technicianId}` : '작업 진행중',
+        daysLabel: order.technicianName || (order.technicianId ? `작업자 #${order.technicianId}` : '작업 진행중'),
         actionLabel: null,
         actionDisabled: true,
         statusLabel: '생산중',
@@ -133,6 +133,7 @@ function mapOrderToCard(order) {
     statusLabel: meta.statusLabel,
     dueDate: order.dueDate,
     technicianId: order.technicianId ?? null,
+    technicianName: order.technicianName ?? null,
     columnKey: meta.columnKey,
   }
 }
@@ -169,7 +170,7 @@ const filteredUrgentOrders = computed(() =>
         title: order.itemName,
         progress: order.status === 'INPROGRESS' ? '진행중' : statusLabel,
         progressWidth: order.status === 'INPROGRESS' ? '65%' : order.status === 'ANALYZED' ? '20%' : '100%',
-        helper: order.technicianId ? `작업자 #${order.technicianId}` : '작업자 배정 필요',
+        helper: order.technicianName || (order.technicianId ? `작업자 #${order.technicianId}` : '작업자 배정 필요'),
         tone: getStatusTone(order.status),
       }
     })
@@ -200,7 +201,7 @@ async function handleAssignmentClick(item) {
   assignmentModalOpen.value = true
   candidateLoading.value = true
   try {
-    const candidates = await getAssignmentCandidates()
+    const candidates = await getAssignmentCandidates({ orderId: item.orderId })
     assignmentCandidates.value = Array.isArray(candidates) ? candidates : []
   } finally {
     candidateLoading.value = false

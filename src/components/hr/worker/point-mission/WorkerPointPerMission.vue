@@ -9,6 +9,7 @@ const props = defineProps({
   },
   overallCurrent: { type: Number, default: 91 },
   overallTarget: { type: Number, default: 95 },
+  currentTier: { type: String, default: '' },
 })
 
 const animated = ref(false)
@@ -19,11 +20,29 @@ onMounted(() => {
 })
 
 const overallPercent = computed(() => {
+  if (props.missions.length === 0) return 0
   const completed = props.missions.filter((m) => m.completed).length
   return Math.round((completed / props.missions.length) * 100)
 })
 
+const tierOrder = ['C', 'B', 'A', 'S', 'S+']
+
+const nextTier = computed(() => {
+  const missionTargetTier = props.missions.find((mission) => mission.targetTier)?.targetTier
+  if (missionTargetTier) return missionTargetTier
+
+  const currentIndex = tierOrder.indexOf(props.currentTier)
+  return currentIndex >= 0 && currentIndex < tierOrder.length - 1
+    ? tierOrder[currentIndex + 1]
+    : ''
+})
+
+const title = computed(() =>
+  nextTier.value ? `${nextTier.value} 승급 미션` : '승급 미션'
+)
+
 function missionPercent(m) {
+  if (!m.target) return 0
   return Math.min(Math.round((m.current / m.target) * 100), 100)
 }
 
@@ -38,7 +57,7 @@ function progressLabel(m) {
   <div class="pm">
     <div class="pm__header">
       <span class="pm__header-icon">🎯</span>
-      <span class="pm__header-title">S+ 승급 미션</span>
+      <span class="pm__header-title">{{ title }}</span>
     </div>
 
     <div class="pm__overall">

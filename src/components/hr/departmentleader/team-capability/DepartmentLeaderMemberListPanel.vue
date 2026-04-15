@@ -13,7 +13,10 @@ const search = ref('')
 const teamFilter = ref('전체')
 const dropdownOpen = ref(false)
 
-const teams = ['전체', '정밀가공 1팀', '정밀가공 2팀']
+const teams = computed(() => {
+  const names = [...new Set(props.members.map((m) => m.team).filter(Boolean))]
+  return ['전체', ...names]
+})
 
 const filtered = computed(() => {
   return props.members.filter((m) => {
@@ -92,7 +95,7 @@ function selectTeam(t) {
               {{ m.tier }}
             </span>
           </div>
-          <span class="member-list-panel__sub">{{ m.code }} · Overall {{ m.score }}</span>
+          <span class="member-list-panel__sub">{{ [m.code, `Overall ${m.score}`].filter(Boolean).join(' · ') }}</span>
         </div>
       </li>
     </ul>

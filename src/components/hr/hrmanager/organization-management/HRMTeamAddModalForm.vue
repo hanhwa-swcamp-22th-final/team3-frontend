@@ -1,19 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { POSITIONS, POSITION_MAP } from '@/mocks/hrmanager/organization.js'
 import BaseFormModal from '@/components/common/base/overlay/BaseFormModal.vue'
 
 const props = defineProps({
   allEmployees: { type: Array, required: true },
   initialName:        { type: String,  default: '' },
-  initialDescription: { type: String,  default: '' },
   initialMemberIds:   { type: Array,   default: () => [] },
   editMode:           { type: Boolean, default: false },
 })
 const emit = defineEmits(['close', 'submit'])
 
 const name        = ref(props.initialName)
-const description = ref(props.initialDescription)
 const selected    = ref([...props.initialMemberIds])
 
 const tierFilter  = ref('')
@@ -21,9 +18,30 @@ const posFilter   = ref('')
 const nameSearch  = ref('')
 
 const TIERS = ['S', 'A', 'B', 'C']
+const ROLE_LABELS = { WORKER: '사원', TL: '팀장', DL: '부서장', HRM: 'HR 매니저', ADMIN: '관리자' }
+const POSITIONS = Object.values(ROLE_LABELS)
+
+function employeeId(emp) {
+  return emp.employeeId ?? emp.employee_id
+}
+
+function employeeName(emp) {
+  return emp.name ?? emp.employeeName ?? emp.employee_name ?? ''
+}
+
+function employeeTier(emp) {
+  return emp.currentTier ?? emp.employeeCurrentTier ?? emp.employee_current_tier
+}
 
 function positionOf(emp) {
-  return POSITION_MAP[emp.employee_id] ?? { position: '사원', dept: '기타' }
+  const departmentName = emp.departmentName ?? emp.department_name ?? ''
+  const teamName = emp.teamName ?? emp.team_name ?? ''
+  return {
+    position: ROLE_LABELS[emp.role] ?? emp.role ?? '사원',
+    dept: departmentName && teamName && departmentName !== teamName
+      ? `${departmentName} · ${teamName}`
+      : departmentName || teamName || '기타',
+  }
 }
 
 function tierColor(tier) {
@@ -36,33 +54,33 @@ function tierTextColor(tier) {
 
 const poolEmployees = computed(() => {
   return props.allEmployees.filter(emp => {
-    if (tierFilter.value && emp.employee_current_tier !== tierFilter.value) return false
+    if (tierFilter.value && employeeTier(emp) !== tierFilter.value) return false
     const { position } = positionOf(emp)
     if (posFilter.value && position !== posFilter.value) return false
-    if (nameSearch.value && !emp.employee_name.includes(nameSearch.value)) return false
+    if (nameSearch.value && !employeeName(emp).includes(nameSearch.value)) return false
     return true
   })
 })
 
 function toggleSelect(emp) {
-  const idx = selected.value.indexOf(emp.employee_id)
-  if (idx === -1) selected.value.push(emp.employee_id)
+  const id = employeeId(emp)
+  const idx = selected.value.indexOf(id)
+  if (idx === -1) selected.value.push(id)
   else            selected.value.splice(idx, 1)
 }
 
 function isSelected(emp) {
-  return selected.value.includes(emp.employee_id)
+  return selected.value.includes(employeeId(emp))
 }
 
 const selectedEmployees = computed(() =>
-  props.allEmployees.filter(e => selected.value.includes(e.employee_id))
+  props.allEmployees.filter(e => selected.value.includes(employeeId(e)))
 )
 
 function handleSubmit() {
   if (!name.value.trim()) return
   emit('submit', {
     name:        name.value.trim(),
-    description: description.value.trim(),
     memberIds:   [...selected.value],
   })
 }
@@ -89,13 +107,6 @@ function handleSubmit() {
           maxlength="30"
         />
 
-        <label class="modal__label">설명</label>
-        <textarea
-          v-model="description"
-          class="modal__textarea"
-          rows="4"
-        />
-
         <label class="modal__label">선택된 팀원</label>
         <div class="selected-box">
           <span v-if="selectedEmployees.length === 0" class="selected-box__empty">
@@ -104,14 +115,14 @@ function handleSubmit() {
           <div v-else class="selected-tags">
             <span
               v-for="emp in selectedEmployees"
-              :key="emp.employee_id"
+              :key="employeeId(emp)"
               class="selected-tag"
               @click="toggleSelect(emp)"
             >
-              {{ emp.employee_name }}
+              {{ employeeName(emp) }}
               <span class="selected-tag__tier"
-                :style="{ background: tierColor(emp.employee_current_tier), color: tierTextColor(emp.employee_current_tier) }"
-              >{{ emp.employee_current_tier }}</span>
+                :style="{ background: tierColor(employeeTier(emp)), color: tierTextColor(employeeTier(emp)) }"
+              >{{ employeeTier(emp) }}</span>
               <span class="selected-tag__remove">×</span>
             </span>
           </div>
@@ -140,20 +151,20 @@ function handleSubmit() {
         <div class="pool__list">
           <div
             v-for="emp in poolEmployees"
-            :key="emp.employee_id"
+            :key="employeeId(emp)"
             class="pool-item"
             :class="{ 'pool-item--selected': isSelected(emp) }"
             @click="toggleSelect(emp)"
           >
             <div class="pool-item__avatar"
-              :style="{ background: tierColor(emp.employee_current_tier) }"
-            >{{ emp.employee_name[0] }}</div>
+              :style="{ background: tierColor(employeeTier(emp)) }"
+            >{{ employeeName(emp)[0] }}</div>
             <div class="pool-item__info">
               <div class="pool-item__row1">
-                <span class="pool-item__name">{{ emp.employee_name }}</span>
+                <span class="pool-item__name">{{ employeeName(emp) }}</span>
                 <span class="pool-item__tier"
-                  :style="{ background: tierColor(emp.employee_current_tier), color: tierTextColor(emp.employee_current_tier) }"
-                >{{ emp.employee_current_tier }}</span>
+                  :style="{ background: tierColor(employeeTier(emp)), color: tierTextColor(employeeTier(emp)) }"
+                >{{ employeeTier(emp) }}</span>
               </div>
               <p class="pool-item__sub">
                 {{ positionOf(emp).position }}·{{ positionOf(emp).dept }}
@@ -214,18 +225,6 @@ function handleSubmit() {
   box-sizing: border-box;
 }
 .modal__input:focus { outline: none; border-color: var(--color-primary-400); }
-.modal__textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--color-border-default);
-  border-radius: 8px;
-  font-size: var(--font-size-sm); color: var(--color-primary-800);
-  background: var(--color-bg-app);
-  resize: none; box-sizing: border-box;
-  font-family: inherit;
-}
-.modal__textarea:focus { outline: none; border-color: var(--color-primary-400); }
-
 .selected-box {
   flex: 1;
   min-height: 80px;

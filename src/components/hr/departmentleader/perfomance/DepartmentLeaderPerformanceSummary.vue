@@ -10,7 +10,9 @@ const props = defineProps({
 const emit = defineEmits(['update:selectedTeam'])
 
 const progressPercent = computed(() =>
-  Math.round((props.summary.evalCompleted / props.summary.evalTotal) * 100),
+  props.summary.evalTotal > 0
+    ? Math.round((props.summary.evalCompleted / props.summary.evalTotal) * 100)
+    : 0,
 )
 
 const avgLabel   = computed(() => props.selectedTeam === '전체' ? '부서 평균 점수' : '팀 평균 점수')

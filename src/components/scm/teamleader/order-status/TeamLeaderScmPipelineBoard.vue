@@ -184,6 +184,7 @@ function formatCount(count) {
   display: grid;
   align-content: start;
   gap: 6px;
+  box-sizing: border-box;
   min-height: 156px;
   padding: 14px 12px;
   border: 2px solid var(--color-border-default);
@@ -211,13 +212,19 @@ function formatCount(count) {
 
 .pipeline-card__action {
   margin-top: auto;
+  width: 100%;
+  min-width: 0;
   height: 34px;
+  padding: 0 10px;
   border: none;
   border-radius: 10px;
   background: var(--color-primary-600);
   color: var(--color-text-inverse);
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 
