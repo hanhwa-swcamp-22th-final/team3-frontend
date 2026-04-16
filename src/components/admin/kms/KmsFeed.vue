@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   categories:        { type: Array,  default: () => [] },
@@ -11,6 +11,9 @@ const props = defineProps({
 const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
 const showAllCategories = ref(false)
 const defaultVisibleCategoryCount = 3
+const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = 4
 
 const TAG_PALETTE = [
   {
@@ -52,12 +55,39 @@ const filteredCards = computed(() => {
     )
   }
 
-  return list
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (!keyword) {
+    return list
+  }
+
+  return list.filter((card) =>
+    [card.title, card.summary, card.equipment, card.author?.name, ...(card.tags ?? [])]
+      .join(' ')
+      .toLowerCase()
+      .includes(keyword),
+  )
 })
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
+const pagedCards = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredCards.value.slice(start, start + pageSize)
+})
+const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+
+watch(() => [props.selectedFilter, props.selectedTagFilter, searchQuery.value], () => {
+  currentPage.value = 1
+})
+
+watch(filteredCards, (cards) => {
+  const nextTotal = Math.max(1, Math.ceil(cards.length / pageSize))
+  if (currentPage.value > nextTotal) {
+    currentPage.value = nextTotal
+  }
+})
 
 function getPaletteIndex(tag) {
   const value = String(tag ?? '')
@@ -81,6 +111,10 @@ function tagStyle(tag) {
   return getKmsTagStyle(tag)
 }
 
+function setPage(page) {
+  currentPage.value = page
+}
+
 function tierClass(tier) {
   if (tier === 'S') return 'author-tier--s'
   if (tier === 'A') return 'author-tier--a'
@@ -101,6 +135,11 @@ function categoryClass(category) {
 
 <template>
   <div class="kms-feed">
+    <div class="kms-feed__top">
+      <div>
+        <p class="kms-feed__eyebrow">지식 허브</p>
+      </div>
+    </div>
 
     <!-- 필터 탭 + 태그 필터 (한 행) -->
     <div class="filter-row">
@@ -158,10 +197,17 @@ function categoryClass(category) {
       </template>
     </div>
 
+    <input
+      v-model="searchQuery"
+      class="feed-search"
+      type="text"
+      placeholder="지식 검색"
+    />
+
     <!-- 지식 카드 목록 -->
     <div class="card-list">
       <div
-        v-for="card in filteredCards"
+        v-for="card in pagedCards"
         :key="card.id"
         class="knowledge-card"
         :class="{ 'knowledge-card--deleted': card.isDeleted }"
@@ -241,15 +287,49 @@ function categoryClass(category) {
       </div>
     </div>
 
+    <div v-if="filteredCards.length > 0" class="feed-pagination">
+      <button
+        v-for="page in pageNumbers"
+        :key="page"
+        type="button"
+        class="feed-page"
+        :class="{ 'feed-page--active': currentPage === page }"
+        @click="setPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+
   </div>
 </template>
 
 <style scoped>
 .kms-feed {
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  background: var(--color-bg-surface);
+  padding: 22px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 12px;
   font-family: var(--font-family-base);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.kms-feed__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kms-feed__eyebrow {
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-300);
 }
 
 /* 필터 + 태그 한 행 */
@@ -258,6 +338,16 @@ function categoryClass(category) {
   align-items: flex-start;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.feed-search {
+  height: 42px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-default);
+  background: var(--color-bg-surface);
 }
 
 .feed-tabs-wrap {
@@ -293,10 +383,10 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-default);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -312,10 +402,10 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
   margin-left: auto;
@@ -326,8 +416,8 @@ function categoryClass(category) {
   height: 36px;
   padding: 0 14px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -336,25 +426,29 @@ function categoryClass(category) {
 
 /* 지식 카드 */
 .card-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .knowledge-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px;
-  background: var(--color-bg-surface, #ffffff);
-  border: 1.5px solid var(--color-border-default, #e0dcff);
-  border-radius: 12px;
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
   cursor: pointer;
-  transition: box-shadow 0.15s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .knowledge-card:hover {
-  box-shadow: 0 2px 12px rgba(45, 31, 110, 0.08);
+  border-color: var(--color-primary-300);
+  box-shadow: 0 12px 24px rgba(62, 42, 156, 0.08);
+  transform: translateY(-1px);
 }
 
 .knowledge-card--deleted {
@@ -382,10 +476,10 @@ function categoryClass(category) {
 }
 
 .card-tag {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 .card-tag--deleted {
@@ -403,18 +497,18 @@ function categoryClass(category) {
 .card-tag--equip { background: #f4f4fb; color: var(--color-text-muted); }
 
 .card-date {
-  font-size: 10px;
-  color: var(--color-text-muted, #a89ed8);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
 
 .btn-bookmark {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -430,18 +524,18 @@ function categoryClass(category) {
 .card-body {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary-800, #2d1f6e);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
 }
 
 .card-summary {
-  font-size: 12px;
-  color: var(--color-text-sub, #7a6fa8);
+  font-size: var(--font-size-xs-plus);
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -456,32 +550,33 @@ function categoryClass(category) {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .author-avatar {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
 .author-name {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
 .author-tier {
   padding: 2px 6px;
   border-radius: 8px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .author-tier--s { background: #00bf95; color: #fff; }
@@ -503,9 +598,9 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  background: var(--color-bg-surface);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -522,17 +617,43 @@ function categoryClass(category) {
 }
 
 .meta-item {
-  font-size: 11px;
-  color: var(--color-text-muted, #a89ed8);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 .feed-empty {
   padding: 40px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   border: 1px dashed var(--color-border-default);
-  border-radius: 12px;
+  border-radius: 16px;
+}
+
+.feed-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.feed-page {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-default);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.feed-page--active {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: var(--color-white);
 }
 
 .feed-expand-enter-active,
@@ -572,6 +693,15 @@ function categoryClass(category) {
   .feed-expand-enter-to,
   .feed-expand-leave-from {
     max-width: 100%;
+  }
+
+  .card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-actions {
+    margin-left: 0;
   }
 }
 </style>

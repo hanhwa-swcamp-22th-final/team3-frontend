@@ -349,7 +349,7 @@ async function toggleBookmark(article) {
   min-width: 0;
   min-height: 0;
   height: calc(100vh - 80px);
-  padding: 12px 10px 18px;
+  padding: 20px 28px 28px;
   box-sizing: border-box;
   background: var(--color-bg-app);
   overflow: hidden;
@@ -357,21 +357,33 @@ async function toggleBookmark(article) {
 
 .teamleader-knowledge-view__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
-  gap: 16px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1.38fr) minmax(340px, 1fr);
+  gap: 20px;
+  align-items: start;
   height: 100%;
   min-height: 0;
   overflow: visible;
 }
 
 .teamleader-knowledge-view__sidebar {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   height: 100%;
+  width: 100%;
   min-height: 0;
   overflow: visible;
+}
+
+@media (max-width: 1320px) {
+  .teamleader-knowledge-view {
+    padding: 16px 18px 24px;
+  }
+
+  .teamleader-knowledge-view__grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.92fr);
+    gap: 16px;
+  }
 }
 
 @media (max-width: 1180px) {
