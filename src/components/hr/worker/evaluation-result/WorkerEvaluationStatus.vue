@@ -32,6 +32,14 @@ function diffText(val) {
   if (val < 0) return `▼${Math.abs(val)}`
   return '—'
 }
+
+function rankText(val) {
+  return val === null || val === undefined || val === '-' ? '-' : `${val}위`
+}
+
+function rankTotalText(val) {
+  return val === null || val === undefined || val === '-' ? '-' : `${val}명`
+}
 </script>
 
 <template>
@@ -52,7 +60,7 @@ function diffText(val) {
       </svg>
       <div class="es__gauge-text">
         <span class="es__gauge-score">{{ status?.overallScore ?? '-' }}</span>
-        <span class="es__gauge-max">total points</span>
+        <span class="es__gauge-max">this quarter</span>
       </div>
     </div>
 
@@ -73,37 +81,37 @@ function diffText(val) {
       <span class="es__metric-diff" :class="diffClass(status?.qualitative?.diff ?? 0)">
         {{ diffText(status?.qualitative?.diff ?? 0) }}
       </span>
-      <span class="es__metric-sub">가중치 {{ status?.qualitative?.weight ?? '-' }}</span>
     </div>
 
     <div class="es__divider"></div>
 
     <div class="es__metric">
-      <span class="es__metric-label">설비보정</span>
-      <span class="es__metric-value es__metric-value--accent">{{ status?.equipmentCorrection?.label ?? '-' }}</span>
-      <span class="es__metric-sub">{{ status?.equipmentCorrection?.sub ?? '-' }}</span>
-    </div>
-
-    <div class="es__divider"></div>
-
-    <div class="es__metric">
-      <span class="es__metric-label">종합</span>
-      <span class="es__metric-value">{{ status?.composite?.score ?? '-' }}</span>
-      <span class="es__metric-diff" :class="diffClass(status?.composite?.diff ?? 0)">
-        {{ diffText(status?.composite?.diff ?? 0) }}
-      </span>
-      <span class="es__metric-sub">{{ status?.composite?.sub ?? '-' }}</span>
+      <span class="es__metric-label">전분기 비교</span>
+      <div class="es__compare-list">
+        <div class="es__compare-item">
+          <span class="es__compare-key">정량</span>
+          <span class="es__compare-value" :class="diffClass(status?.quantitative?.diff ?? 0)">
+            {{ diffText(status?.quantitative?.diff ?? 0) }}
+          </span>
+        </div>
+        <div class="es__compare-item">
+          <span class="es__compare-key">정성</span>
+          <span class="es__compare-value" :class="diffClass(status?.qualitative?.diff ?? 0)">
+            {{ diffText(status?.qualitative?.diff ?? 0) }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Tier + Rank badge -->
     <div class="es__rank">
       <span class="es__rank-quarter">{{ status?.periodLabel ?? '이번 분기' }}</span>
       <span class="es__rank-tier">{{ status?.tier ?? '-' }}-Tier</span>
-      <span class="es__rank-label">라인 내 순위</span>
+      <span class="es__rank-label">포인트 순위</span>
       <div class="es__rank-numbers">
-        <span class="es__rank-current">{{ status?.rank ?? '-' }}</span>
+        <span class="es__rank-current">{{ rankText(status?.rank) }}</span>
         <span class="es__rank-sep">/</span>
-        <span class="es__rank-total">{{ status?.rankTotal ?? '-' }}위</span>
+        <span class="es__rank-total">{{ rankTotalText(status?.rankTotal) }}</span>
       </div>
       <span class="es__rank-diff diff--up" v-if="(status?.rankDiff ?? 0) > 0">
         ▲{{ status.rankDiff }} 전분기비
@@ -150,14 +158,14 @@ function diffText(val) {
 }
 
 .es__gauge-score {
-  font-size: 28px;
+  font-size: var(--font-size-2xl-plus);
   font-weight: 800;
   color: var(--color-text-strong);
   line-height: 1;
 }
 
 .es__gauge-max {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-text-muted);
 }
 
@@ -172,13 +180,13 @@ function diffText(val) {
 }
 
 .es__metric-label {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-muted);
 }
 
 .es__metric-value {
-  font-size: 36px;
+  font-size: var(--font-size-2xl);
   font-weight: 800;
   color: var(--color-text-strong);
   line-height: 1.1;
@@ -189,13 +197,40 @@ function diffText(val) {
 }
 
 .es__metric-diff {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
 .es__metric-sub {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.es__compare-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.es__compare-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 120px;
+}
+
+.es__compare-key {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.es__compare-value {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--color-text-strong);
 }
 
 .diff--up {
@@ -229,19 +264,19 @@ function diffText(val) {
 }
 
 .es__rank-quarter {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-text-muted);
 }
 
 .es__rank-tier {
-  font-size: 32px;
+  font-size: var(--font-size-display-md);
   font-weight: 800;
   color: var(--color-text-strong);
   line-height: 1.1;
 }
 
 .es__rank-label {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin-top: 4px;
 }
@@ -253,24 +288,24 @@ function diffText(val) {
 }
 
 .es__rank-current {
-  font-size: 32px;
+  font-size: var(--font-size-display-md);
   font-weight: 800;
   color: var(--color-text-strong);
 }
 
 .es__rank-sep {
-  font-size: 20px;
+  font-size: var(--font-size-xl);
   color: var(--color-text-muted);
 }
 
 .es__rank-total {
-  font-size: 20px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--color-text-default);
 }
 
 .es__rank-diff {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 600;
 }
 </style>

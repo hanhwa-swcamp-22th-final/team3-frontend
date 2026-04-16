@@ -67,7 +67,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   padding: 60px 0;
-  font-size: 15px;
+  font-size: var(--font-size-base-plus);
   color: var(--color-text-muted);
 }
 </style>

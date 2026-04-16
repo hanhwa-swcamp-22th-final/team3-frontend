@@ -36,7 +36,7 @@ function renderChart() {
       labels,
       datasets: [
         {
-          label: '내 종합 점수',
+          label: '분기 포인트',
           data: overallData,
           borderColor: '#5B4FCF',
           backgroundColor: '#5B4FCF',
@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
   <div class="gf">
     <div class="gf__header">
       <span class="gf__icon">📈</span>
-      <h3 class="gf__title">성장 추이 & 피드백</h3>
+      <h3 class="gf__title">성장 추이</h3>
     </div>
 
     <!-- Line chart -->
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
       <div class="gf__chart-legend">
         <span class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--overall"></span>
-          내 종합 점수
+          분기 포인트
         </span>
         <span v-if="hasTeamSeries" class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--team"></span>
@@ -209,11 +209,11 @@ onBeforeUnmount(() => {
 }
 
 .gf__icon {
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .gf__title {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-text-muted);
 }
 
@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
 }
 
 .gf__goals-title {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 700;
   color: var(--color-primary-800);
 }
@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
 }
 
 .gf__goal-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-text-muted);
 }
 
@@ -325,18 +325,18 @@ onBeforeUnmount(() => {
 }
 
 .gf__goal-current {
-  font-size: 22px;
+  font-size: var(--font-size-lg-plus);
   font-weight: 800;
   color: var(--color-text-strong);
 }
 
 .gf__goal-arrow {
-  font-size: 16px;
+  font-size: var(--font-size-md);
   color: var(--color-text-muted);
 }
 
 .gf__goal-target {
-  font-size: 22px;
+  font-size: var(--font-size-lg-plus);
   font-weight: 800;
   color: var(--color-text-strong);
 }

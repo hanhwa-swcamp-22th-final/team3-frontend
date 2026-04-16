@@ -1,11 +1,7 @@
 <script setup>
-import { ref } from 'vue'
-
-const props = defineProps({
+defineProps({
   evaluation: { type: Object, required: true },
 })
-
-const showFormula = ref(false)
 
 function isHighlight(val) {
   return val.endsWith('%') || val.endsWith('점')
@@ -34,13 +30,6 @@ function parseLabel(label) {
         <h3 class="qn__title">정량 평가 산출 내역</h3>
         <span class="qn__sub">설비 E_idx 보정 적용 기준</span>
       </div>
-      <button
-        class="qn__toggle"
-        :class="{ 'qn__toggle--active': showFormula }"
-        @click="showFormula = !showFormula"
-      >
-        정량 세부 산식
-      </button>
     </div>
 
     <!-- Formula steps -->
@@ -48,9 +37,6 @@ function parseLabel(label) {
       <div v-for="(step, i) in (evaluation?.steps || [])" :key="i" class="qn__step">
         <div class="qn__step-label">
           <span class="qn__step-name">{{ parseLabel(step.label).name }}</span>
-          <span v-if="showFormula && parseLabel(step.label).formula" class="qn__step-formula">
-            {{ parseLabel(step.label).formula }}
-          </span>
         </div>
         <span
           class="qn__step-value"
@@ -88,38 +74,20 @@ function parseLabel(label) {
 }
 
 .qn__icon-badge {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   line-height: 1;
 }
 
 .qn__title {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
 }
 
 .qn__sub {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-text-muted);
-}
-
-.qn__toggle {
-  padding: 8px 18px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-default);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.qn__toggle--active {
-  background: var(--color-primary-800);
-  color: var(--color-white);
-  border-color: var(--color-primary-800);
 }
 
 .qn__steps {
@@ -145,19 +113,13 @@ function parseLabel(label) {
 }
 
 .qn__step-name {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   color: var(--color-text-strong);
 }
 
-.qn__step-formula {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
 .qn__step-value {
-  font-size: 16px;
+  font-size: var(--font-size-md);
   font-weight: 800;
   color: var(--color-text-strong);
   white-space: nowrap;
