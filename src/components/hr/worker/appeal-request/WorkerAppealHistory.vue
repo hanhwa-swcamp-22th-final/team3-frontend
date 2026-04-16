@@ -1,4 +1,6 @@
 <script setup>
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
+
 const props = defineProps({
   history: { type: Array, required: true },
   selectedId: { type: Number, default: null },
@@ -22,13 +24,7 @@ function tierClass(tier) {
 }
 
 function periodLabel(item) {
-  const raw = String(item.evalYear ?? '')
-  if (raw.length === 6) {
-    const year = raw.slice(0, 4)
-    const month = Number(raw.slice(4, 6))
-    return `${year}년 ${month}월 ${item.evalSequence}차`
-  }
-  return `${item.evalYear}년 ${item.evalSequence}차`
+  return formatEvaluationPeriodLabel(item, { fallback: '-' })
 }
 
 function fmt(val) {

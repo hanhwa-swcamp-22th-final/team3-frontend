@@ -8,6 +8,7 @@ import HRMApprovalList from '@/components/hr/hrmanager/evaluation-approval/HRMAp
 import HRMApprovalDetail from '@/components/hr/hrmanager/evaluation-approval/HRMApprovalDetail.vue'
 import { BaseConfirmModal, BaseToast } from '@/components/common/base/overlay'
 import hrApprovalApi from '@/services/hrApprovalApi.js'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 import { formatMemberMeta } from '@/utils/hrListFormat'
 
 function shortDate(dateStr) {
@@ -30,6 +31,11 @@ function formatDate(dateStr) {
   const date = new Date(dateStr)
   if (Number.isNaN(date.getTime())) return '-'
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+function formatEvaluationPeriodChip(summary) {
+  const label = formatEvaluationPeriodLabel(summary, { fallback: '-' })
+  return label === '-' ? label : `${label} 평가`
 }
 
 function formatPercent(done, total) {
@@ -123,8 +129,8 @@ function defaultAppealDetail(summary) {
 }
 
 function formatAppealPeriod(evalYear, evalSequence) {
-  if (evalYear == null || evalSequence == null) return '-'
-  return `${evalYear}년 ${evalSequence}차 평가`
+  const label = formatEvaluationPeriodLabel({ evalYear, evalSequence }, { fallback: '-' })
+  return label === '-' ? label : `${label} 평가`
 }
 
 function defaultEvaluationDetail(summary) {
@@ -519,12 +525,34 @@ function showToast(message) {
   toastTimer = setTimeout(() => { toast.value.show = false }, 2500)
 }
 
-function handleApprove(comment = '') {
+async function handleApprove(comment = '') {
   if (!selectedItem.value) return
   const isEvaluation = approvalMode.value === 'evaluation'
   const isAppealFinalConfirm = approvalMode.value === 'appeal' && selectedItem.value.rawStatus === 'COMPLETED'
   confirmReason.value = ''
-  if (isEvaluation) evaluationConfirmComment.value = typeof comment === 'string' ? comment : (comment?.value ?? '')
+  if (isEvaluation) {
+    const evalComment = typeof comment === 'string' ? comment.trim() : (comment?.value ?? '').trim()
+
+    if (evalComment && evalComment.length < 20) {
+      showToast('최종 확정 코멘트는 입력 시 20자 이상이어야 합니다.')
+      return
+    }
+
+    try {
+      await hrApprovalApi.confirmEvaluation(selectedItem.value.evaluateeId, {
+        evaluationPeriodId: selectedItem.value.evaluationPeriodId,
+        evalComment,
+        inputMethod: selectedItem.value.detail.inputMethod ?? 'TEXT',
+      })
+      await loadEvaluations()
+      showToast(`${selectedItem.value.name}님의 평가가 최종 확정되었습니다.`)
+    } catch (e) {
+      console.error(e)
+      showToast('처리 중 오류가 발생했습니다.')
+    }
+    return
+  }
+
   confirmModal.value = {
     show: true,
     action: 'approve',
@@ -642,7 +670,7 @@ async function handleConfirm() {
           </div>
           <div class="hrm-approval__progress-side">
             <span class="hrm-approval__progress-period-chip">
-              {{ evaluationPeriodSummary?.evalYear ?? '-' }}년 {{ evaluationPeriodSummary?.evalSequence ?? '-' }}차 평가
+              {{ formatEvaluationPeriodChip(evaluationPeriodSummary) }}
             </span>
             <span class="hrm-approval__progress-range">
               {{ formatDate(evaluationPeriodSummary?.startDate) }} - {{ formatDate(evaluationPeriodSummary?.endDate) }}
