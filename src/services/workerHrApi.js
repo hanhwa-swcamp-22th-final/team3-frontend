@@ -610,7 +610,6 @@ function toEvalStatusViewModel(
   status,
   quantitative = null,
   qualitative = null,
-  pointSummary = null,
   pointHistory = [],
   profile = null,
   history = [],
@@ -622,7 +621,7 @@ function toEvalStatusViewModel(
   const quarterTotals = buildQuarterPointTotals(pointHistory)
   const overallScore = quarterTotals.length
     ? quarterTotals[quarterTotals.length - 1].total
-    : roundToOne(pointSummary?.totalPoints ?? 0)
+    : null
   const previousHistory = history.find((item) => item?.evalPeriodId !== status?.evalPeriodId) ?? null
 
   const quantitativeDiff = previousHistory ? roundToOne(quantitativeScore - toNumber(previousHistory.quantScore)) : 0
@@ -716,7 +715,7 @@ function toQualitativeViewModel(qual) {
   }
 }
 
-function buildPointGrowthChartData(pointHistory = [], pointSummary = null) {
+function buildPointGrowthChartData(pointHistory = []) {
   const quarterTotals = buildQuarterPointTotals(pointHistory)
   if (quarterTotals.length) {
     let cumulative = 0
@@ -730,25 +729,14 @@ function buildPointGrowthChartData(pointHistory = [], pointSummary = null) {
       }
     })
   }
-
-  const fallbackPoints = roundToOne(pointSummary?.totalPoints)
-  if (!fallbackPoints) return []
-
-  return [
-    {
-      label: '현재',
-      overall: fallbackPoints,
-      team: null,
-      company: null,
-    },
-  ]
+  return []
 }
 
-function toGrowthViewModel(pointHistory = [], pointSummary = null) {
-  const chartData = buildPointGrowthChartData(pointHistory, pointSummary)
+function toGrowthViewModel(pointHistory = []) {
+  const chartData = buildPointGrowthChartData(pointHistory)
   const currentPoints = chartData.length
     ? roundToOne(chartData[chartData.length - 1].overall)
-    : roundToOne(pointSummary?.totalPoints)
+    : null
 
   return {
     chartData,
@@ -756,19 +744,17 @@ function toGrowthViewModel(pointHistory = [], pointSummary = null) {
       {
         label: '이번 분기 포인트 목표',
         current: currentPoints,
-        target: roundToOne(toNumber(currentPoints) + 5),
+        target: currentPoints == null ? null : roundToOne(toNumber(currentPoints) + 5),
       },
     ],
   }
 }
 
-export async function getWorkerEvaluationData(periodId = null) {
-  const params = periodId ? { periodId } : {}
-  const [status, quantitative, qualitative, pointSummary, pointHistory, profile, history, tierChart] = await Promise.all([
+export async function getWorkerEvaluationData() {
+  const [status, quantitative, qualitative, pointHistory, profile, history, tierChart] = await Promise.all([
     optionalGet('/api/v1/hr/workers/me/evaluations/status', {}, null),
-    optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', { params }, null),
-    optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', { params }, null),
-    optionalGet('/api/v1/hr/workers/me/point-summary', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', {}, null),
     optionalGet('/api/v1/hr/workers/me/point-history', {}, []),
     optionalGet('/api/v1/hr/workers/me/profile', {}, null),
     optionalGet('/api/v1/hr/workers/me/evaluations/history', { params: { page: 0, size: 20 } }, null),
@@ -782,7 +768,6 @@ export async function getWorkerEvaluationData(periodId = null) {
       status,
       quantitative,
       qualitative,
-      pointSummary,
       (pointHistory ?? []).map(toPointHistoryViewModel),
       profile,
       historyItems,
@@ -790,9 +775,6 @@ export async function getWorkerEvaluationData(periodId = null) {
     ),
     quantitative: toQuantitativeViewModel(quantitative),
     qualitative: toQualitativeViewModel(qualitative),
-    feedback: toGrowthViewModel(
-      (pointHistory ?? []).map(toPointHistoryViewModel),
-      pointSummary,
-    ),
+    feedback: toGrowthViewModel((pointHistory ?? []).map(toPointHistoryViewModel)),
   }
 }
