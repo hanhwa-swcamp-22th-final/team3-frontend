@@ -6,7 +6,7 @@ defineProps({
   article: { type: Object, required: true },
 })
 
-const emit = defineEmits(['close', 'delete', 'restore'])
+const emit = defineEmits(['close', 'edit', 'delete', 'restore'])
 
 function statusClass(status) {
   if (status === '삭제대기') return 'st--deleted'
@@ -75,8 +75,16 @@ function categoryClass(cat) {
       <button type="button" class="kd__restore-btn" @click="emit('restore', article)">복원</button>
     </div>
 
-    <div v-else-if="article.rawStatus !== 'APPROVED'" class="kd__actions">
-      <button type="button" class="kd__delete-btn" @click="emit('delete', article)">삭제</button>
+    <div v-else class="kd__actions">
+      <button type="button" class="kd__edit-btn" @click="emit('edit', article)">수정</button>
+      <button
+        v-if="article.rawStatus !== 'APPROVED'"
+        type="button"
+        class="kd__delete-btn"
+        @click="emit('delete', article)"
+      >
+        삭제
+      </button>
     </div>
   </BaseModal>
 </template>
@@ -231,6 +239,19 @@ function categoryClass(cat) {
 .kd__actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
+}
+
+.kd__edit-btn {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-primary-300);
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
+  color: var(--color-primary-700);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .kd__delete-btn {

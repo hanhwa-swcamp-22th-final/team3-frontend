@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
 import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { useSpeechRecognition } from '@/utils/useSpeechRecognition'
 
 const emit = defineEmits(['close', 'submit', 'saveDraft'])
 const props = defineProps({
@@ -20,6 +21,18 @@ const content     = ref('')
 const equipmentList = ref([])
 const errorMessage = ref('')
 const equipmentLoadFailed = ref(false)
+const {
+  isRecording,
+  speechMessage,
+  speechTone,
+  supportsSpeechRecognition,
+  toggleVoiceInput,
+} = useSpeechRecognition({
+  getText: () => content.value,
+  setText: (value) => {
+    content.value = value
+  },
+})
 
 onMounted(async () => {
   try {
@@ -126,9 +139,17 @@ function handleSaveDraft() {
         <div class="ka__field">
           <div class="ka__label-row">
             <label class="ka__label">본문</label>
-            <button class="ka__voice-btn" type="button" :disabled="submitting">음성으로 작성</button>
+            <button
+              class="ka__voice-btn"
+              :class="{ 'ka__voice-btn--active': isRecording }"
+              type="button"
+              :disabled="submitting || !supportsSpeechRecognition"
+              @click="toggleVoiceInput"
+            >
+              {{ isRecording ? '음성 입력 종료' : '음성으로 작성' }}
+            </button>
           </div>
-          <p class="ka__hint">음성 인식으로 본문을 빠르게 작성할 수 있습니다.</p>
+          <p class="ka__hint" :class="`ka__hint--${speechTone}`">{{ speechMessage }}</p>
           <textarea
             v-model="content"
             class="ka__textarea ka__textarea--lg"
@@ -162,8 +183,8 @@ function handleSaveDraft() {
 }
 
 .ka__label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
 }
 
@@ -178,7 +199,7 @@ function handleSaveDraft() {
   padding: 10px 14px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-default);
   background: var(--color-bg-surface);
   outline: none;
@@ -199,7 +220,7 @@ function handleSaveDraft() {
   padding: 12px 14px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-default);
   resize: none;
   outline: none;
@@ -216,12 +237,13 @@ function handleSaveDraft() {
 }
 
 .ka__voice-btn {
-  padding: 5px 14px;
+  min-width: 108px;
+  padding: 7px 14px;
   border: 1px solid var(--color-primary-300);
   border-radius: var(--radius-xs);
   background: var(--color-bg-surface);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-700);
   cursor: pointer;
   transition: all 0.15s;
@@ -231,15 +253,41 @@ function handleSaveDraft() {
   background: var(--color-primary-100);
 }
 
+.ka__voice-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ka__voice-btn--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+}
+
 .ka__hint {
-  font-size: 12px;
-  color: var(--color-text-muted);
+  font-size: var(--font-size-xs-plus);
   margin: 0;
+}
+
+.ka__hint--idle {
+  color: var(--color-text-muted);
+}
+
+.ka__hint--active {
+  color: var(--color-primary-700);
+}
+
+.ka__hint--ended {
+  color: var(--color-success);
+}
+
+.ka__hint--error {
+  color: var(--color-danger);
 }
 
 .ka__error {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-danger);
 }
 </style>

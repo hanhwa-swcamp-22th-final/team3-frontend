@@ -27,6 +27,7 @@ const topRanking = computed(() => props.ranking.slice(0, 3))
           </div>
         </div>
         <div class="contributors__right">
+          <p class="contributors__score">기여점수 {{ person.score ?? 0 }}점</p>
           <p>게시글 {{ person.articles }}건</p>
           <p>조회수 {{ person.views ?? 0 }}회</p>
         </div>
@@ -155,5 +156,10 @@ const topRanking = computed(() => props.ranking.slice(0, 3))
   color: var(--color-text-muted);
   text-align: right;
   white-space: nowrap;
+}
+
+.contributors__score {
+  color: var(--color-primary-700);
+  font-weight: 700;
 }
 </style>

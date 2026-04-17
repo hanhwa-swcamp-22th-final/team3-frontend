@@ -45,7 +45,6 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
             <strong>{{ item.author }}</strong>
             <span class="review__tier">{{ item.authorTier }}</span>
           </div>
-          <p>{{ item.line }} · 경력 {{ item.workCount }}건</p>
         </div>
       </div>
 
@@ -144,7 +143,6 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
 }
 
 .review__date,
-.review__author p,
 .review__attachment {
   font-size: 12px;
   color: var(--color-text-muted);
@@ -170,15 +168,15 @@ const emit = defineEmits(['update:review-note', 'approve', 'hold', 'reject'])
 
 .review__author strong,
 .review__article-card h3 {
-  font-size: 15px;
+  font-size: 18px;
   color: var(--color-primary-800);
 }
 
 .review__tier,
 .review__badge {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
 }
 

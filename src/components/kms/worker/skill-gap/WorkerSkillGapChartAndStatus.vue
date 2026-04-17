@@ -90,6 +90,7 @@ const overallPercent = computed(() => {
   return Math.round((props.summary.currentOverall / props.summary.targetOverall) * 100)
 })
 
+const currentLabel = computed(() => `현재 ${props.currentTier}등급`)
 const targetLabel = computed(() => `${props.targetTier} 등급 목표`)
 const comparisonLabel = computed(() => `현재 ${props.currentTier} 등급 VS ${props.targetTier} 등급 목표`)
 const gapSummaryLabel = computed(() => {
@@ -98,6 +99,10 @@ const gapSummaryLabel = computed(() => {
   }
   return `평균 기준 ▲ ${props.summary.totalGap}점 필요`
 })
+
+function tierClass(tier) {
+  return `sg__tier--${String(tier ?? 'C').toLowerCase()}`
+}
 </script>
 
 <template>
@@ -126,7 +131,7 @@ const gapSummaryLabel = computed(() => {
         <path
           :d="targetPath"
           fill="rgba(0, 191, 149, 0.08)"
-          stroke="#00BF95"
+          stroke="var(--color-success)"
           stroke-width="2"
           stroke-dasharray="6 3"
         />
@@ -134,7 +139,7 @@ const gapSummaryLabel = computed(() => {
         <path
           :d="currentPath"
           fill="rgba(91, 79, 207, 0.18)"
-          stroke="#5B4FCF"
+          stroke="var(--color-primary-700)"
           stroke-width="2"
         />
         <text
@@ -152,11 +157,11 @@ const gapSummaryLabel = computed(() => {
 
     <!-- Legend -->
     <div class="sg__legend">
-      <span class="sg__legend-item">
-        <span class="sg__legend-dot" style="background: #5B4FCF"></span> 현재 ● #5B4FCF
+      <span class="sg__legend-item" :class="tierClass(currentTier)">
+        <span class="sg__legend-dot sg__legend-dot--current"></span> {{ currentLabel }}
       </span>
-      <span class="sg__legend-item">
-        <span class="sg__legend-line"></span> {{ targetLabel }} -- #00BF95
+      <span class="sg__legend-item" :class="tierClass(targetTier)">
+        <span class="sg__legend-dot sg__legend-dot--target"></span> {{ targetLabel }}
       </span>
     </div>
 
@@ -235,6 +240,7 @@ const gapSummaryLabel = computed(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 700;
 }
 
 .sg__legend-dot {
@@ -243,10 +249,28 @@ const gapSummaryLabel = computed(() => {
   border-radius: 50%;
 }
 
-.sg__legend-line {
-  width: 16px;
-  height: 0;
-  border-top: 2px dashed var(--tier-s);
+.sg__legend-dot--current {
+  background: var(--color-primary-700);
+}
+
+.sg__legend-dot--target {
+  background: var(--color-success);
+}
+
+.sg__tier--s {
+  color: var(--tier-s);
+}
+
+.sg__tier--a {
+  color: var(--tier-a);
+}
+
+.sg__tier--b {
+  color: var(--tier-b);
+}
+
+.sg__tier--c {
+  color: var(--tier-c);
 }
 
 /* ── Gap Summary ───────────────────────────────────────── */
@@ -321,7 +345,7 @@ const gapSummaryLabel = computed(() => {
 .sg__row-target {
   font-size: 13px;
   font-weight: 700;
-  color: var(--tier-s);
+  color: var(--color-success);
   width: 24px;
 }
 

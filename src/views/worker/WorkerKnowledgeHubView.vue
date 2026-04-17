@@ -1,14 +1,28 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
 import KnowledgeHubFeed from '@/components/kms/common/knowledge-hub/KnowledgeHubFeed.vue'
 import KnowledgeHubContributors from '@/components/kms/common/knowledge-hub/KnowledgeHubContributors.vue'
 import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
 import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-management/WorkerKnowledgeAddModal.vue'
 import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
-import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+import { ARTICLE_CATEGORY_LABEL, ARTICLE_CATEGORY_OPTIONS } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
 
+const HUB_PAGE_SIZE = 4
+const CATEGORY_VALUE_MAP = Object.fromEntries(
+  ARTICLE_CATEGORY_OPTIONS.map((option) => [option.label, option.value]),
+)
+const route = useRoute()
+
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
+}
 
 function formatTrend(value, digits = 0) {
   const numeric = Number(value ?? 0)
@@ -58,6 +72,7 @@ function mapToContributor(dto, index) {
     tier: dto.employeeTier ?? 'C',
     articles: dto.articleCount ?? 0,
     views: dto.totalViewCount ?? 0,
+    score: dto.contributionScore ?? 0,
     avatarColor: '#5B4FCF',
   }
 }
@@ -87,6 +102,7 @@ const knowledgeArticles = ref([])
 const bookmarkArticles  = ref([])
 const monthlyRanking    = ref([])
 const aiRecommendations = ref([])
+const totalPages        = ref(1)
 const hubStats          = ref({
   totalArticles: 0,
   newThisMonth: 0,
@@ -95,29 +111,26 @@ const hubStats          = ref({
   averageViewCountChange: 0,
 })
 const isArticleSubmitting = ref(false)
+const isPageQueryReady = ref(false)
+const currentFeedQuery = ref({
+  categoryKey: 'all',
+  keyword: '',
+  page: normalizePageQuery(route.query.p),
+  pageSize: HUB_PAGE_SIZE,
+})
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.allSettled([
     loadHubStats(),
-    loadArticles(),
+    loadArticlesPage(),
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
   ])
+  isPageQueryReady.value = true
 })
-
-const visibleArticles = computed(() => {
-  const merged = new Map()
-  for (const article of knowledgeArticles.value) {
-    merged.set(article.id, article)
-  }
-  for (const article of bookmarkArticles.value) {
-    const existing = merged.get(article.id)
-    merged.set(article.id, existing ? { ...existing, ...article, isBookmarked: true } : article)
-  }
-  return [...merged.values()]
-})
+const visibleArticles = computed(() => knowledgeArticles.value)
 
 async function loadHubStats() {
   try {
@@ -134,21 +147,6 @@ async function loadHubStats() {
   }
 }
 
-async function loadArticles() {
-  try {
-    const res = await knowledgeArticleApi.getArticles({
-      page: 0,
-      size: 20,
-      articleStatus: 'APPROVED',
-    })
-    knowledgeArticles.value = (res.data.data ?? [])
-      .filter((dto) => dto.articleStatus === 'APPROVED')
-      .map(mapToFeedItem)
-  } catch (e) {
-    console.error('[KMS] 문서 목록 로드 실패:', e)
-  }
-}
-
 async function loadBookmarks() {
   try {
     const res = await knowledgeArticleApi.getMyBookmarks()
@@ -158,6 +156,61 @@ async function loadBookmarks() {
       .map((item) => ({ ...item, isBookmarked: true }))
   } catch (e) {
     console.error('[KMS] 북마크 목록 로드 실패:', e)
+  }
+}
+
+function filterBookmarkArticles(keyword = '') {
+  const normalizedKeyword = keyword.trim().toLowerCase()
+  if (!normalizedKeyword) {
+    return bookmarkArticles.value
+  }
+
+  return bookmarkArticles.value.filter((article) =>
+    [article.title, article.equipment, article.author, article.category]
+      .join(' ')
+      .toLowerCase()
+      .includes(normalizedKeyword),
+  )
+}
+
+async function loadArticlesPage(query = currentFeedQuery.value) {
+  currentFeedQuery.value = { ...currentFeedQuery.value, ...query }
+
+  if (currentFeedQuery.value.categoryKey === 'bookmarked') {
+    const filtered = filterBookmarkArticles(currentFeedQuery.value.keyword)
+    totalPages.value = Math.max(1, Math.ceil(filtered.length / HUB_PAGE_SIZE))
+    const page = Math.min(Math.max(currentFeedQuery.value.page, 1), totalPages.value)
+    const start = (page - 1) * HUB_PAGE_SIZE
+    knowledgeArticles.value = filtered.slice(start, start + HUB_PAGE_SIZE)
+    return
+  }
+
+  const params = {
+    articleStatus: 'APPROVED',
+    page: Math.max(currentFeedQuery.value.page - 1, 0),
+    size: currentFeedQuery.value.pageSize ?? HUB_PAGE_SIZE,
+  }
+
+  if (currentFeedQuery.value.categoryKey === 'popular') {
+    params.sort = 'popular'
+  } else if (currentFeedQuery.value.categoryKey !== 'all') {
+    params.category = CATEGORY_VALUE_MAP[currentFeedQuery.value.categoryKey]
+  }
+
+  if (currentFeedQuery.value.keyword) {
+    params.searchType = 'articleTitle'
+    params.keyword = currentFeedQuery.value.keyword
+  }
+
+  try {
+    const res = await knowledgeArticleApi.getPagedArticles(params)
+    const pageData = res.data.data ?? {}
+    totalPages.value = Math.max(pageData.totalPages ?? 0, 1)
+    knowledgeArticles.value = (pageData.items ?? []).map(mapToFeedItem)
+  } catch (e) {
+    console.error('[KMS] 문서 페이지 목록 로드 실패:', e)
+    knowledgeArticles.value = []
+    totalPages.value = 1
   }
 }
 
@@ -220,7 +273,7 @@ async function handleAddArticle(data) {
       content:     data.content,
     })
     showAddModal.value = false
-    await loadArticles()
+    await loadArticlesPage()
   } catch (e) {
     console.error('[KMS] 문서 등록 실패:', e)
     window.alert(e.response?.data?.message ?? '문서 등록에 실패했습니다.')
@@ -242,7 +295,7 @@ async function handleSaveDraft(data) {
       content:     data.content,
     })
     showAddModal.value = false
-    await loadArticles()
+    await loadArticlesPage()
   } catch (e) {
     console.error('[KMS] 임시저장 실패:', e)
     window.alert(e.response?.data?.message ?? '임시 저장에 실패했습니다.')
@@ -317,7 +370,7 @@ async function toggleBookmark(article) {
       await knowledgeArticleApi.addBookmark(article.id)
     }
 
-    await Promise.allSettled([loadArticles(), loadBookmarks()])
+    await Promise.allSettled([loadBookmarks(), loadArticlesPage()])
 
     if (selectedArticle.value?.id === article.id) {
       selectedArticle.value = { ...selectedArticle.value, isBookmarked: !article.isBookmarked }
@@ -331,6 +384,10 @@ async function toggleBookmark(article) {
 function closeModal() {
   showAddModal.value = false
 }
+
+function handleFeedQueryChange(query) {
+  void loadArticlesPage(query)
+}
 </script>
 
 <template>
@@ -343,9 +400,12 @@ function closeModal() {
       <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
+        :total-pages="totalPages"
+        :page-query-ready="isPageQueryReady"
         @open-write="showAddModal = true"
         @open-detail="openDetailModal"
         @toggle-bookmark="toggleBookmark"
+        @query-change="handleFeedQueryChange"
       />
 
       <div class="kh-sidebar">

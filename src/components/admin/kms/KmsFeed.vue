@@ -1,84 +1,147 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   categories:        { type: Array,  default: () => [] },
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: 'all' },
-  selectedTagFilter: { type: String, default: null },
-  tagFilters:        { type: Array,  default: () => [] },
+  totalPages:        { type: Number, default: 1 },
+  pageQueryReady:    { type: Boolean, default: false },
 })
-const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['filterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark', 'query-change'])
 const showAllCategories = ref(false)
 const defaultVisibleCategoryCount = 3
-
-const TAG_PALETTE = [
-  {
-    bg: 'var(--color-success-soft, #dcfce7)',
-    color: 'var(--color-success-text, #028a6b)',
-  },
-  {
-    bg: 'var(--color-primary-100, #efeaff)',
-    color: 'var(--color-primary-700, #5b4fcf)',
-  },
-  {
-    bg: 'var(--color-warning-soft, #fef3c7)',
-    color: 'var(--color-warning-text, #a07000)',
-  },
-  {
-    bg: 'var(--color-danger-bg, #ffecf1)',
-    color: 'var(--color-danger-text, #c0103e)',
-  },
-  {
-    bg: 'var(--color-bg-surface-muted, #f8f7ff)',
-    color: 'var(--color-text-muted, #7a6fa8)',
-  },
-]
-
-const filteredCards = computed(() => {
-  let list = [...props.articles]
-
-  if (props.selectedFilter === 'popular') {
-    list = list.filter((card) => card.isPopular)
-  } else if (props.selectedFilter === 'bookmarked') {
-    list = list.filter((card) => card.bookmarked)
-  } else if (props.selectedFilter !== 'all') {
-    list = list.filter((card) => card.category === props.selectedFilter)
-  }
-
-  if (props.selectedTagFilter) {
-    list = list.filter((card) =>
-      card.tags.some((t) => t === props.selectedTagFilter),
-    )
-  }
-
-  return list
+const searchInput = ref('')
+const searchQuery = ref('')
+const pageSize = 4
+const isComposing = ref(false)
+const route = useRoute()
+const router = useRouter()
+const defaultAuthor = Object.freeze({
+  name: '',
+  initial: '?',
+  color: '#5B4FCF',
+  tier: 'C',
 })
+
+const normalizedCards = computed(() =>
+  (props.articles ?? []).filter((card) => card && typeof card === 'object'),
+)
+
+const filteredCards = computed(() => normalizedCards.value)
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
+const totalPages = computed(() => Math.max(props.totalPages ?? 1, 1))
+const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
+const pagedCards = computed(() => filteredCards.value)
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
 
-function getPaletteIndex(tag) {
-  const value = String(tag ?? '')
-  let hash = 0
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) % TAG_PALETTE.length
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
   }
-  return Math.abs(hash) % TAG_PALETTE.length
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
+
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
 }
 
-function getKmsTagStyle(tag) {
-  if (!tag) {
-    return TAG_PALETTE[0]
+function syncPageQuery(page) {
+  const normalizedPage = normalizePageQuery(page)
+  const nextQuery = { ...route.query }
+
+  if (normalizedPage <= 1) {
+    delete nextQuery.p
+  } else {
+    nextQuery.p = String(normalizedPage)
   }
-  return TAG_PALETTE[getPaletteIndex(tag)]
+
+  const currentQueryPage = Array.isArray(route.query.p) ? route.query.p[0] : route.query.p
+  const nextQueryPage = nextQuery.p
+
+  if ((currentQueryPage ?? undefined) === (nextQueryPage ?? undefined)) {
+    return
+  }
+
+  void router.replace({ query: nextQuery })
 }
 
-function tagStyle(tag) {
-  const found = props.tagFilters.find((t) => t.key === tag)
-  if (found?.bg && found?.color) return { background: found.bg, color: found.color }
-  return getKmsTagStyle(tag)
+watch(() => [props.selectedFilter, searchQuery.value], () => {
+  syncPageQuery(1)
+})
+
+watch(() => [props.selectedFilter, searchQuery.value, currentPage.value, props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
+  }
+
+  emit('query-change', {
+    filterKey: props.selectedFilter,
+    keyword: searchQuery.value.trim(),
+    page: currentPage.value,
+    pageSize,
+  })
+}, { immediate: true })
+
+watch(() => [props.totalPages, props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
+  }
+
+  const normalizedPage = normalizePageQuery(route.query.p)
+  if (normalizedPage > totalPages.value) {
+    syncPageQuery(totalPages.value)
+  }
+}, { immediate: true })
+
+function setPage(page) {
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+  const lastPage = Math.max(totalPages.value, 1)
+  const nextPage = Math.min(Math.max(page, 1), lastPage)
+
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  syncPageQuery(nextPage)
+}
+
+function handleSearchInput(event) {
+  searchInput.value = event.target.value
+  if (!isComposing.value) {
+    searchQuery.value = searchInput.value
+  }
+}
+
+function handleCompositionStart() {
+  isComposing.value = true
+}
+
+async function handleCompositionEnd(event) {
+  isComposing.value = false
+  searchInput.value = event.target.value
+  await nextTick()
+  searchQuery.value = event.target.value
 }
 
 function tierClass(tier) {
@@ -97,32 +160,55 @@ function categoryClass(category) {
   }
   return map[category] || 'card-tag--default'
 }
+
+function authorOf(card) {
+  const author = card?.author
+  if (!author || typeof author !== 'object') {
+    return defaultAuthor
+  }
+
+  return {
+    name: author.name ?? '',
+    initial: author.initial ?? author.name?.[0] ?? '?',
+    color: author.color ?? '#5B4FCF',
+    tier: author.tier ?? 'C',
+  }
+}
+
+function tagsOf(card) {
+  return Array.isArray(card?.tags) ? card.tags : []
+}
+
+function tagStyle(tag) {
+  const palette = {
+    기술: { background: '#F3F0FF', color: '#5B4FCF' },
+    장비: { background: '#E8FFF8', color: '#0E9F6E' },
+    지식: { background: '#FFF6E5', color: '#B7791F' },
+  }
+
+  return palette[tag] ?? {
+    background: '#F5F7FA',
+    color: '#475467',
+  }
+}
 </script>
 
 <template>
   <div class="kms-feed">
+    <div class="kms-feed__top">
+      <div>
+        <p class="kms-feed__eyebrow">지식 허브</p>
+      </div>
+    </div>
 
-    <!-- 필터 탭 + 태그 필터 (한 행) -->
-    <div class="filter-row">
-      <div class="feed-tabs-wrap">
-        <div class="feed-tabs-main">
-          <div class="feed-tabs">
-            <button
-              v-for="filter in primaryCategories"
-              :key="filter.key"
-              type="button"
-              class="feed-tab"
-              :class="{ 'feed-tab--active': selectedFilter === filter.key }"
-              @click="emit('filterChange', filter.key)"
-            >
-              {{ filter.label }}
-            </button>
-          </div>
-
-          <Transition name="feed-expand">
-            <div v-if="showAllCategories" class="feed-tabs feed-tabs--expanded">
+    <div class="feed-controls">
+      <!-- 필터 탭 -->
+      <div class="filter-row">
+        <div class="feed-tabs-wrap">
+          <div class="feed-tabs-main">
+            <div class="feed-tabs">
               <button
-                v-for="filter in hiddenCategories"
+                v-for="filter in primaryCategories"
                 :key="filter.key"
                 type="button"
                 class="feed-tab"
@@ -132,36 +218,49 @@ function categoryClass(category) {
                 {{ filter.label }}
               </button>
             </div>
-          </Transition>
-        </div>
 
-        <button
-          v-if="hasHiddenCategories"
-          type="button"
-          class="feed-more"
-          @click="showAllCategories = !showAllCategories"
-        >
-          {{ showAllCategories ? '접기' : '+ 더보기' }}
-        </button>
+            <Transition name="feed-expand">
+              <div v-if="showAllCategories" class="feed-tabs feed-tabs--expanded">
+                <button
+                  v-for="filter in hiddenCategories"
+                  :key="filter.key"
+                  type="button"
+                  class="feed-tab"
+                  :class="{ 'feed-tab--active': selectedFilter === filter.key }"
+                  @click="emit('filterChange', filter.key)"
+                >
+                  {{ filter.label }}
+                </button>
+              </div>
+            </Transition>
+          </div>
+
+          <button
+            v-if="hasHiddenCategories"
+            type="button"
+            class="feed-more"
+            @click="showAllCategories = !showAllCategories"
+          >
+            {{ showAllCategories ? '접기' : '+ 더보기' }}
+          </button>
+        </div>
       </div>
-      <template v-if="props.tagFilters.length > 0">
-        <span
-          v-for="t in props.tagFilters"
-          :key="t.key"
-          class="tag-chip"
-          :style="selectedTagFilter === t.key
-            ? { background: 'var(--color-primary-800)', color: 'var(--color-text-inverse)' }
-            : { background: t.bg, color: t.color }
-          "
-          @click="emit('tagFilterChange', selectedTagFilter === t.key ? null : t.key)"
-        >{{ t.key }}</span>
-      </template>
+
+      <input
+        :value="searchInput"
+        class="feed-search"
+        type="text"
+        placeholder="지식 검색"
+        @input="handleSearchInput"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
+      />
     </div>
 
     <!-- 지식 카드 목록 -->
     <div class="card-list">
       <div
-        v-for="card in filteredCards"
+        v-for="card in pagedCards"
         :key="card.id"
         class="knowledge-card"
         :class="{ 'knowledge-card--deleted': card.isDeleted }"
@@ -176,7 +275,7 @@ function categoryClass(category) {
             <span class="card-tag" :class="categoryClass(card.category)">{{ card.category }}</span>
             <span v-if="card.equipment" class="card-tag card-tag--equip">{{ card.equipment }}</span>
             <span
-              v-for="tag in card.tags"
+              v-for="tag in tagsOf(card)"
               :key="tag"
               class="card-tag"
               :style="tagStyle(tag)"
@@ -205,11 +304,11 @@ function categoryClass(category) {
         <!-- 카드 푸터 -->
         <div class="card-footer">
           <div class="author-info">
-            <div class="author-avatar" :style="{ background: card.author.color }">
-              {{ card.author.initial }}
+            <div class="author-avatar" :style="{ background: authorOf(card).color }">
+              {{ authorOf(card).initial }}
             </div>
-            <span class="author-name">{{ card.author.name }}</span>
-            <span class="author-tier" :class="tierClass(card.author.tier)">{{ card.author.tier }}</span>
+            <span class="author-name">{{ authorOf(card).name }}</span>
+            <span class="author-tier" :class="tierClass(authorOf(card).tier)">{{ authorOf(card).tier }}</span>
           </div>
           <div class="card-meta">
             <span class="meta-item">👁 {{ card.views }}</span>
@@ -236,9 +335,36 @@ function categoryClass(category) {
 
       </div>
 
-      <div v-if="filteredCards.length === 0" class="feed-empty">
+      <div v-if="pagedCards.length === 0" class="feed-empty">
         해당 조건의 문서가 없습니다.
       </div>
+    </div>
+
+    <div v-if="pagedCards.length > 0" class="feed-pagination">
+      <button
+        type="button"
+        class="feed-page feed-page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
+      >&lt;</button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="feed-ellipsis">...</span>
+        <button
+          v-else
+          type="button"
+          class="feed-page"
+          :class="{ 'feed-page--active': currentPage === page }"
+          @click="setPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        type="button"
+        class="feed-page feed-page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >&gt;</button>
     </div>
 
   </div>
@@ -246,18 +372,50 @@ function categoryClass(category) {
 
 <style scoped>
 .kms-feed {
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  background: var(--color-bg-surface);
+  padding: 22px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 12px;
   font-family: var(--font-family-base);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* 필터 + 태그 한 행 */
-.filter-row {
+.kms-feed__top {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kms-feed__eyebrow {
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-300);
+}
+
+.feed-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.filter-row {
+  display: block;
+}
+
+.feed-search {
+  height: 42px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-default);
+  background: var(--color-bg-surface);
 }
 
 .feed-tabs-wrap {
@@ -293,10 +451,10 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-default);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -312,49 +470,41 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   white-space: nowrap;
   margin-left: auto;
   flex-shrink: 0;
 }
 
-.tag-chip {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
 /* 지식 카드 */
 .card-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .knowledge-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px;
-  background: var(--color-bg-surface, #ffffff);
-  border: 1.5px solid var(--color-border-default, #e0dcff);
-  border-radius: 12px;
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
   cursor: pointer;
-  transition: box-shadow 0.15s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .knowledge-card:hover {
-  box-shadow: 0 2px 12px rgba(45, 31, 110, 0.08);
+  border-color: var(--color-primary-300);
+  box-shadow: 0 12px 24px rgba(62, 42, 156, 0.08);
+  transform: translateY(-1px);
 }
 
 .knowledge-card--deleted {
@@ -382,10 +532,10 @@ function categoryClass(category) {
 }
 
 .card-tag {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 .card-tag--deleted {
@@ -403,18 +553,18 @@ function categoryClass(category) {
 .card-tag--equip { background: #f4f4fb; color: var(--color-text-muted); }
 
 .card-date {
-  font-size: 10px;
-  color: var(--color-text-muted, #a89ed8);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
 
 .btn-bookmark {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--color-border-default);
-  background: #fff;
+  background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -430,18 +580,18 @@ function categoryClass(category) {
 .card-body {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary-800, #2d1f6e);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
 }
 
 .card-summary {
-  font-size: 12px;
-  color: var(--color-text-sub, #7a6fa8);
+  font-size: var(--font-size-xs-plus);
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -456,32 +606,33 @@ function categoryClass(category) {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .author-avatar {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-inverse);
   flex-shrink: 0;
 }
 
 .author-name {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
 }
 
 .author-tier {
   padding: 2px 6px;
   border-radius: 8px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .author-tier--s { background: #00bf95; color: #fff; }
@@ -503,9 +654,9 @@ function categoryClass(category) {
   padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--color-border-default);
-  background: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  background: var(--color-bg-surface);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -522,17 +673,59 @@ function categoryClass(category) {
 }
 
 .meta-item {
-  font-size: 11px;
-  color: var(--color-text-muted, #a89ed8);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 .feed-empty {
   padding: 40px;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   border: 1px dashed var(--color-border-default);
-  border-radius: 12px;
+  border-radius: 16px;
+}
+
+.feed-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.feed-page {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-default);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.feed-page:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.feed-page--active {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: var(--color-white);
+}
+
+.feed-ellipsis {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .feed-expand-enter-active,
@@ -572,6 +765,15 @@ function categoryClass(category) {
   .feed-expand-enter-to,
   .feed-expand-leave-from {
     max-width: 100%;
+  }
+
+  .card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-actions {
+    margin-left: 0;
   }
 }
 </style>

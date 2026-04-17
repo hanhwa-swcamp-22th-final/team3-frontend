@@ -1,74 +1,147 @@
 ﻿<script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   categories: { type: Array, default: () => [] },
   articles: { type: Array, default: () => [] },
+  totalPages: { type: Number, default: 1 },
+  pageQueryReady: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark', 'query-change'])
 const authStore = useAuthStore()
 
 const activeCategory = ref('all')
+const searchInput = ref('')
 const searchQuery = ref('')
 const showAllCategories = ref(false)
-const currentPage = ref(1)
 const defaultVisibleCategoryCount = 3
 const pageSize = 4
+const isComposing = ref(false)
 const isWorker = computed(() => authStore.role() === 'worker')
+const route = useRoute()
+const router = useRouter()
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
 
-const filteredArticles = computed(() => {
-  let result = props.articles
+const filteredArticles = computed(() => props.articles ?? [])
+const totalPages = computed(() => Math.max(props.totalPages ?? 1, 1))
+const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
+const pagedArticles = computed(() => filteredArticles.value)
 
-  if (activeCategory.value === 'popular') {
-    result = result.filter((item) => item.isPopular)
-  } else if (activeCategory.value === 'latest') {
-    result = [...result].sort((a, b) => b.id - a.id)
-  } else if (activeCategory.value === 'bookmarked') {
-    result = result.filter((item) => item.isBookmarked)
-  } else if (activeCategory.value !== 'all') {
-    result = result.filter((item) => item.category === activeCategory.value)
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
   }
 
-  const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) {
-    return result
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
   }
 
-  return result.filter((item) => [item.title, item.preview, item.code, item.equipment].join(' ').toLowerCase().includes(keyword))
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
+}
 
-const pagedArticles = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredArticles.value.slice(start, start + pageSize)
-})
+function syncPageQuery(page) {
+  const normalizedPage = normalizePageQuery(page)
+  const nextQuery = { ...route.query }
 
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+  if (normalizedPage <= 1) {
+    delete nextQuery.p
+  } else {
+    nextQuery.p = String(normalizedPage)
+  }
+
+  const currentQueryPage = Array.isArray(route.query.p) ? route.query.p[0] : route.query.p
+  const nextQueryPage = nextQuery.p
+
+  if ((currentQueryPage ?? undefined) === (nextQueryPage ?? undefined)) {
+    return
+  }
+
+  void router.replace({ query: nextQuery })
+}
 
 watch([activeCategory, searchQuery], () => {
-  currentPage.value = 1
+  syncPageQuery(1)
 })
 
-watch(filteredArticles, (articles) => {
-  const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
-  if (currentPage.value > nextTotal) {
-    currentPage.value = nextTotal
+watch([activeCategory, searchQuery, currentPage, () => props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
   }
-})
+
+  emit('query-change', {
+    categoryKey: activeCategory.value,
+    keyword: searchQuery.value.trim(),
+    page: currentPage.value,
+    pageSize,
+  })
+}, { immediate: true })
+
+watch(() => [props.totalPages, props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
+  }
+
+  const normalizedPage = normalizePageQuery(route.query.p)
+  if (normalizedPage > totalPages.value) {
+    syncPageQuery(totalPages.value)
+  }
+}, { immediate: true })
 
 function setCategory(categoryKey) {
   activeCategory.value = categoryKey
 }
 
 function setPage(page) {
-  currentPage.value = page
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+  const lastPage = Math.max(totalPages.value, 1)
+  const nextPage = Math.min(Math.max(page, 1), lastPage)
+
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  syncPageQuery(nextPage)
+}
+
+function handleSearchInput(event) {
+  searchInput.value = event.target.value
+  if (!isComposing.value) {
+    searchQuery.value = searchInput.value
+  }
+}
+
+function handleCompositionStart() {
+  isComposing.value = true
+}
+
+async function handleCompositionEnd(event) {
+  isComposing.value = false
+  searchInput.value = event.target.value
+  await nextTick()
+  searchQuery.value = event.target.value
 }
 
 function tierClass(tier) {
@@ -140,7 +213,15 @@ function categoryClass(category) {
         </button>
       </div>
 
-      <input v-model="searchQuery" class="feed__search" type="text" placeholder="지식 검색" />
+      <input
+        :value="searchInput"
+        class="feed__search"
+        type="text"
+        placeholder="지식 검색"
+        @input="handleSearchInput"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
+      />
     </div>
 
     <div class="feed__list">
@@ -186,20 +267,34 @@ function categoryClass(category) {
         </div>
       </article>
 
-      <div v-if="filteredArticles.length === 0" class="feed__empty">조건에 맞는 문서가 없습니다.</div>
+      <div v-if="pagedArticles.length === 0" class="feed__empty">조건에 맞는 문서가 없습니다.</div>
     </div>
 
-    <div v-if="filteredArticles.length > 0" class="feed__pagination">
+    <div v-if="pagedArticles.length > 0" class="feed__pagination">
       <button
-        v-for="page in pageNumbers"
-        :key="page"
         type="button"
-        class="feed__page"
-        :class="{ 'feed__page--active': currentPage === page }"
-        @click="setPage(page)"
-      >
-        {{ page }}
-      </button>
+        class="feed__page feed__page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
+      >&lt;</button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="feed__ellipsis">...</span>
+        <button
+          v-else
+          type="button"
+          class="feed__page"
+          :class="{ 'feed__page--active': currentPage === page }"
+          @click="setPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        type="button"
+        class="feed__page feed__page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >&gt;</button>
     </div>
   </section>
 </template>
@@ -464,28 +559,44 @@ function categoryClass(category) {
 
 .feed__pagination {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding-top: 4px;
   flex-shrink: 0;
 }
 
 .feed__page {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: 1px solid var(--color-border-default);
   background: #fff;
   color: var(--color-text-default);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.feed__page:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .feed__page--active {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: #fff;
+}
+
+.feed__ellipsis {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .feed-expand-enter-active,

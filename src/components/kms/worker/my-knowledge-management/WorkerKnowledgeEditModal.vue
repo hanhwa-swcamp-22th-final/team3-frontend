@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { BaseFormModal } from '@/components/common/base'
 import { ARTICLE_CATEGORY_OPTIONS } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import { useSpeechRecognition } from '@/utils/useSpeechRecognition'
 
 const props = defineProps({
   article: { type: Object, required: true },
@@ -19,6 +20,18 @@ const content     = ref(props.article.content ?? '')
 const equipmentList = ref([])
 const errorMessage = ref('')
 const equipmentLoadFailed = ref(false)
+const {
+  isRecording,
+  speechMessage,
+  speechTone,
+  supportsSpeechRecognition,
+  toggleVoiceInput,
+} = useSpeechRecognition({
+  getText: () => content.value,
+  setText: (value) => {
+    content.value = value
+  },
+})
 
 onMounted(async () => {
   try {
@@ -121,7 +134,19 @@ function handleSaveDraft() {
       <!-- Content -->
       <div class="ke__row">
         <div class="ke__field">
-          <label class="ke__label">본문</label>
+          <div class="ke__label-row">
+            <label class="ke__label">본문</label>
+            <button
+              class="ke__voice-btn"
+              :class="{ 'ke__voice-btn--active': isRecording }"
+              type="button"
+              :disabled="!supportsSpeechRecognition"
+              @click="toggleVoiceInput"
+            >
+              {{ isRecording ? '음성 입력 종료' : '음성으로 작성' }}
+            </button>
+          </div>
+          <p class="ke__hint" :class="`ke__hint--${speechTone}`">{{ speechMessage }}</p>
           <textarea
             v-model="content"
             class="ke__textarea ke__textarea--lg"
@@ -155,9 +180,15 @@ function handleSaveDraft() {
 }
 
 .ke__label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
+}
+
+.ke__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .ke__input,
@@ -165,7 +196,7 @@ function handleSaveDraft() {
   padding: 10px 14px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-default);
   background: var(--color-bg-surface);
   outline: none;
@@ -186,7 +217,7 @@ function handleSaveDraft() {
   padding: 12px 14px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: var(--color-text-default);
   resize: none;
   outline: none;
@@ -202,9 +233,58 @@ function handleSaveDraft() {
   min-height: 140px;
 }
 
+.ke__voice-btn {
+  min-width: 108px;
+  padding: 7px 14px;
+  border: 1px solid var(--color-primary-300);
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
+  font-size: var(--font-size-xs-plus);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-700);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ke__voice-btn:hover {
+  background: var(--color-primary-100);
+}
+
+.ke__voice-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ke__voice-btn--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+}
+
+.ke__hint {
+  margin: 0;
+  font-size: var(--font-size-xs-plus);
+}
+
+.ke__hint--idle {
+  color: var(--color-text-muted);
+}
+
+.ke__hint--active {
+  color: var(--color-primary-700);
+}
+
+.ke__hint--ended {
+  color: var(--color-success);
+}
+
+.ke__hint--error {
+  color: var(--color-danger);
+}
+
 .ke__error {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   color: var(--color-danger);
 }
 </style>
