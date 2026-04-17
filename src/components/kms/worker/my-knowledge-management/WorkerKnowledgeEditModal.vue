@@ -23,6 +23,7 @@ const equipmentLoadFailed = ref(false)
 const {
   isRecording,
   speechMessage,
+  speechTone,
   supportsSpeechRecognition,
   toggleVoiceInput,
 } = useSpeechRecognition({
@@ -145,7 +146,7 @@ function handleSaveDraft() {
               {{ isRecording ? '음성 입력 종료' : '음성으로 작성' }}
             </button>
           </div>
-          <p class="ke__hint">{{ speechMessage }}</p>
+          <p class="ke__hint" :class="`ke__hint--${speechTone}`">{{ speechMessage }}</p>
           <textarea
             v-model="content"
             class="ke__textarea ke__textarea--lg"
@@ -263,7 +264,22 @@ function handleSaveDraft() {
 .ke__hint {
   margin: 0;
   font-size: var(--font-size-xs-plus);
+}
+
+.ke__hint--idle {
   color: var(--color-text-muted);
+}
+
+.ke__hint--active {
+  color: var(--color-primary-700);
+}
+
+.ke__hint--ended {
+  color: var(--color-success);
+}
+
+.ke__hint--error {
+  color: var(--color-danger);
 }
 
 .ke__error {

@@ -24,6 +24,7 @@ const equipmentLoadFailed = ref(false)
 const {
   isRecording,
   speechMessage,
+  speechTone,
   supportsSpeechRecognition,
   toggleVoiceInput,
 } = useSpeechRecognition({
@@ -148,7 +149,7 @@ function handleSaveDraft() {
               {{ isRecording ? '음성 입력 종료' : '음성으로 작성' }}
             </button>
           </div>
-          <p class="ka__hint">{{ speechMessage }}</p>
+          <p class="ka__hint" :class="`ka__hint--${speechTone}`">{{ speechMessage }}</p>
           <textarea
             v-model="content"
             class="ka__textarea ka__textarea--lg"
@@ -265,8 +266,23 @@ function handleSaveDraft() {
 
 .ka__hint {
   font-size: var(--font-size-xs-plus);
-  color: var(--color-text-muted);
   margin: 0;
+}
+
+.ka__hint--idle {
+  color: var(--color-text-muted);
+}
+
+.ka__hint--active {
+  color: var(--color-primary-700);
+}
+
+.ka__hint--ended {
+  color: var(--color-success);
+}
+
+.ka__hint--error {
+  color: var(--color-danger);
 }
 
 .ka__error {
