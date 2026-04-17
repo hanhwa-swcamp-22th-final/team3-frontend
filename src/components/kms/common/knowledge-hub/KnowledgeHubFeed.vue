@@ -11,11 +11,13 @@ const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark'])
 const authStore = useAuthStore()
 
 const activeCategory = ref('all')
+const searchInput = ref('')
 const searchQuery = ref('')
 const showAllCategories = ref(false)
 const currentPage = ref(1)
 const defaultVisibleCategoryCount = 3
 const pageSize = 4
+const isComposing = ref(false)
 const isWorker = computed(() => authStore.role() === 'worker')
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
@@ -69,6 +71,23 @@ function setCategory(categoryKey) {
 
 function setPage(page) {
   currentPage.value = page
+}
+
+function handleSearchInput(event) {
+  searchInput.value = event.target.value
+  if (!isComposing.value) {
+    searchQuery.value = searchInput.value
+  }
+}
+
+function handleCompositionStart() {
+  isComposing.value = true
+}
+
+function handleCompositionEnd(event) {
+  isComposing.value = false
+  searchInput.value = event.target.value
+  searchQuery.value = searchInput.value
 }
 
 function tierClass(tier) {
@@ -140,7 +159,15 @@ function categoryClass(category) {
         </button>
       </div>
 
-      <input v-model="searchQuery" class="feed__search" type="text" placeholder="지식 검색" />
+      <input
+        :value="searchInput"
+        class="feed__search"
+        type="text"
+        placeholder="지식 검색"
+        @input="handleSearchInput"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
+      />
     </div>
 
     <div class="feed__list">

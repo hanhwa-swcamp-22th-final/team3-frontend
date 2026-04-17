@@ -5,38 +5,15 @@ const props = defineProps({
   categories:        { type: Array,  default: () => [] },
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: 'all' },
-  selectedTagFilter: { type: String, default: null },
-  tagFilters:        { type: Array,  default: () => [] },
 })
-const emit = defineEmits(['filterChange', 'tagFilterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['filterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
 const showAllCategories = ref(false)
 const defaultVisibleCategoryCount = 3
+const searchInput = ref('')
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = 4
-
-const TAG_PALETTE = [
-  {
-    bg: 'var(--color-success-soft, #dcfce7)',
-    color: 'var(--color-success-text, #028a6b)',
-  },
-  {
-    bg: 'var(--color-primary-100, #efeaff)',
-    color: 'var(--color-primary-700, #5b4fcf)',
-  },
-  {
-    bg: 'var(--color-warning-soft, #fef3c7)',
-    color: 'var(--color-warning-text, #a07000)',
-  },
-  {
-    bg: 'var(--color-danger-bg, #ffecf1)',
-    color: 'var(--color-danger-text, #c0103e)',
-  },
-  {
-    bg: 'var(--color-bg-surface-muted, #f8f7ff)',
-    color: 'var(--color-text-muted, #7a6fa8)',
-  },
-]
+const isComposing = ref(false)
 
 const filteredCards = computed(() => {
   let list = [...props.articles]
@@ -47,12 +24,6 @@ const filteredCards = computed(() => {
     list = list.filter((card) => card.bookmarked)
   } else if (props.selectedFilter !== 'all') {
     list = list.filter((card) => card.category === props.selectedFilter)
-  }
-
-  if (props.selectedTagFilter) {
-    list = list.filter((card) =>
-      card.tags.some((t) => t === props.selectedTagFilter),
-    )
   }
 
   const keyword = searchQuery.value.trim().toLowerCase()
@@ -78,7 +49,7 @@ const pagedCards = computed(() => {
 })
 const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
 
-watch(() => [props.selectedFilter, props.selectedTagFilter, searchQuery.value], () => {
+watch(() => [props.selectedFilter, searchQuery.value], () => {
   currentPage.value = 1
 })
 
@@ -89,30 +60,25 @@ watch(filteredCards, (cards) => {
   }
 })
 
-function getPaletteIndex(tag) {
-  const value = String(tag ?? '')
-  let hash = 0
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) % TAG_PALETTE.length
-  }
-  return Math.abs(hash) % TAG_PALETTE.length
-}
-
-function getKmsTagStyle(tag) {
-  if (!tag) {
-    return TAG_PALETTE[0]
-  }
-  return TAG_PALETTE[getPaletteIndex(tag)]
-}
-
-function tagStyle(tag) {
-  const found = props.tagFilters.find((t) => t.key === tag)
-  if (found?.bg && found?.color) return { background: found.bg, color: found.color }
-  return getKmsTagStyle(tag)
-}
-
 function setPage(page) {
   currentPage.value = page
+}
+
+function handleSearchInput(event) {
+  searchInput.value = event.target.value
+  if (!isComposing.value) {
+    searchQuery.value = searchInput.value
+  }
+}
+
+function handleCompositionStart() {
+  isComposing.value = true
+}
+
+function handleCompositionEnd(event) {
+  isComposing.value = false
+  searchInput.value = event.target.value
+  searchQuery.value = searchInput.value
 }
 
 function tierClass(tier) {
@@ -141,27 +107,14 @@ function categoryClass(category) {
       </div>
     </div>
 
-    <!-- 필터 탭 + 태그 필터 (한 행) -->
-    <div class="filter-row">
-      <div class="feed-tabs-wrap">
-        <div class="feed-tabs-main">
-          <div class="feed-tabs">
-            <button
-              v-for="filter in primaryCategories"
-              :key="filter.key"
-              type="button"
-              class="feed-tab"
-              :class="{ 'feed-tab--active': selectedFilter === filter.key }"
-              @click="emit('filterChange', filter.key)"
-            >
-              {{ filter.label }}
-            </button>
-          </div>
-
-          <Transition name="feed-expand">
-            <div v-if="showAllCategories" class="feed-tabs feed-tabs--expanded">
+    <div class="feed-controls">
+      <!-- 필터 탭 -->
+      <div class="filter-row">
+        <div class="feed-tabs-wrap">
+          <div class="feed-tabs-main">
+            <div class="feed-tabs">
               <button
-                v-for="filter in hiddenCategories"
+                v-for="filter in primaryCategories"
                 :key="filter.key"
                 type="button"
                 class="feed-tab"
@@ -171,38 +124,44 @@ function categoryClass(category) {
                 {{ filter.label }}
               </button>
             </div>
-          </Transition>
+
+            <Transition name="feed-expand">
+              <div v-if="showAllCategories" class="feed-tabs feed-tabs--expanded">
+                <button
+                  v-for="filter in hiddenCategories"
+                  :key="filter.key"
+                  type="button"
+                  class="feed-tab"
+                  :class="{ 'feed-tab--active': selectedFilter === filter.key }"
+                  @click="emit('filterChange', filter.key)"
+                >
+                  {{ filter.label }}
+                </button>
+              </div>
+            </Transition>
+          </div>
+
+          <button
+            v-if="hasHiddenCategories"
+            type="button"
+            class="feed-more"
+            @click="showAllCategories = !showAllCategories"
+          >
+            {{ showAllCategories ? '접기' : '+ 더보기' }}
+          </button>
         </div>
-
-        <button
-          v-if="hasHiddenCategories"
-          type="button"
-          class="feed-more"
-          @click="showAllCategories = !showAllCategories"
-        >
-          {{ showAllCategories ? '접기' : '+ 더보기' }}
-        </button>
       </div>
-      <template v-if="props.tagFilters.length > 0">
-        <span
-          v-for="t in props.tagFilters"
-          :key="t.key"
-          class="tag-chip"
-          :style="selectedTagFilter === t.key
-            ? { background: 'var(--color-primary-800)', color: 'var(--color-text-inverse)' }
-            : { background: t.bg, color: t.color }
-          "
-          @click="emit('tagFilterChange', selectedTagFilter === t.key ? null : t.key)"
-        >{{ t.key }}</span>
-      </template>
-    </div>
 
-    <input
-      v-model="searchQuery"
-      class="feed-search"
-      type="text"
-      placeholder="지식 검색"
-    />
+      <input
+        :value="searchInput"
+        class="feed-search"
+        type="text"
+        placeholder="지식 검색"
+        @input="handleSearchInput"
+        @compositionstart="handleCompositionStart"
+        @compositionend="handleCompositionEnd"
+      />
+    </div>
 
     <!-- 지식 카드 목록 -->
     <div class="card-list">
@@ -312,7 +271,7 @@ function categoryClass(category) {
   background: var(--color-bg-surface);
   padding: 22px;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 12px;
   font-family: var(--font-family-base);
   overflow: hidden;
@@ -332,12 +291,13 @@ function categoryClass(category) {
   color: var(--color-primary-300);
 }
 
-/* 필터 + 태그 한 행 */
+.feed-controls {
+  display: grid;
+  gap: 12px;
+}
+
 .filter-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: block;
 }
 
 .feed-search {
@@ -410,18 +370,6 @@ function categoryClass(category) {
   white-space: nowrap;
   margin-left: auto;
   flex-shrink: 0;
-}
-
-.tag-chip {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 20px;
-  font-size: var(--font-size-xs-plus);
-  font-weight: var(--font-weight-bold);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.15s;
 }
 
 /* 지식 카드 */

@@ -8,6 +8,7 @@ import WorkerKnowledgeAddModal from '@/components/kms/worker/my-knowledge-manage
 import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import { ARTICLE_CATEGORY_LABEL } from '@/constants'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
+import fetchAllKmsArticles from '@/utils/fetchAllKmsArticles'
 
 
 function formatTrend(value, digits = 0) {
@@ -58,6 +59,7 @@ function mapToContributor(dto, index) {
     tier: dto.employeeTier ?? 'C',
     articles: dto.articleCount ?? 0,
     views: dto.totalViewCount ?? 0,
+    score: dto.contributionScore ?? 0,
     avatarColor: '#5B4FCF',
   }
 }
@@ -136,12 +138,10 @@ async function loadHubStats() {
 
 async function loadArticles() {
   try {
-    const res = await knowledgeArticleApi.getArticles({
-      page: 0,
-      size: 20,
+    const articleDtos = await fetchAllKmsArticles(knowledgeArticleApi.getArticles, {
       articleStatus: 'APPROVED',
     })
-    knowledgeArticles.value = (res.data.data ?? [])
+    knowledgeArticles.value = articleDtos
       .filter((dto) => dto.articleStatus === 'APPROVED')
       .map(mapToFeedItem)
   } catch (e) {

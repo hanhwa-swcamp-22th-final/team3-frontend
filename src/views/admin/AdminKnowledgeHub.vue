@@ -7,8 +7,7 @@ import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeH
 import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
 import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
-
-const tagFilters = ref([])
+import fetchAllKmsArticles from '@/utils/fetchAllKmsArticles'
 
 const knowledgeCategories = [
   { key: 'all', label: '전체' },
@@ -85,6 +84,7 @@ function mapToContributor(dto, idx) {
     tier: dto.employeeTier ?? 'C',
     articles: dto.articleCount ?? 0,
     views:   dto.totalViewCount ?? 0,
+    score:   dto.contributionScore ?? 0,
   }
 }
 
@@ -102,8 +102,7 @@ const hubStats       = ref({
 })
 const selectedArticle = ref(null)
 
-const selectedFilter    = ref('all')
-const selectedTagFilter = ref(null)
+const selectedFilter = ref('all')
 
 // ── 통계 카드 ─────────────────────────────────────────────────
 const statCards = computed(() => [
@@ -120,7 +119,6 @@ onMounted(async () => {
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
-    loadTags(),
   ])
 })
 
@@ -134,14 +132,6 @@ const visibleArticles = computed(() => {
     merged.set(article.id, existing ? { ...existing, ...article, bookmarked: true } : article)
   }
   return [...merged.values()]
-})
-
-const visibleTagFilters = computed(() => {
-  const usedTags = new Set(
-    visibleArticles.value.flatMap((article) => article.tags ?? []),
-  )
-
-  return tagFilters.value.filter((tag) => usedTags.has(tag.key))
 })
 
 async function loadHubStats() {
@@ -161,12 +151,10 @@ async function loadHubStats() {
 
 async function loadArticles() {
   try {
-    const res = await knowledgeArticleApi.getArticles({
-      page: 0,
-      size: 20,
+    const articleDtos = await fetchAllKmsArticles(knowledgeArticleApi.getArticles, {
       articleStatus: 'APPROVED',
     })
-    articles.value = (res.data.data ?? []).map(mapToFeedCard)
+    articles.value = articleDtos.map(mapToFeedCard)
   } catch (e) {
     console.error('[KMS] 문서 목록 로드 실패:', e)
   }
@@ -200,21 +188,6 @@ async function loadRecommendations() {
     }))
   } catch (e) {
     console.error('[KMS] AI 추천 로드 실패:', e)
-  }
-}
-
-async function loadTags() {
-  try {
-    const res = await knowledgeArticleApi.getTags()
-    tagFilters.value = [...new Set((res.data.data ?? [])
-      .map((tag) => tag.tagName)
-      .filter(Boolean)
-    )]
-      .sort((left, right) => left.localeCompare(right, 'ko'))
-      .map((tagName) => ({ key: tagName }))
-  } catch (e) {
-    console.error('[KMS] 태그 목록 로드 실패:', e)
-    tagFilters.value = []
   }
 }
 
@@ -363,10 +336,7 @@ async function handleRestore(articleId) {
           :categories="knowledgeCategories"
           :articles="visibleArticles"
           :selectedFilter="selectedFilter"
-          :selectedTagFilter="selectedTagFilter"
-          :tagFilters="visibleTagFilters"
           @filterChange="selectedFilter = $event"
-          @tagFilterChange="selectedTagFilter = $event"
           @delete="handleDelete"
           @restore="handleRestore"
           @open-detail="openDetailModal"
