@@ -19,10 +19,6 @@ defineProps({
           <strong>{{ summary.qualitativeScore }}</strong>
           <span>정성</span>
         </div>
-        <div class="first-evaluation-summary__score">
-          <strong>{{ summary.compositeScore }}</strong>
-          <span>종합</span>
-        </div>
       </div>
     </div>
 

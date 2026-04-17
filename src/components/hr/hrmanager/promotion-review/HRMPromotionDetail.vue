@@ -397,7 +397,7 @@ function missionStatusLabel(status) {
   padding: 18px 16px;
   border-radius: 14px;
   background: var(--color-bg-app);
-  border: 1px dashed var(--color-border-default);
+  border: 1px solid var(--color-border-default);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }

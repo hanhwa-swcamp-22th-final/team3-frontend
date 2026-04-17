@@ -9,6 +9,7 @@ import {
   deleteEvaluationPeriod,
   fetchActiveAlgorithmVersionId,
 } from '@/services/hrmanager/evaluationPeriodApi'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 
 // ── 상태 ──────────────────────────────────────────────
 const periods = ref([])
@@ -203,16 +204,8 @@ const inProgressCount = computed(() => periods.value.filter((p) => p.status === 
 const closingCount = computed(() => periods.value.filter((p) => p.status === 'CLOSING').length)
 const confirmedCount = computed(() => periods.value.filter((p) => p.status === 'CONFIRMED').length)
 
-function parsePeriodYear(evalYear) {
-  const s = String(evalYear)
-  if (s.length === 6) return { year: s.slice(0, 4), month: parseInt(s.slice(4, 6)) }
-  return { year: s, month: null }
-}
-
 function formatPeriodLabel(period) {
-  const { year, month } = parsePeriodYear(period.evalYear)
-  const monthStr = month ? ` ${month}월` : ''
-  return `${year}년${monthStr} ${period.evalSequence}차`
+  return formatEvaluationPeriodLabel(period, { fallback: '-' })
 }
 
 function formatDateRange(period) {

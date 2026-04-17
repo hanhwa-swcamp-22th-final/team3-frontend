@@ -22,11 +22,15 @@ onMounted(() => {
 
     <!-- Evaluator info -->
     <div class="ql__evaluator">
-      <div class="ql__avatar">{{ (evaluation?.evaluator || '-').charAt(0) }}</div>
-      <span class="ql__evaluator-name">
-        {{ evaluation?.evaluator ?? '-' }} ({{ evaluation?.evaluatorRole ?? '-' }})
-      </span>
-      <span class="ql__nlp">NLP 신뢰도 {{ evaluation?.nlpConfidence ?? '0.00' }}</span>
+      <span class="ql__evaluator-title">평가자:</span>
+      <div v-if="(evaluation?.evaluators || []).length" class="ql__evaluator-list">
+        <div v-for="(item, index) in evaluation.evaluators" :key="item.label" class="ql__evaluator-item">
+          <span v-if="index > 0" class="ql__evaluator-sep">/</span>
+          <span class="ql__evaluator-badge">{{ item.label }}</span>
+          <span class="ql__evaluator-name">{{ item.name }}</span>
+        </div>
+      </div>
+      <span v-else class="ql__evaluator-name">-</span>
     </div>
 
     <hr class="ql__divider" />
@@ -74,11 +78,11 @@ onMounted(() => {
 }
 
 .ql__icon {
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .ql__title {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-strong);
   margin: 0;
@@ -88,31 +92,56 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
-.ql__avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--color-primary-200);
-  color: var(--color-primary-800);
+.ql__evaluator-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.ql__evaluator-list {
   display: flex;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ql__evaluator-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ql__evaluator-sep {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+.ql__evaluator-badge {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  min-width: 34px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+  font-size: var(--font-size-xs-plus);
   font-weight: 700;
-  font-size: 14px;
-  flex-shrink: 0;
 }
 
 .ql__evaluator-name {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--color-text-strong);
 }
 
 .ql__nlp {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 600;
   color: var(--tier-s);
   background: var(--color-mint-100);
@@ -148,13 +177,13 @@ onMounted(() => {
 }
 
 .ql__cat-label {
-  font-size: 15px;
+  font-size: var(--font-size-base-plus);
   font-weight: 700;
   color: var(--color-text-strong);
 }
 
 .ql__cat-score {
-  font-size: 15px;
+  font-size: var(--font-size-base-plus);
   font-weight: 700;
   color: var(--color-text-strong);
 }
@@ -179,7 +208,7 @@ onMounted(() => {
 }
 
 .ql__tag {
-  font-size: 12px;
+  font-size: var(--font-size-xs-plus);
   font-weight: 500;
   color: var(--color-text-default);
   background: var(--color-primary-100);

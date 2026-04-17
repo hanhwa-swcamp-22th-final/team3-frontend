@@ -110,7 +110,7 @@ function orderedItems(items = []) {
 }
 .eval-history-card__empty {
   padding: 20px;
-  border: 1px dashed var(--color-border-default);
+  border: 1px solid var(--color-border-default);
   border-radius: 8px;
   font-size: var(--font-size-sm);
   color: var(--color-text-subtle);

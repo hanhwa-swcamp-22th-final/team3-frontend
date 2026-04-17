@@ -4,6 +4,7 @@ import { getWorkerAppealRequestData, registerAppeal, uploadAppealAttachments } f
 import WorkerAppealNotification from '@/components/hr/worker/appeal-request/WorkerAppealNotification.vue'
 import WorkerAppealHistory from '@/components/hr/worker/appeal-request/WorkerAppealHistory.vue'
 import WorkerAppealForm from '@/components/hr/worker/appeal-request/WorkerAppealForm.vue'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 
 const loading = ref(true)
 const evalHistory = ref([])
@@ -11,16 +12,7 @@ const appealForms = ref({}) // key: evaluationPeriodId
 const selectedId = ref(null) // qualitativeEvaluationId
 
 function formatPeriod(history) {
-  const raw = String(history?.evalYear ?? '')
-  if (raw.length === 6) {
-    const year = raw.slice(0, 4)
-    const month = Number(raw.slice(4, 6))
-    return `${year}년 ${month}월 ${history?.evalSequence ?? ''}차`
-  }
-  if (history?.evalYear && history?.evalSequence != null) {
-    return `${history.evalYear}년 ${history.evalSequence}차`
-  }
-  return '-'
+  return formatEvaluationPeriodLabel(history, { fallback: '-' })
 }
 
 onMounted(async () => {
@@ -172,7 +164,7 @@ async function handleSubmit(payload) {
   align-items: center;
   justify-content: center;
   min-height: 280px;
-  border: 1px dashed var(--color-border-default);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-card);
   background: var(--color-bg-surface);
   color: var(--color-text-muted);

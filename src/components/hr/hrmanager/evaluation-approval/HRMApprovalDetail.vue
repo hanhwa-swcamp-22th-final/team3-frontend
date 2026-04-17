@@ -70,9 +70,10 @@ watch(() => props.item?.id, () => {
           <textarea
             v-model="confirmComment"
             class="hrm-confirm-comment__input"
-            placeholder="최종 확정 의견을 입력하세요. (선택)"
+            placeholder="필요한 경우 최종 확정 코멘트를 입력하세요"
             rows="3"
           />
+          <p class="hrm-confirm-comment__hint">입력하면 20자 이상이어야 하며, 비워두고 바로 최종 확정할 수 있습니다.</p>
         </div>
         <div class="hrm-eval-actions">
           <button class="hrm-btn hrm-btn--approve" @click="emit('approve', confirmComment)">최종 확정</button>
@@ -327,7 +328,7 @@ watch(() => props.item?.id, () => {
 }
 
 .hrm-confirm-comment__label {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
 }
@@ -349,6 +350,12 @@ watch(() => props.item?.id, () => {
 .hrm-confirm-comment__input:focus {
   outline: none;
   border-color: var(--color-primary-500);
+}
+
+.hrm-confirm-comment__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 /* footer 액션 */

@@ -1,4 +1,5 @@
 import { hrApi } from '@/services/apiClient'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 
 function unwrap(response) {
   return response.data?.data ?? response.data
@@ -31,6 +32,14 @@ function formatPercent(value) {
 
 function formatOptionalPercent(value) {
   return value == null ? '-' : formatPercent(value)
+}
+
+function formatPeriodLabel(evalYear, evalSequence, suffix = '') {
+  const label = formatEvaluationPeriodLabel(
+    { evalYear, evalSequence },
+    { fallback: '-' },
+  )
+  return label === '-' ? label : `${label}${suffix}`
 }
 
 function tierTone(tier) {
@@ -222,7 +231,7 @@ export async function getTeamLeaderKpiReport({ year = 2026, evalSequence = 1 } =
       { label: '팀원 수', value: `${mappedRows.length}명`, tone: 'primary' },
       { label: '평균 정량점수', value: formatScore(avgScore), tone: 'success' },
       { label: '확정 건수', value: `${rows.filter((row) => row.status === 'CONFIRMED').length}건`, tone: 'success' },
-      { label: '평가 기간', value: `${year}-${evalSequence}`, tone: 'primary' },
+      { label: '평가 기간', value: formatPeriodLabel(year, evalSequence, ' 평가'), tone: 'primary' },
     ],
   }
 }
@@ -317,8 +326,8 @@ function tierDistributionFromCounts(counts = {}) {
 
 function mapHrmTrend(trend) {
   return {
-    month: `${trend.year}-Q${trend.evalSequence}`,
-    quarter: `${trend.year}-Q${trend.evalSequence}`,
+    month: formatPeriodLabel(trend.year, trend.evalSequence),
+    quarter: formatPeriodLabel(trend.year, trend.evalSequence),
     S: tierCount(trend, 'S'),
     A: tierCount(trend, 'A'),
     B: tierCount(trend, 'B'),
@@ -448,7 +457,7 @@ export async function getHrmDashboard(period = {}) {
       totalEmployees: toNumber(summary.totalEmployees),
       evaluationRate: formatScore(summary.evaluationRate),
       unevaluatedCount: toNumber(summary.unevaluatedCount),
-      tierDelta: `현재 평가기간 ${year}-Q${evalSequence}`,
+      tierDelta: `현재 평가기간 ${formatPeriodLabel(year, evalSequence, ' 평가')}`,
     },
     tierDistribution: tierDistributionFromCounts(tierCounts),
     tierTrend: trends.map(mapHrmTrend),
@@ -481,7 +490,7 @@ export async function getHrmKpiReport(period = {}) {
 
   return {
     report: {
-      quarter: `${year}년 ${evalSequence}분기`,
+      quarter: formatPeriodLabel(year, evalSequence),
       avgScore: formatScore(summary.avgScore),
       avgScoreDelta: '-',
       saRatio: toNumber(summary.totalEmployees)
@@ -499,11 +508,11 @@ export async function getHrmKpiReport(period = {}) {
     teamScores: teamStats.map((item) => ({
       team: item.team,
       score: toNumber(item.avg),
-      quarter: `${year}년 ${evalSequence}분기`,
+      quarter: formatPeriodLabel(year, evalSequence),
     })),
     tierTrend: trends.map(mapHrmTrend),
     teamLeaders: teamStats.map((item, index) =>
-      mapHrmTeamStatsReportRow(item, index, completionRate, `${year}년 ${evalSequence}분기`)
+      mapHrmTeamStatsReportRow(item, index, completionRate, formatPeriodLabel(year, evalSequence))
     ),
   }
 }

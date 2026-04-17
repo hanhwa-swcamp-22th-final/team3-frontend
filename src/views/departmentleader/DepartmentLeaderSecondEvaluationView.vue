@@ -7,6 +7,7 @@ import ReviewerAppealListPanel from '@/components/hr/common/appeal/ReviewerAppea
 import DepartmentLeaderEvalMemberListPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalMemberListPanel.vue'
 import DepartmentLeaderEvalFormPanel from '@/components/hr/departmentleader/second-evaluation/DepartmentLeaderEvalFormPanel.vue'
 import { approveDlAppeal, fetchDlAppealDetail, fetchDlAppeals, fetchDlTargets, fetchDlEvaluationDetail, rejectDlAppeal, updateDlEvaluation } from '@/services/departmentleader/evaluationApi'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 import { formatMemberMeta } from '@/utils/hrListFormat'
 import { mapStatus, statusToLabel } from '@/utils/evaluationStatus'
 
@@ -61,13 +62,10 @@ function formatScore(value) {
 }
 
 function formatPeriodText(evalYear, evalSequence) {
-  if (!evalYear) return '평가기간 미지정'
-  const raw = String(evalYear)
-  const year = raw.slice(0, 4)
-  const month = raw.length >= 6 ? String(parseInt(raw.slice(4), 10)) : null
-  return month
-    ? `${year}년 ${month}월 ${evalSequence}차`
-    : `${year}년 ${evalSequence}차`
+  return formatEvaluationPeriodLabel(
+    { evalYear, evalSequence },
+    { fallback: '평가기간 미지정' },
+  )
 }
 
 function mapAppealSummary(appeal) {
@@ -125,13 +123,8 @@ function mapAppealDetail(appeal) {
 
 const periodLabel = computed(() => {
   if (!periodInfo.value?.evalYear) return null
-  const raw = String(periodInfo.value.evalYear)
-  const year = raw.slice(0, 4)
-  const month = raw.length >= 6 ? String(parseInt(raw.slice(4), 10)) : null
-  const seq = periodInfo.value.evalSequence
-  return month
-    ? `${year}년 ${month}월 ${seq}차 평가`
-    : `${year}년 ${seq}차 평가`
+  const label = formatEvaluationPeriodLabel(periodInfo.value, { fallback: null })
+  return label ? `${label} 평가` : null
 })
 let toastTimer = null
 

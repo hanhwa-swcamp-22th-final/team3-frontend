@@ -1,4 +1,5 @@
 import { hrApi } from '@/services/apiClient'
+import { formatEvaluationPeriodLabel } from '@/utils/evaluationPeriod'
 
 function unwrap(response) {
   return response.data?.data ?? response.data
@@ -24,6 +25,13 @@ function roundToOne(value) {
 
 function normalizeTier(tier) {
   return tier || 'C'
+}
+
+function formatPeriodLabel(value, sequence, fallback = '-') {
+  return formatEvaluationPeriodLabel(
+    { evalYear: value, evalSequence: sequence },
+    { fallback },
+  )
 }
 
 function translateSkillName(skillName) {
@@ -192,6 +200,59 @@ function toPointHistoryViewModel(history) {
   }
 }
 
+function formatPointMonthLabel(value) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    const raw = String(value)
+    const matched = raw.match(/^(\d{4})-(\d{2})/)
+    if (matched) {
+      return `${matched[1]}년 ${Number(matched[2])}월`
+    }
+    return raw
+  }
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월`
+}
+
+function getQuarterKey(value) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    const matched = String(value).match(/^(\d{4})-(\d{2})/)
+    if (!matched) return null
+    const year = Number(matched[1])
+    const month = Number(matched[2])
+    return `${year}-Q${Math.floor((month - 1) / 3) + 1}`
+  }
+  return `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
+}
+
+function formatQuarterLabel(value) {
+  const matched = String(value ?? '').match(/^(\d{4})-Q([1-4])$/)
+  if (!matched) return value ?? '-'
+  return `${matched[1]}년 ${matched[2]}분기`
+}
+
+function buildQuarterPointTotals(pointHistory = []) {
+  const grouped = [...(pointHistory ?? [])]
+    .filter((item) => item?.date)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+    .reduce((acc, item) => {
+      const key = getQuarterKey(item.date)
+      if (!key) return acc
+      acc[key] = (acc[key] ?? 0) + toNumber(item.points)
+      return acc
+    }, {})
+
+  return Object.entries(grouped)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, total]) => ({
+      key,
+      label: formatQuarterLabel(key),
+      total: roundToOne(total),
+    }))
+}
+
 function buildSkillGapViewModel(skillGap) {
   const currentSkills = skillGap.currentSkills ?? []
   const targetTier = skillGap.targetTier ?? 'S+'
@@ -300,7 +361,7 @@ export async function getWorkerProfileDashboard() {
     skills: skills.map(toSkillViewModel),
     milestones: tierHistory.map(toTierHistoryMilestone),
     chartData: tierChart.map((point) => ({
-      period: `${point.year ?? '-'}-${point.evalSequence ?? '-'}`,
+      period: formatPeriodLabel(point.year, point.evalSequence),
       value: Math.round(toNumber(point.totalScore)),
       tier: normalizeTier(point.tier),
     })),
@@ -549,46 +610,31 @@ function toEvalStatusViewModel(
   status,
   quantitative = null,
   qualitative = null,
-  pointSummary = null,
+  pointHistory = [],
   profile = null,
   history = [],
   tierChart = [],
 ) {
-  const totalPoints = toNumber(pointSummary?.totalPoints)
   const tier = normalizeTier(profile?.currentTier ?? profile?.employeeTier ?? '-')
-  const quantitativeScore = roundToOne(quantitative?.tScore)
+  const quantitativeScore = roundToOne(quantitative?.sQuant)
   const qualitativeScore = roundToOne(qualitative?.score)
-  const compositeScore = roundToOne(profile?.totalScore)
+  const quarterTotals = buildQuarterPointTotals(pointHistory)
+  const overallScore = quarterTotals.length
+    ? quarterTotals[quarterTotals.length - 1].total
+    : null
   const previousHistory = history.find((item) => item?.evalPeriodId !== status?.evalPeriodId) ?? null
-  const previousCompositePoint = [...(tierChart ?? [])]
-    .sort((a, b) => {
-      const yearDiff = toNumber(b?.year) - toNumber(a?.year)
-      if (yearDiff !== 0) return yearDiff
-      return toNumber(b?.evalSequence) - toNumber(a?.evalSequence)
-    })
-    .find((item) =>
-      !status?.evalYear ||
-      !status?.evalSequence ||
-      toNumber(item?.year) !== toNumber(status.evalYear) ||
-      toNumber(item?.evalSequence) !== toNumber(status.evalSequence),
-    )
 
   const quantitativeDiff = previousHistory ? roundToOne(quantitativeScore - toNumber(previousHistory.quantScore)) : 0
   const qualitativeDiff = previousHistory ? roundToOne(qualitativeScore - toNumber(previousHistory.score)) : 0
-  const compositeDiff = previousCompositePoint
-    ? roundToOne(compositeScore - toNumber(previousCompositePoint.totalScore))
-    : 0
 
   if (!status) {
     return {
       evalPeriodId: null,
       periodLabel: '-',
-      overallScore: totalPoints,
+      overallScore,
       tier,
       quantitative: { score: 0, diff: 0 },
-      qualitative: { score: 0, diff: 0, weight: 0.6 },
-      equipmentCorrection: { label: '-', sub: '-' },
-      composite: { score: 0, diff: 0, sub: '-' },
+      qualitative: { score: 0, diff: 0 },
       rank: '-',
       rankTotal: '-',
       rankDiff: 0,
@@ -597,15 +643,13 @@ function toEvalStatusViewModel(
 
   return {
     evalPeriodId: status.evalPeriodId,
-    periodLabel: status.evalYear ? `${status.evalYear}-Q${status.evalSequence}` : '-',
-    overallScore: totalPoints,
+    periodLabel: formatPeriodLabel(status.evalYear, status.evalSequence),
+    overallScore,
     tier,
     quantitative: { score: quantitativeScore, diff: quantitativeDiff },
-    qualitative: { score: qualitativeScore, diff: qualitativeDiff, weight: 0.6 },
-    equipmentCorrection: { label: '-', sub: '-' },
-    composite: { score: compositeScore, diff: compositeDiff, sub: '전분기 대비' },
-    rank: '-',
-    rankTotal: '-',
+    qualitative: { score: qualitativeScore, diff: qualitativeDiff },
+    rank: status.rank ?? '-',
+    rankTotal: status.rankTotal ?? '-',
     rankDiff: 0,
   }
 }
@@ -614,8 +658,6 @@ function toQuantitativeViewModel(quant) {
   if (!quant) {
     return {
       steps: [],
-      eidxChart: { title: '설비 가동 효율(E_idx) 추이', data: [], avg: '-', min: '-', max: '-' },
-      aiSummary: '정량 평가 데이터가 없습니다.',
     }
   }
 
@@ -629,8 +671,6 @@ function toQuantitativeViewModel(quant) {
 
   return {
     steps,
-    eidxChart: { title: '설비 가동 효율(E_idx) 추이', data: [], avg: '-', min: '-', max: '-' },
-    aiSummary: '정량 평가 데이터 분석 중입니다.',
   }
 }
 
@@ -638,12 +678,10 @@ function toQualitativeViewModel(qual) {
   if (!qual) {
     return {
       evaluator: '-',
-      evaluatorRole: 'Evaluator',
-      nlpConfidence: '0.00',
       grade: '-',
       score: 0,
       categories: [],
-      aiAnalysis: '정성 평가 데이터가 없습니다.',
+      evaluators: [],
     }
   }
 
@@ -663,102 +701,64 @@ function toQualitativeViewModel(qual) {
   }
 
   return {
-    evaluator: '-',
-    evaluatorRole: 'Evaluator',
-    nlpConfidence: '0.00',
+    evaluator: [
+      qual.firstEvaluatorName ? `1차. ${qual.firstEvaluatorName}` : null,
+      qual.secondEvaluatorName ? `2차. ${qual.secondEvaluatorName}` : null,
+    ].filter(Boolean).join(' / ') || '-',
+    evaluators: [
+      qual.firstEvaluatorName ? { label: '1차', name: qual.firstEvaluatorName } : null,
+      qual.secondEvaluatorName ? { label: '2차', name: qual.secondEvaluatorName } : null,
+    ].filter(Boolean),
     grade: qual.grade ?? '-',
     score: toNumber(qual.score),
     categories,
-    aiAnalysis: '정성 평가 의견을 분석 중입니다.',
   }
 }
 
-function buildGrowthChartData(tierChart = [], pointSummary = null, profile = null) {
-  const sortedPoints = [...(tierChart ?? [])]
-    .filter((item) => item?.year && item?.evalSequence)
-    .sort((a, b) => {
-      const yearDiff = toNumber(a.year) - toNumber(b.year)
-      if (yearDiff !== 0) return yearDiff
-      return toNumber(a.evalSequence) - toNumber(b.evalSequence)
+function buildPointGrowthChartData(pointHistory = []) {
+  const quarterTotals = buildQuarterPointTotals(pointHistory)
+  if (quarterTotals.length) {
+    let cumulative = 0
+    return quarterTotals.map((item) => {
+      cumulative += item.total
+      return {
+        label: item.label,
+        overall: roundToOne(cumulative),
+        team: null,
+        company: null,
+      }
     })
-    .map((item) => ({
-      label: `${item.year}.Q${item.evalSequence}`,
-      overall: roundToOne(item.totalScore),
-      team: null,
-    }))
-
-  if (sortedPoints.length) {
-    return sortedPoints
   }
-
-  const fallbackScore = roundToOne(profile?.totalScore || pointSummary?.totalPoints)
-  if (!fallbackScore) {
-    return []
-  }
-
-  return [
-    {
-      label: '현재',
-      overall: fallbackScore,
-      team: null,
-    },
-  ]
+  return []
 }
 
-function toFeedbackViewModel(fb, growthTrend = [], tierChart = [], pointSummary = null, profile = null) {
-  const chartData = growthTrend.length
-    ? growthTrend.map((point) => ({
-      label: `${point.evalYear}.Q${point.evalSequence}`,
-      overall: roundToOne(point.myScore),
-      team: Number.isFinite(point.teamAverageScore) ? roundToOne(point.teamAverageScore) : null,
-      company: Number.isFinite(point.companyAverageScore) ? roundToOne(point.companyAverageScore) : null,
-    }))
-    : buildGrowthChartData(tierChart, pointSummary, profile)
-
-  if (!fb) {
-    return {
-      chartData,
-      feedback: {
-        content: '등록된 피드백이 없습니다.',
-        author: 'Team Leader',
-        date: '-',
-      },
-      nextQuarterGoals: [
-        { label: '생산성 향상', current: '-', target: '-' },
-        { label: '품질 관리', current: '-', target: '-' },
-      ],
-    }
-  }
-
-  const items = fb.feedbackItems || []
-  const tlFeedback = items.find(i => i.evaluationLevel === 1) || {}
+function toGrowthViewModel(pointHistory = []) {
+  const chartData = buildPointGrowthChartData(pointHistory)
+  const currentPoints = chartData.length
+    ? roundToOne(chartData[chartData.length - 1].overall)
+    : null
 
   return {
     chartData,
-    feedback: {
-      content: tlFeedback.evalComment ?? '등록된 피드백이 없습니다.',
-      author: 'Team Leader',
-      date: '-',
-    },
     nextQuarterGoals: [
-      { label: '생산성 향상', current: '-', target: '-' },
-      { label: '품질 관리', current: '-', target: '-' },
+      {
+        label: '이번 분기 포인트 목표',
+        current: currentPoints,
+        target: currentPoints == null ? null : roundToOne(toNumber(currentPoints) + 5),
+      },
     ],
   }
 }
 
-export async function getWorkerEvaluationData(periodId = null) {
-  const params = periodId ? { periodId } : {}
-  const [status, quantitative, qualitative, feedback, pointSummary, profile, history, tierChart, growthTrend] = await Promise.all([
+export async function getWorkerEvaluationData() {
+  const [status, quantitative, qualitative, pointHistory, profile, history, tierChart] = await Promise.all([
     optionalGet('/api/v1/hr/workers/me/evaluations/status', {}, null),
-    optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', { params }, null),
-    optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', { params }, null),
-    optionalGet('/api/v1/hr/workers/me/evaluations/feedback', { params }, null),
-    optionalGet('/api/v1/hr/workers/me/point-summary', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/quantitative', {}, null),
+    optionalGet('/api/v1/hr/workers/me/evaluations/qualitative', {}, null),
+    optionalGet('/api/v1/hr/workers/me/point-history', {}, []),
     optionalGet('/api/v1/hr/workers/me/profile', {}, null),
     optionalGet('/api/v1/hr/workers/me/evaluations/history', { params: { page: 0, size: 20 } }, null),
     optionalGet('/api/v1/hr/workers/me/tier-chart', {}, []),
-    optionalGet('/api/v1/hr/workers/me/evaluations/growth-trend', {}, []),
   ])
 
   const historyItems = history?.content?.map(toEvalHistoryViewModel) ?? []
@@ -768,13 +768,13 @@ export async function getWorkerEvaluationData(periodId = null) {
       status,
       quantitative,
       qualitative,
-      pointSummary,
+      (pointHistory ?? []).map(toPointHistoryViewModel),
       profile,
       historyItems,
       tierChart ?? [],
     ),
     quantitative: toQuantitativeViewModel(quantitative),
     qualitative: toQualitativeViewModel(qualitative),
-    feedback: toFeedbackViewModel(feedback, growthTrend ?? [], tierChart ?? [], pointSummary, profile),
+    feedback: toGrowthViewModel((pointHistory ?? []).map(toPointHistoryViewModel)),
   }
 }
