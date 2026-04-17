@@ -93,6 +93,7 @@ const hubStats         = ref({
   newThisMonthChange: 0,
   averageViewCountChange: 0,
 })
+const isPageQueryReady = ref(false)
 
 const summaryCards = computed(() => [
   { key: 'totalArticles', label: '등록 지식 수', value: `${Number(hubStats.value.totalArticles ?? 0).toLocaleString()}건`, helper: '' },
@@ -121,6 +122,7 @@ onMounted(async () => {
     loadContributors(),
     loadRecommendations(),
   ])
+  isPageQueryReady.value = true
 })
 
 const visibleArticles = computed(() => {
@@ -308,6 +310,7 @@ async function toggleBookmark(article) {
       <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
+        :page-query-ready="isPageQueryReady"
         @open-write="showWriteModal = true"
         @open-detail="openDetailModal"
         @toggle-bookmark="toggleBookmark"

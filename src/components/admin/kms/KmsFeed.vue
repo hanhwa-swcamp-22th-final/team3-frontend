@@ -1,19 +1,22 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   categories:        { type: Array,  default: () => [] },
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: 'all' },
+  pageQueryReady:    { type: Boolean, default: false },
 })
 const emit = defineEmits(['filterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
 const showAllCategories = ref(false)
 const defaultVisibleCategoryCount = 3
 const searchInput = ref('')
 const searchQuery = ref('')
-const currentPage = ref(1)
 const pageSize = 4
 const isComposing = ref(false)
+const route = useRoute()
+const router = useRouter()
 const defaultAuthor = Object.freeze({
   name: '',
   initial: '?',
@@ -53,6 +56,7 @@ const primaryCategories = computed(() => props.categories.slice(0, defaultVisibl
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
+const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
 const pagedCards = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return filteredCards.value.slice(start, start + pageSize)
@@ -76,14 +80,48 @@ const pageButtons = computed(() => {
   return [1, '...', current - 1, current, current + 1, '...', total]
 })
 
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
+}
+
+function syncPageQuery(page) {
+  const normalizedPage = normalizePageQuery(page)
+  const nextQuery = { ...route.query }
+
+  if (normalizedPage <= 1) {
+    delete nextQuery.p
+  } else {
+    nextQuery.p = String(normalizedPage)
+  }
+
+  const currentQueryPage = Array.isArray(route.query.p) ? route.query.p[0] : route.query.p
+  const nextQueryPage = nextQuery.p
+
+  if ((currentQueryPage ?? undefined) === (nextQueryPage ?? undefined)) {
+    return
+  }
+
+  void router.replace({ query: nextQuery })
+}
+
 watch(() => [props.selectedFilter, searchQuery.value], () => {
-  currentPage.value = 1
+  syncPageQuery(1)
 })
 
 watch(filteredCards, (cards) => {
+  if (!props.pageQueryReady) {
+    return
+  }
+
   const nextTotal = Math.max(1, Math.ceil(cards.length / pageSize))
-  if (currentPage.value > nextTotal) {
-    currentPage.value = nextTotal
+  const normalizedPage = normalizePageQuery(route.query.p)
+
+  if (normalizedPage > nextTotal) {
+    syncPageQuery(nextTotal)
   }
 })
 
@@ -98,7 +136,7 @@ function setPage(page) {
     return
   }
 
-  currentPage.value = nextPage
+  syncPageQuery(nextPage)
 }
 
 function handleSearchInput(event) {

@@ -97,6 +97,7 @@ const hubStats          = ref({
   averageViewCountChange: 0,
 })
 const isArticleSubmitting = ref(false)
+const isPageQueryReady = ref(false)
 
 // ── 데이터 로드 ────────────────────────────────────────────────
 onMounted(async () => {
@@ -107,6 +108,7 @@ onMounted(async () => {
     loadContributors(),
     loadRecommendations(),
   ])
+  isPageQueryReady.value = true
 })
 
 const visibleArticles = computed(() => {
@@ -343,6 +345,7 @@ function closeModal() {
       <KnowledgeHubFeed
         :categories="knowledgeCategories"
         :articles="visibleArticles"
+        :page-query-ready="isPageQueryReady"
         @open-write="showAddModal = true"
         @open-detail="openDetailModal"
         @toggle-bookmark="toggleBookmark"

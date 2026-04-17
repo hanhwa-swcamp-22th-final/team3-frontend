@@ -101,6 +101,7 @@ const hubStats       = ref({
   averageViewCountChange: 0,
 })
 const selectedArticle = ref(null)
+const isPageQueryReady = ref(false)
 
 const selectedFilter = ref('all')
 
@@ -120,6 +121,7 @@ onMounted(async () => {
     loadContributors(),
     loadRecommendations(),
   ])
+  isPageQueryReady.value = true
 })
 
 const visibleArticles = computed(() => {
@@ -336,6 +338,7 @@ async function handleRestore(articleId) {
           :categories="knowledgeCategories"
           :articles="visibleArticles"
           :selectedFilter="selectedFilter"
+          :page-query-ready="isPageQueryReady"
           @filterChange="selectedFilter = $event"
           @delete="handleDelete"
           @restore="handleRestore"
