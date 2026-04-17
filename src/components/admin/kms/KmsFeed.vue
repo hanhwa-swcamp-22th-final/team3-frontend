@@ -14,9 +14,19 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = 4
 const isComposing = ref(false)
+const defaultAuthor = Object.freeze({
+  name: '',
+  initial: '?',
+  color: '#5B4FCF',
+  tier: 'C',
+})
+
+const normalizedCards = computed(() =>
+  (props.articles ?? []).filter((card) => card && typeof card === 'object'),
+)
 
 const filteredCards = computed(() => {
-  let list = [...props.articles]
+  let list = [...normalizedCards.value]
 
   if (props.selectedFilter === 'popular') {
     list = list.filter((card) => card.isPopular)
@@ -47,7 +57,24 @@ const pagedCards = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return filteredCards.value.slice(start, start + pageSize)
 })
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
 
 watch(() => [props.selectedFilter, searchQuery.value], () => {
   currentPage.value = 1
@@ -61,7 +88,17 @@ watch(filteredCards, (cards) => {
 })
 
 function setPage(page) {
-  currentPage.value = page
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+  const lastPage = Math.max(totalPages.value, 1)
+  const nextPage = Math.min(Math.max(page, 1), lastPage)
+
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  currentPage.value = nextPage
 }
 
 function handleSearchInput(event) {
@@ -96,6 +133,37 @@ function categoryClass(category) {
     안전: 'card-tag--safety',
   }
   return map[category] || 'card-tag--default'
+}
+
+function authorOf(card) {
+  const author = card?.author
+  if (!author || typeof author !== 'object') {
+    return defaultAuthor
+  }
+
+  return {
+    name: author.name ?? '',
+    initial: author.initial ?? author.name?.[0] ?? '?',
+    color: author.color ?? '#5B4FCF',
+    tier: author.tier ?? 'C',
+  }
+}
+
+function tagsOf(card) {
+  return Array.isArray(card?.tags) ? card.tags : []
+}
+
+function tagStyle(tag) {
+  const palette = {
+    기술: { background: '#F3F0FF', color: '#5B4FCF' },
+    장비: { background: '#E8FFF8', color: '#0E9F6E' },
+    지식: { background: '#FFF6E5', color: '#B7791F' },
+  }
+
+  return palette[tag] ?? {
+    background: '#F5F7FA',
+    color: '#475467',
+  }
 }
 </script>
 
@@ -181,7 +249,7 @@ function categoryClass(category) {
             <span class="card-tag" :class="categoryClass(card.category)">{{ card.category }}</span>
             <span v-if="card.equipment" class="card-tag card-tag--equip">{{ card.equipment }}</span>
             <span
-              v-for="tag in card.tags"
+              v-for="tag in tagsOf(card)"
               :key="tag"
               class="card-tag"
               :style="tagStyle(tag)"
@@ -210,11 +278,11 @@ function categoryClass(category) {
         <!-- 카드 푸터 -->
         <div class="card-footer">
           <div class="author-info">
-            <div class="author-avatar" :style="{ background: card.author.color }">
-              {{ card.author.initial }}
+            <div class="author-avatar" :style="{ background: authorOf(card).color }">
+              {{ authorOf(card).initial }}
             </div>
-            <span class="author-name">{{ card.author.name }}</span>
-            <span class="author-tier" :class="tierClass(card.author.tier)">{{ card.author.tier }}</span>
+            <span class="author-name">{{ authorOf(card).name }}</span>
+            <span class="author-tier" :class="tierClass(authorOf(card).tier)">{{ authorOf(card).tier }}</span>
           </div>
           <div class="card-meta">
             <span class="meta-item">👁 {{ card.views }}</span>
@@ -248,15 +316,29 @@ function categoryClass(category) {
 
     <div v-if="filteredCards.length > 0" class="feed-pagination">
       <button
-        v-for="page in pageNumbers"
-        :key="page"
         type="button"
-        class="feed-page"
-        :class="{ 'feed-page--active': currentPage === page }"
-        @click="setPage(page)"
-      >
-        {{ page }}
-      </button>
+        class="feed-page feed-page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
+      >&lt;</button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="feed-ellipsis">...</span>
+        <button
+          v-else
+          type="button"
+          class="feed-page"
+          :class="{ 'feed-page--active': currentPage === page }"
+          @click="setPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        type="button"
+        class="feed-page feed-page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >&gt;</button>
     </div>
 
   </div>
@@ -580,28 +662,44 @@ function categoryClass(category) {
 
 .feed-pagination {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding-top: 4px;
   flex-shrink: 0;
 }
 
 .feed-page {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: 1px solid var(--color-border-default);
   background: var(--color-bg-surface);
   color: var(--color-text-default);
-  font-size: var(--font-size-sm);
+  font-size: 11px;
   font-weight: var(--font-weight-bold);
   cursor: pointer;
+}
+
+.feed-page:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .feed-page--active {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: var(--color-white);
+}
+
+.feed-ellipsis {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .feed-expand-enter-active,

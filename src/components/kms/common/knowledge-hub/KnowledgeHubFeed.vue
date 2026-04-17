@@ -52,7 +52,24 @@ const pagedArticles = computed(() => {
   return filteredArticles.value.slice(start, start + pageSize)
 })
 
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
 
 watch([activeCategory, searchQuery], () => {
   currentPage.value = 1
@@ -70,7 +87,17 @@ function setCategory(categoryKey) {
 }
 
 function setPage(page) {
-  currentPage.value = page
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+  const lastPage = Math.max(totalPages.value, 1)
+  const nextPage = Math.min(Math.max(page, 1), lastPage)
+
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  currentPage.value = nextPage
 }
 
 function handleSearchInput(event) {
@@ -218,15 +245,29 @@ function categoryClass(category) {
 
     <div v-if="filteredArticles.length > 0" class="feed__pagination">
       <button
-        v-for="page in pageNumbers"
-        :key="page"
         type="button"
-        class="feed__page"
-        :class="{ 'feed__page--active': currentPage === page }"
-        @click="setPage(page)"
-      >
-        {{ page }}
-      </button>
+        class="feed__page feed__page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
+      >&lt;</button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="feed__ellipsis">...</span>
+        <button
+          v-else
+          type="button"
+          class="feed__page"
+          :class="{ 'feed__page--active': currentPage === page }"
+          @click="setPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        type="button"
+        class="feed__page feed__page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >&gt;</button>
     </div>
   </section>
 </template>
@@ -491,28 +532,44 @@ function categoryClass(category) {
 
 .feed__pagination {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding-top: 4px;
   flex-shrink: 0;
 }
 
 .feed__page {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: 1px solid var(--color-border-default);
   background: #fff;
   color: var(--color-text-default);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.feed__page:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .feed__page--active {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: #fff;
+}
+
+.feed__ellipsis {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .feed-expand-enter-active,
