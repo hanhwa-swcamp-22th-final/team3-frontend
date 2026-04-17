@@ -1,14 +1,15 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   categories:        { type: Array,  default: () => [] },
   articles:          { type: Array,  default: () => [] },
   selectedFilter:    { type: String, default: 'all' },
+  totalPages:        { type: Number, default: 1 },
   pageQueryReady:    { type: Boolean, default: false },
 })
-const emit = defineEmits(['filterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['filterChange', 'delete', 'restore', 'open-detail', 'toggle-bookmark', 'query-change'])
 const showAllCategories = ref(false)
 const defaultVisibleCategoryCount = 3
 const searchInput = ref('')
@@ -28,39 +29,14 @@ const normalizedCards = computed(() =>
   (props.articles ?? []).filter((card) => card && typeof card === 'object'),
 )
 
-const filteredCards = computed(() => {
-  let list = [...normalizedCards.value]
-
-  if (props.selectedFilter === 'popular') {
-    list = list.filter((card) => card.isPopular)
-  } else if (props.selectedFilter === 'bookmarked') {
-    list = list.filter((card) => card.bookmarked)
-  } else if (props.selectedFilter !== 'all') {
-    list = list.filter((card) => card.category === props.selectedFilter)
-  }
-
-  const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) {
-    return list
-  }
-
-  return list.filter((card) =>
-    [card.title, card.summary, card.equipment, card.author?.name, ...(card.tags ?? [])]
-      .join(' ')
-      .toLowerCase()
-      .includes(keyword),
-  )
-})
+const filteredCards = computed(() => normalizedCards.value)
 
 const primaryCategories = computed(() => props.categories.slice(0, defaultVisibleCategoryCount))
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredCards.value.length / pageSize)))
+const totalPages = computed(() => Math.max(props.totalPages ?? 1, 1))
 const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
-const pagedCards = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredCards.value.slice(start, start + pageSize)
-})
+const pagedCards = computed(() => filteredCards.value)
 const pageButtons = computed(() => {
   const total = totalPages.value
   const current = currentPage.value
@@ -112,18 +88,29 @@ watch(() => [props.selectedFilter, searchQuery.value], () => {
   syncPageQuery(1)
 })
 
-watch(filteredCards, (cards) => {
+watch(() => [props.selectedFilter, searchQuery.value, currentPage.value, props.pageQueryReady], () => {
   if (!props.pageQueryReady) {
     return
   }
 
-  const nextTotal = Math.max(1, Math.ceil(cards.length / pageSize))
-  const normalizedPage = normalizePageQuery(route.query.p)
+  emit('query-change', {
+    filterKey: props.selectedFilter,
+    keyword: searchQuery.value.trim(),
+    page: currentPage.value,
+    pageSize,
+  })
+}, { immediate: true })
 
-  if (normalizedPage > nextTotal) {
-    syncPageQuery(nextTotal)
+watch(() => [props.totalPages, props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
   }
-})
+
+  const normalizedPage = normalizePageQuery(route.query.p)
+  if (normalizedPage > totalPages.value) {
+    syncPageQuery(totalPages.value)
+  }
+}, { immediate: true })
 
 function setPage(page) {
   if (typeof page !== 'number' || Number.isNaN(page)) {
@@ -150,10 +137,11 @@ function handleCompositionStart() {
   isComposing.value = true
 }
 
-function handleCompositionEnd(event) {
+async function handleCompositionEnd(event) {
   isComposing.value = false
   searchInput.value = event.target.value
-  searchQuery.value = searchInput.value
+  await nextTick()
+  searchQuery.value = event.target.value
 }
 
 function tierClass(tier) {
@@ -347,12 +335,12 @@ function tagStyle(tag) {
 
       </div>
 
-      <div v-if="filteredCards.length === 0" class="feed-empty">
+      <div v-if="pagedCards.length === 0" class="feed-empty">
         해당 조건의 문서가 없습니다.
       </div>
     </div>
 
-    <div v-if="filteredCards.length > 0" class="feed-pagination">
+    <div v-if="pagedCards.length > 0" class="feed-pagination">
       <button
         type="button"
         class="feed-page feed-page--nav"

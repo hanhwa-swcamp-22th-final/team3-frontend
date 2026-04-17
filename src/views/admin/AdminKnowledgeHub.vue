@@ -1,13 +1,27 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ARTICLE_CATEGORY_LABEL } from '@/constants'
+import { useRoute } from 'vue-router'
+import { ARTICLE_CATEGORY_LABEL, ARTICLE_CATEGORY_OPTIONS } from '@/constants'
 import KmsFeed      from '@/components/admin/kms/KmsFeed.vue'
 import KmsSidePanel from '@/components/admin/kms/KmsSidePanel.vue'
 import KnowledgeHubHeader from '@/components/kms/common/knowledge-hub/KnowledgeHubHeader.vue'
 import KnowledgeHubAiPanel from '@/components/kms/common/knowledge-hub/KnowledgeHubAiPanel.vue'
 import KnowledgeDetailModal from '@/components/kms/common/knowledge-hub/KnowledgeDetailModal.vue'
 import knowledgeArticleApi from '@/services/knowledgeArticleApi'
-import fetchAllKmsArticles from '@/utils/fetchAllKmsArticles'
+
+const HUB_PAGE_SIZE = 4
+const CATEGORY_VALUE_MAP = Object.fromEntries(
+  ARTICLE_CATEGORY_OPTIONS.map((option) => [option.label, option.value]),
+)
+const route = useRoute()
+
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
+}
 
 const knowledgeCategories = [
   { key: 'all', label: '전체' },
@@ -93,6 +107,7 @@ const articles        = ref([])
 const bookmarkArticles = ref([])
 const contributors    = ref([])
 const recommendations = ref([])
+const totalPages      = ref(1)
 const hubStats       = ref({
   totalArticles: 0,
   newThisMonth: 0,
@@ -102,6 +117,12 @@ const hubStats       = ref({
 })
 const selectedArticle = ref(null)
 const isPageQueryReady = ref(false)
+const currentFeedQuery = ref({
+  filterKey: 'all',
+  keyword: '',
+  page: normalizePageQuery(route.query.p),
+  pageSize: HUB_PAGE_SIZE,
+})
 
 const selectedFilter = ref('all')
 
@@ -116,7 +137,7 @@ const statCards = computed(() => [
 onMounted(async () => {
   await Promise.allSettled([
     loadHubStats(),
-    loadArticles(),
+    loadArticlesPage(),
     loadBookmarks(),
     loadContributors(),
     loadRecommendations(),
@@ -124,17 +145,7 @@ onMounted(async () => {
   isPageQueryReady.value = true
 })
 
-const visibleArticles = computed(() => {
-  const merged = new Map()
-  for (const article of articles.value) {
-    merged.set(article.id, article)
-  }
-  for (const article of bookmarkArticles.value) {
-    const existing = merged.get(article.id)
-    merged.set(article.id, existing ? { ...existing, ...article, bookmarked: true } : article)
-  }
-  return [...merged.values()]
-})
+const visibleArticles = computed(() => articles.value)
 
 async function loadHubStats() {
   try {
@@ -151,17 +162,6 @@ async function loadHubStats() {
   }
 }
 
-async function loadArticles() {
-  try {
-    const articleDtos = await fetchAllKmsArticles(knowledgeArticleApi.getArticles, {
-      articleStatus: 'APPROVED',
-    })
-    articles.value = articleDtos.map(mapToFeedCard)
-  } catch (e) {
-    console.error('[KMS] 문서 목록 로드 실패:', e)
-  }
-}
-
 async function loadBookmarks() {
   try {
     const res = await knowledgeArticleApi.getMyBookmarks()
@@ -169,6 +169,61 @@ async function loadBookmarks() {
       .map((item) => ({ ...item, bookmarked: true }))
   } catch (e) {
     console.error('[KMS] 북마크 목록 로드 실패:', e)
+  }
+}
+
+function filterBookmarkCards(keyword = '') {
+  const normalizedKeyword = keyword.trim().toLowerCase()
+  if (!normalizedKeyword) {
+    return bookmarkArticles.value
+  }
+
+  return bookmarkArticles.value.filter((card) =>
+    [card.title, card.summary, card.equipment, card.author?.name, ...(card.tags ?? [])]
+      .join(' ')
+      .toLowerCase()
+      .includes(normalizedKeyword),
+  )
+}
+
+async function loadArticlesPage(query = currentFeedQuery.value) {
+  currentFeedQuery.value = { ...currentFeedQuery.value, ...query }
+
+  if (currentFeedQuery.value.filterKey === 'bookmarked') {
+    const filtered = filterBookmarkCards(currentFeedQuery.value.keyword)
+    totalPages.value = Math.max(1, Math.ceil(filtered.length / HUB_PAGE_SIZE))
+    const page = Math.min(Math.max(currentFeedQuery.value.page, 1), totalPages.value)
+    const start = (page - 1) * HUB_PAGE_SIZE
+    articles.value = filtered.slice(start, start + HUB_PAGE_SIZE)
+    return
+  }
+
+  const params = {
+    articleStatus: 'APPROVED',
+    page: Math.max(currentFeedQuery.value.page - 1, 0),
+    size: currentFeedQuery.value.pageSize ?? HUB_PAGE_SIZE,
+  }
+
+  if (currentFeedQuery.value.filterKey === 'popular') {
+    params.sort = 'popular'
+  } else if (currentFeedQuery.value.filterKey !== 'all') {
+    params.category = CATEGORY_VALUE_MAP[currentFeedQuery.value.filterKey]
+  }
+
+  if (currentFeedQuery.value.keyword) {
+    params.searchType = 'articleTitle'
+    params.keyword = currentFeedQuery.value.keyword
+  }
+
+  try {
+    const res = await knowledgeArticleApi.getPagedArticles(params)
+    const pageData = res.data.data ?? {}
+    totalPages.value = Math.max(pageData.totalPages ?? 0, 1)
+    articles.value = (pageData.items ?? []).map(mapToFeedCard)
+  } catch (e) {
+    console.error('[KMS] 관리자 문서 페이지 목록 로드 실패:', e)
+    articles.value = []
+    totalPages.value = 1
   }
 }
 
@@ -262,7 +317,7 @@ async function toggleBookmark(article) {
       await knowledgeArticleApi.addBookmark(article.id)
     }
 
-    await Promise.allSettled([loadArticles(), loadBookmarks()])
+    await Promise.allSettled([loadBookmarks(), loadArticlesPage()])
 
     if (selectedArticle.value?.id === article.id) {
       const next = !(article.bookmarked || article.isBookmarked)
@@ -292,10 +347,10 @@ async function handleDelete(articleId) {
     }
     await Promise.allSettled([
       loadHubStats(),
-      loadArticles(),
       loadBookmarks(),
       loadContributors(),
       loadRecommendations(),
+      loadArticlesPage(),
     ])
   } catch (e) {
     console.error('[KMS] 문서 삭제 실패:', e)
@@ -314,15 +369,19 @@ async function handleRestore(articleId) {
     }
     await Promise.allSettled([
       loadHubStats(),
-      loadArticles(),
       loadBookmarks(),
       loadContributors(),
       loadRecommendations(),
+      loadArticlesPage(),
     ])
   } catch (e) {
     console.error('[KMS] 문서 복원 실패:', e)
     window.alert('문서 복원에 실패했습니다.')
   }
+}
+
+function handleFeedQueryChange(query) {
+  void loadArticlesPage(query)
 }
 </script>
 
@@ -338,12 +397,14 @@ async function handleRestore(articleId) {
           :categories="knowledgeCategories"
           :articles="visibleArticles"
           :selectedFilter="selectedFilter"
+          :total-pages="totalPages"
           :page-query-ready="isPageQueryReady"
           @filterChange="selectedFilter = $event"
           @delete="handleDelete"
           @restore="handleRestore"
           @open-detail="openDetailModal"
           @toggle-bookmark="toggleBookmark"
+          @query-change="handleFeedQueryChange"
         />
       </div>
 

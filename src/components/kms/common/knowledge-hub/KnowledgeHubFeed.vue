@@ -1,15 +1,16 @@
 ﻿<script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   categories: { type: Array, default: () => [] },
   articles: { type: Array, default: () => [] },
+  totalPages: { type: Number, default: 1 },
   pageQueryReady: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark'])
+const emit = defineEmits(['open-write', 'open-detail', 'toggle-bookmark', 'query-change'])
 const authStore = useAuthStore()
 
 const activeCategory = ref('all')
@@ -27,34 +28,10 @@ const primaryCategories = computed(() => props.categories.slice(0, defaultVisibl
 const hiddenCategories = computed(() => props.categories.slice(defaultVisibleCategoryCount))
 const hasHiddenCategories = computed(() => hiddenCategories.value.length > 0)
 
-const filteredArticles = computed(() => {
-  let result = props.articles
-
-  if (activeCategory.value === 'popular') {
-    result = result.filter((item) => item.isPopular)
-  } else if (activeCategory.value === 'latest') {
-    result = [...result].sort((a, b) => b.id - a.id)
-  } else if (activeCategory.value === 'bookmarked') {
-    result = result.filter((item) => item.isBookmarked)
-  } else if (activeCategory.value !== 'all') {
-    result = result.filter((item) => item.category === activeCategory.value)
-  }
-
-  const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) {
-    return result
-  }
-
-  return result.filter((item) => [item.title, item.preview, item.code, item.equipment].join(' ').toLowerCase().includes(keyword))
-})
-
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+const filteredArticles = computed(() => props.articles ?? [])
+const totalPages = computed(() => Math.max(props.totalPages ?? 1, 1))
 const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
-
-const pagedArticles = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredArticles.value.slice(start, start + pageSize)
-})
+const pagedArticles = computed(() => filteredArticles.value)
 
 const pageButtons = computed(() => {
   const total = totalPages.value
@@ -107,18 +84,29 @@ watch([activeCategory, searchQuery], () => {
   syncPageQuery(1)
 })
 
-watch(filteredArticles, (articles) => {
+watch([activeCategory, searchQuery, currentPage, () => props.pageQueryReady], () => {
   if (!props.pageQueryReady) {
     return
   }
 
-  const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
-  const normalizedPage = normalizePageQuery(route.query.p)
+  emit('query-change', {
+    categoryKey: activeCategory.value,
+    keyword: searchQuery.value.trim(),
+    page: currentPage.value,
+    pageSize,
+  })
+}, { immediate: true })
 
-  if (normalizedPage > nextTotal) {
-    syncPageQuery(nextTotal)
+watch(() => [props.totalPages, props.pageQueryReady], () => {
+  if (!props.pageQueryReady) {
+    return
   }
-})
+
+  const normalizedPage = normalizePageQuery(route.query.p)
+  if (normalizedPage > totalPages.value) {
+    syncPageQuery(totalPages.value)
+  }
+}, { immediate: true })
 
 function setCategory(categoryKey) {
   activeCategory.value = categoryKey
@@ -149,10 +137,11 @@ function handleCompositionStart() {
   isComposing.value = true
 }
 
-function handleCompositionEnd(event) {
+async function handleCompositionEnd(event) {
   isComposing.value = false
   searchInput.value = event.target.value
-  searchQuery.value = searchInput.value
+  await nextTick()
+  searchQuery.value = event.target.value
 }
 
 function tierClass(tier) {
@@ -278,10 +267,10 @@ function categoryClass(category) {
         </div>
       </article>
 
-      <div v-if="filteredArticles.length === 0" class="feed__empty">조건에 맞는 문서가 없습니다.</div>
+      <div v-if="pagedArticles.length === 0" class="feed__empty">조건에 맞는 문서가 없습니다.</div>
     </div>
 
-    <div v-if="filteredArticles.length > 0" class="feed__pagination">
+    <div v-if="pagedArticles.length > 0" class="feed__pagination">
       <button
         type="button"
         class="feed__page feed__page--nav"

@@ -9,6 +9,10 @@ const knowledgeArticleApi = {
     return kmsApi.get('/api/kms/articles', { params })
   },
 
+  getPagedArticles(params = {}) {
+    return kmsApi.get('/api/kms/articles/paged', { params })
+  },
+
   getArticleDetail(articleId) {
     return kmsApi.get(`/api/kms/articles/${articleId}`)
   },
