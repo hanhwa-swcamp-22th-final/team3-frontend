@@ -1,5 +1,7 @@
-﻿<script setup>
-import { computed, ref, watch } from 'vue'
+<script setup>
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 const props = defineProps({
   items: {
     type: Array,
@@ -12,27 +14,87 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select-item'])
-const currentPage = ref(1)
 const pageSize = 5
+const route = useRoute()
+const router = useRouter()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(props.items.length / pageSize)))
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
 
 const pagedItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return props.items.slice(start, start + pageSize)
 })
 
-watch(() => props.items.length, () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = totalPages.value
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
   }
-})
-
-function setPage(page) {
-  currentPage.value = page
+  return parsed
 }
 
+function syncPageQuery(page) {
+  const normalizedPage = normalizePageQuery(page)
+  const nextQuery = { ...route.query }
+
+  if (normalizedPage <= 1) {
+    delete nextQuery.p
+  } else {
+    nextQuery.p = String(normalizedPage)
+  }
+
+  const currentQueryPage = Array.isArray(route.query.p) ? route.query.p[0] : route.query.p
+  const nextQueryPage = nextQuery.p
+
+  if ((currentQueryPage ?? undefined) === (nextQueryPage ?? undefined)) {
+    return
+  }
+
+  void router.replace({ query: nextQuery })
+}
+
+watch(() => props.items.length, () => {
+  if (props.items.length === 0) {
+    return
+  }
+
+  const normalizedPage = normalizePageQuery(route.query.p)
+  if (normalizedPage > totalPages.value) {
+    syncPageQuery(totalPages.value)
+  }
+}, { immediate: true })
+
+function setPage(page) {
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+
+  const nextPage = Math.min(Math.max(page, 1), totalPages.value)
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  syncPageQuery(nextPage)
+}
 </script>
 
 <template>
@@ -67,14 +129,32 @@ function setPage(page) {
 
     <div v-if="items.length > 0" class="queue__pagination">
       <button
-        v-for="page in pageNumbers"
-        :key="page"
         type="button"
-        class="queue__page"
-        :class="{ 'queue__page--active': currentPage === page }"
-        @click="setPage(page)"
+        class="queue__page queue__page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
       >
-        {{ page }}
+        &lt;
+      </button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="queue__ellipsis">...</span>
+        <button
+          v-else
+          type="button"
+          class="queue__page"
+          :class="{ 'queue__page--active': currentPage === page }"
+          @click="setPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        type="button"
+        class="queue__page queue__page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >
+        &gt;
       </button>
     </div>
   </section>
@@ -201,6 +281,7 @@ function setPage(page) {
 .queue__pagination {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 8px;
   padding-top: 4px;
   flex-shrink: 0;
@@ -218,10 +299,25 @@ function setPage(page) {
   cursor: pointer;
 }
 
+.queue__page:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .queue__page--active {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: #fff;
 }
-</style>
 
+.queue__ellipsis {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+</style>

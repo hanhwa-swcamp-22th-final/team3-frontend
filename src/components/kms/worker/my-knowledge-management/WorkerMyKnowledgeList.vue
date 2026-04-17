@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { BaseFilterTabs } from '@/components/common/base'
 import { ARTICLE_STATUS_LABEL, CATEGORY_CLASS_MAP } from '@/constants'
 
@@ -12,8 +13,9 @@ const emit = defineEmits(['detail', 'edit', 'delete', 'restore'])
 const categories = ['전체', '장애조치', '공정개선', '설비운영', '안전', '기타', '승인대기', '반려', '임시저장', '삭제대기']
 const activeCategory = ref('전체')
 const searchQuery = ref('')
-const currentPage = ref(1)
 const pageSize = 4
+const route = useRoute()
+const router = useRouter()
 
 const filteredArticles = computed(() => {
   let result = props.articles
@@ -46,24 +48,73 @@ const filteredArticles = computed(() => {
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredArticles.value.length / pageSize)))
+const currentPage = computed(() => Math.min(normalizePageQuery(route.query.p), totalPages.value))
 
 const pagedArticles = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return filteredArticles.value.slice(start, start + pageSize)
 })
 
-const pageNumbers = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const pageButtons = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
+
+function normalizePageQuery(value) {
+  const parsed = Number.parseInt(Array.isArray(value) ? value[0] : value, 10)
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1
+  }
+  return parsed
+}
+
+function syncPageQuery(page) {
+  const normalizedPage = normalizePageQuery(page)
+  const nextQuery = { ...route.query }
+
+  if (normalizedPage <= 1) {
+    delete nextQuery.p
+  } else {
+    nextQuery.p = String(normalizedPage)
+  }
+
+  const currentQueryPage = Array.isArray(route.query.p) ? route.query.p[0] : route.query.p
+  const nextQueryPage = nextQuery.p
+
+  if ((currentQueryPage ?? undefined) === (nextQueryPage ?? undefined)) {
+    return
+  }
+
+  void router.replace({ query: nextQuery })
+}
 
 watch([activeCategory, searchQuery], () => {
-  currentPage.value = 1
+  syncPageQuery(1)
 })
 
 watch(filteredArticles, (articles) => {
   const nextTotal = Math.max(1, Math.ceil(articles.length / pageSize))
-  if (currentPage.value > nextTotal) {
-    currentPage.value = nextTotal
+  if (articles.length === 0) {
+    return
   }
-})
+  if (currentPage.value > nextTotal) {
+    syncPageQuery(nextTotal)
+  }
+}, { immediate: true })
 
 function statusClass(status) {
   if (status === '삭제대기') return 'st--deleted'
@@ -85,7 +136,16 @@ function actionLabel(status) {
 }
 
 function setPage(page) {
-  currentPage.value = page
+  if (typeof page !== 'number' || Number.isNaN(page)) {
+    return
+  }
+
+  const nextPage = Math.min(Math.max(page, 1), totalPages.value)
+  if (nextPage === currentPage.value) {
+    return
+  }
+
+  syncPageQuery(nextPage)
 }
 </script>
 
@@ -118,7 +178,16 @@ function setPage(page) {
 
     <!-- Article Cards -->
     <div class="mkl__list">
-      <div v-for="article in pagedArticles" :key="article.id" class="mkl__card" :class="{ 'mkl__card--deleted': article.isDeleted }">
+      <div
+        v-for="article in pagedArticles"
+        :key="article.id"
+        class="mkl__card"
+        :class="{ 'mkl__card--deleted': article.isDeleted }"
+        tabindex="0"
+        @click="emit('detail', article)"
+        @keydown.enter="emit('detail', article)"
+        @keydown.space.prevent="emit('detail', article)"
+      >
         <div class="mkl__card-top">
           <div class="mkl__card-badges">
             <span class="mkl__badge" :class="categoryClass(article.category)">
@@ -141,25 +210,25 @@ function setPage(page) {
             <span>수정 횟수 {{ article.reuses }}회</span>
           </div>
           <div class="mkl__card-actions">
-            <button class="mkl__action-btn" @click="emit('detail', article)">상세</button>
+            <button class="mkl__action-btn" @click.stop="emit('detail', article)">상세</button>
             <button
               v-if="!article.isDeleted"
               class="mkl__action-btn"
-              @click="emit('edit', article)"
+              @click.stop="emit('edit', article)"
             >
               {{ actionLabel(article.status) }}
             </button>
             <button
               v-if="!article.isDeleted && article.rawStatus !== 'APPROVED'"
               class="mkl__action-btn mkl__action-btn--delete"
-              @click="emit('delete', article)"
+              @click.stop="emit('delete', article)"
             >
               삭제
             </button>
             <button
               v-if="article.isDeleted"
               class="mkl__action-btn mkl__action-btn--restore"
-              @click="emit('restore', article)"
+              @click.stop="emit('restore', article)"
             >
               복원
             </button>
@@ -172,14 +241,32 @@ function setPage(page) {
 
     <div v-if="filteredArticles.length > 0" class="mkl__pagination">
       <button
-        v-for="page in pageNumbers"
-        :key="page"
+        type="button"
+        class="mkl__page mkl__page--nav"
+        :disabled="currentPage <= 1"
+        @click="setPage(currentPage - 1)"
+      >
+        &lt;
+      </button>
+      <template v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
+        <span v-if="page === '...'" class="mkl__ellipsis">...</span>
+      <button
+        v-else
         type="button"
         class="mkl__page"
         :class="{ 'mkl__page--active': currentPage === page }"
         @click="setPage(page)"
       >
         {{ page }}
+      </button>
+      </template>
+      <button
+        type="button"
+        class="mkl__page mkl__page--nav"
+        :disabled="currentPage >= totalPages"
+        @click="setPage(currentPage + 1)"
+      >
+        &gt;
       </button>
     </div>
   </div>
@@ -291,11 +378,14 @@ function setPage(page) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  cursor: pointer;
   transition: border-color 0.15s;
 }
 
-.mkl__card:hover {
+.mkl__card:hover,
+.mkl__card:focus-visible {
   border-color: var(--color-primary-300);
+  outline: none;
 }
 
 .mkl__card--deleted {
@@ -488,9 +578,25 @@ function setPage(page) {
   cursor: pointer;
 }
 
+.mkl__page:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .mkl__page--active {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: #fff;
+}
+
+.mkl__ellipsis {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 </style>

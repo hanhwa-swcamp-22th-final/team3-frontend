@@ -337,6 +337,7 @@ async function handleRestoreArticle(article) {
       v-if="showDetailModal && selectedArticle"
       :article="selectedArticle"
       @close="showDetailModal = false"
+      @edit="showDetailModal = false; openEditModal($event)"
       @delete="handleDeleteArticle"
       @restore="handleRestoreArticle"
     />
