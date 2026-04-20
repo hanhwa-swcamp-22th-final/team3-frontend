@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ADMIN_API_BASE, HR_API_BASE, SCM_API_BASE, KMS_API_BASE } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
+import { handleSessionSuperseded, isSessionSupersededResponse } from '@/services/sessionExpirationHandler'
 
 let isRefreshing = false
 let failedQueue = []
@@ -32,6 +33,12 @@ function createApiClient(baseURL) {
     (response) => response,
     async (error) => {
       const originalRequest = error.config
+      const responseData = error.response?.data
+
+      if (isSessionSupersededResponse(responseData)) {
+        handleSessionSuperseded(responseData.message)
+        return Promise.reject(error)
+      }
 
       if (error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(error)
