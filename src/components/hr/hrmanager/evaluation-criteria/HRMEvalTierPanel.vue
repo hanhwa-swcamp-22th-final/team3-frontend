@@ -60,7 +60,7 @@ function updatePoint(tier, value) {
 .eval-tier-card {
   padding: 24px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 16px;
   background: var(--color-bg-surface);
   display: flex;
   flex-direction: column;
@@ -78,7 +78,7 @@ function updatePoint(tier, value) {
   gap: 10px;
   padding: 12px 16px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 14px;
   background: var(--color-bg-app);
 }
 .eval-tier-card__badge {
@@ -108,7 +108,7 @@ function updatePoint(tier, value) {
   height: 36px;
   padding: 0 10px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   text-align: center;
@@ -120,7 +120,7 @@ function updatePoint(tier, value) {
   color: var(--color-mint-500);
   background: #e3fbef;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 14px;
   margin-top: 4px;
 }
 </style>

@@ -155,5 +155,7 @@ async function handleLogout() {
   display: flex;
   flex: 1;
   margin-left: 14%;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

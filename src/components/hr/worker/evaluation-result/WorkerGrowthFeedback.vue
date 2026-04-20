@@ -36,7 +36,7 @@ function renderChart() {
       labels,
       datasets: [
         {
-          label: '분기 포인트',
+          label: '누적 포인트',
           data: overallData,
           borderColor: '#5B4FCF',
           backgroundColor: '#5B4FCF',
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
       <div class="gf__chart-legend">
         <span class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--overall"></span>
-          분기 포인트
+          누적 포인트
         </span>
         <span v-if="hasTeamSeries" class="gf__chart-legend-item">
           <span class="gf__chart-legend-line gf__chart-legend-line--team"></span>

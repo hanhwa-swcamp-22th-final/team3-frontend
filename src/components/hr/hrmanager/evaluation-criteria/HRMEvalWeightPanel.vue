@@ -114,7 +114,7 @@ function updateWeight(tierGroup, categoryCode, value) {
 .eval-weight-card {
   padding: 24px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 16px;
   background: var(--color-bg-surface);
   display: flex;
   flex-direction: column;
@@ -132,7 +132,7 @@ function updateWeight(tierGroup, categoryCode, value) {
 }
 .eval-weight-card__summary-chip {
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 999px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   background: var(--color-primary-100);
@@ -162,7 +162,7 @@ function updateWeight(tierGroup, categoryCode, value) {
   height: 36px;
   padding: 0 10px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--color-bg-app);
   color: var(--color-primary-900);
   font-size: var(--font-size-sm);
