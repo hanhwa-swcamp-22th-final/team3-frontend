@@ -156,6 +156,7 @@ function defaultEvaluationDetail(summary) {
     firstStageComment: '',
     secondStageScore: '-',
     secondStageComment: '',
+    hrConfirmComment: '',
   }
 }
 
@@ -273,6 +274,7 @@ function mergeEvaluationDetail(item, detail) {
       dept: detail.employeeTier ?? '-',
       quarter: `${detail.evaluationLevel ?? 2}차 평가`,
       content: detail.evalComment || '내용 없음',
+      hrConfirmComment: detail.evalComment || '',
       qualScore: detail.score != null ? detail.score.toFixed(1) : '-',
       totalScore: detail.score != null ? detail.score.toFixed(1) : '-',
       firstStageScore: detail.firstStageScore != null ? detail.firstStageScore.toFixed(1) : '-',
@@ -347,6 +349,7 @@ const modeTabs = computed(() => [
   { key: 'evaluation', label: '평가 승인', count: evaluationPendingTotalCount.value },
   { key: 'appeal', label: '이의신청 승인', count: appealPendingTotalCount.value },
 ])
+const currentAppealPeriodId = computed(() => evaluationPeriodSummary.value?.evalPeriodId ?? null)
 
 const isConfirmDisabled = computed(() => {
   if (requiresEvaluationComment.value) {
@@ -366,10 +369,10 @@ const evaluationCommentLength = computed(() => evaluationConfirmComment.value.tr
 
 async function loadAppeals() {
   const [pendingResponse, receivingResponse, reviewingResponse, processedResponse] = await Promise.all([
-    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'SUBMITTED' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'RECEIVING' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'REVIEWING' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'COMPLETED' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'SUBMITTED', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'RECEIVING', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'REVIEWING', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 100, status: 'COMPLETED', evaluationPeriodId: currentAppealPeriodId.value }),
   ])
 
   const pendingMapped = (pendingResponse.data?.data?.content ?? []).map(mapAppealSummaryToItem)
@@ -400,10 +403,10 @@ async function loadAppeals() {
 
 async function loadAppealCounts() {
   const [pendingResponse, receivingResponse, reviewingResponse, processedResponse] = await Promise.all([
-    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'SUBMITTED' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'RECEIVING' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'REVIEWING' }),
-    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'COMPLETED' }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'SUBMITTED', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'RECEIVING', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'REVIEWING', evaluationPeriodId: currentAppealPeriodId.value }),
+    hrApprovalApi.getAppeals({ page: 0, size: 1, status: 'COMPLETED', evaluationPeriodId: currentAppealPeriodId.value }),
   ])
 
   appealPendingTotalCount.value = pendingResponse.data?.data?.totalCount ?? 0
@@ -421,7 +424,13 @@ async function loadEvaluations() {
 
   const pendingContent = pendingResponse.data?.data?.content ?? []
   const processedContent = processedResponse.data?.data?.content ?? []
-  evaluationPeriodSummary.value = periodResponse.data?.data?.content?.[0] ?? null
+  const inProgressPeriod = periodResponse.data?.data?.content?.[0] ?? null
+  if (inProgressPeriod) {
+    evaluationPeriodSummary.value = inProgressPeriod
+  } else {
+    const confirmedResponse = await hrApprovalApi.getEvaluationPeriods({ status: 'CONFIRMED', page: 0, size: 1 })
+    evaluationPeriodSummary.value = confirmedResponse.data?.data?.content?.[0] ?? null
+  }
 
   evaluationPendingList.value = pendingContent
     .filter(item => normalizeEvaluationLevel(item.evaluationLevel) === 2)
@@ -443,11 +452,10 @@ async function loadCurrentMode() {
   loading.value = true
   error.value = null
   try {
+    await loadEvaluations()
     await loadAppealCounts()
     if (approvalMode.value === 'appeal') {
       await loadAppeals()
-    } else {
-      await loadEvaluations()
     }
   } catch (e) {
     console.error(e)
@@ -600,6 +608,7 @@ async function handleConfirm() {
 
   try {
     if (approvalMode.value === 'evaluation') {
+      const targetName = selectedItem.value.name
       await hrApprovalApi.confirmEvaluation(selectedItem.value.evaluateeId, {
         evaluationPeriodId: selectedItem.value.evaluationPeriodId,
         evalComment: evaluationConfirmComment.value.trim(),
@@ -608,7 +617,7 @@ async function handleConfirm() {
       confirmModal.value.show = false
       evaluationConfirmComment.value = ''
       await loadEvaluations()
-      showToast(`${selectedItem.value.name}님의 평가가 최종 확정되었습니다.`)
+      showToast(`${targetName}님의 평가가 최종 확정되었습니다.`)
       return
     }
 
@@ -652,7 +661,7 @@ async function handleConfirm() {
       class="hrm-approval__mode-tabs"
       :items="modeTabs"
       :model-value="approvalMode"
-      variant="chip"
+      variant="underline"
       :show-count="true"
       @change="approvalMode = $event"
     />
@@ -661,6 +670,9 @@ async function handleConfirm() {
     <div v-else-if="error" class="hrm-approval__error">{{ error }}</div>
     <template v-else>
       <section v-if="approvalMode === 'evaluation'" class="hrm-approval__progress-card">
+        <div v-if="evaluationPeriodSummary && evaluationPeriodSummary.status !== 'IN_PROGRESS'" class="hrm-approval__closed-notice">
+          ⚠️ 이 평가 기간은 마감되었습니다. 조회만 가능하며 추가 확정 처리는 제한될 수 있습니다.
+        </div>
         <div class="hrm-approval__progress-copy">
           <div>
             <p class="hrm-approval__progress-eyebrow">제출 완료 현황</p>
@@ -796,26 +808,56 @@ async function handleConfirm() {
 
 .hrm-approval__mode-tabs {
   align-self: flex-start;
+  width: auto;
+  padding: 6px;
+  border: 1px solid #ece8ff;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+}
+
+.hrm-approval__mode-tabs :deep(.base-filter-tabs) {
+  gap: 8px;
+  border-bottom: none;
+}
+
+.hrm-approval__mode-tabs :deep(.base-filter-tabs__item) {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #9c93c9;
+  font-weight: var(--font-weight-bold);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hrm-approval__mode-tabs :deep(.base-filter-tabs__item--active) {
+  color: var(--color-primary-700);
+  border-color: #ddd1ff;
+  background: #f3edff;
 }
 
 .hrm-approval__mode-tabs :deep(.base-filter-tabs__count) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   padding: 0 6px;
   border-radius: 999px;
-  background: rgba(106, 76, 216, 0.12);
-  color: inherit;
-  font-size: 11px;
+  background: rgba(108, 86, 219, 0.12);
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
   font-weight: 800;
 }
 
+.hrm-approval__mode-tabs :deep(.base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: var(--color-primary-600);
+  color: #fff;
+}
+
 .hrm-approval__mode-tabs :deep(.base-filter-tabs__item:nth-child(2)) {
-  border-color: #f3c3cb;
   color: #c24157;
-  background: #fff5f6;
 }
 
 .hrm-approval__mode-tabs :deep(.base-filter-tabs__item:nth-child(2) .base-filter-tabs__count) {
@@ -824,9 +866,14 @@ async function handleConfirm() {
 }
 
 .hrm-approval__mode-tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active) {
-  background: #ffe7eb;
-  border-color: #e88998;
   color: #a61d38;
+  border-color: rgba(232, 137, 152, 0.5);
+  background: #fff1f3;
+}
+
+.hrm-approval__mode-tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: #c24157;
+  color: #fff;
 }
 
 .hrm-approval__mode-tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {
@@ -910,6 +957,15 @@ async function handleConfirm() {
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
   background: var(--color-bg-surface);
+}
+
+.hrm-approval__closed-notice {
+  padding: 10px 14px;
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: var(--font-size-xs-plus);
+  color: #92400e;
 }
 
 .hrm-approval__progress-copy {

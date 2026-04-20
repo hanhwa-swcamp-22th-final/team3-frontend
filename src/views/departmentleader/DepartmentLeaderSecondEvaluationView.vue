@@ -17,10 +17,6 @@ const evalPeriodId = ref(null)
 const periodInfo = ref(null)
 const toast = ref({ show: false, message: '', type: 'success' })
 const activeTab = ref('evaluation')
-const modeTabs = [
-  { key: 'evaluation', label: '평가 관리' },
-  { key: 'appeal', label: '이의신청' },
-]
 const appealSummaries = ref([])
 const selectedAppealId = ref(null)
 const selectedAppealDetail = ref(null)
@@ -126,12 +122,18 @@ const periodLabel = computed(() => {
   const label = formatEvaluationPeriodLabel(periodInfo.value, { fallback: null })
   return label ? `${label} 평가` : null
 })
+const isClosedPeriod = computed(() => Boolean(periodInfo.value?.status) && periodInfo.value.status !== 'IN_PROGRESS')
 let toastTimer = null
 
 const totalCount = computed(() => members.value.length)
 const submittedCount = computed(() => members.value.filter((m) => m.status === 'submitted').length)
 const progressPercent = computed(() => (totalCount.value > 0 ? (submittedCount.value / totalCount.value) * 100 : 0))
-const isSubmitted = computed(() => selectedMember.value?.status === 'submitted')
+const isSubmitted = computed(() => isClosedPeriod.value || selectedMember.value?.status === 'submitted')
+const evaluationPendingCount = computed(() => (isClosedPeriod.value ? 0 : members.value.filter((m) => m.status !== 'submitted').length))
+const modeTabs = computed(() => [
+  { key: 'evaluation', label: '평가 관리', count: evaluationPendingCount.value },
+  { key: 'appeal', label: '이의신청', count: appealSummaries.value.length },
+])
 
 const AVATAR_COLORS = ['#5f50d6', '#269063', '#c08b00', '#b03060', '#2070b0', '#806030']
 
@@ -181,6 +183,7 @@ async function loadTargets() {
       evalSequence: data.evalSequence,
       startDate: data.startDate,
       endDate: data.endDate,
+      status: data.status,
     }
     members.value = data.targets.map(mapTarget)
     if (members.value.length > 0) {
@@ -193,7 +196,7 @@ async function loadTargets() {
 
 async function loadAppeals() {
   try {
-    const res = await fetchDlAppeals()
+    const res = await fetchDlAppeals(evalPeriodId.value)
     const appeals = (unwrap(res) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     if (appeals.length) {
@@ -311,7 +314,7 @@ async function handleApproveAppeal(payload) {
       inputMethod: payload?.inputMethod ?? 'TEXT',
     })
     await approveDlAppeal(selectedAppealId.value, {})
-    const appeals = (unwrap(await fetchDlAppeals()) ?? []).map(mapAppealSummary)
+    const appeals = (unwrap(await fetchDlAppeals(evalPeriodId.value)) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     selectedAppealDetail.value = null
     appealDraftMember.value = null
@@ -333,7 +336,7 @@ async function handleRejectAppeal() {
   try {
     appealActionLoading.value = true
     await rejectDlAppeal(selectedAppealId.value, { reason: '부서장 단계에서 일부 인용으로 종료되었습니다.' })
-    const appeals = (unwrap(await fetchDlAppeals()) ?? []).map(mapAppealSummary)
+    const appeals = (unwrap(await fetchDlAppeals(evalPeriodId.value)) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     selectedAppealDetail.value = null
     appealDraftMember.value = null
@@ -352,6 +355,10 @@ async function handleRejectAppeal() {
 
 async function handleSave(payload) {
   if (!selectedMember.value) return
+  if (isClosedPeriod.value) {
+    showToast('마감된 평가기간은 수정할 수 없습니다.', 'error')
+    return
+  }
   const draftText = payload?.draftText ?? ''
   const inputMethod = payload?.inputMethod ?? 'TEXT'
   try {
@@ -374,6 +381,10 @@ async function handleSave(payload) {
 async function handleSubmit(payload) {
   if (!selectedMember.value) return
   if (isSubmitted.value) return
+  if (isClosedPeriod.value) {
+    showToast('마감된 평가기간은 제출할 수 없습니다.', 'error')
+    return
+  }
   const draftText = payload?.draftText ?? ''
   const inputMethod = payload?.inputMethod ?? 'TEXT'
   try {
@@ -415,18 +426,22 @@ onBeforeUnmount(() => {
     <BaseFilterTabs
       v-model="activeTab"
       :items="modeTabs"
-      variant="chip"
+      variant="underline"
       size="md"
+      :show-count="true"
       class="dl-eval-view__tabs"
     />
 
     <div v-if="activeTab === 'evaluation'" class="dl-eval-view__content">
       <section class="dl-eval-view__progress-card dl-eval-view__progress-card--full">
+        <div v-if="isClosedPeriod" class="dl-eval-view__closed-notice">
+          이 평가 기간은 마감되었습니다. 조회만 가능합니다.
+        </div>
         <div class="dl-eval-view__progress-copy">
           <div>
-            <p class="dl-eval-view__progress-eyebrow">제출 완료 현황</p>
+            <p class="dl-eval-view__progress-eyebrow">{{ isClosedPeriod ? '확정 현황' : '제출 완료 현황' }}</p>
             <strong class="dl-eval-view__progress-title">
-              {{ submittedCount }} / {{ totalCount }}명 제출 완료
+              {{ submittedCount }} / {{ totalCount }}명 {{ isClosedPeriod ? '확정' : '제출 완료' }}
             </strong>
           </div>
           <div v-if="periodLabel" class="dl-eval-view__period-info">
@@ -519,29 +534,68 @@ onBeforeUnmount(() => {
   margin-bottom: 12px;
 }
 
+.dl-eval-view__closed-notice {
+  padding: 10px 14px;
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: var(--font-size-xs-plus);
+  color: #92400e;
+}
+
 .dl-eval-view__tabs {
   align-self: flex-start;
   margin-bottom: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding-bottom: 4px;
-  background: var(--color-bg-app);
+  width: auto;
+  padding: 6px;
+  border: 1px solid #ece8ff;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs) {
+  gap: 8px;
+  border-bottom: none;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item) {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #9c93c9;
+  font-weight: var(--font-weight-bold);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item--active) {
+  color: var(--color-primary-700);
+  border-color: #ddd1ff;
+  background: #f3edff;
 }
 
 .dl-eval-view__tabs :deep(.base-filter-tabs__count) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(108, 86, 219, 0.12);
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: var(--color-primary-600);
+  color: #fff;
 }
 
 .dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2)) {
-  border-color: #f3c3cb;
   color: #c24157;
-  background: #fff5f6;
 }
 
 .dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2) .base-filter-tabs__count) {
@@ -550,9 +604,14 @@ onBeforeUnmount(() => {
 }
 
 .dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active) {
-  background: #ffe7eb;
-  border-color: #e88998;
   color: #a61d38;
+  border-color: rgba(232, 137, 152, 0.5);
+  background: #fff1f3;
+}
+
+.dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: #c24157;
+  color: #fff;
 }
 
 .dl-eval-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {

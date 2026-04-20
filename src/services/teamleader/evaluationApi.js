@@ -19,8 +19,10 @@ export function updateTlEvaluation(evaluateeId, { status, evaluationPeriodId, ev
 }
 
 /** TL 이의신청 목록 조회 */
-export function fetchTlAppeals() {
-  return hrApi.get('/api/v1/hr/team-leader/appeals')
+export function fetchTlAppeals(periodId) {
+  return hrApi.get('/api/v1/hr/team-leader/appeals', {
+    params: periodId ? { evaluationPeriodId: periodId } : {},
+  })
 }
 
 /** TL 이의신청 상세 조회 */

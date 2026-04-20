@@ -619,9 +619,14 @@ function toEvalStatusViewModel(
   const quantitativeScore = roundToOne(quantitative?.sQuant)
   const qualitativeScore = roundToOne(qualitative?.score)
   const quarterTotals = buildQuarterPointTotals(pointHistory)
-  const overallScore = quarterTotals.length
-    ? quarterTotals[quarterTotals.length - 1].total
-    : null
+  const overallScore = (() => {
+    if (!quarterTotals.length) return null
+    if (status?.evalYear != null && status?.evalSequence != null) {
+      const targetKey = `${status.evalYear}-Q${status.evalSequence}`
+      return quarterTotals.find((q) => q.key === targetKey)?.total ?? null
+    }
+    return quarterTotals[quarterTotals.length - 1].total
+  })()
   const previousHistory = history.find((item) => item?.evalPeriodId !== status?.evalPeriodId) ?? null
 
   const quantitativeDiff = previousHistory ? roundToOne(quantitativeScore - toNumber(previousHistory.quantScore)) : 0

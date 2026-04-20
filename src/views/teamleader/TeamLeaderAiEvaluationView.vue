@@ -14,10 +14,6 @@ import { mapStatus, statusToLabel } from '@/utils/evaluationStatus'
 const AVATAR_TONES = ['purple', 'green', 'gold']
 const STATUS_MAP = { NO_INPUT: 'not_started', DRAFT: 'in_progress', SUBMITTED: 'submitted' }
 const activeTab = ref('evaluation')
-const modeTabs = [
-  { key: 'evaluation', label: '평가 관리' },
-  { key: 'appeal', label: '이의신청' },
-]
 const APPEAL_TYPE_LABEL = {
   SCORE_ERRORS: '점수 오류',
   MISSING_ITEMS: '평가 항목 누락',
@@ -129,6 +125,8 @@ const periodLabel = computed(() => {
   return label ? `${label} 평가` : null
 })
 
+const isClosedPeriod = computed(() => Boolean(periodInfo.value?.status) && periodInfo.value.status !== 'IN_PROGRESS')
+
 const selectedTargetId = ref('')
 const guideOpen = ref(false)
 const recordingState = ref('idle')
@@ -184,6 +182,7 @@ onMounted(async () => {
       evalSequence: data.evalSequence,
       startDate: data.startDate,
       endDate: data.endDate,
+      status: data.status,
     }
     rawTargets.value = data.targets.map(mapTarget)
     data.targets.forEach((t) => {
@@ -203,7 +202,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await fetchTlAppeals()
+    const res = await fetchTlAppeals(evalPeriodId.value)
     const appeals = (unwrap(res) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     if (appeals.length) {
@@ -242,6 +241,15 @@ const evaluationCompletionRate = computed(() => {
   if (!memberListItems.value.length) return 0
   return Math.round((submittedCount.value / memberListItems.value.length) * 100)
 })
+
+const evaluationPendingCount = computed(
+  () => (isClosedPeriod.value ? 0 : memberListItems.value.filter((target) => target.status !== 'submitted').length),
+)
+
+const modeTabs = computed(() => [
+  { key: 'evaluation', label: '평가 관리', count: evaluationPendingCount.value },
+  { key: 'appeal', label: '이의신청', count: appealSummaries.value.length },
+])
 
 watch(
   memberListItems,
@@ -376,7 +384,7 @@ async function handleSubmitAppealReview() {
       inputMethod: appealDraftInputMethod.value,
     })
     await approveTlAppeal(selectedAppealId.value, {})
-    const appeals = (unwrap(await fetchTlAppeals()) ?? []).map(mapAppealSummary)
+    const appeals = (unwrap(await fetchTlAppeals(evalPeriodId.value)) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     selectedAppealDetail.value = null
     appealReviewing.value = false
@@ -397,7 +405,7 @@ async function handleRejectAppeal() {
   try {
     appealActionLoading.value = true
     await rejectTlAppeal(selectedAppealId.value, { reason: '팀리더 단계에서 기각되었습니다.' })
-    const appeals = (unwrap(await fetchTlAppeals()) ?? []).map(mapAppealSummary)
+    const appeals = (unwrap(await fetchTlAppeals(evalPeriodId.value)) ?? []).map(mapAppealSummary)
     appealSummaries.value = appeals
     selectedAppealDetail.value = null
     appealReviewing.value = false
@@ -443,6 +451,11 @@ async function handleSaveDraft() {
     return
   }
 
+  if (isClosedPeriod.value) {
+    updateFeedback('마감된 평가기간은 수정할 수 없습니다.', 'muted')
+    return
+  }
+
   const currentTarget = rawTargets.value.find((t) => t.id === selectedTargetId.value)
   if (!currentTarget?.evaluationPeriodId) return
   try {
@@ -464,6 +477,11 @@ async function handleSubmitEvaluation() {
 
   if (submittedEvaluations[selectedTargetId.value]) {
     updateFeedback('이미 제출된 평가입니다.', 'muted')
+    return
+  }
+
+  if (isClosedPeriod.value) {
+    updateFeedback('마감된 평가기간은 제출할 수 없습니다.', 'muted')
     return
   }
 
@@ -683,18 +701,22 @@ onBeforeUnmount(() => {
     <BaseFilterTabs
       v-model="activeTab"
       :items="modeTabs"
-      variant="chip"
+      variant="underline"
       size="md"
+      :show-count="true"
       class="teamleader-ai-evaluation-view__tabs"
     />
 
     <section v-if="activeTab === 'evaluation'" class="teamleader-ai-evaluation-view__content">
       <section class="teamleader-ai-evaluation-view__progress-card teamleader-ai-evaluation-view__progress-card--full">
+        <div v-if="isClosedPeriod" class="teamleader-ai-evaluation-view__closed-notice">
+          이 평가 기간은 마감되었습니다. 조회만 가능합니다.
+        </div>
         <div class="teamleader-ai-evaluation-view__progress-copy">
           <div>
-            <p class="teamleader-ai-evaluation-view__progress-eyebrow">제출 완료 현황</p>
+            <p class="teamleader-ai-evaluation-view__progress-eyebrow">{{ isClosedPeriod ? '확정 현황' : '제출 완료 현황' }}</p>
             <strong class="teamleader-ai-evaluation-view__progress-title">
-              {{ submittedCount }} / {{ memberListItems.length }}명 제출 완료
+              {{ submittedCount }} / {{ memberListItems.length }}명 {{ isClosedPeriod ? '확정' : '제출 완료' }}
             </strong>
           </div>
           <div v-if="periodLabel" class="teamleader-ai-evaluation-view__period-info">
@@ -720,14 +742,14 @@ onBeforeUnmount(() => {
         @select-member="handleSelectTarget"
       />
 
-      <TeamLeaderAiEvaluationPanel
-        :selected-target="selectedTarget"
-        :readonly="!!submittedEvaluations[selectedTargetId]"
-        :guide-open="guideOpen"
-        :recording-state="recordingState"
-        :uploaded-file-name="uploadedFileName"
-        :action-disabled="!selectedTargetId || !!submittedEvaluations[selectedTargetId]"
-        @update:converted-text="handleUpdateConvertedText"
+        <TeamLeaderAiEvaluationPanel
+          :selected-target="selectedTarget"
+          :readonly="isClosedPeriod || !!submittedEvaluations[selectedTargetId]"
+          :guide-open="guideOpen"
+          :recording-state="recordingState"
+          :uploaded-file-name="uploadedFileName"
+          :action-disabled="!selectedTargetId || isClosedPeriod || !!submittedEvaluations[selectedTargetId]"
+          @update:converted-text="handleUpdateConvertedText"
         @voice-input="handleVoiceInput"
         @file-selected="handleFileSelected"
         @convert-text="handleConvertText"
@@ -811,29 +833,68 @@ onBeforeUnmount(() => {
   margin-bottom: 12px;
 }
 
+.teamleader-ai-evaluation-view__closed-notice {
+  padding: 10px 14px;
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: var(--font-size-xs-plus);
+  color: #92400e;
+}
+
 .teamleader-ai-evaluation-view__tabs {
   align-self: flex-start;
   margin-bottom: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding-bottom: 4px;
-  background: var(--color-bg-app);
+  width: auto;
+  padding: 6px;
+  border: 1px solid #ece8ff;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+}
+
+.teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs) {
+  gap: 8px;
+  border-bottom: none;
+}
+
+.teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item) {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #9c93c9;
+  font-weight: var(--font-weight-bold);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item--active) {
+  color: var(--color-primary-700);
+  border-color: #ddd1ff;
+  background: #f3edff;
 }
 
 .teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__count) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(108, 86, 219, 0.12);
+  color: var(--color-primary-600);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+.teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: var(--color-primary-600);
+  color: #fff;
 }
 
 .teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item:nth-child(2)) {
-  border-color: #f3c3cb;
   color: #c24157;
-  background: #fff5f6;
 }
 
 .teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item:nth-child(2) .base-filter-tabs__count) {
@@ -842,9 +903,14 @@ onBeforeUnmount(() => {
 }
 
 .teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active) {
-  background: #ffe7eb;
-  border-color: #e88998;
   color: #a61d38;
+  border-color: rgba(232, 137, 152, 0.5);
+  background: #fff1f3;
+}
+
+.teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {
+  background: #c24157;
+  color: #fff;
 }
 
 .teamleader-ai-evaluation-view__tabs :deep(.base-filter-tabs__item:nth-child(2).base-filter-tabs__item--active .base-filter-tabs__count) {

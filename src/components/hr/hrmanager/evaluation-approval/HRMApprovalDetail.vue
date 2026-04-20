@@ -60,6 +60,15 @@ watch(() => props.item?.id, () => {
             {{ item.detail?.secondStageComment || '2차 평가 내용이 없습니다.' }}
           </p>
         </div>
+        <div
+          v-if="readonly && item.detail?.hrConfirmComment"
+          class="hrm-eval-summary__comment-card hrm-eval-summary__comment-card--final"
+        >
+          <p class="hrm-eval-summary__comment-label hrm-eval-summary__comment-label--final">HR 최종 확정 코멘트</p>
+          <p class="hrm-eval-summary__comment">
+            {{ item.detail.hrConfirmComment }}
+          </p>
+        </div>
       </section>
     </template>
 
@@ -203,26 +212,38 @@ watch(() => props.item?.id, () => {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .hrm-eval-summary__score {
-  min-width: 72px;
+  width: 84px;
+  min-width: 84px;
+  min-height: 78px;
   padding: 10px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid #e1dbff;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .hrm-eval-summary__score strong {
   display: block;
   font-size: 20px;
   color: var(--color-primary-800);
+  line-height: 1;
 }
 
 .hrm-eval-summary__score span {
+  display: block;
+  margin-top: 6px;
   font-size: 12px;
   color: var(--color-text-muted);
+  line-height: 1;
 }
 
 .hrm-eval-summary__score--second {
@@ -242,6 +263,11 @@ watch(() => props.item?.id, () => {
 
 .hrm-eval-summary__comment-card--second {
   border-color: #c7deff;
+}
+
+.hrm-eval-summary__comment-card--final {
+  border-color: #d8d1ff;
+  background: #f5f1ff;
 }
 
 .hrm-eval-summary--appeal .hrm-eval-summary__header {
@@ -312,6 +338,10 @@ watch(() => props.item?.id, () => {
 
 .hrm-eval-summary__comment-label--second {
   color: #3a7bd5;
+}
+
+.hrm-eval-summary__comment-label--final {
+  color: #5f50d6;
 }
 
 .hrm-eval-summary__comment {

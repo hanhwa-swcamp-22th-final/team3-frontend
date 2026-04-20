@@ -16,9 +16,11 @@ function resolveYearAndMonth(evalYear) {
 }
 
 export function formatEvaluationPeriodLabel(
-  { evalYear, evalSequence } = {},
+  period,
   { fallback = '-' } = {},
 ) {
+  const { evalYear, evalSequence } = period ?? {}
+
   if (evalYear == null || evalSequence == null) return fallback
 
   const { year, month } = resolveYearAndMonth(evalYear)
