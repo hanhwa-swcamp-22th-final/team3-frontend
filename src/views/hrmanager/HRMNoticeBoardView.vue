@@ -42,7 +42,7 @@ function normalizeList(n) {
   return {
     id:          n.noticeId,
     title:       n.noticeTitle,
-    author:      String(n.authorId ?? '-'),
+    author:      n.authorName ?? String(n.authorId ?? '-'),
     status:      STATUS_MAP[n.noticeStatus] ?? n.noticeStatus,
     isImportant: n.isImportant === 1,
     views:       n.noticeViews ?? 0,
@@ -254,27 +254,42 @@ function deleteNotice(id) {
 <style scoped>
 .notice-view {
   flex: 1;
-  min-width: 0;
   height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
+  min-width: 0;
   padding: 24px 28px;
   background: var(--color-bg-app);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  gap: 16px;
   box-sizing: border-box;
+  min-height: 0;
 }
 
 .notice-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(320px, 1.15fr) minmax(0, 1fr);
+  gap: 18px;
   align-items: stretch;
   flex: 1;
+  height: 100%;
   min-height: 0;
+}
+
+.notice-grid > * {
+  min-height: 0;
+  height: 100%;
 }
 
 @media (max-width: 1100px) {
   .notice-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .notice-view {
+    padding: 18px 16px;
+  }
 }
 
 /* 삭제 확인 모달 */

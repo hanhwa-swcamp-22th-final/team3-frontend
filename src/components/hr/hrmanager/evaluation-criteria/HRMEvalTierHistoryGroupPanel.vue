@@ -65,7 +65,7 @@ function orderedItems(items = []) {
 .eval-history-card {
   padding: 24px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 16px;
   background: var(--color-bg-surface);
   display: flex;
   flex-direction: column;
@@ -88,7 +88,7 @@ function orderedItems(items = []) {
 .eval-history-card__empty {
   padding: 20px;
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 14px;
   font-size: var(--font-size-sm);
   color: var(--color-text-subtle);
 }
@@ -99,7 +99,7 @@ function orderedItems(items = []) {
 }
 .eval-history-group {
   border: 1px solid var(--color-border-default);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -131,7 +131,7 @@ function orderedItems(items = []) {
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--color-bg-app);
   font-size: var(--font-size-sm);
 }
@@ -146,7 +146,7 @@ function orderedItems(items = []) {
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: 999px;
   background: var(--color-primary-100);
   color: var(--color-primary-700);
   font-size: var(--font-size-xs);

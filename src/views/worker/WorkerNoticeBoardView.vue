@@ -18,7 +18,7 @@ function normalizeList(n) {
   return {
     id:          n.noticeId,
     title:       n.noticeTitle,
-    author:      String(n.authorId ?? '-'),
+    author:      n.authorName ?? String(n.authorId ?? '-'),
     status:      STATUS_MAP[n.noticeStatus] ?? n.noticeStatus,
     isImportant: n.isImportant === 1,
     views:       n.noticeViews ?? 0,

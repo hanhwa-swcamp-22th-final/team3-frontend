@@ -841,7 +841,9 @@ function deleteGroup(group) {
 
 <style scoped>
 .org-view {
-  flex: 1; display: flex; gap: 20px;
+  flex: 1; display: grid;
+  grid-template-columns: minmax(270px, 0.72fr) minmax(0, 2fr);
+  gap: 20px;
   padding: 24px 28px;
   background: var(--color-bg-app);
   overflow: auto; min-height: 0;
@@ -849,7 +851,7 @@ function deleteGroup(group) {
 
 /* ── 트리 ── */
 .org-tree {
-  width: 300px; flex-shrink: 0;
+  min-width: 0;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
   border-radius: 14px;
@@ -866,7 +868,7 @@ function deleteGroup(group) {
 .org-tree__add-btn {
   height: 30px; padding: 0 14px;
   background: var(--color-primary-600); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 .org-tree__search-wrap {
@@ -875,13 +877,13 @@ function deleteGroup(group) {
   border-radius: 8px; padding: 0 10px; height: 36px;
   background: var(--color-bg-app);
 }
-.org-tree__search-icon { font-size: var(--font-size-xs); color: #a89ed8; margin-right: 6px; }
+.org-tree__search-icon { font-size: var(--font-size-sm); color: #a89ed8; margin-right: 6px; }
 .org-tree__search {
   border: none; outline: none; background: transparent;
-  font-size: var(--font-size-sm); width: 100%; color: var(--color-primary-800);
+  font-size: var(--font-size-base); width: 100%; color: var(--color-primary-800);
 }
 .org-tree__list { display: flex; flex-direction: column; gap: 6px; }
-.org-tree__empty { font-size: var(--font-size-xs); color: #a89ed8; text-align: center; padding: 16px 0; }
+.org-tree__empty { font-size: var(--font-size-sm); color: #a89ed8; text-align: center; padding: 16px 0; }
 
 /* 그룹 노드 */
 .group-node { display: flex; flex-direction: column; gap: 3px; }
@@ -895,7 +897,7 @@ function deleteGroup(group) {
 
 .group-node__chevron {
   background: none; border: none; cursor: pointer;
-  font-size: 11px; color: var(--color-primary-400);
+  font-size: 13px; color: var(--color-primary-400);
   padding: 0; width: 18px; text-align: center; flex-shrink: 0; line-height: 1;
   transition: transform .2s ease; display: inline-flex; align-items: center; justify-content: center;
 }
@@ -912,7 +914,7 @@ function deleteGroup(group) {
   height: 32px; padding: 0 16px;
   background: var(--color-primary-100); color: var(--color-primary-600);
   border: 1.5px solid var(--color-primary-300);
-  border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: background .12s, border-color .12s;
 }
@@ -920,7 +922,7 @@ function deleteGroup(group) {
 .group-node__count {
   min-width: 20px; height: 20px; padding: 0 6px;
   background: var(--color-primary-100); color: var(--color-primary-600);
-  border-radius: 10px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border-radius: 10px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   display: flex; align-items: center; justify-content: center;
 }
 .group-node__actions {
@@ -936,7 +938,7 @@ function deleteGroup(group) {
   height: 22px; padding: 0 8px;
   background: var(--color-primary-100); color: var(--color-primary-600);
   border: 1.5px solid var(--color-primary-300);
-  border-radius: 6px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
+  border-radius: 6px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
   cursor: pointer; white-space: nowrap;
   transition: background .12s, border-color .12s;
 }
@@ -990,22 +992,22 @@ function deleteGroup(group) {
 .team-node__icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--color-primary-500); }
 .team-node__info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .team-node__name {
-  font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-primary-700);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--color-primary-700);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .team-node__leader { display: flex; align-items: center; gap: 4px; }
-.team-node__leader-label { font-size: var(--font-size-2xs); color: var(--color-text-muted); }
+.team-node__leader-label { font-size: var(--font-size-xs); color: var(--color-text-muted); }
 .team-node__leader-label--empty { font-style: italic; }
 .team-node__leader-avatar {
   width: 16px; height: 16px; border-radius: 50%;
   background: var(--color-primary-200); color: var(--color-primary-700);
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: var(--font-weight-bold); flex-shrink: 0;
+  font-size: 13px; font-weight: var(--font-weight-bold); flex-shrink: 0;
 }
 .team-node__leader-name {
-  font-size: var(--font-size-2xs); color: var(--color-primary-600); font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs); color: var(--color-primary-600); font-weight: var(--font-weight-semibold);
 }
-.team-node__count { font-size: var(--font-size-xs); color: #a89ed8; flex-shrink: 0; }
+.team-node__count { font-size: var(--font-size-sm); color: #a89ed8; flex-shrink: 0; }
 .team-node__actions {
   display: flex; align-items: center; gap: 4px;
   opacity: 0; pointer-events: none;
@@ -1060,39 +1062,39 @@ function deleteGroup(group) {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
 .team-detail__group { font-size: var(--font-size-base); color: var(--color-primary-600); font-weight: var(--font-weight-semibold); }
-.team-detail__arrow { font-size: var(--font-size-sm); color: #a89ed8; }
+.team-detail__arrow { font-size: var(--font-size-base); color: #a89ed8; }
 .team-detail__team-name { font-size: var(--font-size-base); font-weight: var(--font-weight-extrabold); color: var(--color-primary-800); }
 .team-detail__badge {
   padding: 2px 8px; background: var(--color-primary-100);
   color: var(--color-primary-600); border-radius: 6px;
-  font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
 }
 .team-detail__edit-btn {
   height: 32px; padding: 0 16px;
   background: var(--color-bg-app);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
+  border-radius: 8px; font-size: var(--font-size-base); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
 }
 .team-detail__delete-btn {
   height: 32px; padding: 0 14px;
   background: var(--color-danger); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
-.team-detail__desc { font-size: var(--font-size-sm); color: #7a6fa8; }
+.team-detail__desc { font-size: var(--font-size-base); color: #7a6fa8; }
 
 .team-detail__member-header {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
 }
 .team-detail__member-title {
-  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
 }
 .team-detail__filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .team-detail__select {
   height: 32px; padding: 0 10px;
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: var(--font-size-xs);
+  border-radius: 8px; font-size: var(--font-size-sm);
   color: var(--color-primary-600); background: var(--color-bg-app); cursor: pointer;
 }
 .team-detail__search-wrap {
@@ -1101,10 +1103,10 @@ function deleteGroup(group) {
   border-radius: 8px; padding: 0 10px; height: 32px;
   background: var(--color-bg-app);
 }
-.team-detail__search-icon { font-size: var(--font-size-xs); color: #a89ed8; margin-right: 4px; }
+.team-detail__search-icon { font-size: var(--font-size-sm); color: #a89ed8; margin-right: 4px; }
 .team-detail__search {
   border: none; outline: none; background: transparent;
-  font-size: var(--font-size-xs); color: var(--color-primary-800); width: 130px;
+  font-size: var(--font-size-sm); color: var(--color-primary-800); width: 130px;
 }
 
 /* 멤버 카드 */
@@ -1112,7 +1114,7 @@ function deleteGroup(group) {
   display: flex; flex-direction: column; gap: 8px;
 }
 .member-list__empty {
-  font-size: var(--font-size-sm); color: #a89ed8; text-align: center; padding: 24px 0;
+  font-size: var(--font-size-base); color: #a89ed8; text-align: center; padding: 24px 0;
 }
 .member-card {
   display: flex; align-items: center; gap: 12px;
@@ -1133,26 +1135,26 @@ function deleteGroup(group) {
 .member-card__tier {
   display: inline-flex; align-items: center; justify-content: center;
   width: 18px; height: 18px; border-radius: 50%;
-  font-size: var(--font-size-2xs); font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-extrabold);
 }
 .member-card__leader-badge {
   padding: 2px 6px;
   background: var(--color-primary-600); color: var(--color-white);
-  border-radius: 4px; font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold);
+  border-radius: 4px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
 }
-.member-card__sub { font-size: var(--font-size-xs); color: #7a6fa8; margin-top: 2px; }
+.member-card__sub { font-size: var(--font-size-sm); color: #7a6fa8; margin-top: 2px; }
 .member-card__actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 .member-card__assign-btn {
   height: 32px; padding: 0 14px;
   background: var(--color-bg-surface);
   border: 1.5px solid var(--color-border-default);
-  border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   color: var(--color-primary-600); cursor: pointer;
 }
 .member-card__remove-btn {
   height: 32px; padding: 0 14px;
   background: var(--color-danger); color: var(--color-white);
-  border: none; border-radius: 8px; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+  border: none; border-radius: 8px; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
@@ -1168,7 +1170,7 @@ function deleteGroup(group) {
 }
 .department-leader-card__desc {
   margin: 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 .department-leader-card__actions {
@@ -1205,13 +1207,13 @@ function deleteGroup(group) {
 .group-detail__stat-icon--team { background: var(--color-primary-100); color: var(--color-primary-600); }
 .group-detail__stat-icon--person { background: #ededf7; color: var(--color-primary-600); }
 .group-detail__stat-info { display: flex; flex-direction: column; gap: 4px; }
-.group-detail__stat-label { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.group-detail__stat-label { font-size: var(--font-size-sm); color: var(--color-text-muted); }
 .group-detail__stat-value { display: flex; align-items: baseline; gap: 3px; }
 .group-detail__stat-num {
   font-size: 26px; font-weight: var(--font-weight-extrabold); color: var(--color-primary-800);
 }
 .group-detail__stat-unit {
-  font-size: var(--font-size-sm); color: var(--color-primary-700); font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base); color: var(--color-primary-700); font-weight: var(--font-weight-semibold);
 }
 
 .group-detail__team-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1240,7 +1242,7 @@ function deleteGroup(group) {
   font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-800);
 }
 .group-detail__team-card-desc {
-  font-size: var(--font-size-xs); color: var(--color-text-muted);
+  font-size: var(--font-size-sm); color: var(--color-text-muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .group-detail__team-card-stats {
@@ -1248,17 +1250,17 @@ function deleteGroup(group) {
 }
 .group-detail__team-card-count {
   display: flex; align-items: center; gap: 4px;
-  font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); color: var(--color-primary-700);
+  font-size: var(--font-size-base); font-weight: var(--font-weight-bold); color: var(--color-primary-700);
 }
 .group-detail__team-card-leader {
   display: flex; align-items: center; gap: 5px;
-  font-size: var(--font-size-xs); color: var(--color-text-muted);
+  font-size: var(--font-size-sm); color: var(--color-text-muted);
 }
 .group-detail__team-card-avatar {
   width: 20px; height: 20px; border-radius: 50%;
   background: var(--color-primary-200); color: var(--color-primary-700);
   display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: var(--font-weight-bold); flex-shrink: 0;
+  font-size: 12px; font-weight: var(--font-weight-bold); flex-shrink: 0;
 }
 .group-detail__team-card-leader--empty { font-style: italic; }
 .group-detail__team-card-arrow {
@@ -1267,7 +1269,7 @@ function deleteGroup(group) {
 }
 
 .org-confirm__message {
-  font-size: var(--font-size-sm); color: var(--color-primary-800);
+  font-size: var(--font-size-base); color: var(--color-primary-800);
   white-space: pre-line;
 }
 </style>

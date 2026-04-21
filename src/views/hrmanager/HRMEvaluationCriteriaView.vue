@@ -36,6 +36,7 @@ const tierConfigHistoryGroups = ref([])
 const categoryWeightHistoryGroups = ref([])
 const tierHistoryPage = ref(1)
 const weightHistoryPage = ref(1)
+const activeTab = ref('settings')
 const loading = ref(false)
 const toast = ref({ show: false, message: '', type: 'success' })
 const authStore = useAuthStore()
@@ -178,51 +179,88 @@ onMounted(() => {
 
 <template>
   <section class="eval-view">
-    <div class="eval-view__banner">
-      직급군별 평가 비중과 Tier 승급 기준점을 관리합니다.
+    <div class="eval-view__hero">
+      <div class="eval-view__hero-copy">
+        <p class="eval-view__eyebrow">평가 기준 설정</p>
+        <h2 class="eval-view__title">직급군별 평가 비중과 Tier 승급 기준점을 관리합니다.</h2>
+      </div>
     </div>
 
-    <div class="eval-view__panels">
-      <HRMEvalWeightPanel
-        :weights="categoryWeights"
-        :loading="loading"
-        @update:weights="categoryWeights = $event"
-      />
-      <HRMEvalTierPanel
-        :items="tierConfigs"
-        :loading="loading"
-        @update:items="tierConfigs = $event"
-      />
-    </div>
-
-    <div class="eval-view__actions">
-      <button class="eval-view__btn eval-view__btn--reset" :disabled="loading" @click="handleReset">
-        초기화
+    <div class="eval-view__tabs" role="tablist" aria-label="평가 기준 화면 탭">
+      <button
+        type="button"
+        class="eval-view__tab"
+        :class="{ 'eval-view__tab--active': activeTab === 'settings' }"
+        @click="activeTab = 'settings'"
+      >
+        설정
       </button>
-      <button class="eval-view__btn eval-view__btn--apply" :disabled="loading" @click="handleApply">
-        {{ loading ? '불러오는 중...' : '저장' }}
+      <button
+        type="button"
+        class="eval-view__tab"
+        :class="{ 'eval-view__tab--active': activeTab === 'history' }"
+        @click="activeTab = 'history'"
+      >
+        변경 이력
       </button>
     </div>
 
-    <div class="eval-view__history">
-      <div class="eval-view__history-panel">
-        <HRMEvalWeightHistoryGroupPanel :groups="pagedWeightHistoryGroups" />
-        <BasePagination
-          v-if="categoryWeightHistoryGroups.length"
-          v-model:current-page="weightHistoryPage"
-          :total-pages="weightHistoryPageCount"
+    <template v-if="activeTab === 'settings'">
+      <div class="eval-view__banner">
+        각 Tier 그룹의 가중치 합계는 100이어야 하며, 저장 즉시 이후 평가부터 기준이 적용됩니다.
+      </div>
+
+      <div class="eval-view__panels">
+        <HRMEvalWeightPanel
+          :weights="categoryWeights"
+          :loading="loading"
+          @update:weights="categoryWeights = $event"
+        />
+        <HRMEvalTierPanel
+          :items="tierConfigs"
+          :loading="loading"
+          @update:items="tierConfigs = $event"
         />
       </div>
 
-      <div class="eval-view__history-panel">
-        <HRMEvalTierHistoryGroupPanel :groups="pagedTierHistoryGroups" />
-        <BasePagination
-          v-if="tierConfigHistoryGroups.length"
-          v-model:current-page="tierHistoryPage"
-          :total-pages="tierHistoryPageCount"
-        />
+      <div class="eval-view__actions">
+        <button class="eval-view__btn eval-view__btn--reset" :disabled="loading" @click="handleReset">
+          초기화
+        </button>
+        <button class="eval-view__btn eval-view__btn--apply" :disabled="loading" @click="handleApply">
+          {{ loading ? '불러오는 중...' : '저장' }}
+        </button>
       </div>
-    </div>
+    </template>
+
+    <template v-else>
+      <div class="eval-view__history-head">
+        <div>
+          <p class="eval-view__history-eyebrow">변경 이력</p>
+          <h3 class="eval-view__history-title">저장된 평가 기준 변경 내역</h3>
+        </div>
+      </div>
+
+      <div class="eval-view__history">
+        <div class="eval-view__history-panel">
+          <HRMEvalWeightHistoryGroupPanel :groups="pagedWeightHistoryGroups" />
+          <BasePagination
+            v-if="categoryWeightHistoryGroups.length"
+            v-model:current-page="weightHistoryPage"
+            :total-pages="weightHistoryPageCount"
+          />
+        </div>
+
+        <div class="eval-view__history-panel">
+          <HRMEvalTierHistoryGroupPanel :groups="pagedTierHistoryGroups" />
+          <BasePagination
+            v-if="tierConfigHistoryGroups.length"
+            v-model:current-page="tierHistoryPage"
+            :total-pages="tierHistoryPageCount"
+          />
+        </div>
+      </div>
+    </template>
   </section>
 
   <BaseToast :show="toast.show" :message="toast.message" :type="toast.type" />
@@ -239,14 +277,73 @@ onMounted(() => {
   overflow: auto;
   min-height: 0;
 }
+.eval-view__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background: var(--color-bg-surface);
+}
+.eval-view__hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+}
+.eval-view__eyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-500);
+}
+.eval-view__title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-primary-800);
+  line-height: 1.35;
+}
+.eval-view__tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  background: #f7f5ff;
+  flex-shrink: 0;
+}
+.eval-view__tab {
+  height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-primary-400);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+.eval-view__tab--active {
+  background: var(--color-bg-surface);
+  color: var(--color-primary-700);
+}
 .eval-view__banner {
-  padding: 14px 20px;
-  background: var(--color-primary-100);
+  padding: 14px 18px;
+  background: #f7f5ff;
   border: 1px solid var(--color-primary-200);
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary-600);
+  line-height: 1.6;
 }
 .eval-view__panels {
   display: grid;
@@ -264,6 +361,25 @@ onMounted(() => {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 20px;
   align-items: stretch;
+}
+.eval-view__history-head {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 0 2px;
+}
+.eval-view__history-eyebrow {
+  margin: 0 0 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-500);
+}
+.eval-view__history-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
 }
 .eval-view__history-panel {
   display: flex;
@@ -297,6 +413,10 @@ onMounted(() => {
   color: var(--color-white);
 }
 @media (max-width: 1200px) {
+  .eval-view__history-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .eval-view__panels {
     grid-template-columns: 1fr;
   }
