@@ -26,8 +26,10 @@ export function updateDlEvaluation(
 }
 
 /** DL 이의신청 목록 조회 */
-export function fetchDlAppeals() {
-  return hrApi.get('/api/v1/hr/department-leader/appeals')
+export function fetchDlAppeals(periodId) {
+  return hrApi.get('/api/v1/hr/department-leader/appeals', {
+    params: periodId ? { evaluationPeriodId: periodId } : {},
+  })
 }
 
 /** DL 이의신청 상세 조회 */
